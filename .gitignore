@@ -36,12 +36,13 @@ pnpm-debug.log*
 .pnpm-debug.log*
 *.log
 
-# env files
+# env files — NEVER commit real credentials
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+# .env.local.example IS committed (template only, no real secrets)
 
 # vercel
 .vercel
@@ -49,6 +50,15 @@ pnpm-debug.log*
 # editor
 .vscode
 .idea
+
+# local database files (SQLite, Prisma local dev DBs)
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# cache
+.cache
 
 # uploads/temp
 /uploads
