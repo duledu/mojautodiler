@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Disallow admin panel
+Disallow: /sr/admin/
+Disallow: /sq/admin/
+
+# Disallow API
+Disallow: /api/
+
+Sitemap: https://autoelite.rs/sitemap.xml

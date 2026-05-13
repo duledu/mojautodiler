@@ -1,0 +1,233 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap');
+
+@import 'tailwindcss';
+
+:root {
+  /* Light theme — primary palette */
+  --color-bg: #F7F7F9;
+  --color-surface: #FFFFFF;
+  --color-surface-2: #F1F1F5;
+  --color-surface-3: #E8E8EE;
+  --color-border: #E2E2EA;
+  --color-border-strong: #C8C8D2;
+  --color-text: #0F0F14;
+  --color-text-2: #3A3A4A;
+  --color-text-muted: #6B6B7C;
+  --color-text-placeholder: #9A9AAC;
+
+  /* Gold accent */
+  --color-gold: #C9A84C;
+  --color-gold-light: #E8C97A;
+  --color-gold-dark: #9A7A2E;
+  --color-gold-bg: #FBF6E8;
+  --color-gold-border: rgba(201,168,76,0.22);
+  --accent: #C9A84C;
+  --accent-dark: #9A7A2E;
+  --accent-soft: #FBF6E8;
+  --accent-border: rgba(201,168,76,0.22);
+
+  /* Backward-compat names — remapped to light values */
+  --color-obsidian: #FFFFFF;
+  --color-carbon: #F7F7F9;
+  --color-graphite: #F1F1F5;
+  --color-slate: #E2E2EA;
+  --color-steel: #9A9AAC;
+  --color-mist: #6B6B7C;
+  --color-silver: #3A3A4A;
+  --color-pearl: #0F0F14;
+  --color-white: #FFFFFF;
+
+  /* Status */
+  --color-crimson: #DC2626;
+  --color-success: #16A34A;
+  --color-warning: #D97706;
+  --color-error: #EF4444;
+
+  /* Typography */
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+
+  /* Shadows — tuned for white surfaces */
+  --shadow-card: 0 2px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-card-hover: 0 8px 32px rgba(0,0,0,0.1), 0 3px 10px rgba(0,0,0,0.06);
+  --shadow-gold: 0 0 20px rgba(201,168,76,0.18);
+
+  --radius-card: 14px;
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 400ms ease;
+}
+
+.theme-sr {
+  --color-gold: #C9A84C;
+  --color-gold-light: #E8C97A;
+  --color-gold-dark: #9A7A2E;
+  --color-gold-bg: #FBF6E8;
+  --color-gold-border: rgba(201,168,76,0.22);
+  --accent: #C9A84C;
+  --accent-dark: #9A7A2E;
+  --accent-soft: #FBF6E8;
+  --accent-border: rgba(201,168,76,0.22);
+}
+
+.theme-sq {
+  --color-gold: #B11226;
+  --color-gold-light: #C4263A;
+  --color-gold-dark: #A60F24;
+  --color-gold-bg: #F8ECEE;
+  --color-gold-border: rgba(177,18,38,0.22);
+  --accent: #B11226;
+  --accent-dark: #A60F24;
+  --accent-soft: #F8ECEE;
+  --accent-border: rgba(177,18,38,0.22);
+}
+
+* { box-sizing: border-box; }
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+body {
+  font-family: var(--font-body);
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
+}
+h1,h2,h3,h4,h5,h6 {
+  font-family: var(--font-display);
+  line-height: 1.15;
+  color: var(--color-text);
+}
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--color-surface-2); }
+::-webkit-scrollbar-thumb { background: var(--color-border-strong); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+::selection { background: var(--accent); color: white; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@layer utilities {
+  .text-gradient-gold {
+    color: var(--accent);
+  }
+  .glass-card {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--color-border);
+  }
+
+  /* Buttons */
+  .btn-gold {
+    background: var(--accent);
+    color: #fff;
+    font-family: var(--font-display);
+    font-weight: 700;
+    transition: all var(--transition-base);
+  }
+  .btn-gold:hover {
+    background: var(--accent-dark);
+    box-shadow: 0 16px 28px rgba(15,15,20,0.16);
+    transform: translateY(-1px);
+  }
+  .btn-dark {
+    background: var(--color-text);
+    color: #fff;
+    font-family: var(--font-display);
+    font-weight: 700;
+    transition: all var(--transition-base);
+  }
+  .btn-dark:hover {
+    background: var(--color-text-2);
+    transform: translateY(-1px);
+  }
+  .btn-outline {
+    border: 1.5px solid var(--color-border-strong);
+    color: var(--color-text-2);
+    font-family: var(--font-display);
+    font-weight: 600;
+    transition: all var(--transition-base);
+    background: transparent;
+  }
+  .btn-outline:hover {
+    background: var(--color-surface-2);
+    border-color: var(--color-text-muted);
+  }
+
+  /* Inputs */
+  .input-premium {
+    background: var(--color-surface);
+    border: 1.5px solid var(--color-border);
+    color: var(--color-text);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  }
+  .input-premium:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+    outline: none;
+  }
+  .input-premium::placeholder { color: var(--color-text-placeholder); }
+
+  /* Decorative */
+  .divider-gold { width: 40px; height: 3px; background: var(--accent); border-radius: 2px; }
+
+  /* Card / shell surfaces */
+  .premium-shell {
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
+  }
+  .premium-card {
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
+  }
+  .gold-shell {
+    border: 1px solid var(--accent-border);
+    background: var(--accent-soft);
+  }
+  .soft-divider { background: var(--color-border); height: 1px; }
+
+  /* Animations */
+  .animate-fade-up  { animation: fadeUp  0.6s ease forwards; }
+  .animate-fade-in  { animation: fadeIn  0.4s ease forwards; }
+
+  /* Vehicle cards */
+  .vehicle-card {
+    transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
+  }
+  .vehicle-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-card-hover);
+    border-color: var(--accent-border);
+  }
+  .vehicle-card .card-image { transition: transform 0.5s ease; }
+  .vehicle-card:hover .card-image { transform: scale(1.04); }
+
+  /* Admin sidebar */
+  .admin-sidebar-link {
+    transition: all var(--transition-fast);
+    border-left: 2px solid transparent;
+  }
+  .admin-sidebar-link:hover,
+  .admin-sidebar-link.active {
+    background: var(--accent-soft);
+    border-left-color: var(--accent);
+    color: var(--accent-dark);
+  }
+
+  /* Status badges — light */
+  .badge-sold  { background: #FEF2F2; border: 1px solid #FECACA; color: #B91C1C; }
+  .badge-active { background: #F0FDF4; border: 1px solid #BBF7D0; color: #15803D; }
+  .badge-draft { background: #FFFBEB; border: 1px solid #FDE68A; color: #B45309; }
+}
