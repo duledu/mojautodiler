@@ -34,7 +34,7 @@ export default function Footer({ locale, t }: FooterProps) {
                   className="font-bold leading-none text-[var(--color-text)]"
                   style={{ fontFamily: 'var(--font-display)' }}
                 >
-                  AutoElite
+                  AutoFerari
                 </div>
                 <div className="mt-1 text-[10px] uppercase tracking-[0.18em] text-[var(--accent-dark)]">
                   Salon
@@ -129,7 +129,7 @@ export default function Footer({ locale, t }: FooterProps) {
 
         <div className="soft-divider my-8" />
         <div className="flex flex-col gap-2 text-xs text-[var(--color-text-muted)] sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} AutoElite Preševo. {t.footer.rights}.</p>
+          <p>© {new Date().getFullYear()} AutoFerari Preševo. {t.footer.rights}.</p>
           <p>Premium auto salon • Preševo</p>
         </div>
       </div>

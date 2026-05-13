@@ -152,8 +152,8 @@ export function toAppDealerInfo(s: PrismaSettings): DealerInfo {
     email:        s.email,
     address:      `${s.address}${s.city ? ', ' + s.city : ''}`,
     workingHours: s.workingHours,
-    facebook:     s.facebookUrl  ?? 'https://facebook.com/autoelite',
-    instagram:    s.instagramUrl ?? 'https://instagram.com/autoelite',
+    facebook:     s.facebookUrl  ?? 'https://facebook.com/autoferari',
+    instagram:    s.instagramUrl ?? 'https://instagram.com/autoferari',
     mapUrl:       s.mapUrl       ?? '',
   };
 }

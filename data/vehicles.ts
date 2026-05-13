@@ -379,14 +379,14 @@ export const mockVehicles: Vehicle[] = [
 ];
 
 export const getDealerInfo = () => ({
-  name: 'AutoElite Preševo',
+  name: 'AutoFerari Preševo',
   tagline: 'Premium automobili sa transparentnom istorijom.',
   phone: '+381 63 123 4567',
   viber: '+381 63 123 4567',
-  email: 'info@autoelite.rs',
+  email: 'info@autoferari.rs',
   address: 'Preševo, Srbija',
   workingHours: 'Pon-Pet: 09:00 - 18:00 | Sub: 09:00 - 14:00',
-  facebook: 'https://facebook.com/autoelite',
-  instagram: 'https://instagram.com/autoelite',
+  facebook: 'https://facebook.com/autoferari',
+  instagram: 'https://instagram.com/autoferari',
   mapUrl: 'https://maps.google.com/?q=Presevo,Serbia',
 });

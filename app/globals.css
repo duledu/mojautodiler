@@ -254,6 +254,29 @@ h1,h2,h3,h4,h5,h6 {
   .mobile-menu-premium {
     animation: fadeUp 320ms var(--ease-luxury) both;
   }
+  .luxury-trust-card {
+    transition:
+      transform 520ms var(--ease-luxury),
+      box-shadow 520ms var(--ease-luxury),
+      border-color 360ms ease,
+      background-color 360ms ease;
+  }
+  .luxury-trust-card:hover {
+    transform: translate3d(0, -3px, 0);
+    border-color: var(--accent-border);
+    box-shadow: 0 18px 46px rgba(15,15,20,0.075), 0 2px 10px rgba(15,15,20,0.045);
+  }
+  .luxury-trust-card .trust-card-icon {
+    transition:
+      transform 520ms var(--ease-luxury),
+      border-color 360ms ease,
+      background-color 360ms ease;
+  }
+  .luxury-trust-card:hover .trust-card-icon {
+    transform: translate3d(0, -1px, 0);
+    border-color: var(--accent-border);
+    background: var(--accent-soft);
+  }
 
   /* Vehicle cards */
   .vehicle-card {

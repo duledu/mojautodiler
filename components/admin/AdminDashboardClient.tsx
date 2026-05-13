@@ -63,7 +63,7 @@ export default function AdminDashboardClient({ stats, recentLeads, recentVehicle
     <div className="space-y-7 p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-dark)]">AutoElite Preševo</p>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-dark)]">AutoFerari Preševo</p>
           <h1 className="mt-2 text-3xl font-black text-[var(--color-text)]" style={{ fontFamily: 'var(--font-display)' }}>
             Dealership Command
           </h1>

@@ -104,14 +104,14 @@ export default function AdminSettingsClient({ dealer }: Props) {
         <SectionHeader icon={<Building size={18} />} title="Informacije o salonu" text="Osnovni identitet i direktni kontakt podaci." />
 
         <div className="mt-6 space-y-5">
-          <InputField label="Naziv salona" icon={Building} value={form.name} onChange={update('name')} placeholder="AutoElite Presevo" />
+          <InputField label="Naziv salona" icon={Building} value={form.name} onChange={update('name')} placeholder="AutoFerari Presevo" />
 
           <div className="grid gap-4 sm:grid-cols-2">
             <InputField label="Telefon" icon={Phone} value={form.phone} onChange={update('phone')} type="tel" placeholder="+381 64 000 0000" />
             <InputField label="Viber" icon={Phone} value={form.viber} onChange={update('viber')} type="tel" placeholder="+381 64 000 0000" />
           </div>
 
-          <InputField label="Email" icon={Mail} value={form.email} onChange={update('email')} type="email" placeholder="info@autoelite.rs" />
+          <InputField label="Email" icon={Mail} value={form.email} onChange={update('email')} type="email" placeholder="info@autoferari.rs" />
           <InputField label="Adresa" icon={MapPin} value={form.address} onChange={update('address')} placeholder="Presevo, Srbija" />
 
           <div className="space-y-2">
@@ -134,8 +134,8 @@ export default function AdminSettingsClient({ dealer }: Props) {
         <SectionHeader icon={<Globe size={18} />} title="Drustvene mreze i linkovi" text="Kanali koji pojacavaju poverenje i vode kupca do salona." />
 
         <div className="mt-6 grid gap-5">
-          <InputField label="Facebook URL" icon={Globe} value={form.facebook || ''} onChange={update('facebook')} placeholder="https://facebook.com/autoelite" />
-          <InputField label="Instagram URL" icon={Globe} value={form.instagram || ''} onChange={update('instagram')} placeholder="https://instagram.com/autoelite" />
+          <InputField label="Facebook URL" icon={Globe} value={form.facebook || ''} onChange={update('facebook')} placeholder="https://facebook.com/autoferari" />
+          <InputField label="Instagram URL" icon={Globe} value={form.instagram || ''} onChange={update('instagram')} placeholder="https://instagram.com/autoferari" />
           <InputField label="Google Maps URL" icon={MapPin} value={form.mapUrl || ''} onChange={update('mapUrl')} placeholder="https://maps.google.com/..." />
         </div>
       </section>

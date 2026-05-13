@@ -20,8 +20,8 @@ export async function generateMetadata(
   }
 
   const title = locale === 'sq'
-    ? `Inventari i Automjeteve — ${activeCount} Automjete | AutoElite Preševo`
-    : `Inventar Vozila — ${activeCount} Vozila | AutoElite Preševo`;
+    ? `Inventari i Automjeteve — ${activeCount} Automjete | AutoFerari Preševo`
+    : `Inventar Vozila — ${activeCount} Vozila | AutoFerari Preševo`;
   const description = locale === 'sq'
     ? `Shfletoni koleksionin tone te ${activeCount} automjeteve premium ne Preševo me histori transparente.`
     : `Premium vozila dostupna u Preševu. Pregledajte ${activeCount} pažljivo odabranih automobila sa transparentnom istorijom.`;

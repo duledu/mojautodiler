@@ -16,6 +16,7 @@ import {
   Wrench,
 } from 'lucide-react';
 import DealerJsonLd from '@/components/seo/DealerJsonLd';
+import HeroParallaxImage from '@/components/ui/HeroParallaxImage';
 import Reveal from '@/components/ui/Reveal';
 import VehicleCard from '@/components/vehicle/VehicleCard';
 import { getDealerInfo, mockVehicles } from '@/data/vehicles';
@@ -27,7 +28,7 @@ const homeCopy = {
   sr: {
     eyebrow: 'Premium auto salon • Preševo',
     title: 'Premium automobili sa transparentnom istorijom.',
-    lead: 'Premium automobili sa transparentnom istorijom. Boutique pristup prodaji polovnih premium vozila u Preševu, uz jasnu proveru, realnu preporuku i mirnu kupovinu bez pritiska.',
+    lead: 'Pažljivo odabrana premium vozila iz uvoza iz Švajcarske, uz provereno stanje i sigurnu kupovinu bez pritiska.',
     primary: 'Pregledaj vozila',
     secondary: 'Zakazi razgledanje',
     heroNote: 'Diskretna selekcija premium vozila u Preševu, sa dokumentovanom istorijom i pregledom pre prodaje.',
@@ -68,7 +69,7 @@ const homeCopy = {
   sq: {
     eyebrow: 'Autosallon premium • Preševo',
     title: 'Automjete premium, te verifikuara.',
-    lead: 'Automjete premium me histori transparente. Qasje boutique per shitjen e automjeteve premium ne Preševo, me kontroll te qarte, rekomandim real dhe blerje pa presion.',
+    lead: 'Automjete premium të përzgjedhura me kujdes nga importi i Zvicrës, me gjendje të verifikuar dhe blerje të sigurt pa presion.',
     primary: 'Shiko automjetet',
     secondary: 'Rezervo shikim',
     heroNote: 'Seleksion diskret automjetesh premium ne Preševo, me histori te dokumentuar dhe kontroll para shitjes.',
@@ -152,18 +153,13 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     <>
       <DealerJsonLd dealer={dealer} />
 
-      <section className="relative overflow-hidden bg-[var(--color-bg)] pt-24 sm:pt-28 lg:pt-32">
-        <Image
-          src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1800&q=80"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="pointer-events-none -z-10 object-cover opacity-[0.035] blur-sm"
-        />
+      <section className="relative overflow-hidden bg-white pt-24 sm:pt-28 lg:pt-32">
+        <HeroParallaxImage />
+        <div className="absolute inset-0 bg-white/72" />
+        <div className="absolute inset-0 bg-[var(--color-bg)]/14" />
 
-        <div className="mx-auto grid max-w-7xl gap-12 px-4 pb-16 sm:px-6 lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:gap-16 lg:pb-24">
-          <div>
+        <div className="relative mx-auto grid max-w-7xl gap-12 px-4 pb-16 sm:px-6 lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:gap-16 lg:pb-24">
+          <div className="rounded-[32px] border border-white/70 bg-white/72 p-5 shadow-[0_24px_70px_rgba(15,15,20,0.08)] backdrop-blur-md sm:p-7 lg:p-8">
             <Reveal delay={80} className="mb-6 inline-flex items-center gap-2 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-4 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--accent-dark)]">
               <Car size={14} />
               {copy.eyebrow}
@@ -241,8 +237,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </Reveal>
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {copy.trust.map(([title, text, Icon], index) => (
-              <Reveal key={title} delay={index * 90} className="rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(15,15,20,0.08)]">
-                <div className="mb-6 flex h-11 w-11 items-center justify-center rounded-2xl border border-[var(--accent-border)] bg-[var(--accent-soft)] text-[var(--accent)]">
+              <Reveal key={title} delay={index * 90} className="luxury-trust-card rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-sm">
+                <div className="trust-card-icon mb-6 flex h-11 w-11 items-center justify-center rounded-2xl border border-[var(--accent-border)] bg-[var(--accent-soft)] text-[var(--accent)]">
                   <Icon size={21} />
                 </div>
                 <h3 className="text-lg font-black text-[var(--color-text)]">{title}</h3>

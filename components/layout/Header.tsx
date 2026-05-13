@@ -57,7 +57,7 @@ export default function Header({ locale, t }: HeaderProps) {
               className="text-[var(--color-text)] font-bold text-[15px] leading-none"
               style={{ fontFamily: 'var(--font-display)' }}
             >
-              AutoElite
+              AutoFerari
             </div>
             <div className="text-[10px] text-[var(--accent-dark)] uppercase tracking-[0.18em] leading-none mt-1">
               Salon

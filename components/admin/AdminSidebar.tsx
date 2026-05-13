@@ -23,7 +23,7 @@ export default function AdminSidebar() {
           <ShieldCheck size={20} />
         </div>
         <div>
-          <div className="font-bold leading-none text-white" style={{ fontFamily: 'var(--font-display)' }}>AutoElite</div>
+          <div className="font-bold leading-none text-white" style={{ fontFamily: 'var(--font-display)' }}>AutoFerari</div>
           <div className="mt-1 text-[10px] uppercase tracking-[0.16em] text-white/50">Preševo Admin</div>
         </div>
       </Link>

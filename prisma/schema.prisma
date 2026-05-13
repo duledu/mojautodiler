@@ -1,4 +1,4 @@
-// Prisma schema — AutoElite dealership platform
+// Prisma schema — AutoFerari dealership platform
 // Provider: PostgreSQL (Neon)
 // Run: npx prisma generate && npx prisma migrate dev
 
@@ -130,7 +130,7 @@ model AdminUser {
 
 model DealerSettings {
   id           String   @id @default(cuid())
-  businessName String   @default("AutoElite")
+  businessName String   @default("AutoFerari")
   phone        String   @default("")
   email        String   @default("")
   address      String   @default("")

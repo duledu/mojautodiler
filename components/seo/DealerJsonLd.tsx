@@ -23,7 +23,7 @@ export default function DealerJsonLd({ dealer }: { dealer: DealerInfo }) {
       addressCountry: 'RS',
       streetAddress: dealer.address,
     },
-    url: 'https://autoelite.rs',
+    url: 'https://autoferari.rs',
     openingHours: dealer.workingHours,
     sameAs: [
       dealer.facebook,

@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next';
 import { getActiveVehicleSlugs } from '@/lib/db/vehicles';
 import { mockVehicles } from '@/data/vehicles';
 
-const BASE_URL = 'https://autoelite.rs';
+const BASE_URL = 'https://autoferari.rs';
 const locales = ['sr', 'sq'];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

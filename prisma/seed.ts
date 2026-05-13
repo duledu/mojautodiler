@@ -109,7 +109,7 @@ async function main() {
   // TODO: Replace passwordHash with a real bcrypt hash before going live.
   // Example: const hash = await bcrypt.hash(process.env.ADMIN_INITIAL_PASSWORD!, 12)
   const PLACEHOLDER_HASH = '$2b$12$PLACEHOLDER_HASH_REPLACE_BEFORE_PRODUCTION';
-  const adminEmail = process.env.ADMIN_EMAIL ?? 'admin@autoelite.rs';
+  const adminEmail = process.env.ADMIN_EMAIL ?? 'admin@autoferari.rs';
 
   const adminExists = await prisma.adminUser.findUnique({ where: { email: adminEmail } });
   if (!adminExists) {
@@ -117,7 +117,7 @@ async function main() {
       data: {
         email:        adminEmail,
         passwordHash: PLACEHOLDER_HASH,
-        name:         'AutoElite Admin',
+        name:         'AutoFerari Admin',
         role:         'ADMIN',
       },
     });
