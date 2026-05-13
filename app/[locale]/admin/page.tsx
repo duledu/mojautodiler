@@ -1,5 +1,5 @@
 import { getVehicleStats, getAllVehicles } from '@/lib/db/vehicles';
-import { getAllLeads, getLeadStats, getRecentLeads } from '@/lib/db/leads';
+import { getLeadStats, getRecentLeads } from '@/lib/db/leads';
 import { mockVehicles } from '@/data/vehicles';
 import { mockLeads } from '@/data/leads';
 import AdminDashboardClient from '@/components/admin/AdminDashboardClient';

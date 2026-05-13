@@ -16,6 +16,7 @@ import {
   Wrench,
 } from 'lucide-react';
 import DealerJsonLd from '@/components/seo/DealerJsonLd';
+import Reveal from '@/components/ui/Reveal';
 import VehicleCard from '@/components/vehicle/VehicleCard';
 import { getDealerInfo, mockVehicles } from '@/data/vehicles';
 import { getFeaturedVehicles } from '@/lib/db/vehicles';
@@ -163,19 +164,23 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
         <div className="mx-auto grid max-w-7xl gap-12 px-4 pb-16 sm:px-6 lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:gap-16 lg:pb-24">
           <div>
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-4 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--accent-dark)]">
+            <Reveal delay={80} className="mb-6 inline-flex items-center gap-2 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-4 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--accent-dark)]">
               <Car size={14} />
               {copy.eyebrow}
-            </div>
+            </Reveal>
 
-            <h1 className="max-w-[760px] text-balance text-[2.55rem] font-black leading-[1.08] text-[var(--color-text)] sm:text-5xl lg:text-[3.35rem] xl:text-[3.95rem]">
+            <Reveal delay={170} className="max-w-[760px]">
+            <h1 className="text-balance text-[2.55rem] font-black leading-[1.08] text-[var(--color-text)] sm:text-5xl lg:text-[3.35rem] xl:text-[3.95rem]">
               {copy.title}
             </h1>
+            </Reveal>
+            <Reveal delay={260}>
             <p className="mt-6 max-w-2xl text-base leading-8 text-[var(--color-text-muted)] sm:text-lg">
               {copy.lead}
             </p>
+            </Reveal>
 
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <Reveal delay={360} className="mt-9 flex flex-col gap-3 sm:flex-row">
               <Link href={`/${currentLocale}/inventory`} className="btn-gold inline-flex min-h-13 items-center justify-center gap-2 rounded-xl px-7 text-sm">
                 {copy.primary}
                 <ArrowRight size={17} />
@@ -184,20 +189,20 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 {copy.secondary}
                 <ChevronRight size={17} />
               </Link>
-            </div>
+            </Reveal>
 
             <div className="mt-9 grid max-w-xl grid-cols-2 gap-3 sm:grid-cols-4">
-              {copy.stats.map(([value, label]) => (
-                <div key={label} className="rounded-2xl border border-[var(--color-border)] bg-white/80 p-4 shadow-sm">
+              {copy.stats.map(([value, label], index) => (
+                <Reveal key={label} delay={430 + index * 80} className="rounded-2xl border border-[var(--color-border)] bg-white/80 p-4 shadow-sm">
                   <div className="text-2xl font-black text-[var(--color-text)]">{value}</div>
                   <p className="mt-2 text-[11px] leading-4 text-[var(--color-text-muted)]">{label}</p>
-                </div>
+                </Reveal>
               ))}
             </div>
           </div>
 
-          <div className="relative pb-12 lg:pb-0">
-            <div className="relative overflow-hidden rounded-[34px] bg-[var(--color-surface-2)] shadow-[0_28px_70px_rgba(15,15,20,0.15)]">
+          <Reveal delay={260} className="relative pb-12 lg:pb-0">
+            <div className="hero-image-reveal relative overflow-hidden rounded-[34px] bg-[var(--color-surface-2)] shadow-[0_28px_70px_rgba(15,15,20,0.15)]">
               <div className="relative aspect-[4/3] min-h-[360px] sm:min-h-[470px]">
                 <Image
                   src="https://images.unsplash.com/photo-1550355291-bbee04a92027?w=1400&q=86"
@@ -210,7 +215,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               </div>
             </div>
 
-            <div className="absolute bottom-0 left-4 right-4 rounded-3xl border border-[var(--color-border)] bg-white p-5 shadow-[0_18px_48px_rgba(15,15,20,0.12)] sm:left-8 sm:right-auto sm:w-[370px]">
+            <div className="luxury-float absolute bottom-0 left-4 right-4 rounded-3xl border border-[var(--color-border)] bg-white p-5 shadow-[0_18px_48px_rgba(15,15,20,0.12)] sm:left-8 sm:right-auto sm:w-[370px]">
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--color-text-muted)]">{copy.featuredLabel}</p>
@@ -225,22 +230,24 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 {copy.verifiedLine}
               </div>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
       <section className="bg-white py-16 sm:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <SectionHeader title={copy.trustTitle} subtitle={copy.trustSub} />
+          <Reveal>
+            <SectionHeader title={copy.trustTitle} subtitle={copy.trustSub} />
+          </Reveal>
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {copy.trust.map(([title, text, Icon]) => (
-              <article key={title} className="rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(15,15,20,0.08)]">
+            {copy.trust.map(([title, text, Icon], index) => (
+              <Reveal key={title} delay={index * 90} className="rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(15,15,20,0.08)]">
                 <div className="mb-6 flex h-11 w-11 items-center justify-center rounded-2xl border border-[var(--accent-border)] bg-[var(--accent-soft)] text-[var(--accent)]">
                   <Icon size={21} />
                 </div>
                 <h3 className="text-lg font-black text-[var(--color-text)]">{title}</h3>
                 <p className="mt-3 text-sm leading-7 text-[var(--color-text-muted)]">{text}</p>
-              </article>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -249,15 +256,19 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <section className="bg-[var(--color-bg)] py-16 sm:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-            <SectionHeader title={copy.featuredTitle} subtitle={copy.featuredSub} />
+            <Reveal>
+              <SectionHeader title={copy.featuredTitle} subtitle={copy.featuredSub} />
+            </Reveal>
             <Link href={`/${currentLocale}/inventory`} className="inline-flex items-center gap-2 text-sm font-bold text-[var(--accent-dark)] transition hover:text-[var(--accent)]">
               {copy.viewAll}
               <ArrowRight size={16} />
             </Link>
           </div>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
-            {featuredVehicles.map((vehicle) => (
-              <VehicleCard key={vehicle.id} vehicle={vehicle} locale={currentLocale} t={t} />
+            {featuredVehicles.map((vehicle, index) => (
+              <Reveal key={vehicle.id} delay={index * 85}>
+                <VehicleCard vehicle={vehicle} locale={currentLocale} t={t} />
+              </Reveal>
             ))}
           </div>
         </div>
@@ -273,18 +284,18 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         />
         <div className="absolute inset-0 bg-[#11100E]/72" />
         <div className="relative mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
-          <div>
+          <Reveal>
             <div className="divider-gold mb-5" />
             <h2 className="max-w-2xl text-4xl font-black leading-tight !text-white sm:text-5xl">{copy.darkTitle}</h2>
             <p className="mt-6 max-w-xl text-base leading-8 text-white/72">{copy.darkSub}</p>
-          </div>
+          </Reveal>
           <div className="grid gap-3 sm:grid-cols-3">
             {copy.darkPoints.map((point, index) => (
-              <div key={point} className="rounded-3xl border border-white/15 bg-white/[0.09] p-5 backdrop-blur-sm">
+              <Reveal key={point} delay={index * 90} className="rounded-3xl border border-white/15 bg-white/[0.09] p-5 backdrop-blur-sm">
                 <div className="mb-5 text-sm font-black text-white/45">0{index + 1}</div>
                 <CheckCircle2 size={20} className="mb-3 text-[var(--accent)]" />
                 <p className="text-sm font-bold leading-6 !text-white">{point}</p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -292,10 +303,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
       <section className="bg-white py-16 sm:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <SectionHeader title={copy.reviewsTitle} subtitle={copy.reviewsSub} centered />
+          <Reveal>
+            <SectionHeader title={copy.reviewsTitle} subtitle={copy.reviewsSub} centered />
+          </Reveal>
           <div className="mt-10 grid gap-4 lg:grid-cols-3">
-            {copy.reviews.map(([quote, name, source]) => (
-              <article key={`${name}-${source}`} className="rounded-3xl border border-[var(--color-border)] bg-white p-6 shadow-sm">
+            {copy.reviews.map(([quote, name, source], index) => (
+              <Reveal key={`${name}-${source}`} delay={index * 90} className="rounded-3xl border border-[var(--color-border)] bg-white p-6 shadow-sm">
                 <div className="mb-5 flex items-center gap-1 text-[var(--accent)]">
                   {[...Array(5)].map((_, index) => (
                     <Star key={index} size={15} fill="currentColor" />
@@ -309,14 +322,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   </div>
                   <Award size={22} className="text-[var(--accent)]" />
                 </div>
-              </article>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
       <section className="bg-[var(--color-bg)] px-4 py-16 sm:px-6 sm:py-20">
-        <div className="relative mx-auto max-w-6xl overflow-hidden rounded-[34px] border border-[var(--color-border)] bg-white p-7 shadow-[0_24px_70px_rgba(15,15,20,0.1)] sm:p-10 lg:p-12">
+        <Reveal className="relative mx-auto max-w-6xl overflow-hidden rounded-[34px] border border-[var(--color-border)] bg-white p-7 shadow-[0_24px_70px_rgba(15,15,20,0.1)] sm:p-10 lg:p-12">
           <Image
             src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=1400&q=80"
             alt=""
@@ -344,7 +357,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               </a>
             </div>
           </div>
-        </div>
+        </Reveal>
       </section>
     </>
   );

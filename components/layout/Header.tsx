@@ -40,7 +40,7 @@ export default function Header({ locale, t }: HeaderProps) {
   return (
     <header
       className={cn(
-        'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
+        'fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-[var(--ease-luxury)]',
         scrolled || isOpen
           ? 'bg-white border-b border-[var(--color-border)] py-3 shadow-[0_2px_20px_rgba(0,0,0,0.06)]'
           : 'bg-white/90 backdrop-blur-md border-b border-transparent py-4'
@@ -76,9 +76,9 @@ export default function Header({ locale, t }: HeaderProps) {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  'px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-150',
+                  'nav-link-premium px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-200',
                   isActive
-                    ? 'bg-[var(--accent-soft)] text-[var(--accent-dark)]'
+                    ? 'is-active bg-[var(--accent-soft)] text-[var(--accent-dark)]'
                     : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-surface-2)]'
                 )}
                 style={{ fontFamily: 'var(--font-display)' }}
@@ -98,7 +98,7 @@ export default function Header({ locale, t }: HeaderProps) {
                 key={l}
                 href={getLocalePath(l)}
                 className={cn(
-                  'text-xs px-2.5 py-1.5 rounded-md transition-all font-semibold',
+                    'text-xs px-2.5 py-1.5 rounded-md transition-all duration-300 ease-[var(--ease-luxury)] font-semibold',
                   l === locale
                     ? 'bg-[var(--accent)] text-white shadow-sm'
                     : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'
@@ -124,7 +124,7 @@ export default function Header({ locale, t }: HeaderProps) {
         {/* Mobile menu button */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] p-2.5 text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors"
+          className="md:hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] p-2.5 text-[var(--color-text-muted)] transition-all duration-300 ease-[var(--ease-luxury)] hover:-translate-y-0.5 hover:text-[var(--color-text)]"
           aria-label="Menu"
         >
           {isOpen ? <X size={20} /> : <Menu size={20} />}
@@ -133,7 +133,7 @@ export default function Header({ locale, t }: HeaderProps) {
 
       {/* Mobile menu */}
       {isOpen && (
-        <div className="md:hidden border-t border-[var(--color-border)] bg-white animate-fade-in">
+        <div className="mobile-menu-premium md:hidden border-t border-[var(--color-border)] bg-white">
           <div className="px-4 py-4 space-y-1">
             {navLinks.map((link) => {
               const isActive =
@@ -145,7 +145,7 @@ export default function Header({ locale, t }: HeaderProps) {
                   href={link.href}
                   onClick={() => setIsOpen(false)}
                   className={cn(
-                    'block rounded-xl px-4 py-3 text-sm font-semibold transition-colors',
+                    'block rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 ease-[var(--ease-luxury)]',
                     isActive
                       ? 'bg-[var(--accent-soft)] text-[var(--accent-dark)]'
                       : 'text-[var(--color-text-muted)] hover:bg-[var(--color-surface-2)] hover:text-[var(--color-text)]'
