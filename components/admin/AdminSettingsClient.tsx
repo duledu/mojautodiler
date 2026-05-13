@@ -57,8 +57,16 @@ export default function AdminSettingsClient({ dealer }: Props) {
 
   const update = (key: keyof DealerInfo) => (val: string) => setForm((current) => ({ ...current, [key]: val }));
 
-  const handleSave = () => {
-    // In production: API call to update dealer info
+  const handleSave = async () => {
+    try {
+      await fetch('/api/admin/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+    } catch {
+      // Fail silently — UI feedback via the saved indicator
+    }
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   };

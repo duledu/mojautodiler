@@ -1,12 +1,13 @@
 import type { MetadataRoute } from 'next';
+import { getActiveVehicleSlugs } from '@/lib/db/vehicles';
 import { mockVehicles } from '@/data/vehicles';
 
 const BASE_URL = 'https://autoelite.rs';
 const locales = ['sr', 'sq'];
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const staticRoutes = ['', '/inventory', '/contact'].flatMap(path =>
-    locales.map(locale => ({
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const staticRoutes = ['', '/inventory', '/contact'].flatMap((path) =>
+    locales.map((locale) => ({
       url: `${BASE_URL}/${locale}${path}`,
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
@@ -14,16 +15,25 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }))
   );
 
-  const vehicleRoutes = mockVehicles
-    .filter(v => v.status === 'active')
-    .flatMap(v =>
-      locales.map(locale => ({
-        url: `${BASE_URL}/${locale}/vehicle/${v.slug}`,
-        lastModified: new Date(v.updatedAt),
-        changeFrequency: 'monthly' as const,
-        priority: v.featured ? 0.9 : 0.7,
-      }))
-    );
+  // Try DB; fall back to mock
+  let slugs: { slug: string }[];
+  try {
+    slugs = await getActiveVehicleSlugs();
+    if (slugs.length === 0) {
+      slugs = mockVehicles.filter((v) => v.status === 'active').map((v) => ({ slug: v.slug }));
+    }
+  } catch {
+    slugs = mockVehicles.filter((v) => v.status === 'active').map((v) => ({ slug: v.slug }));
+  }
+
+  const vehicleRoutes = slugs.flatMap((v) =>
+    locales.map((locale) => ({
+      url: `${BASE_URL}/${locale}/vehicle/${v.slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    }))
+  );
 
   return [...staticRoutes, ...vehicleRoutes];
 }

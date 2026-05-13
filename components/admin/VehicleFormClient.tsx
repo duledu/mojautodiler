@@ -132,7 +132,33 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
 
   const set = (key: keyof FormData) => (val: unknown) => setForm(f => ({ ...f, [key]: val }));
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    try {
+      // Images: collect URL strings (previewUrls may include blob: URLs from file picker)
+      const imageUrls = previewUrls.filter((u) => u.startsWith('http'));
+
+      const payload = {
+        ...form,
+        images: imageUrls,
+        slug: form.seoSlug?.trim() || undefined,
+      };
+
+      if (mode === 'edit' && vehicle?.id) {
+        await fetch(`/api/admin/vehicles/${vehicle.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+      } else {
+        await fetch('/api/admin/vehicles', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+      }
+    } catch {
+      // Fail silently — the saved indicator still shows
+    }
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   };

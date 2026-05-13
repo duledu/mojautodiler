@@ -80,6 +80,18 @@ function SortButton({
   );
 }
 
+function persistVehicleStatus(id: string, status: Vehicle['status']) {
+  fetch(`/api/admin/vehicles/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status }),
+  }).catch(console.error);
+}
+
+function persistVehicleDelete(id: string) {
+  fetch(`/api/admin/vehicles/${id}`, { method: 'DELETE' }).catch(console.error);
+}
+
 export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props) {
   const [vehicles, setVehicles] = useState(initialVehicles);
   const [search, setSearch] = useState('');
@@ -115,11 +127,13 @@ export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props
   const toggleStatus = (id: string, newStatus: Vehicle['status']) => {
     setVehicles((vs) => vs.map((v) => (v.id === id ? { ...v, status: newStatus } : v)));
     setOpenMenu(null);
+    persistVehicleStatus(id, newStatus);
   };
 
   const deleteVehicle = (id: string) => {
     setVehicles((vs) => vs.filter((v) => v.id !== id));
     setConfirmDelete(null);
+    persistVehicleDelete(id);
   };
 
   const counts = {

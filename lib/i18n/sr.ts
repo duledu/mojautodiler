@@ -185,7 +185,7 @@ const sr = {
     totalVehicles: 'Ukupno vozila',
     activeVehicles: 'Aktivna vozila',
     soldVehicles: 'Prodata vozila',
-    newLeads: 'Novi upiti',
+    newLeads: 'Novi upiti - poruke',
     addVehicle: 'Dodaj vozilo',
     editVehicle: 'Izmeni vozilo',
     deleteVehicle: 'Obriši vozilo',

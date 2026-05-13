@@ -18,6 +18,7 @@ import {
 import DealerJsonLd from '@/components/seo/DealerJsonLd';
 import VehicleCard from '@/components/vehicle/VehicleCard';
 import { getDealerInfo, mockVehicles } from '@/data/vehicles';
+import { getFeaturedVehicles } from '@/lib/db/vehicles';
 import { getTranslations, isValidLocale, Locale } from '@/lib/i18n';
 import { formatPrice } from '@/lib/utils';
 
@@ -34,7 +35,7 @@ const homeCopy = {
     stats: [
       ['100+', 'vozila prodato u poslednje 2 godine'],
       ['5.0', 'ocena kupaca na PolovniAutomobili'],
-      ['98%', 'zadovoljnih kupaca nakon isporuke'],
+      ['100%', 'zadovoljnih kupaca nakon isporuke'],
       ['24h', 'brz odgovor za pregled vozila'],
     ],
     trustTitle: 'Kupovina sa vise sigurnosti',
@@ -43,7 +44,7 @@ const homeCopy = {
       ['Pouzdan salon u Preševu', 'Lokalna reputacija za jug Srbije, potvrdjena kroz kupce i javne recenzije.', ShieldCheck],
       ['Transparentna istorija', 'Poreklo, servis i stanje komuniciramo bez skrivenih stavki.', ClipboardCheck],
       ['Profesionalna provera', 'Vozila se pregledaju pre prodaje i pre preporuke kupcu.', Wrench],
-      ['Podrska do isporuke', 'Razgledanje, probna voznja, dokumentacija i finansiranje.', KeyRound],
+      ['Podrska do isporuke', 'Razgledanje, probna voznja, dokumentacija i tehnicki pregled.', KeyRound],
     ],
     featuredTitle: 'Aktuelna premium selekcija',
     featuredSub: 'Premium vozila dostupna u Preševu. Svaki oglas vodi ka detaljima i direktnom kontaktu.',
@@ -60,7 +61,7 @@ const homeCopy = {
     ],
     ctaTitle: 'Spremni za razgledanje?',
     ctaSub: 'Posaljite upit za konkretno vozilo ili pozovite salon. Odgovor dobijate brzo, jasno i bez obaveze.',
-    ctaPrimary: 'Kontaktirajte salon',
+    ctaPrimary: 'Kontaktirajte nas',
     ctaCall: 'Pozovi direktno',
   },
   sq: {
@@ -84,7 +85,7 @@ const homeCopy = {
       ['Autosallon i besuar ne Preševo', 'Reputacion lokal per jugun e Serbise, i konfirmuar nga bleresit dhe recenzionet publike.', ShieldCheck],
       ['Histori transparente', 'Origjina, servisi dhe gjendja komunikohen pa kosto te fshehura.', ClipboardCheck],
       ['Kontroll profesional', 'Automjetet kontrollohen para shitjes dhe para rekomandimit.', Wrench],
-      ['Mbeshtetje deri ne dorezim', 'Shikim, test vozitje, dokumentacion dhe financim.', KeyRound],
+      ['Mbeshtetje deri ne dorezim', 'Shikim i automjetit, test vozitje, dokumentacion dhe kontroll teknik.', KeyRound],
     ],
     featuredTitle: 'Seleksioni aktual premium',
     featuredSub: 'Automjete premium te disponueshme ne Preševo. Cdo shpallje hap detajet dhe kontaktin direkt.',
@@ -140,8 +141,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const t = getTranslations(currentLocale);
   const copy = homeCopy[currentLocale];
   const dealer = getDealerInfo();
-  const featuredVehicles = mockVehicles.filter((vehicle) => vehicle.featured && vehicle.status === 'active').slice(0, 4);
-  const heroVehicle = featuredVehicles[0] || mockVehicles.find((vehicle) => vehicle.status === 'active') || mockVehicles[0];
+  const featuredVehicles = await getFeaturedVehicles(4);
+  const heroVehicle =
+    featuredVehicles[0] ??
+    mockVehicles.find((v) => v.status === 'active') ??
+    mockVehicles[0];
 
   return (
     <>

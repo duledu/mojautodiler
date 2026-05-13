@@ -55,7 +55,7 @@ export default function AdminDashboardClient({ stats, recentLeads, recentVehicle
     { label: 'Aktivna vozila', value: stats.active, icon: TrendingUp, note: 'vidljivo na sajtu' },
     { label: 'Prodata vozila', value: stats.sold, icon: CheckCircle, note: 'zatvoren promet' },
     { label: 'Skrivena', value: stats.hidden, icon: EyeOff, note: 'van javne ponude' },
-    { label: 'Novi upiti', value: stats.newLeads, icon: AlertCircle, note: 'za brzu obradu' },
+    { label: 'Novi upiti - poruke', value: stats.newLeads, icon: AlertCircle, note: 'za brzu obradu' },
     { label: 'Svi upiti', value: stats.totalLeads, icon: MessageSquare, note: 'CRM istorija' },
   ];
 

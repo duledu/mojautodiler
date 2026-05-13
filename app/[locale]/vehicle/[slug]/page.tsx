@@ -1,22 +1,24 @@
 import { notFound } from 'next/navigation';
-import { isValidLocale, getTranslations, Locale } from '@/lib/i18n';
+import { isValidLocale, getTranslations } from '@/lib/i18n';
+import { getVehicleBySlug, getSimilarVehicles, getActiveVehicleSlugs } from '@/lib/db/vehicles';
 import { mockVehicles, getDealerInfo } from '@/data/vehicles';
 import VehicleDetailClient from '@/components/vehicle/VehicleDetailClient';
 import VehicleJsonLd from '@/components/seo/VehicleJsonLd';
 import type { Metadata } from 'next';
 
 export async function generateStaticParams() {
-  return mockVehicles.flatMap(v => [
+  const slugs = await getActiveVehicleSlugs();
+  return slugs.flatMap((v) => [
     { locale: 'sr', slug: v.slug },
     { locale: 'sq', slug: v.slug },
   ]);
 }
 
 export async function generateMetadata(
-  { params }: { params: Promise<{ locale: string; slug: string }> }
+  { params }: { readonly params: Promise<{ locale: string; slug: string }> }
 ): Promise<Metadata> {
   const { slug, locale } = await params;
-  const vehicle = mockVehicles.find(v => v.slug === slug);
+  const vehicle = await getVehicleBySlug(slug) ?? mockVehicles.find((v) => v.slug === slug);
   if (!vehicle) return {};
 
   const dealer = getDealerInfo();
@@ -35,31 +37,32 @@ export async function generateMetadata(
     },
     alternates: {
       canonical: `/${locale}/vehicle/${slug}`,
-      languages: {
-        sr: `/sr/vehicle/${slug}`,
-        sq: `/sq/vehicle/${slug}`,
-      },
+      languages: { sr: `/sr/vehicle/${slug}`, sq: `/sq/vehicle/${slug}` },
     },
   };
 }
 
-export default async function VehiclePage({ params }: { params: Promise<{ locale: string; slug: string }> }) {
+export default async function VehiclePage(
+  { params }: { readonly params: Promise<{ locale: string; slug: string }> }
+) {
   const { locale, slug } = await params;
   if (!isValidLocale(locale)) notFound();
 
-  const vehicle = mockVehicles.find(v => v.slug === slug);
+  const vehicle =
+    await getVehicleBySlug(slug) ??
+    mockVehicles.find((v) => v.slug === slug);
+
   if (!vehicle) notFound();
 
   const dealer = getDealerInfo();
-  const t = getTranslations(locale as Locale);
-  const similar = mockVehicles
-    .filter(v => v.id !== vehicle.id && v.status === 'active' && v.brand === vehicle.brand)
-    .slice(0, 4);
+  const t = getTranslations(locale);
+
+  const similar = await getSimilarVehicles(vehicle.id, vehicle.brand, 4);
 
   return (
     <>
       <VehicleJsonLd vehicle={vehicle} dealerName={dealer.name} dealerUrl="https://autoelite.rs" />
-      <VehicleDetailClient vehicle={vehicle} similar={similar} locale={locale as Locale} t={t} />
+      <VehicleDetailClient vehicle={vehicle} similar={similar} locale={locale} t={t} />
     </>
   );
 }

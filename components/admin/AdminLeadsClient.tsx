@@ -46,6 +46,14 @@ function timeAgo(date: string): string {
   return new Date(date).toLocaleDateString('sr-RS');
 }
 
+function persistLeadStatus(id: string, status: Lead['status']) {
+  fetch(`/api/admin/leads/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status }),
+  }).catch(console.error);
+}
+
 export default function AdminLeadsClient({ leads: initialLeads }: Props) {
   const [leads, setLeads] = useState(initialLeads);
   const [search, setSearch] = useState('');
@@ -64,6 +72,7 @@ export default function AdminLeadsClient({ leads: initialLeads }: Props) {
   const updateStatus = (id: string, status: Lead['status']) => {
     setLeads((items) => items.map((lead) => (lead.id === id ? { ...lead, status } : lead)));
     if (selected?.id === id) setSelected((prev) => (prev ? { ...prev, status } : null));
+    persistLeadStatus(id, status);
   };
 
   const counts = {
@@ -91,7 +100,7 @@ export default function AdminLeadsClient({ leads: initialLeads }: Props) {
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          ['Novi upiti', counts.new],
+          ['Novi upiti - poruke', counts.new],
           ['Procitani', counts.read],
           ['Odgovoreni', counts.replied],
           ['Zatvoreni', counts.closed],

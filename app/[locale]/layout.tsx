@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { isValidLocale, getTranslations, Locale } from '@/lib/i18n';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import LocaleChrome from '@/components/layout/LocaleChrome';
 
 export default async function LocaleLayout({
   children,
@@ -16,12 +17,12 @@ export default async function LocaleLayout({
   const t = getTranslations(locale as Locale);
 
   return (
-    <div className={`theme-${locale} flex flex-col min-h-screen`}>
-      <Header locale={locale as Locale} t={t} />
-      <main className="flex-1">
-        {children}
-      </main>
-      <Footer locale={locale as Locale} t={t} />
-    </div>
+    <LocaleChrome
+      locale={locale}
+      header={<Header locale={locale as Locale} t={t} />}
+      footer={<Footer locale={locale as Locale} t={t} />}
+    >
+      {children}
+    </LocaleChrome>
   );
 }

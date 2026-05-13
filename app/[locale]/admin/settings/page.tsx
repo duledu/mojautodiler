@@ -1,7 +1,7 @@
+import { getDealerSettings } from '@/lib/db/settings';
 import AdminSettingsClient from '@/components/admin/AdminSettingsClient';
-import { getDealerInfo } from '@/data/vehicles';
 
-export default function AdminSettingsPage() {
-  const dealer = getDealerInfo();
+export default async function AdminSettingsPage() {
+  const dealer = await getDealerSettings();
   return <AdminSettingsClient dealer={dealer} />;
 }

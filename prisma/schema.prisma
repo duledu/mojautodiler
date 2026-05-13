@@ -1,0 +1,148 @@
+// Prisma schema — AutoElite dealership platform
+// Provider: PostgreSQL (Neon)
+// Run: npx prisma generate && npx prisma migrate dev
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum VehicleStatus {
+  AVAILABLE
+  RESERVED
+  SOLD
+  HIDDEN
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  CLOSED
+  SPAM
+}
+
+enum AdminRole {
+  ADMIN
+  MANAGER
+}
+
+// ─── Models ───────────────────────────────────────────────────────────────────
+
+model Vehicle {
+  id             String        @id @default(cuid())
+  slug           String        @unique
+  title          String
+  brand          String
+  model          String
+  generation     String?
+
+  year           Int
+  mileage        Int
+  price          Float
+  currency       String        @default("EUR")
+
+  // Stored as Serbian strings matching the existing TypeScript types
+  // e.g. fuelType: 'benzin' | 'dizel' | 'hibrid' | 'elektricni' | 'lpg' | 'cng'
+  fuelType       String
+  transmission   String
+  drivetrain     String
+  bodyType       String
+  condition      String        @default("polovno")
+
+  engineSize     Int?
+  horsepower     Int?
+  kilowatts      Int?
+  doors          Int           @default(4)
+  seats          Int           @default(5)
+
+  color          String
+  interiorColor  String?
+  vin            String?
+  registration   String?
+  origin         String?
+
+  description    String
+  dealerNotes    String?
+
+  // Arrays stored as PostgreSQL text arrays
+  equipment      String[]
+  safetyFeatures String[]
+  features       String[]
+  images         String[]      // URL strings; mapped to VehicleImage[] in app layer
+  tags           String[]
+
+  videoUrl       String?       // Optional YouTube / direct URL
+
+  status         VehicleStatus @default(AVAILABLE)
+  featured       Boolean       @default(false)
+
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  leads          Lead[]
+
+  @@index([status])
+  @@index([brand])
+  @@index([featured])
+  @@index([createdAt])
+}
+
+model Lead {
+  id           String     @id @default(cuid())
+  name         String
+  phone        String
+  email        String?
+  message      String
+  source       String?    // 'web' | 'viber' | 'instagram' | 'facebook'
+  type         String?    // 'inquiry' | 'contact' | 'test_drive' | 'financing'
+
+  vehicleId    String?
+  vehicle      Vehicle?   @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  vehicleTitle String?    // Denormalized for display when vehicle is deleted
+
+  status       LeadStatus @default(NEW)
+
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String?
+  role         AdminRole @default(ADMIN)
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // TODO: Add session/token relation when auth is implemented
+}
+
+model DealerSettings {
+  id           String   @id @default(cuid())
+  businessName String   @default("AutoElite")
+  phone        String   @default("")
+  email        String   @default("")
+  address      String   @default("")
+  city         String   @default("Preševo")
+  country      String   @default("Serbia")
+  workingHours String   @default("")
+  viber        String?
+  whatsapp     String?
+  facebookUrl  String?
+  instagramUrl String?
+  tiktokUrl    String?
+  mapUrl       String?
+
+  updatedAt    DateTime @updatedAt
+}

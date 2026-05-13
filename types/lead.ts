@@ -1,5 +1,5 @@
 export type LeadType = 'inquiry' | 'contact' | 'test_drive' | 'financing';
-export type LeadStatus = 'new' | 'read' | 'replied' | 'closed';
+export type LeadStatus = 'new' | 'read' | 'replied' | 'closed' | 'spam';
 
 export interface Lead {
   id: string;
