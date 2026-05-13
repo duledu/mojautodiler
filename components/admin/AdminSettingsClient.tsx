@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Phone, Mail, MapPin, Globe, Save, CheckCircle, Clock, Building } from 'lucide-react';
+import { Building, CheckCircle, Clock, Globe, Mail, MapPin, Phone, Save, ShieldAlert } from 'lucide-react';
 
 interface DealerInfo {
   name: string;
@@ -16,7 +16,7 @@ interface DealerInfo {
 }
 
 interface Props {
-  dealer: DealerInfo;
+  readonly dealer: DealerInfo;
 }
 
 function InputField({
@@ -27,24 +27,24 @@ function InputField({
   type = 'text',
   placeholder,
 }: {
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-  value: string;
-  onChange: (v: string) => void;
-  type?: string;
-  placeholder?: string;
+  readonly label: string;
+  readonly icon: React.ComponentType<{ className?: string }>;
+  readonly value: string;
+  readonly onChange: (v: string) => void;
+  readonly type?: string;
+  readonly placeholder?: string;
 }) {
   return (
-    <div className="space-y-1.5">
-      <label className="text-xs font-medium text-zinc-400 uppercase tracking-wider">{label}</label>
+    <div className="space-y-2">
+      <label className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-text-muted)]">{label}</label>
       <div className="relative">
-        <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+        <Icon className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--accent)]" />
         <input
           type={type}
           value={value}
-          onChange={e => onChange(e.target.value)}
+          onChange={(event) => onChange(event.target.value)}
           placeholder={placeholder}
-          className="w-full bg-zinc-900/60 border border-zinc-700 rounded-lg pl-10 pr-4 py-2.5 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-[#C9A84C]/60 transition-colors"
+          className="input-premium w-full rounded-2xl py-3 pl-10 pr-4 text-sm"
         />
       </div>
     </div>
@@ -55,7 +55,7 @@ export default function AdminSettingsClient({ dealer }: Props) {
   const [form, setForm] = useState(dealer);
   const [saved, setSaved] = useState(false);
 
-  const update = (key: keyof DealerInfo) => (val: string) => setForm(f => ({ ...f, [key]: val }));
+  const update = (key: keyof DealerInfo) => (val: string) => setForm((current) => ({ ...current, [key]: val }));
 
   const handleSave = () => {
     // In production: API call to update dealer info
@@ -64,89 +64,110 @@ export default function AdminSettingsClient({ dealer }: Props) {
   };
 
   return (
-    <div className="p-6 lg:p-8 space-y-8 max-w-3xl">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="max-w-5xl space-y-7 p-4 sm:p-6 lg:p-8">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white font-display">Podešavanja</h1>
-          <p className="text-zinc-400 text-sm mt-1">Informacije o salonu i kontakt podaci</p>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-dark)]">Konfiguracija salona</p>
+          <h1 className="mt-2 text-3xl font-black text-[var(--color-text)]" style={{ fontFamily: 'var(--font-display)' }}>
+            Podesavanja
+          </h1>
+          <p className="mt-2 max-w-xl text-sm leading-6 text-[var(--color-text-muted)]">
+            Upravljajte informacijama koje se prikazuju na sajtu, kontakt kanalima i lokalnim podacima salona.
+          </p>
         </div>
         <button
+          type="button"
           onClick={handleSave}
-          className={`flex items-center gap-2 font-semibold text-sm px-4 py-2.5 rounded-lg transition-all ${
+          className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 text-sm font-bold transition ${
             saved
-              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-              : 'bg-[#C9A84C] hover:bg-[#b8963e] text-black'
+              ? 'border border-emerald-200 bg-emerald-50 text-emerald-800'
+              : 'btn-gold'
           }`}
         >
           {saved ? (
-            <><CheckCircle className="w-4 h-4" /> Sačuvano!</>
+            <><CheckCircle className="h-4 w-4" /> Sacuvano</>
           ) : (
-            <><Save className="w-4 h-4" /> Sačuvaj</>
+            <><Save className="h-4 w-4" /> Sacuvaj</>
           )}
         </button>
       </div>
 
-      {/* Salon Info */}
-      <div className="bg-[#131315] border border-zinc-800 rounded-xl p-6 space-y-5">
-        <div className="flex items-center gap-3 mb-1">
-          <div className="w-8 h-8 rounded-lg bg-[#C9A84C]/10 flex items-center justify-center">
-            <Building className="w-4 h-4 text-[#C9A84C]" />
+      <section className="rounded-3xl border border-[var(--color-border)] bg-white p-5 shadow-sm sm:p-6">
+        <SectionHeader icon={<Building size={18} />} title="Informacije o salonu" text="Osnovni identitet i direktni kontakt podaci." />
+
+        <div className="mt-6 space-y-5">
+          <InputField label="Naziv salona" icon={Building} value={form.name} onChange={update('name')} placeholder="AutoElite Presevo" />
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <InputField label="Telefon" icon={Phone} value={form.phone} onChange={update('phone')} type="tel" placeholder="+381 64 000 0000" />
+            <InputField label="Viber" icon={Phone} value={form.viber} onChange={update('viber')} type="tel" placeholder="+381 64 000 0000" />
           </div>
-          <h2 className="font-semibold text-white">Informacije o salonu</h2>
-        </div>
 
-        <InputField label="Naziv salona" icon={Building} value={form.name} onChange={update('name')} placeholder="AutoElite Preševo" />
+          <InputField label="Email" icon={Mail} value={form.email} onChange={update('email')} type="email" placeholder="info@autoelite.rs" />
+          <InputField label="Adresa" icon={MapPin} value={form.address} onChange={update('address')} placeholder="Presevo, Srbija" />
 
-        <div className="grid sm:grid-cols-2 gap-4">
-          <InputField label="Telefon" icon={Phone} value={form.phone} onChange={update('phone')} type="tel" placeholder="+381 64 000 0000" />
-          <InputField label="Viber" icon={Phone} value={form.viber} onChange={update('viber')} type="tel" placeholder="+381 64 000 0000" />
-        </div>
-
-        <InputField label="Email" icon={Mail} value={form.email} onChange={update('email')} type="email" placeholder="info@autoelite.rs" />
-        <InputField label="Adresa" icon={MapPin} value={form.address} onChange={update('address')} placeholder="Ulica bb, Grad" />
-
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium text-zinc-400 uppercase tracking-wider">Radno vreme</label>
-          <div className="relative">
-            <Clock className="absolute left-3 top-3 w-4 h-4 text-zinc-500" />
-            <textarea
-              value={form.workingHours}
-              onChange={e => update('workingHours')(e.target.value)}
-              rows={3}
-              placeholder="Pon–Pet: 09:00–18:00&#10;Sub: 09:00–14:00&#10;Ned: Zatvoreno"
-              className="w-full bg-zinc-900/60 border border-zinc-700 rounded-lg pl-10 pr-4 py-2.5 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-[#C9A84C]/60 transition-colors resize-none"
-            />
+          <div className="space-y-2">
+            <label className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-text-muted)]">Radno vreme</label>
+            <div className="relative">
+              <Clock className="absolute left-3.5 top-3.5 h-4 w-4 text-[var(--accent)]" />
+              <textarea
+                value={form.workingHours}
+                onChange={(event) => update('workingHours')(event.target.value)}
+                rows={4}
+                placeholder={'Pon-Pet: 09:00-18:00\nSub: 09:00-14:00\nNed: Zatvoreno'}
+                className="input-premium w-full resize-none rounded-2xl py-3 pl-10 pr-4 text-sm"
+              />
+            </div>
           </div>
         </div>
+      </section>
+
+      <section className="rounded-3xl border border-[var(--color-border)] bg-white p-5 shadow-sm sm:p-6">
+        <SectionHeader icon={<Globe size={18} />} title="Drustvene mreze i linkovi" text="Kanali koji pojacavaju poverenje i vode kupca do salona." />
+
+        <div className="mt-6 grid gap-5">
+          <InputField label="Facebook URL" icon={Globe} value={form.facebook || ''} onChange={update('facebook')} placeholder="https://facebook.com/autoelite" />
+          <InputField label="Instagram URL" icon={Globe} value={form.instagram || ''} onChange={update('instagram')} placeholder="https://instagram.com/autoelite" />
+          <InputField label="Google Maps URL" icon={MapPin} value={form.mapUrl || ''} onChange={update('mapUrl')} placeholder="https://maps.google.com/..." />
+        </div>
+      </section>
+
+      <section className="rounded-3xl border border-red-200 bg-red-50/70 p-5 sm:p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-red-200 bg-white text-red-600">
+              <ShieldAlert size={18} />
+            </div>
+            <div>
+              <h2 className="font-black text-red-950">Opasna zona</h2>
+              <p className="mt-1 max-w-xl text-sm leading-6 text-red-800/80">
+                Ove akcije su nepovratne. Koristite ih samo kada je inventar ili CRM vec arhiviran.
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" className="rounded-xl border border-red-200 bg-white px-4 py-2.5 text-sm font-bold text-red-700 transition hover:border-red-300 hover:bg-red-100">
+              Obrisi sva prodata vozila
+            </button>
+            <button type="button" className="rounded-xl border border-red-200 bg-white px-4 py-2.5 text-sm font-bold text-red-700 transition hover:border-red-300 hover:bg-red-100">
+              Obrisi sve upite
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function SectionHeader({ icon, title, text }: { readonly icon: React.ReactNode; readonly title: string; readonly text: string }) {
+  return (
+    <div className="flex gap-3">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[var(--accent-border)] bg-[var(--accent-soft)] text-[var(--accent)]">
+        {icon}
       </div>
-
-      {/* Social & Links */}
-      <div className="bg-[#131315] border border-zinc-800 rounded-xl p-6 space-y-5">
-        <div className="flex items-center gap-3 mb-1">
-          <div className="w-8 h-8 rounded-lg bg-[#C9A84C]/10 flex items-center justify-center">
-            <Globe className="w-4 h-4 text-[#C9A84C]" />
-          </div>
-          <h2 className="font-semibold text-white">Društvene mreže i linkovi</h2>
-        </div>
-
-        <InputField label="Facebook URL" icon={Globe} value={form.facebook || ''} onChange={update('facebook')} placeholder="https://facebook.com/autoelite" />
-        <InputField label="Instagram URL" icon={Globe} value={form.instagram || ''} onChange={update('instagram')} placeholder="https://instagram.com/autoelite" />
-        <InputField label="Google Maps URL" icon={MapPin} value={form.mapUrl || ''} onChange={update('mapUrl')} placeholder="https://maps.google.com/..." />
-      </div>
-
-      {/* Danger Zone */}
-      <div className="bg-[#131315] border border-red-900/30 rounded-xl p-6">
-        <h2 className="font-semibold text-red-400 mb-1">Opasna zona</h2>
-        <p className="text-zinc-500 text-sm mb-4">Ove akcije su nepovratne. Budite pažljivi.</p>
-        <div className="flex flex-wrap gap-3">
-          <button className="text-sm px-4 py-2 rounded-lg border border-red-900/50 text-red-400/70 hover:border-red-500/40 hover:text-red-400 transition-colors">
-            Obriši sva prodata vozila
-          </button>
-          <button className="text-sm px-4 py-2 rounded-lg border border-red-900/50 text-red-400/70 hover:border-red-500/40 hover:text-red-400 transition-colors">
-            Obriši sve upite
-          </button>
-        </div>
+      <div>
+        <h2 className="font-black text-[var(--color-text)]">{title}</h2>
+        <p className="mt-1 text-sm leading-6 text-[var(--color-text-muted)]">{text}</p>
       </div>
     </div>
   );

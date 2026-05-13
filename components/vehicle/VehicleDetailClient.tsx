@@ -106,32 +106,36 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
 
             {/* Gallery */}
             <div>
-              <button
-                type="button"
-                className="relative w-full aspect-video rounded-2xl overflow-hidden bg-(--color-surface-2) cursor-zoom-in shadow-[0_4px_20px_rgba(0,0,0,0.08)]"
-                onClick={() => setLightboxOpen(true)}
-                aria-label="Otvori galeriju"
-              >
-                <Image
-                  src={activeImageUrl}
-                  alt={activeVehicleImage?.alt || vehicle.title}
-                  fill
-                  sizes="(min-width: 1024px) 58vw, 100vw"
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-linear-to-t from-black/10 to-transparent" />
+              <div className="relative aspect-video overflow-hidden rounded-2xl bg-(--color-surface-2) shadow-[0_4px_20px_rgba(0,0,0,0.08)]">
+                <button
+                  type="button"
+                  className="absolute inset-0 cursor-zoom-in"
+                  onClick={() => setLightboxOpen(true)}
+                  aria-label="Otvori galeriju"
+                >
+                  <Image
+                    src={activeImageUrl}
+                    alt={activeVehicleImage?.alt || vehicle.title}
+                    fill
+                    sizes="(min-width: 1024px) 58vw, 100vw"
+                    className="object-cover"
+                  />
+                  <span className="absolute inset-0 bg-black/10" aria-hidden="true" />
+                </button>
                 {vehicle.images.length > 1 && (
                   <>
                     <button
                       type="button"
-                      onClick={(e) => { e.stopPropagation(); prevImg(); }}
+                      onClick={prevImg}
+                      aria-label="Prethodna slika"
                       className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-(--color-text) shadow-md hover:bg-white transition-colors"
                     >
                       <ChevronLeft size={20} />
                     </button>
                     <button
                       type="button"
-                      onClick={(e) => { e.stopPropagation(); nextImg(); }}
+                      onClick={nextImg}
+                      aria-label="Sledeća slika"
                       className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-(--color-text) shadow-md hover:bg-white transition-colors"
                     >
                       <ChevronRight size={20} />
@@ -141,7 +145,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
                 <div className="absolute bottom-3 right-3 bg-black/50 backdrop-blur-sm px-3 py-1 rounded-full text-xs text-white">
                   {activeImage + 1} / {vehicle.images.length}
                 </div>
-              </button>
+              </div>
 
               {vehicle.images.length > 1 && (
                 <div className="flex gap-2 mt-3 overflow-x-auto pb-1">

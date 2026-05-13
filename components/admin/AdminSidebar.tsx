@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Car, MessageSquare, Settings, ExternalLink, ShieldCheck } from 'lucide-react';
+import { Car, ExternalLink, LayoutDashboard, MessageSquare, Settings, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function AdminSidebar() {
@@ -17,27 +17,21 @@ export default function AdminSidebar() {
   ];
 
   return (
-    <aside className="w-16 lg:w-60 bg-white border-r border-(--color-border) flex flex-col shrink-0">
-      {/* Logo */}
-      <div className="p-4 lg:p-5 border-b border-(--color-border)">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-(--color-gold) flex items-center justify-center shrink-0 shadow-[0_2px_8px_rgba(201,168,76,0.25)]">
-            <ShieldCheck size={16} className="text-white" />
-          </div>
-          <div className="hidden lg:block">
-            <div
-              className="text-sm font-bold text-(--color-text) leading-none"
-              style={{ fontFamily: 'var(--font-display)' }}
-            >
-              AutoElite
-            </div>
-            <div className="text-[10px] text-(--color-gold-dark) mt-0.5">Admin Panel</div>
-          </div>
+    <aside className="sticky top-0 hidden h-screen w-[17rem] shrink-0 border-r border-black/10 bg-[#11100E] p-4 text-white lg:flex lg:flex-col">
+      <Link href={`/${locale}/admin`} className="mb-8 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--accent)] text-white">
+          <ShieldCheck size={20} />
         </div>
-      </div>
+        <div>
+          <div className="font-bold leading-none text-white" style={{ fontFamily: 'var(--font-display)' }}>AutoElite</div>
+          <div className="mt-1 text-[10px] uppercase tracking-[0.16em] text-white/50">Preševo Admin</div>
+        </div>
+      </Link>
 
-      {/* Nav */}
-      <nav className="flex-1 p-2 lg:p-3 space-y-0.5">
+      <div className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-white/40">
+        Upravljanje
+      </div>
+      <nav className="flex-1 space-y-1.5">
         {links.map(({ href, icon: Icon, label, exact }) => {
           const isActive = exact ? pathname === href : pathname.startsWith(href);
           return (
@@ -45,29 +39,28 @@ export default function AdminSidebar() {
               key={href}
               href={href}
               className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all admin-sidebar-link',
+                'group flex items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-semibold transition',
                 isActive
-                  ? 'active bg-(--color-gold-bg) text-(--color-gold-dark) border-l-2 border-l-(--color-gold)'
-                  : 'text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-surface-2)'
+                  ? 'bg-white text-[#11100E] shadow-[0_14px_32px_rgba(0,0,0,0.22)]'
+                  : 'text-white/68 hover:bg-white/[0.065] hover:text-white'
               )}
               style={{ fontFamily: 'var(--font-display)' }}
             >
-              <Icon size={17} className="shrink-0" />
-              <span className="hidden lg:block">{label}</span>
+              <Icon size={18} className={cn('shrink-0', isActive ? 'text-[var(--accent)]' : 'text-white/48 group-hover:text-[var(--accent)]')} />
+              {label}
             </Link>
           );
         })}
       </nav>
 
-      {/* Footer */}
-      <div className="p-2 lg:p-3 border-t border-(--color-border)">
+      <div className="border-t border-white/10 pt-4">
         <Link
           href={`/${locale}`}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-surface-2) transition-colors"
+          className="flex items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-semibold text-white/62 transition hover:bg-white/[0.065] hover:text-white"
           style={{ fontFamily: 'var(--font-display)' }}
         >
-          <ExternalLink size={15} className="shrink-0" />
-          <span className="hidden lg:block">Pogledaj sajt</span>
+          <ExternalLink size={17} className="text-white/42" />
+          Pogledaj sajt
         </Link>
       </div>
     </aside>

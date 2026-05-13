@@ -3,19 +3,26 @@
 import { useState } from 'react';
 import { Lead } from '@/types/lead';
 import {
-  MessageSquare, Phone, Mail, Car, Clock, Search,
-  ChevronDown, User, X
+  Car,
+  ChevronDown,
+  Clock,
+  Mail,
+  MessageSquare,
+  Phone,
+  Search,
+  User,
+  X,
 } from 'lucide-react';
 
 interface Props {
-  leads: Lead[];
+  readonly leads: Lead[];
 }
 
 const statusConfig: Record<string, { label: string; classes: string; next: string; nextLabel: string }> = {
-  new: { label: 'Novo', classes: 'bg-amber-500/20 text-amber-400 border border-amber-500/30', next: 'read', nextLabel: 'Označi pročitano' },
-  read: { label: 'Pročitano', classes: 'bg-blue-500/20 text-blue-400 border border-blue-500/30', next: 'replied', nextLabel: 'Označi odgovoreno' },
-  replied: { label: 'Odgovoreno', classes: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30', next: 'closed', nextLabel: 'Zatvori upit' },
-  closed: { label: 'Zatvoreno', classes: 'bg-zinc-600/40 text-zinc-400 border border-zinc-600/30', next: 'new', nextLabel: 'Ponovo otvori' },
+  new: { label: 'Novo', classes: 'bg-amber-50 text-amber-800 border-amber-200', next: 'read', nextLabel: 'Oznaci procitano' },
+  read: { label: 'Procitano', classes: 'bg-blue-50 text-blue-800 border-blue-200', next: 'replied', nextLabel: 'Oznaci odgovoreno' },
+  replied: { label: 'Odgovoreno', classes: 'bg-emerald-50 text-emerald-800 border-emerald-200', next: 'closed', nextLabel: 'Zatvori upit' },
+  closed: { label: 'Zatvoreno', classes: 'bg-neutral-100 text-neutral-500 border-neutral-200', next: 'new', nextLabel: 'Ponovo otvori' },
 };
 
 const typeLabels: Record<string, string> = {
@@ -46,177 +53,173 @@ export default function AdminLeadsClient({ leads: initialLeads }: Props) {
   const [selected, setSelected] = useState<Lead | null>(null);
 
   const filtered = leads
-    .filter(l => {
+    .filter((lead) => {
       const q = search.toLowerCase();
-      if (q && !l.name.toLowerCase().includes(q) && !(l.vehicleTitle || '').toLowerCase().includes(q)) return false;
-      if (statusFilter !== 'all' && l.status !== statusFilter) return false;
+      if (q && !lead.name.toLowerCase().includes(q) && !(lead.vehicleTitle || '').toLowerCase().includes(q)) return false;
+      if (statusFilter !== 'all' && lead.status !== statusFilter) return false;
       return true;
     })
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   const updateStatus = (id: string, status: Lead['status']) => {
-    setLeads(ls => ls.map(l => l.id === id ? { ...l, status } : l));
-    if (selected?.id === id) setSelected(prev => prev ? { ...prev, status } : null);
+    setLeads((items) => items.map((lead) => (lead.id === id ? { ...lead, status } : lead)));
+    if (selected?.id === id) setSelected((prev) => (prev ? { ...prev, status } : null));
   };
 
   const counts = {
     all: leads.length,
-    new: leads.filter(l => l.status === 'new').length,
-    read: leads.filter(l => l.status === 'read').length,
-    replied: leads.filter(l => l.status === 'replied').length,
-    closed: leads.filter(l => l.status === 'closed').length,
+    new: leads.filter((lead) => lead.status === 'new').length,
+    read: leads.filter((lead) => lead.status === 'read').length,
+    replied: leads.filter((lead) => lead.status === 'replied').length,
+    closed: leads.filter((lead) => lead.status === 'closed').length,
   };
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 h-full">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 p-4 sm:p-6 lg:p-8">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white font-display">Upiti</h1>
-          <p className="text-zinc-400 text-sm mt-1">
-            {counts.new > 0 && <span className="text-amber-400 font-medium">{counts.new} novih · </span>}
-            {leads.length} ukupno
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-dark)]">Prodajni CRM</p>
+          <h1 className="mt-2 text-3xl font-black text-[var(--color-text)]" style={{ fontFamily: 'var(--font-display)' }}>
+            Upiti kupaca
+          </h1>
+          <p className="mt-2 text-sm text-[var(--color-text-muted)]">
+            {counts.new > 0 && <span className="font-bold text-amber-800">{counts.new} novih / </span>}
+            {leads.length} ukupno evidentiranih kontakata
           </p>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          ['Novi upiti', counts.new],
+          ['Procitani', counts.read],
+          ['Odgovoreni', counts.replied],
+          ['Zatvoreni', counts.closed],
+        ].map(([label, value]) => (
+          <article key={label} className="rounded-3xl border border-[var(--color-border)] bg-white p-5 shadow-sm">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-text-placeholder)]">{label}</p>
+            <p className="mt-3 text-3xl font-black text-[var(--color-text)]" style={{ fontFamily: 'var(--font-display)' }}>{value}</p>
+          </article>
+        ))}
+      </div>
+
+      <div className="flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]" />
           <input
             type="text"
-            placeholder="Pretraži po imenu ili vozilu..."
+            placeholder="Pretrazi po imenu ili vozilu..."
             value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="w-full bg-[#131315] border border-zinc-700 rounded-lg pl-10 pr-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[#C9A84C]/60 transition-colors"
+            onChange={(event) => setSearch(event.target.value)}
+            className="input-premium w-full rounded-2xl py-3 pl-10 pr-4 text-sm"
           />
         </div>
-        <div className="relative">
+        <div className="relative sm:w-64">
           <select
             value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value)}
-            className="bg-[#131315] border border-zinc-700 rounded-lg px-3 pr-8 py-2.5 text-sm text-white focus:outline-none focus:border-[#C9A84C]/60 appearance-none cursor-pointer"
+            onChange={(event) => setStatusFilter(event.target.value)}
+            className="input-premium w-full cursor-pointer appearance-none rounded-2xl py-3 pl-4 pr-10 text-sm"
           >
             <option value="all">Svi ({counts.all})</option>
-            <option value="new">Nova ({counts.new})</option>
-            <option value="read">Pročitana ({counts.read})</option>
-            <option value="replied">Odgovorena ({counts.replied})</option>
-            <option value="closed">Zatvorena ({counts.closed})</option>
+            <option value="new">Novi ({counts.new})</option>
+            <option value="read">Procitani ({counts.read})</option>
+            <option value="replied">Odgovoreni ({counts.replied})</option>
+            <option value="closed">Zatvoreni ({counts.closed})</option>
           </select>
-          <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-500 pointer-events-none" />
+          <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]" />
         </div>
       </div>
 
-      {/* Two-pane layout */}
-      <div className="grid lg:grid-cols-[1fr_420px] gap-4 min-h-[500px]">
-        {/* Lead list */}
-        <div className="bg-[#131315] border border-zinc-800 rounded-xl overflow-hidden">
+      <div className="grid min-h-[520px] gap-5 xl:grid-cols-[1fr_430px]">
+        <section className="overflow-hidden rounded-3xl border border-[var(--color-border)] bg-white shadow-sm">
           {filtered.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-48 text-center">
-              <MessageSquare className="w-8 h-8 text-zinc-700 mb-2" />
-              <p className="text-zinc-400 text-sm">Nema upita</p>
+            <div className="flex min-h-72 flex-col items-center justify-center px-6 text-center">
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-3xl bg-[var(--color-surface-2)] text-[var(--color-text-muted)]">
+                <MessageSquare size={22} />
+              </div>
+              <p className="font-black text-[var(--color-text)]">Nema upita</p>
+              <p className="mt-1 text-sm text-[var(--color-text-muted)]">Promenite filter ili proverite kasnije.</p>
             </div>
           ) : (
-            <div className="divide-y divide-zinc-800/50">
-              {filtered.map(lead => (
-                <button
-                  key={lead.id}
-                  onClick={() => setSelected(lead)}
-                  className={`w-full text-left px-5 py-4 hover:bg-zinc-800/30 transition-colors ${selected?.id === lead.id ? 'bg-zinc-800/50 border-l-2 border-[#C9A84C]' : ''}`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-3 min-w-0">
-                      <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${lead.status === 'new' ? 'bg-amber-400' : 'bg-zinc-700'}`} />
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className="text-sm font-semibold text-white">{lead.name}</p>
-                          <span className="text-xs text-zinc-500">{lead.source ? (sourceLabels[lead.source] ?? lead.source) : ''}</span>
+            <div className="divide-y divide-[var(--color-border)]">
+              {filtered.map((lead) => {
+                const active = selected?.id === lead.id;
+                return (
+                  <button
+                    key={lead.id}
+                    type="button"
+                    onClick={() => setSelected(lead)}
+                    className={`w-full px-5 py-4 text-left transition hover:bg-[var(--color-surface-2)] ${active ? 'bg-[var(--accent-soft)] shadow-[inset_3px_0_0_var(--accent)]' : ''}`}
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex min-w-0 items-start gap-3">
+                        <span className={`mt-2 h-2.5 w-2.5 shrink-0 rounded-full ${lead.status === 'new' ? 'bg-[var(--accent)]' : 'bg-[var(--color-border-strong)]'}`} />
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                            <p className="font-bold text-[var(--color-text)]">{lead.name}</p>
+                            <span className="text-xs font-semibold text-[var(--color-text-placeholder)]">{lead.source ? (sourceLabels[lead.source] ?? lead.source) : ''}</span>
+                          </div>
+                          {lead.vehicleTitle && (
+                            <p className="mt-1 truncate text-xs font-bold text-[var(--accent-dark)]">{lead.vehicleTitle}</p>
+                          )}
+                          <p className="mt-1 line-clamp-1 text-sm text-[var(--color-text-muted)]">{lead.message}</p>
                         </div>
-                        {lead.vehicleTitle && (
-                          <p className="text-xs text-[#C9A84C] mt-0.5 truncate">{lead.vehicleTitle}</p>
-                        )}
-                        <p className="text-xs text-zinc-500 mt-1 line-clamp-1">{lead.message}</p>
+                      </div>
+                      <div className="flex shrink-0 flex-col items-end gap-2">
+                        <span className={`rounded-full border px-2.5 py-1 text-xs font-bold ${statusConfig[lead.status]?.classes}`}>
+                          {statusConfig[lead.status]?.label}
+                        </span>
+                        <span className="text-xs text-[var(--color-text-placeholder)]">{timeAgo(lead.createdAt)}</span>
                       </div>
                     </div>
-                    <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusConfig[lead.status]?.classes}`}>
-                        {statusConfig[lead.status]?.label}
-                      </span>
-                      <span className="text-xs text-zinc-600">{timeAgo(lead.createdAt)}</span>
-                    </div>
-                  </div>
-                </button>
-              ))}
+                  </button>
+                );
+              })}
             </div>
           )}
-        </div>
+        </section>
 
-        {/* Detail panel */}
         {selected ? (
-          <div className="bg-[#131315] border border-zinc-800 rounded-xl p-5 space-y-5">
-            <div className="flex items-start justify-between">
+          <aside className="rounded-3xl border border-[var(--color-border)] bg-white p-5 shadow-sm">
+            <div className="flex items-start justify-between gap-4 border-b border-[var(--color-border)] pb-5">
               <div>
-                <p className="text-xs text-zinc-500 font-medium uppercase tracking-wider">{typeLabels[selected.type]}</p>
-                <h3 className="text-lg font-bold text-white mt-1 font-display">{selected.name}</h3>
+                <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-text-placeholder)]">{typeLabels[selected.type]}</p>
+                <h2 className="mt-2 text-2xl font-black text-[var(--color-text)]" style={{ fontFamily: 'var(--font-display)' }}>{selected.name}</h2>
               </div>
-              <button onClick={() => setSelected(null)} className="p-1.5 rounded-md text-zinc-500 hover:text-white hover:bg-zinc-700 transition-colors">
-                <X className="w-4 h-4" />
+              <button
+                type="button"
+                onClick={() => setSelected(null)}
+                className="rounded-xl p-2 text-[var(--color-text-muted)] transition hover:bg-[var(--color-surface-2)] hover:text-[var(--color-text)]"
+                aria-label="Zatvori detalje"
+              >
+                <X size={17} />
               </button>
             </div>
 
-            {/* Contact */}
-            <div className="space-y-2.5">
-              {selected.phone && (
-                <a href={`tel:${selected.phone}`} className="flex items-center gap-3 text-sm text-zinc-300 hover:text-white transition-colors group">
-                  <div className="w-8 h-8 rounded-lg bg-zinc-800 group-hover:bg-zinc-700 flex items-center justify-center transition-colors">
-                    <Phone className="w-3.5 h-3.5 text-[#C9A84C]" />
-                  </div>
-                  {selected.phone}
-                </a>
-              )}
-              {selected.email && (
-                <a href={`mailto:${selected.email}`} className="flex items-center gap-3 text-sm text-zinc-300 hover:text-white transition-colors group">
-                  <div className="w-8 h-8 rounded-lg bg-zinc-800 group-hover:bg-zinc-700 flex items-center justify-center transition-colors">
-                    <Mail className="w-3.5 h-3.5 text-[#C9A84C]" />
-                  </div>
-                  {selected.email}
-                </a>
-              )}
-              {selected.vehicleTitle && (
-                <div className="flex items-center gap-3 text-sm text-zinc-300">
-                  <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center">
-                    <Car className="w-3.5 h-3.5 text-[#C9A84C]" />
-                  </div>
-                  {selected.vehicleTitle}
-                </div>
-              )}
-              <div className="flex items-center gap-3 text-sm text-zinc-500">
-                <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center">
-                  <Clock className="w-3.5 h-3.5 text-zinc-500" />
-                </div>
-                {new Date(selected.createdAt).toLocaleString('sr-RS')}
-              </div>
+            <div className="mt-5 space-y-3">
+              {selected.phone && <ContactRow href={`tel:${selected.phone}`} icon={<Phone size={15} />} label={selected.phone} />}
+              {selected.email && <ContactRow href={`mailto:${selected.email}`} icon={<Mail size={15} />} label={selected.email} />}
+              {selected.vehicleTitle && <ContactRow icon={<Car size={15} />} label={selected.vehicleTitle} />}
+              <ContactRow icon={<Clock size={15} />} label={new Date(selected.createdAt).toLocaleString('sr-RS')} muted />
             </div>
 
-            {/* Message */}
-            <div className="bg-zinc-900/60 border border-zinc-800 rounded-lg p-4">
-              <p className="text-xs text-zinc-500 font-medium mb-2 uppercase tracking-wider">Poruka</p>
-              <p className="text-sm text-zinc-300 leading-relaxed">{selected.message}</p>
+            <div className="mt-5 rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface-2)] p-4">
+              <p className="mb-2 text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-text-placeholder)]">Poruka</p>
+              <p className="text-sm leading-6 text-[var(--color-text-muted)]">{selected.message}</p>
             </div>
 
-            {/* Status */}
-            <div>
-              <p className="text-xs text-zinc-500 font-medium mb-2 uppercase tracking-wider">Status</p>
+            <div className="mt-5">
+              <p className="mb-3 text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-text-placeholder)]">Status</p>
               <div className="flex flex-wrap gap-2">
                 {Object.entries(statusConfig).map(([key, cfg]) => (
                   <button
                     key={key}
+                    type="button"
                     onClick={() => updateStatus(selected.id, key as Lead['status'])}
-                    className={`text-xs px-3 py-1.5 rounded-full font-medium border transition-all ${
+                    className={`rounded-full border px-3 py-1.5 text-xs font-bold transition ${
                       selected.status === key
-                        ? cfg.classes + ' ring-1 ring-offset-1 ring-offset-[#131315] ring-current'
-                        : 'bg-zinc-800/50 text-zinc-500 border-zinc-700 hover:border-zinc-600 hover:text-zinc-300'
+                        ? cfg.classes
+                        : 'border-[var(--color-border)] bg-white text-[var(--color-text-muted)] hover:border-[var(--accent-border)] hover:text-[var(--accent-dark)]'
                     }`}
                   >
                     {cfg.label}
@@ -225,35 +228,50 @@ export default function AdminLeadsClient({ leads: initialLeads }: Props) {
               </div>
             </div>
 
-            {/* Quick actions */}
-            <div className="pt-2 space-y-2">
+            <div className="mt-6 grid gap-2">
               {selected.phone && (
-                <a
-                  href={`tel:${selected.phone}`}
-                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-[#C9A84C] hover:bg-[#b8963e] text-black font-semibold text-sm transition-colors"
-                >
-                  <Phone className="w-4 h-4" />
+                <a href={`tel:${selected.phone}`} className="btn-gold inline-flex min-h-11 items-center justify-center gap-2 rounded-xl text-sm">
+                  <Phone size={16} />
                   Pozovi odmah
                 </a>
               )}
               {selected.phone && (
                 <a
                   href={`viber://chat?number=${selected.phone.replace(/\s/g, '')}`}
-                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-medium text-sm transition-colors border border-zinc-700"
+                  className="btn-outline inline-flex min-h-11 items-center justify-center gap-2 rounded-xl text-sm"
                 >
-                  <MessageSquare className="w-4 h-4 text-purple-400" />
-                  Pošalji Viber
+                  <MessageSquare size={16} />
+                  Posalji Viber
                 </a>
               )}
             </div>
-          </div>
+          </aside>
         ) : (
-          <div className="bg-[#131315] border border-zinc-800 rounded-xl flex flex-col items-center justify-center h-48 lg:h-auto text-center p-8">
-            <User className="w-8 h-8 text-zinc-700 mb-3" />
-            <p className="text-zinc-400 text-sm">Odaberi upit za detalje</p>
-          </div>
+          <aside className="flex min-h-72 flex-col items-center justify-center rounded-3xl border border-[var(--color-border)] bg-white p-8 text-center shadow-sm">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-3xl bg-[var(--color-surface-2)] text-[var(--color-text-muted)]">
+              <User size={22} />
+            </div>
+            <p className="font-black text-[var(--color-text)]">Odaberite upit</p>
+            <p className="mt-1 text-sm text-[var(--color-text-muted)]">Detalji kupca, status i kontakt akcije prikazuju se ovde.</p>
+          </aside>
         )}
       </div>
     </div>
   );
+}
+
+function ContactRow({ icon, label, href, muted = false }: { icon: React.ReactNode; label: string; href?: string; muted?: boolean }) {
+  const className = 'flex items-center gap-3 rounded-2xl border border-[var(--color-border)] bg-white px-3 py-2.5 text-sm font-semibold transition hover:border-[var(--accent-border)]';
+  const content = (
+    <>
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--accent-soft)] text-[var(--accent)]">{icon}</span>
+      <span className={muted ? 'text-[var(--color-text-muted)]' : 'text-[var(--color-text)]'}>{label}</span>
+    </>
+  );
+
+  if (href) {
+    return <a href={href} className={className}>{content}</a>;
+  }
+
+  return <div className={className}>{content}</div>;
 }

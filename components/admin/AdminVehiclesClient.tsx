@@ -131,21 +131,22 @@ export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props
   };
 
   return (
-    <div className="p-6 lg:p-8 space-y-6">
+    <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-dark)]">Inventar salona</p>
           <h1
-            className="text-2xl font-black text-(--color-text)"
+            className="mt-2 text-3xl font-black text-[var(--color-text)]"
             style={{ fontFamily: 'var(--font-display)' }}
           >
             Vozila
           </h1>
-          <p className="text-(--color-text-muted) text-sm mt-1">{vehicles.length} vozila u inventaru</p>
+          <p className="mt-2 text-sm text-[var(--color-text-muted)]">{vehicles.length} vozila u inventaru</p>
         </div>
         <Link
           href="vehicles/new"
-          className="btn-gold flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm"
+          className="btn-gold inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 text-sm"
         >
           <Plus size={15} />
           Dodaj vozilo
@@ -153,7 +154,7 @@ export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props
       </div>
 
       {/* Filter bar */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-(--color-text-muted)" />
           <input
@@ -161,7 +162,7 @@ export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props
             placeholder="Pretraži po brendu ili nazivu..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="input-premium w-full rounded-xl pl-9 pr-4 py-2.5 text-sm"
+            className="input-premium w-full rounded-2xl py-3 pl-9 pr-4 text-sm"
           />
         </div>
         <div className="relative">
@@ -169,7 +170,7 @@ export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="input-premium rounded-xl pl-9 pr-8 py-2.5 text-sm appearance-none cursor-pointer"
+            className="input-premium w-full cursor-pointer appearance-none rounded-2xl py-3 pl-9 pr-8 text-sm sm:w-64"
           >
             <option value="all">Svi ({counts.all})</option>
             <option value="active">Aktivni ({counts.active})</option>
@@ -182,9 +183,11 @@ export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props
       </div>
 
       {/* Table */}
-      <div className="rounded-2xl border border-(--color-border) bg-white overflow-hidden shadow-[0_1px_4px_rgba(0,0,0,0.05)]">
+      <div className="overflow-hidden rounded-3xl border border-[var(--color-border)] bg-white shadow-sm">
+        <div className="overflow-x-auto">
+          <div className="min-w-[780px]">
         {/* Table header */}
-        <div className="grid grid-cols-[2fr_1fr_1fr_1fr_72px] gap-4 px-5 py-3.5 border-b border-(--color-border) bg-(--color-surface-2)">
+        <div className="grid grid-cols-[2fr_1fr_1fr_1fr_72px] gap-4 border-b border-[var(--color-border)] bg-[var(--color-surface-2)] px-5 py-3.5">
           <SortButton col="title" label="Vozilo" sortKey={sortKey} onSort={handleSort} />
           <SortButton col="price" label="Cena" sortKey={sortKey} onSort={handleSort} />
           <SortButton col="year" label="Godište" sortKey={sortKey} onSort={handleSort} />
@@ -297,6 +300,8 @@ export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props
             ))}
           </div>
         )}
+          </div>
+        </div>
       </div>
 
       {/* Delete confirm modal */}

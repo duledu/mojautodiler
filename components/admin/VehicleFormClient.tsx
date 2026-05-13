@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   ArrowLeft, Upload, X, Plus, Save, CheckCircle,
   Image as ImageIcon, Video, Tag, Info, Settings2,
@@ -32,15 +33,15 @@ const tabs = [
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <label className="text-xs font-medium text-zinc-400 uppercase tracking-wider">
-        {label}{required && <span className="text-red-400 ml-1">*</span>}
+      <label className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-text-muted)]">
+        {label}{required && <span className="ml-1 text-red-500">*</span>}
       </label>
       {children}
     </div>
   );
 }
 
-const inputCls = "w-full bg-zinc-900/60 border border-zinc-700 rounded-lg px-3 py-2.5 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-[#C9A84C]/60 transition-colors";
+const inputCls = "input-premium w-full rounded-2xl px-3 py-3 text-sm";
 const selectCls = inputCls + " cursor-pointer appearance-none";
 
 function TagInput({ label, tags, onChange }: { label: string; tags: string[]; onChange: (t: string[]) => void }) {
@@ -61,16 +62,16 @@ function TagInput({ label, tags, onChange }: { label: string; tags: string[]; on
           onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), add())}
           placeholder={`Dodaj ${label.toLowerCase()}...`}
         />
-        <button type="button" onClick={add} className="px-3 py-2.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg text-zinc-300 transition-colors">
+        <button type="button" onClick={add} className="rounded-2xl border border-[var(--color-border)] bg-white px-3 py-2.5 text-[var(--color-text-muted)] transition hover:border-[var(--accent-border)] hover:text-[var(--accent-dark)]">
           <Plus className="w-4 h-4" />
         </button>
       </div>
       {tags.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {tags.map(t => (
-            <span key={t} className="flex items-center gap-1.5 bg-zinc-800 border border-zinc-700 text-zinc-300 text-xs px-2.5 py-1 rounded-full">
+            <span key={t} className="flex items-center gap-1.5 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-2.5 py-1 text-xs font-bold text-[var(--accent-dark)]">
               {t}
-              <button type="button" onClick={() => onChange(tags.filter(x => x !== t))} className="text-zinc-500 hover:text-red-400 transition-colors">
+              <button type="button" onClick={() => onChange(tags.filter(x => x !== t))} className="text-[var(--color-text-placeholder)] transition hover:text-red-500">
                 <X className="w-3 h-3" />
               </button>
             </span>
@@ -82,6 +83,8 @@ function TagInput({ label, tags, onChange }: { label: string; tags: string[]; on
 }
 
 export default function VehicleFormClient({ mode, vehicle }: Props) {
+  const pathname = usePathname();
+  const locale = pathname.split('/')[1] || 'sr';
   const [activeTab, setActiveTab] = useState('basic');
   const [saved, setSaved] = useState(false);
   const [previewUrls, setPreviewUrls] = useState<string[]>(
@@ -141,26 +144,28 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
   };
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 max-w-4xl">
+    <div className="max-w-5xl space-y-6 p-4 sm:p-6 lg:p-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <Link href="../vehicles" className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors">
+          <Link href={`/${locale}/admin/vehicles`} className="rounded-xl border border-[var(--color-border)] bg-white p-2 text-[var(--color-text-muted)] transition hover:border-[var(--accent-border)] hover:text-[var(--accent-dark)]">
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <div>
-            <h1 className="text-xl font-bold text-white font-display">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-dark)]">Inventar vozila</p>
+            <h1 className="mt-1 text-2xl font-black text-[var(--color-text)]" style={{ fontFamily: 'var(--font-display)' }}>
               {mode === 'new' ? 'Novo vozilo' : 'Uredi vozilo'}
             </h1>
-            <p className="text-zinc-400 text-sm mt-0.5">{form.title || 'Bez naziva'}</p>
+            <p className="mt-1 text-sm text-[var(--color-text-muted)]">{form.title || 'Bez naziva'}</p>
           </div>
         </div>
         <button
+          type="button"
           onClick={handleSave}
-          className={`flex items-center gap-2 font-semibold text-sm px-4 py-2.5 rounded-lg transition-all ${
+          className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 text-sm font-bold transition ${
             saved
-              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-              : 'bg-[#C9A84C] hover:bg-[#b8963e] text-black'
+              ? 'border border-emerald-200 bg-emerald-50 text-emerald-800'
+              : 'btn-gold'
           }`}
         >
           {saved ? <><CheckCircle className="w-4 h-4" /> Sačuvano</> : <><Save className="w-4 h-4" /> Sačuvaj</>}
@@ -168,15 +173,16 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-[#131315] border border-zinc-800 rounded-xl p-1 overflow-x-auto">
+      <div className="flex gap-1 overflow-x-auto rounded-3xl border border-[var(--color-border)] bg-white p-1.5 shadow-sm">
         {tabs.map(tab => (
           <button
+            type="button"
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
+            className={`flex items-center gap-2 whitespace-nowrap rounded-2xl px-4 py-2.5 text-sm font-bold transition-all ${
               activeTab === tab.id
-                ? 'bg-[#C9A84C] text-black'
-                : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
+                ? 'bg-[var(--accent)] text-white shadow-sm'
+                : 'text-[var(--color-text-muted)] hover:bg-[var(--color-surface-2)] hover:text-[var(--color-text)]'
             }`}
           >
             <tab.icon className="w-3.5 h-3.5" />
@@ -186,11 +192,11 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
       </div>
 
       {/* Tab Content */}
-      <div className="bg-[#131315] border border-zinc-800 rounded-xl p-6">
+      <div className="rounded-3xl border border-[var(--color-border)] bg-white p-5 shadow-sm sm:p-6">
         {/* BASIC */}
         {activeTab === 'basic' && (
           <div className="space-y-5">
-            <h2 className="font-semibold text-white border-b border-zinc-800 pb-3">Osnove informacije</h2>
+            <h2 className="border-b border-[var(--color-border)] pb-3 font-black text-[var(--color-text)]">Osnove informacije</h2>
             <Field label="Naziv oglasa" required>
               <input className={inputCls} value={form.title} onChange={e => set('title')(e.target.value)} placeholder="BMW X5 xDrive30d M Sport" />
             </Field>
@@ -258,7 +264,7 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
         {/* SPECS */}
         {activeTab === 'specs' && (
           <div className="space-y-5">
-            <h2 className="font-semibold text-white border-b border-zinc-800 pb-3">Tehničke specifikacije</h2>
+            <h2 className="border-b border-[var(--color-border)] pb-3 font-black text-[var(--color-text)]">Tehničke specifikacije</h2>
             <div className="grid sm:grid-cols-3 gap-4">
               <Field label="Gorivo">
                 <select className={selectCls} value={form.fuelType} onChange={e => set('fuelType')(e.target.value as FuelType)}>
@@ -337,22 +343,22 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
         {/* EQUIPMENT */}
         {activeTab === 'equipment' && (
           <div className="space-y-6">
-            <h2 className="font-semibold text-white border-b border-zinc-800 pb-3">Oprema i sigurnost</h2>
+            <h2 className="border-b border-[var(--color-border)] pb-3 font-black text-[var(--color-text)]">Oprema i sigurnost</h2>
             <div>
-              <p className="text-sm font-medium text-zinc-300 mb-3 flex items-center gap-2">
-                <Star className="w-4 h-4 text-[#C9A84C]" /> Oprema
+              <p className="mb-3 flex items-center gap-2 text-sm font-bold text-[var(--color-text)]">
+                <Star className="h-4 w-4 text-[var(--accent)]" /> Oprema
               </p>
               <TagInput label="stavku opreme" tags={form.equipment || []} onChange={set('equipment')} />
             </div>
             <div>
-              <p className="text-sm font-medium text-zinc-300 mb-3 flex items-center gap-2">
-                <Shield className="w-4 h-4 text-[#C9A84C]" /> Sigurnosne karakteristike
+              <p className="mb-3 flex items-center gap-2 text-sm font-bold text-[var(--color-text)]">
+                <Shield className="h-4 w-4 text-[var(--accent)]" /> Sigurnosne karakteristike
               </p>
               <TagInput label="sigurnosnu stavku" tags={form.safetyFeatures || []} onChange={set('safetyFeatures')} />
             </div>
             <div>
-              <p className="text-sm font-medium text-zinc-300 mb-3 flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-[#C9A84C]" /> Ostale karakteristike
+              <p className="mb-3 flex items-center gap-2 text-sm font-bold text-[var(--color-text)]">
+                <CheckCircle className="h-4 w-4 text-[var(--accent)]" /> Ostale karakteristike
               </p>
               <TagInput label="karakteristiku" tags={form.features || []} onChange={set('features')} />
             </div>
@@ -362,20 +368,20 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
         {/* MEDIA */}
         {activeTab === 'media' && (
           <div className="space-y-6">
-            <h2 className="font-semibold text-white border-b border-zinc-800 pb-3">Slike i video</h2>
+            <h2 className="border-b border-[var(--color-border)] pb-3 font-black text-[var(--color-text)]">Slike i video</h2>
 
             {/* Image upload */}
             <div>
-              <p className="text-sm font-medium text-zinc-300 mb-3 flex items-center gap-2">
-                <ImageIcon className="w-4 h-4 text-[#C9A84C]" /> Slike vozila
+              <p className="mb-3 flex items-center gap-2 text-sm font-bold text-[var(--color-text)]">
+                <ImageIcon className="h-4 w-4 text-[var(--accent)]" /> Slike vozila
               </p>
-              <label className="flex flex-col items-center justify-center gap-3 border-2 border-dashed border-zinc-700 rounded-xl p-8 hover:border-[#C9A84C]/50 hover:bg-zinc-800/30 transition-all cursor-pointer group">
-                <div className="w-12 h-12 rounded-full bg-zinc-800 group-hover:bg-zinc-700 flex items-center justify-center transition-colors">
-                  <Upload className="w-5 h-5 text-zinc-400" />
+              <label className="group flex cursor-pointer flex-col items-center justify-center gap-3 rounded-3xl border-2 border-dashed border-[var(--color-border-strong)] bg-[var(--color-surface-2)] p-8 transition-all hover:border-[var(--accent-border)] hover:bg-[var(--accent-soft)]">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[var(--accent-border)] bg-white text-[var(--accent)] transition-colors">
+                  <Upload className="h-5 w-5" />
                 </div>
                 <div className="text-center">
-                  <p className="text-sm font-medium text-zinc-300">Prevuci slike ili klikni za upload</p>
-                  <p className="text-xs text-zinc-500 mt-1">JPG, PNG, WebP · Max 10MB po slici</p>
+                  <p className="text-sm font-bold text-[var(--color-text)]">Prevuci slike ili klikni za upload</p>
+                  <p className="mt-1 text-xs text-[var(--color-text-muted)]">JPG, PNG, WebP · Max 10MB po slici</p>
                 </div>
                 <input type="file" multiple accept="image/*" className="hidden" onChange={handleImageUpload} />
               </label>
@@ -383,7 +389,7 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
               {previewUrls.length > 0 && (
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mt-4">
                   {previewUrls.map((url, i) => (
-                    <div key={i} className="relative group aspect-[4/3] rounded-lg overflow-hidden bg-zinc-800">
+                    <div key={i} className="group relative aspect-[4/3] overflow-hidden rounded-2xl bg-[var(--color-surface-2)]">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={url} alt="" className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
@@ -396,7 +402,7 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
                         </button>
                       </div>
                       {i === 0 && (
-                        <span className="absolute bottom-1 left-1 bg-[#C9A84C] text-black text-xs font-bold px-1.5 py-0.5 rounded">
+                        <span className="absolute bottom-1 left-1 rounded bg-[var(--accent)] px-1.5 py-0.5 text-xs font-bold text-white">
                           Naslovna
                         </span>
                       )}
@@ -408,14 +414,14 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
 
             {/* Video */}
             <div>
-              <p className="text-sm font-medium text-zinc-300 mb-3 flex items-center gap-2">
-                <Video className="w-4 h-4 text-[#C9A84C]" /> Video (YouTube URL)
+              <p className="mb-3 flex items-center gap-2 text-sm font-bold text-[var(--color-text)]">
+                <Video className="h-4 w-4 text-[var(--accent)]" /> Video (YouTube URL)
               </p>
               <div className="space-y-2">
                 {previewVideos.map((url, i) => (
                   <div key={i} className="flex items-center gap-2">
                     <input className={inputCls + ' flex-1'} value={url} readOnly />
-                    <button type="button" onClick={() => setPreviewVideos(prev => prev.filter((_, j) => j !== i))} className="p-2.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 transition-colors border border-zinc-700">
+                    <button type="button" onClick={() => setPreviewVideos(prev => prev.filter((_, j) => j !== i))} className="rounded-2xl border border-[var(--color-border)] bg-white p-2.5 text-[var(--color-text-muted)] transition hover:border-red-200 hover:text-red-500">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
@@ -431,7 +437,7 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
                       }
                     }}
                   />
-                  <button type="button" className="px-3 py-2.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg text-zinc-300 text-xs transition-colors">Enter</button>
+                  <button type="button" className="rounded-2xl border border-[var(--color-border)] bg-white px-3 py-2.5 text-xs font-bold text-[var(--color-text-muted)] transition hover:border-[var(--accent-border)] hover:text-[var(--accent-dark)]">Enter</button>
                 </div>
               </div>
             </div>
@@ -441,7 +447,7 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
         {/* SEO & STATUS */}
         {activeTab === 'seo' && (
           <div className="space-y-5">
-            <h2 className="font-semibold text-white border-b border-zinc-800 pb-3">SEO i status objave</h2>
+            <h2 className="border-b border-[var(--color-border)] pb-3 font-black text-[var(--color-text)]">SEO i status objave</h2>
             <div className="grid sm:grid-cols-2 gap-4">
               <Field label="Status objave">
                 <select className={selectCls} value={form.status} onChange={e => set('status')(e.target.value as VehicleStatus)}>
@@ -465,18 +471,18 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
                 onChange={e => set('seoSlug')(e.target.value)}
                 placeholder="bmw-x5-xdrive30d-2022"
               />
-              <p className="text-xs text-zinc-600 mt-1">/vozilo/{form.seoSlug || 'slug'}</p>
+              <p className="mt-1 text-xs text-[var(--color-text-muted)]">/vozilo/{form.seoSlug || 'slug'}</p>
             </Field>
             <div>
-              <p className="text-sm font-medium text-zinc-300 mb-3 flex items-center gap-2">
-                <Tag className="w-4 h-4 text-[#C9A84C]" /> Tagovi
+              <p className="mb-3 flex items-center gap-2 text-sm font-bold text-[var(--color-text)]">
+                <Tag className="h-4 w-4 text-[var(--accent)]" /> Tagovi
               </p>
               <TagInput label="tag" tags={form.tags || []} onChange={set('tags')} />
             </div>
 
             {/* Summary */}
-            <div className="bg-zinc-900/60 border border-zinc-700 rounded-lg p-4 space-y-2">
-              <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Pregled pre objave</p>
+            <div className="space-y-2 rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface-2)] p-4">
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-text-muted)]">Pregled pre objave</p>
               {[
                 { label: 'Naziv', val: form.title, ok: !!form.title },
                 { label: 'Slike', val: `${previewUrls.length} slike`, ok: previewUrls.length > 0 },
@@ -485,7 +491,7 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
                 { label: 'SEO slug', val: form.seoSlug || '—', ok: !!form.seoSlug },
               ].map(row => (
                 <div key={row.label} className="flex items-center justify-between text-sm">
-                  <span className="text-zinc-400">{row.label}</span>
+                  <span className="text-[var(--color-text-muted)]">{row.label}</span>
                   <span className={row.ok ? 'text-emerald-400' : 'text-amber-400'}>{row.val}</span>
                 </div>
               ))}

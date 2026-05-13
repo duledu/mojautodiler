@@ -24,7 +24,7 @@ import { formatPrice } from '@/lib/utils';
 const homeCopy = {
   sr: {
     eyebrow: 'Premium auto salon • Preševo',
-    title: 'Premium vozila, proverena pre isporuke.',
+    title: 'Premium automobili sa transparentnom istorijom.',
     lead: 'Premium automobili sa transparentnom istorijom. Boutique pristup prodaji polovnih premium vozila u Preševu, uz jasnu proveru, realnu preporuku i mirnu kupovinu bez pritiska.',
     primary: 'Pregledaj vozila',
     secondary: 'Zakazi razgledanje',
@@ -164,7 +164,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               {copy.eyebrow}
             </div>
 
-            <h1 className="max-w-[720px] text-balance text-[2.65rem] font-black leading-[1.06] text-[var(--color-text)] sm:text-5xl lg:text-[3.45rem] xl:text-[4.15rem]">
+            <h1 className="max-w-[760px] text-balance text-[2.55rem] font-black leading-[1.08] text-[var(--color-text)] sm:text-5xl lg:text-[3.35rem] xl:text-[3.95rem]">
               {copy.title}
             </h1>
             <p className="mt-6 max-w-2xl text-base leading-8 text-[var(--color-text-muted)] sm:text-lg">
@@ -271,7 +271,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <div className="relative mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
           <div>
             <div className="divider-gold mb-5" />
-            <h2 className="max-w-2xl text-4xl font-black leading-tight text-white sm:text-5xl">{copy.darkTitle}</h2>
+            <h2 className="max-w-2xl text-4xl font-black leading-tight !text-white sm:text-5xl">{copy.darkTitle}</h2>
             <p className="mt-6 max-w-xl text-base leading-8 text-white/72">{copy.darkSub}</p>
           </div>
           <div className="grid gap-3 sm:grid-cols-3">
@@ -279,7 +279,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <div key={point} className="rounded-3xl border border-white/15 bg-white/[0.09] p-5 backdrop-blur-sm">
                 <div className="mb-5 text-sm font-black text-white/45">0{index + 1}</div>
                 <CheckCircle2 size={20} className="mb-3 text-[var(--accent)]" />
-                <p className="text-sm font-bold leading-6 text-white">{point}</p>
+                <p className="text-sm font-bold leading-6 !text-white">{point}</p>
               </div>
             ))}
           </div>
