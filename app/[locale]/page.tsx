@@ -71,7 +71,7 @@ const homeCopy = {
       ['Auto je bio tacno kao u opisu. Dogovor i preuzimanje su prosli profesionalno.', 'Arben K.', 'Verified buyer'],
     ],
     ctaTitle: 'Spremni za razgledanje?',
-    ctaSub: 'Posaljite upit za konkretno vozilo ili pozovite salon. Odgovor dobijate brzo, jasno i bez obaveze.',
+    ctaSub: 'Tu smo za sva pitanja oko vozila, kupovine i rezervacije. Pošaljite poruku ili nas pozovite direktno.',
     ctaPrimary: 'Kontaktirajte nas',
     ctaCall: 'Pozovi direktno',
     dealerTitle: 'Kupujete i vozilo i poverenje salona.',
@@ -127,7 +127,7 @@ const homeCopy = {
       ['Automjeti ishte sakte si ne pershkrim. Marrveshja dhe dorezimi ishin profesionale.', 'Arben K.', 'Verified buyer'],
     ],
     ctaTitle: 'Gati per shikim?',
-    ctaSub: 'Dergo kerkese per automjet konkret ose telefono sallonin. Pergjigja eshte e shpejte, e qarte dhe pa detyrim.',
+    ctaSub: 'Jemi këtu për çdo pyetje rreth automjeteve, blerjes dhe rezervimit. Dërgoni mesazh ose na telefononi drejtpërdrejt.',
     ctaPrimary: 'Kontakto sallonin',
     ctaCall: 'Telefono direkt',
     dealerTitle: 'Bleni edhe automjetin, edhe besimin e sallonit.',
@@ -326,6 +326,7 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
           poster="/test_11.jpg"
           className="absolute inset-0 -z-20 h-full w-full object-cover opacity-90 saturate-[1.08] contrast-[1.04]"
           aria-hidden="true"
+          tabIndex={-1}
         >
           <source src="/videos/mojautodiler-premium-bg.mp4" type="video/mp4" />
         </video>
