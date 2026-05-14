@@ -37,7 +37,7 @@ export default function Footer({ locale, t }: FooterProps) {
                   AutoFerari
                 </div>
                 <div className="mt-1 text-[10px] uppercase tracking-[0.18em] text-[var(--accent-dark)]">
-                  Salon
+                  Auto Plac
                 </div>
               </div>
             </Link>

@@ -60,7 +60,7 @@ export default function Header({ locale, t }: HeaderProps) {
               AutoFerari
             </div>
             <div className="text-[10px] text-[var(--accent-dark)] uppercase tracking-[0.18em] leading-none mt-1">
-              Salon
+              Auto Plac
             </div>
           </div>
         </Link>

@@ -72,6 +72,7 @@ const homeCopy = {
     ],
     ctaTitle: 'Spremni za razgledanje?',
     ctaSub: 'Tu smo za sva pitanja oko vozila, kupovine i rezervacije. Pošaljite poruku ili nas pozovite direktno.',
+    ctaBadge: 'Premium ponuda • Preševo',
     ctaPrimary: 'Kontaktirajte nas',
     ctaCall: 'Pozovi direktno',
     dealerTitle: 'Kupujete i vozilo i poverenje placa.',
@@ -128,6 +129,7 @@ const homeCopy = {
     ],
     ctaTitle: 'Gati per shikim?',
     ctaSub: 'Jemi këtu për çdo pyetje rreth automjeteve, blerjes dhe rezervimit. Dërgoni mesazh ose na telefononi drejtpërdrejt.',
+    ctaBadge: 'Ofertë premium • Preševo',
     ctaPrimary: 'Kontakto placin',
     ctaCall: 'Telefono direkt',
     dealerTitle: 'Bleni edhe automjetin, edhe besimin e placit.',
@@ -166,6 +168,7 @@ const homeCopy = {
   reviews: [string, string, string][];
   ctaTitle: string;
   ctaSub: string;
+  ctaBadge: string;
   ctaPrimary: string;
   ctaCall: string;
   dealerTitle: string;
@@ -447,7 +450,7 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
             <div>
               <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-3.5 py-1.5 text-xs font-bold text-[var(--accent-dark)]">
                 <CalendarCheck size={15} />
-                Preševo premium viewing
+                {copy.ctaBadge}
               </div>
               <h2 className="max-w-2xl text-3xl font-black leading-tight text-[var(--color-text)] min-[390px]:text-4xl sm:text-5xl">{copy.ctaTitle}</h2>
               <p className="mt-4 max-w-xl text-pretty text-sm leading-7 text-[var(--color-text-muted)] min-[390px]:mt-5 min-[390px]:text-base min-[390px]:leading-8">{copy.ctaSub}</p>
