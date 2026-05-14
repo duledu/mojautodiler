@@ -450,7 +450,7 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
                 Preševo premium viewing
               </div>
               <h2 className="max-w-2xl text-3xl font-black leading-tight text-[var(--color-text)] min-[390px]:text-4xl sm:text-5xl">{copy.ctaTitle}</h2>
-              <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--color-text-muted)] min-[390px]:mt-5 min-[390px]:text-base min-[390px]:leading-8">{copy.ctaSub}</p>
+              <p className="mt-4 max-w-xl text-pretty text-sm leading-7 text-[var(--color-text-muted)] min-[390px]:mt-5 min-[390px]:text-base min-[390px]:leading-8">{copy.ctaSub}</p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
               <Link href={`/${currentLocale}/contact`} className="btn-gold inline-flex min-h-[3.25rem] items-center justify-center gap-2 rounded-xl px-7 text-sm">
