@@ -1,18 +1,22 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FacebookIcon } from '@/components/ui/SocialIcons';
+import { FacebookIcon, InstagramIcon, ViberIcon } from '@/components/ui/SocialIcons';
 import {
   Phone, ChevronLeft, ChevronRight, X, Check,
-  ArrowLeft, Send, MapPin, Clock, ShieldCheck,
+  ArrowLeft, Send, MapPin, Clock, ShieldCheck, CalendarCheck, Video, LockKeyhole, MessageCircle,
 } from 'lucide-react';
 import { Vehicle } from '@/types/vehicle';
 import { Locale, TranslationKeys } from '@/lib/i18n';
 import { formatPrice, formatMileage, cn } from '@/lib/utils';
 import { getDealerInfo } from '@/data/vehicles';
 import VehicleCard from '@/components/vehicle/VehicleCard';
+import MobileContactFab from '@/components/vehicle/MobileContactFab';
+import PremiumVehiclePlaceholder from '@/components/vehicle/PremiumVehiclePlaceholder';
+import { getVehicleTrustBadges, TrustBadges } from '@/components/vehicle/TrustBadges';
+import VehicleStatusBadge from '@/components/vehicle/VehicleStatusBadge';
 
 interface Props {
   readonly vehicle: Vehicle;
@@ -22,6 +26,7 @@ interface Props {
 }
 
 export default function VehicleDetailClient({ vehicle, similar, locale, t }: Props) {
+  const formRef = useRef<HTMLDivElement | null>(null);
   const [activeImage, setActiveImage] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'specs' | 'equipment' | 'safety' | 'description'>('specs');
@@ -29,10 +34,30 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
   const [submitted, setSubmitted] = useState(false);
 
   const dealer = getDealerInfo();
+  const trustBadges = getVehicleTrustBadges(vehicle);
+  const quickActionCopy = locale === 'sq'
+    ? {
+        book: 'Rezervo shikim',
+        video: 'Kerko video',
+        availability: 'Kontrollo disponueshmerine',
+        reserve: 'Rezervo automjetin',
+        viber: 'Pyet ne Viber',
+        confidenceTitle: 'Pse ky automjet dallohet',
+        confidenceSub: 'Perzgjedhje e kujdesshme, kontroll profesional dhe prezantim transparent para vendimit.',
+        bullets: ['Kilometrazha dhe dokumentet kontrollohen para publikimit.', 'Automjeti vleresohet vizualisht dhe teknikisht para rekomandimit.', 'Import i zgjedhur me kujdes per bleres serioze.', 'Proces blerjeje i qarte, pa presion dhe pa kosto te fshehura.'],
+      }
+    : {
+        book: 'Zakazi gledanje',
+        video: 'Zatrazi video',
+        availability: 'Proveri dostupnost',
+        reserve: 'Rezervisi vozilo',
+        viber: 'Pitaj na Viber',
+        confidenceTitle: 'Zasto se ovo vozilo izdvaja',
+        confidenceSub: 'Pazljivo odabrano vozilo, profesionalno provereno i predstavljeno transparentno pre odluke.',
+        bullets: ['Kilometraza i dokumentacija proveravaju se pre objave.', 'Vozilo se vizuelno i tehnicki pregleda pre preporuke.', 'Pazljivo selektovan uvoz za kupce koji traze sigurnost.', 'Kupovina je jasna, bez pritiska i bez skrivenih stavki.'],
+      };
   const activeVehicleImage = vehicle.images[activeImage] || vehicle.images[0];
-  const activeImageUrl =
-    activeVehicleImage?.url ||
-    'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1200&q=80';
+  const activeImageUrl = activeVehicleImage?.url || '';
   const imageCount = Math.max(vehicle.images.length, 1);
 
   const nextImg = () => setActiveImage((i) => (i + 1) % imageCount);
@@ -62,6 +87,11 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
     { key: 'description', label: t.vehicle.description },
   ] as const;
 
+  const applyQuickLead = (message: string) => {
+    setForm((current) => ({ ...current, message }));
+    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   return (
     <div className="min-h-screen bg-(--color-bg) pt-20">
       {/* Breadcrumb */}
@@ -79,7 +109,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      <div className="max-w-7xl mx-auto px-3 py-6 min-[390px]:px-4 min-[390px]:py-8 sm:px-6">
         <Link
           href={`/${locale}/inventory`}
           className="inline-flex items-center gap-2 text-(--color-text-muted) hover:text-(--color-text) text-sm transition-colors mb-6"
@@ -89,13 +119,13 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
           Nazad na listu vozila
         </Link>
 
-        <div className="grid lg:grid-cols-[1fr_340px] gap-8">
+        <div className="grid gap-6 min-[390px]:gap-8 lg:grid-cols-[1fr_340px]">
           {/* Left column */}
-          <div className="space-y-7">
+          <div className="space-y-5 min-[390px]:space-y-7">
             {/* Title */}
             <div>
               <h1
-                className="text-2xl font-black text-(--color-text) sm:text-4xl"
+                className="text-xl font-black leading-tight text-(--color-text) min-[390px]:text-2xl sm:text-4xl"
                 style={{ fontFamily: 'var(--font-display)' }}
               >
                 {vehicle.title}
@@ -103,12 +133,16 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
               <p className="mt-1.5 text-(--color-text-muted)">
                 {vehicle.year}. godište · {t.condition[vehicle.condition]}
               </p>
+              <div className="mt-3 flex flex-wrap gap-1.5 min-[390px]:gap-2">
+                <VehicleStatusBadge vehicle={vehicle} />
+                <TrustBadges locale={locale} badges={trustBadges.slice(0, 3)} compact />
+              </div>
 
               {/* Mobile inline price — visible only on smaller screens */}
-              <div className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-(--color-border) bg-white p-4 shadow-sm lg:hidden">
+              <div className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-(--color-border) bg-white p-3.5 shadow-sm min-[390px]:p-4 lg:hidden">
                 <div className="min-w-0">
                   <div
-                    className="truncate text-xl font-black leading-tight text-(--color-gold-dark) min-[390px]:text-2xl"
+                    className="truncate text-lg font-black leading-tight text-(--color-gold-dark) min-[390px]:text-2xl"
                     style={{ fontFamily: 'var(--font-display)' }}
                   >
                     {formatPrice(vehicle.price, vehicle.currency)}
@@ -134,13 +168,17 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
                   onClick={() => setLightboxOpen(true)}
                   aria-label="Otvori galeriju"
                 >
-                  <Image
-                    src={activeImageUrl}
-                    alt={activeVehicleImage?.alt || vehicle.title}
-                    fill
-                    sizes="(min-width: 1024px) 58vw, 100vw"
-                    className="object-cover"
-                  />
+                  {activeImageUrl ? (
+                    <Image
+                      src={activeImageUrl}
+                      alt={activeVehicleImage?.alt || vehicle.title}
+                      fill
+                      sizes="(min-width: 1024px) 58vw, 100vw"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <PremiumVehiclePlaceholder />
+                  )}
                   <span className="absolute inset-0 bg-black/10" aria-hidden="true" />
                 </button>
                 {vehicle.images.length > 1 && (
@@ -176,7 +214,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
                       type="button"
                       onClick={() => setActiveImage(i)}
                       className={cn(
-                        'touch-target relative h-16 w-24 shrink-0 overflow-hidden rounded-xl border-2 transition-all',
+                        'touch-target relative h-14 w-20 shrink-0 overflow-hidden rounded-xl border-2 transition-all min-[390px]:h-16 min-[390px]:w-24',
                         i === activeImage
                           ? 'border-(--color-gold) shadow-sm opacity-100'
                           : 'border-transparent opacity-55 hover:opacity-85'
@@ -188,6 +226,50 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
                 </div>
               )}
             </div>
+
+            <section className="rounded-3xl border border-[var(--accent-border)] bg-[var(--accent-soft)] p-4 shadow-sm min-[390px]:p-5 sm:p-6">
+              <div className="flex flex-col gap-4 min-[390px]:gap-5 lg:flex-row lg:items-start lg:justify-between">
+                <div className="max-w-2xl">
+                  <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-xs font-bold text-[var(--accent-dark)] shadow-sm">
+                    <ShieldCheck size={14} />
+                    Dealer confidence
+                  </div>
+                  <h2 className="text-xl font-black text-[var(--color-text)] min-[390px]:text-2xl" style={{ fontFamily: 'var(--font-display)' }}>
+                    {quickActionCopy.confidenceTitle}
+                  </h2>
+                  <p className="mt-2 text-sm leading-6 text-[var(--color-text-muted)] min-[390px]:leading-7">{quickActionCopy.confidenceSub}</p>
+                </div>
+                <TrustBadges locale={locale} badges={trustBadges} className="lg:max-w-sm lg:justify-end" />
+              </div>
+              <div className="mt-5 grid gap-2 sm:grid-cols-2">
+                {quickActionCopy.bullets.map((bullet) => (
+                  <div key={bullet} className="flex gap-2 rounded-2xl bg-white/80 p-3 text-[13px] leading-6 text-[var(--color-text-2)] min-[390px]:text-sm">
+                    <Check size={16} className="mt-1 shrink-0 text-[var(--accent)]" />
+                    {bullet}
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section className="rounded-3xl border border-(--color-border) bg-white p-4 shadow-sm min-[390px]:p-5 sm:p-6">
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <div>
+                  <h2 className="font-black text-(--color-text)" style={{ fontFamily: 'var(--font-display)' }}>Brze akcije za kupce</h2>
+                  <p className="mt-1 text-sm text-(--color-text-muted)">Izaberite najbrzi sledeci korak za ovo vozilo.</p>
+                </div>
+                <MessageCircle size={20} className="shrink-0 text-[var(--accent)]" />
+              </div>
+              <div className="grid gap-2 min-[430px]:grid-cols-2 lg:grid-cols-5">
+                <QuickLeadButton icon={<CalendarCheck size={15} />} label={quickActionCopy.book} onClick={() => applyQuickLead(`${quickActionCopy.book}: ${vehicle.title}`)} />
+                <QuickLeadButton icon={<Video size={15} />} label={quickActionCopy.video} onClick={() => applyQuickLead(`${quickActionCopy.video}: ${vehicle.title}`)} />
+                <QuickLeadButton icon={<ShieldCheck size={15} />} label={quickActionCopy.availability} onClick={() => applyQuickLead(`${quickActionCopy.availability}: ${vehicle.title}`)} />
+                <QuickLeadButton icon={<LockKeyhole size={15} />} label={quickActionCopy.reserve} onClick={() => applyQuickLead(`${quickActionCopy.reserve}: ${vehicle.title}`)} />
+                <a href={`viber://chat?number=${dealer.viber.replace(/\s/g, '')}`} className="touch-target inline-flex items-center justify-center gap-2 rounded-2xl border border-[#7360F2]/20 bg-[#7360F2]/5 px-3 py-3 text-xs font-black text-[#6B5FDB] transition hover:bg-[#7360F2]/10">
+                  <ViberIcon size={15} />
+                  {quickActionCopy.viber}
+                </a>
+              </div>
+            </section>
 
             {/* Tabs */}
             <div className="rounded-2xl border border-(--color-border) bg-white overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.05)]">
@@ -205,18 +287,18 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
                     )}
                     style={{ fontFamily: 'var(--font-display)' }}
                   >
-                    {tab.label}
+                    <span className="text-xs min-[390px]:text-sm">{tab.label}</span>
                   </button>
                 ))}
               </div>
 
-              <div className="p-5 sm:p-6">
+              <div className="p-4 min-[390px]:p-5 sm:p-6">
                 {activeTab === 'specs' && (
                   <div className="grid sm:grid-cols-2 gap-2.5">
                     {specs.map(({ label, value }) => (
                       <div
                         key={label}
-                        className="flex min-h-[4.25rem] flex-col justify-center gap-1 rounded-xl bg-(--color-surface-2) px-4 py-3 min-[390px]:flex-row min-[390px]:items-center min-[390px]:justify-between"
+                        className="flex min-h-[3.75rem] flex-col justify-center gap-1 rounded-xl bg-(--color-surface-2) px-3.5 py-3 min-[390px]:min-h-[4.25rem] min-[390px]:flex-row min-[390px]:items-center min-[390px]:justify-between min-[390px]:px-4"
                       >
                         <span className="text-xs text-(--color-text-muted)">{label}</span>
                         <span className="text-sm font-semibold text-(--color-text) min-[390px]:text-right">{value}</span>
@@ -273,7 +355,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
             </div>
 
             {/* Inquiry form */}
-            <div className="rounded-2xl border border-(--color-border) bg-white p-6 shadow-[0_2px_12px_rgba(0,0,0,0.05)]">
+            <div ref={formRef} className="scroll-mt-28 rounded-2xl border border-(--color-border) bg-white p-4 shadow-[0_2px_12px_rgba(0,0,0,0.05)] min-[390px]:p-6">
               <h3
                 className="text-xl font-bold text-(--color-text) mb-1"
                 style={{ fontFamily: 'var(--font-display)' }}
@@ -345,6 +427,14 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
                 <p className="text-xs text-(--color-text-muted) mt-1 mb-5">Cena uključuje PDV</p>
 
                 <div className="space-y-2.5">
+                  <button
+                    type="button"
+                    onClick={() => applyQuickLead(`${quickActionCopy.book}: ${vehicle.title}`)}
+                    className="btn-dark flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm"
+                  >
+                    <CalendarCheck size={15} />
+                    {quickActionCopy.book}
+                  </button>
                   <a
                     href={`tel:${dealer.phone}`}
                     className="btn-gold flex items-center justify-center gap-2 w-full rounded-xl py-3.5 text-sm"
@@ -443,10 +533,10 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
 
       {/* Mobile sticky bar */}
       <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-(--color-border) bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.08)] lg:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        <div className="flex items-center gap-2 px-3 py-3 min-[390px]:px-4">
+        <div className="flex items-center gap-1.5 px-2.5 py-2.5 min-[360px]:gap-2 min-[390px]:px-4 min-[390px]:py-3">
           <div className="min-w-0 flex-1">
             <div
-              className="truncate text-base font-black leading-tight text-(--color-gold-dark) min-[390px]:text-lg"
+              className="truncate text-sm font-black leading-tight text-(--color-gold-dark) min-[390px]:text-lg"
               style={{ fontFamily: 'var(--font-display)' }}
             >
               {formatPrice(vehicle.price, vehicle.currency)}
@@ -455,7 +545,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
           </div>
           <a
             href={`tel:${dealer.phone}`}
-            className="btn-gold touch-target flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-3 text-sm min-[390px]:px-5"
+            className="btn-gold touch-target flex shrink-0 items-center gap-1.5 rounded-xl px-2.5 py-2.5 text-sm min-[390px]:px-5 min-[390px]:py-3"
           >
             <Phone size={15} />
             <span className="hidden min-[360px]:inline">{t.common.call}</span>
@@ -465,13 +555,29 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
             className="touch-target flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#7360F2]/20 bg-[#7360F2]/10 text-[#6B5FDB]"
             aria-label="Viber"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.79 14.22c-.2.2-.42.33-.67.37-.46.08-.93-.06-1.34-.29-.91-.51-1.77-1.1-2.53-1.79-.73-.67-1.39-1.41-1.96-2.22-.48-.69-.88-1.43-1.08-2.24-.08-.34-.04-.7.13-1.01.17-.31.46-.55.79-.63.08-.02.17-.03.25-.03.24 0 .48.1.64.28.41.44.77.92 1.06 1.43.15.26.12.59-.08.82l-.28.33c-.09.11-.11.27-.04.4.26.51.61.97 1.02 1.37.41.4.87.75 1.38 1.01.12.06.27.05.38-.04l.33-.27c.23-.19.56-.22.82-.07.51.29 1 .65 1.43 1.07.19.18.28.44.26.7-.02.26-.14.5-.31.67z" />
-            </svg>
+            <ViberIcon size={18} />
           </a>
+          <a
+            href={dealer.instagram}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="touch-target flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#E1306C]/20 bg-[#E1306C]/10 text-[#E1306C]"
+            aria-label="Instagram"
+          >
+            <InstagramIcon size={17} />
+          </a>
+          <button
+            type="button"
+            onClick={() => applyQuickLead(`${quickActionCopy.book}: ${vehicle.title}`)}
+            className="btn-dark touch-target hidden shrink-0 items-center gap-1.5 rounded-xl px-3 py-3 text-xs min-[430px]:flex"
+          >
+            <CalendarCheck size={14} />
+            Book
+          </button>
         </div>
       </div>
-      <div className="h-18 lg:hidden" />
+      <div className="h-20 lg:hidden" />
+      <MobileContactFab phone={dealer.phone} viber={dealer.viber} instagram={dealer.instagram} />
 
       {/* Lightbox */}
       {lightboxOpen && (
@@ -501,18 +607,37 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
               </button>
             </>
           )}
-          <Image
-            src={activeImageUrl}
-            alt={activeVehicleImage?.alt || vehicle.title}
-            width={1400}
-            height={900}
-            className="max-h-[90vh] max-w-[90vw] rounded-xl object-contain"
-          />
+          {activeImageUrl ? (
+            <Image
+              src={activeImageUrl}
+              alt={activeVehicleImage?.alt || vehicle.title}
+              width={1400}
+              height={900}
+              className="max-h-[90vh] max-w-[90vw] rounded-xl object-contain"
+            />
+          ) : (
+            <div className="h-[60vh] w-[90vw] max-w-4xl overflow-hidden rounded-xl">
+              <PremiumVehiclePlaceholder />
+            </div>
+          )}
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/60 text-sm">
             {activeImage + 1} / {imageCount}
           </div>
         </div>
       )}
     </div>
+  );
+}
+
+function QuickLeadButton({ icon, label, onClick }: { readonly icon: React.ReactNode; readonly label: string; readonly onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="touch-target inline-flex items-center justify-center gap-2 rounded-2xl border border-[var(--color-border)] bg-white px-3 py-3 text-xs font-black text-[var(--color-text-2)] transition hover:border-[var(--accent-border)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent-dark)]"
+    >
+      <span className="text-[var(--accent)]">{icon}</span>
+      {label}
+    </button>
   );
 }

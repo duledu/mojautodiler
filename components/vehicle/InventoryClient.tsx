@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { SlidersHorizontal, X, ChevronDown, Search } from 'lucide-react';
+import { BadgeCheck, SlidersHorizontal, X, ChevronDown, Search, ShieldCheck } from 'lucide-react';
 import { mockVehicles } from '@/data/vehicles';
 import { VehicleFilters, SortOption, FuelType, TransmissionType, BodyType } from '@/types/vehicle';
 import { filterVehicles, sortVehicles, getUniqueBrands } from '@/lib/utils';
 import VehicleCard from '@/components/vehicle/VehicleCard';
 import { Locale, TranslationKeys } from '@/lib/i18n';
+import { TrustBadges } from '@/components/vehicle/TrustBadges';
 
 interface InventoryClientProps {
   readonly locale: Locale;
@@ -198,10 +199,11 @@ export default function InventoryClient({ locale, t }: InventoryClientProps) {
             {t.inventory.title}
           </h1>
           <p className="mt-2 text-(--color-text-muted)">{t.inventory.subtitle}</p>
+          <TrustBadges locale={locale} badges={['verified', 'inspection', 'transparent', 'dealer']} compact className="mt-5" />
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      <div className="max-w-7xl mx-auto px-3 py-6 min-[390px]:px-4 min-[390px]:py-8 sm:px-6">
         <div className="flex gap-7">
           {/* Desktop sidebar */}
           <aside className="hidden lg:block w-68 shrink-0">
@@ -226,13 +228,13 @@ export default function InventoryClient({ locale, t }: InventoryClientProps) {
           {/* Main content */}
           <div className="flex-1 min-w-0">
             {/* Toolbar */}
-            <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-2 min-[390px]:gap-3">
+              <div className="flex items-center gap-2 min-[390px]:gap-3">
                 {/* Mobile filter button */}
                 <button
                   type="button"
                   onClick={() => setDrawerOpen(true)}
-                  className="touch-target lg:hidden flex items-center gap-2 rounded-xl border border-(--color-border) bg-white px-4 py-2.5 text-sm font-semibold text-(--color-text-muted) shadow-sm transition-colors hover:text-(--color-text)"
+                  className="touch-target flex items-center gap-2 rounded-xl border border-(--color-border) bg-white px-3 py-2.5 text-sm font-semibold text-(--color-text-muted) shadow-sm transition-colors hover:text-(--color-text) lg:hidden min-[390px]:px-4"
                   style={{ fontFamily: 'var(--font-display)' }}
                 >
                   <SlidersHorizontal size={14} />
@@ -254,7 +256,7 @@ export default function InventoryClient({ locale, t }: InventoryClientProps) {
                 <select
                   value={sort}
                   onChange={(e) => setSort(e.target.value as SortOption)}
-                  className="input-premium rounded-xl pl-3 pr-8 py-2.5 text-sm appearance-none cursor-pointer max-w-45 sm:max-w-none"
+                  className="input-premium max-w-[9rem] cursor-pointer appearance-none rounded-xl py-2.5 pl-3 pr-8 text-sm min-[390px]:max-w-[11.25rem] sm:max-w-none"
                   style={{ fontFamily: 'var(--font-display)' }}
                 >
                   {Object.entries(t.inventory.sort).map(([k, v]) => (
@@ -262,6 +264,16 @@ export default function InventoryClient({ locale, t }: InventoryClientProps) {
                   ))}
                 </select>
                 <ChevronDown size={13} className="absolute right-3 top-1/2 -translate-y-1/2 text-(--color-text-muted) pointer-events-none" />
+              </div>
+            </div>
+
+            <div className="mb-5 grid gap-3 rounded-3xl border border-[var(--accent-border)] bg-[var(--accent-soft)] p-3.5 min-[390px]:p-4 sm:grid-cols-[auto_1fr] sm:items-center">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-[var(--accent)] shadow-sm">
+                <ShieldCheck size={19} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-black text-[var(--color-text)]" style={{ fontFamily: 'var(--font-display)' }}>Premium selekcija, ne masovna ponuda</p>
+                <p className="mt-1 text-xs leading-5 text-[var(--color-text-muted)]">Svaki oglas vodi ka direktnom kontaktu, proveri dostupnosti i mirnoj kupovini.</p>
               </div>
             </div>
 
@@ -285,24 +297,24 @@ export default function InventoryClient({ locale, t }: InventoryClientProps) {
 
             {/* Grid */}
             {filtered.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 gap-4 min-[390px]:gap-5 sm:grid-cols-2 xl:grid-cols-3">
                 {filtered.map((vehicle) => (
                   <VehicleCard key={vehicle.id} vehicle={vehicle} locale={locale} t={t} />
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-24 text-center">
-                <div className="w-16 h-16 rounded-2xl bg-white border border-(--color-border) flex items-center justify-center mb-5 shadow-sm">
-                  <Search size={22} className="text-(--color-text-muted)" />
+              <div className="flex flex-col items-center justify-center rounded-3xl border border-[var(--color-border)] bg-white px-4 py-16 text-center shadow-sm min-[390px]:px-6 min-[390px]:py-20">
+                <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-3xl border border-[var(--accent-border)] bg-[var(--accent-soft)] text-[var(--accent)] shadow-sm">
+                  <BadgeCheck size={24} />
                 </div>
                 <p
-                  className="font-bold text-(--color-text) mb-2"
+                  className="mb-2 text-xl font-black text-(--color-text)"
                   style={{ fontFamily: 'var(--font-display)' }}
                 >
                   {t.inventory.noResults}
                 </p>
-                <p className="text-(--color-text-muted) text-sm mb-6">Pokušajte sa drugačijim filterima</p>
-                <button onClick={clearFilters} className="btn-outline px-5 py-2.5 rounded-xl text-sm">
+                <p className="mb-6 max-w-md text-sm leading-6 text-(--color-text-muted)">Pokusajte sa sirem pretragom ili nas kontaktirajte da proverimo dolazeca vozila iz uvoza.</p>
+                <button type="button" onClick={clearFilters} className="btn-outline touch-target rounded-xl px-5 py-2.5 text-sm">
                   {t.common.clear}
                 </button>
               </div>
@@ -322,7 +334,7 @@ export default function InventoryClient({ locale, t }: InventoryClientProps) {
             onKeyDown={(e) => e.key === 'Escape' && setDrawerOpen(false)}
           />
           <div className="absolute bottom-0 right-0 top-0 w-[min(100vw,360px)] overflow-y-auto bg-white shadow-2xl animate-fade-in">
-            <div className="sticky top-0 flex items-center justify-between p-5 border-b border-(--color-border) bg-white z-10">
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-(--color-border) bg-white p-4 min-[390px]:p-5">
               <div className="flex items-center gap-2">
                 <h2
                   className="font-bold text-(--color-text)"
@@ -345,7 +357,7 @@ export default function InventoryClient({ locale, t }: InventoryClientProps) {
                 <X size={18} />
               </button>
             </div>
-            <div className="p-5">
+            <div className="p-4 min-[390px]:p-5">
               {filterPanel}
               <button
                 type="button"

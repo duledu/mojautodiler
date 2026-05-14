@@ -63,7 +63,7 @@ export default function AdminDashboardClient({ stats, recentLeads, recentVehicle
   ];
 
   return (
-    <div className="space-y-7 p-4 sm:p-6 lg:p-8">
+    <div className="space-y-5 p-3 min-[390px]:space-y-7 min-[390px]:p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-dark)]">AutoFerari Preševo</p>
@@ -82,7 +82,7 @@ export default function AdminDashboardClient({ stats, recentLeads, recentVehicle
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-6">
         {kpis.map(({ label, value, icon: Icon, note }) => (
-          <article key={label} className="rounded-3xl border border-[var(--color-border)] bg-white p-5 shadow-sm">
+          <article key={label} className="rounded-3xl border border-[var(--color-border)] bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--accent-border)] hover:shadow-[0_16px_42px_rgba(15,15,20,0.08)] min-[390px]:p-5">
             <div className="mb-5 flex items-center justify-between">
               <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[var(--accent-border)] bg-[var(--accent-soft)] text-[var(--accent)]">
                 <Icon size={18} />
@@ -103,7 +103,7 @@ export default function AdminDashboardClient({ stats, recentLeads, recentVehicle
             {recentLeads.length === 0 ? (
               <EmptyState icon={<MessageSquare size={22} />} title="Nema novih upita" text="Kada kupci pošalju zahtev, pojaviće se ovde." />
             ) : recentLeads.map((lead) => (
-              <article key={lead.id} className="flex items-start justify-between gap-4 px-5 py-4 transition hover:bg-[var(--color-surface-2)]">
+              <article key={lead.id} className="flex items-start justify-between gap-3 px-4 py-4 transition hover:bg-[var(--color-surface-2)] min-[390px]:gap-4 min-[390px]:px-5">
                 <div className="flex min-w-0 gap-3">
                   <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[var(--color-surface-2)] text-[var(--color-text-muted)]">
                     <User size={15} />
@@ -127,7 +127,7 @@ export default function AdminDashboardClient({ stats, recentLeads, recentVehicle
         </section>
 
         <div className="space-y-5">
-          <section className="rounded-3xl border border-[var(--color-border)] bg-white p-5 shadow-sm">
+          <section className="rounded-3xl border border-[var(--color-border)] bg-white p-4 shadow-sm min-[390px]:p-5">
             <div className="mb-4 flex items-center gap-2">
               <BarChart3 size={17} className="text-[var(--accent)]" />
               <h2 className="font-black text-[var(--color-text)]">Brze akcije</h2>
@@ -146,7 +146,7 @@ export default function AdminDashboardClient({ stats, recentLeads, recentVehicle
               {recentVehicles.map((vehicle) => {
                 const status = vehicleStatus[vehicle.status] ?? vehicleStatus.hidden;
                 return (
-                  <article key={vehicle.id} className="flex items-center gap-3 px-5 py-4 transition hover:bg-[var(--color-surface-2)]">
+                  <article key={vehicle.id} className="flex items-center gap-3 px-4 py-4 min-[390px]:px-5 transition hover:bg-[var(--color-surface-2)]">
                     {vehicle.images[0] ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={vehicle.images[0].url} alt={vehicle.title} className="h-12 w-16 shrink-0 rounded-2xl object-cover" />
@@ -165,6 +165,21 @@ export default function AdminDashboardClient({ stats, recentLeads, recentVehicle
               })}
             </div>
           </section>
+
+          <section className="rounded-3xl border border-[var(--color-border)] bg-white p-4 shadow-sm min-[390px]:p-5">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <div>
+                <h2 className="font-black text-[var(--color-text)]">Lead pipeline</h2>
+                <p className="mt-1 text-xs leading-5 text-[var(--color-text-muted)]">Brz pregled prodajnog pritiska i statusa kontakata.</p>
+              </div>
+              <MessageSquare size={18} className="text-[var(--accent)]" />
+            </div>
+            <div className="grid gap-2">
+              <PipelineRow label="Novi upiti" value={stats.newLeads} total={Math.max(stats.totalLeads, 1)} tone="bg-amber-500" />
+              <PipelineRow label="Ukupno kontakata" value={stats.totalLeads} total={Math.max(stats.totalLeads, 1)} tone="bg-[var(--accent)]" />
+              <PipelineRow label="Aktivna vozila" value={stats.active} total={Math.max(stats.total, 1)} tone="bg-emerald-500" />
+            </div>
+          </section>
         </div>
       </div>
     </div>
@@ -173,7 +188,7 @@ export default function AdminDashboardClient({ stats, recentLeads, recentVehicle
 
 function PanelHeader({ icon, title, href, action, badge }: { icon: React.ReactNode; title: string; href: string; action: string; badge?: number }) {
   return (
-    <div className="flex items-center justify-between border-b border-[var(--color-border)] px-5 py-4">
+    <div className="flex items-center justify-between border-b border-[var(--color-border)] px-4 py-4 min-[390px]:px-5">
       <div className="flex items-center gap-2">
         <span className="text-[var(--accent)]">{icon}</span>
         <h2 className="font-black text-[var(--color-text)]">{title}</h2>
@@ -197,6 +212,21 @@ function QuickAction({ href, icon, label, featured = false }: { href: string; ic
       <span className={featured ? 'text-[var(--accent)]' : 'text-[var(--color-text-placeholder)]'}>{icon}</span>
       {label}
     </Link>
+  );
+}
+
+function PipelineRow({ label, value, total, tone }: { readonly label: string; readonly value: number; readonly total: number; readonly tone: string }) {
+  const percent = Math.min(100, Math.round((value / total) * 100));
+  return (
+    <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-2)] p-3">
+      <div className="mb-2 flex items-center justify-between text-xs">
+        <span className="font-bold text-[var(--color-text-muted)]">{label}</span>
+        <span className="font-black text-[var(--color-text)]">{value}</span>
+      </div>
+      <div className="h-2 overflow-hidden rounded-full bg-white">
+        <div className={`h-full rounded-full ${tone}`} style={{ width: `${percent}%` }} />
+      </div>
+    </div>
   );
 }
 

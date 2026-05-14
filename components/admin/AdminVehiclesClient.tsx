@@ -148,7 +148,7 @@ export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props
   };
 
   return (
-    <div className="space-y-6 p-4 sm:p-6 lg:p-8">
+    <div className="space-y-5 p-3 min-[390px]:space-y-6 min-[390px]:p-4 sm:p-6 lg:p-8">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
@@ -213,17 +213,17 @@ export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props
           </div>
         ) : (
           filtered.map((v) => (
-            <article key={v.id} className="rounded-3xl border border-[var(--color-border)] bg-white p-4 shadow-sm">
-              <div className="flex gap-3">
+            <article key={v.id} className="rounded-3xl border border-[var(--color-border)] bg-white p-3.5 shadow-sm min-[390px]:p-4">
+              <div className="flex gap-2.5 min-[390px]:gap-3">
                 {v.images[0]?.url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={v.images[0].url}
                     alt={v.title}
-                    className="h-20 w-24 shrink-0 rounded-2xl object-cover"
+                    className="h-[4.5rem] w-20 shrink-0 rounded-2xl object-cover min-[390px]:h-20 min-[390px]:w-24"
                   />
                 ) : (
-                  <div className="flex h-20 w-24 shrink-0 items-center justify-center rounded-2xl border border-(--color-border) bg-(--color-surface-2)">
+                  <div className="flex h-[4.5rem] w-20 shrink-0 items-center justify-center rounded-2xl border border-(--color-border) bg-(--color-surface-2) min-[390px]:h-20 min-[390px]:w-24">
                     <Car size={18} className="text-(--color-text-muted)" />
                   </div>
                 )}
@@ -245,10 +245,10 @@ export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props
                 </div>
               </div>
 
-              <div className="mt-4 grid grid-cols-3 gap-2 border-t border-(--color-border) pt-4">
+              <div className="mt-4 grid grid-cols-3 gap-1.5 border-t border-(--color-border) pt-4 min-[390px]:gap-2">
                 <Link
                   href={`/${locale}/admin/vehicles/${v.id}/edit`}
-                  className="touch-target inline-flex items-center justify-center gap-1.5 rounded-xl border border-(--color-border) text-xs font-bold text-(--color-text-muted)"
+                  className="touch-target inline-flex items-center justify-center gap-1 rounded-xl border border-(--color-border) text-[11px] font-bold text-(--color-text-muted) min-[390px]:gap-1.5 min-[390px]:text-xs"
                 >
                   <Edit2 size={13} />
                   Uredi
@@ -257,7 +257,7 @@ export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props
                   <button
                     type="button"
                     onClick={() => toggleStatus(v.id, v.status === 'active' ? 'hidden' : 'active')}
-                    className="touch-target inline-flex items-center justify-center gap-1.5 rounded-xl border border-(--color-border) text-xs font-bold text-(--color-text-muted)"
+                    className="touch-target inline-flex items-center justify-center gap-1 rounded-xl border border-(--color-border) text-[11px] font-bold text-(--color-text-muted) min-[390px]:gap-1.5 min-[390px]:text-xs"
                   >
                     {v.status === 'active' ? <EyeOff size={13} /> : <Eye size={13} />}
                     {v.status === 'active' ? 'Sakrij' : 'Prikazi'}
@@ -266,7 +266,7 @@ export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props
                   <button
                     type="button"
                     onClick={() => toggleStatus(v.id, 'active')}
-                    className="touch-target inline-flex items-center justify-center gap-1.5 rounded-xl border border-(--color-border) text-xs font-bold text-(--color-text-muted)"
+                    className="touch-target inline-flex items-center justify-center gap-1 rounded-xl border border-(--color-border) text-[11px] font-bold text-(--color-text-muted) min-[390px]:gap-1.5 min-[390px]:text-xs"
                   >
                     <Eye size={13} />
                     Aktiviraj
@@ -275,7 +275,7 @@ export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props
                 <button
                   type="button"
                   onClick={() => setConfirmDelete(v.id)}
-                  className="touch-target inline-flex items-center justify-center gap-1.5 rounded-xl border border-red-200 bg-red-50 text-xs font-bold text-red-600"
+                  className="touch-target inline-flex items-center justify-center gap-1 rounded-xl border border-red-200 bg-red-50 text-[11px] font-bold text-red-600 min-[390px]:gap-1.5 min-[390px]:text-xs"
                 >
                   <Trash2 size={13} />
                   Obrisi

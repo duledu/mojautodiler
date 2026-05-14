@@ -4,6 +4,9 @@ import { ArrowRight, Calendar, Camera, Fuel, Gauge, MapPin, Settings2 } from 'lu
 import { Vehicle } from '@/types/vehicle';
 import { Locale, TranslationKeys } from '@/lib/i18n';
 import { cn, formatMileage, formatPrice } from '@/lib/utils';
+import PremiumVehiclePlaceholder from '@/components/vehicle/PremiumVehiclePlaceholder';
+import { getVehicleTrustBadges, TrustBadges } from '@/components/vehicle/TrustBadges';
+import VehicleStatusBadge from '@/components/vehicle/VehicleStatusBadge';
 
 interface VehicleCardProps {
   readonly vehicle: Vehicle;
@@ -12,10 +15,9 @@ interface VehicleCardProps {
 }
 
 export default function VehicleCard({ vehicle, locale, t }: VehicleCardProps) {
-  const mainImage =
-    vehicle.images[0]?.url ||
-    'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&q=80';
+  const mainImage = vehicle.images[0]?.url || '';
   const isSold = vehicle.status === 'sold';
+  const trustBadges = getVehicleTrustBadges(vehicle).slice(0, 2);
 
   return (
     <Link href={`/${locale}/vehicle/${vehicle.slug}`} className="group block h-full">
@@ -27,23 +29,20 @@ export default function VehicleCard({ vehicle, locale, t }: VehicleCardProps) {
       >
         {/* Image */}
         <div className="relative aspect-[16/10] overflow-hidden bg-[var(--color-surface-2)]">
-          <Image
-            src={mainImage}
-            alt={vehicle.title}
-            fill
-            sizes="(min-width: 1280px) 25vw, (min-width: 640px) 50vw, 100vw"
-            className="card-image object-cover"
-          />
+          {mainImage ? (
+            <Image
+              src={mainImage}
+              alt={vehicle.title}
+              fill
+              sizes="(min-width: 1280px) 25vw, (min-width: 640px) 50vw, 100vw"
+              className="card-image object-cover"
+            />
+          ) : (
+            <PremiumVehiclePlaceholder className="card-image" />
+          )}
           <div className="absolute inset-0 bg-black/10" />
 
-          {isSold && (
-            <div
-              className="badge-sold absolute left-3 top-3 rounded-full px-2.5 py-1 text-[11px] font-bold"
-              style={{ fontFamily: 'var(--font-display)' }}
-            >
-              {t.status.sold}
-            </div>
-          )}
+          {isSold && <VehicleStatusBadge vehicle={vehicle} compact className="absolute left-3 top-3" />}
           {vehicle.featured && !isSold && (
             <div
               className="absolute left-3 top-3 rounded-full bg-[var(--accent)] px-2.5 py-1 text-[11px] font-bold text-white shadow-sm"
@@ -62,8 +61,8 @@ export default function VehicleCard({ vehicle, locale, t }: VehicleCardProps) {
         </div>
 
         {/* Body */}
-        <div className="flex flex-1 flex-col p-4">
-          <div className="mb-3 flex min-h-[3.75rem] items-start justify-between gap-3">
+        <div className="flex flex-1 flex-col p-3.5 min-[390px]:p-4">
+          <div className="mb-3 flex min-h-[3.75rem] flex-col gap-2 min-[360px]:flex-row min-[360px]:items-start min-[360px]:justify-between min-[360px]:gap-3">
             <div className="min-w-0">
               <h3
                 className="line-clamp-2 text-sm font-bold leading-snug text-[var(--color-text)] transition-colors group-hover:text-[var(--accent-dark)]"
@@ -75,7 +74,7 @@ export default function VehicleCard({ vehicle, locale, t }: VehicleCardProps) {
                 {vehicle.generation || vehicle.model}
               </p>
             </div>
-            <div className="shrink-0 text-right">
+            <div className="shrink-0 text-left min-[360px]:text-right">
               <div
                 className="whitespace-nowrap text-base font-black leading-tight text-[var(--accent-dark)]"
                 style={{ fontFamily: 'var(--font-display)' }}
@@ -95,6 +94,8 @@ export default function VehicleCard({ vehicle, locale, t }: VehicleCardProps) {
             <Spec icon={<Fuel size={11} />} value={t.fuel[vehicle.fuelType]} />
             <Spec icon={<Settings2 size={11} />} value={t.transmission[vehicle.transmission]} />
           </div>
+
+          <TrustBadges locale={locale} badges={trustBadges} compact className="mt-3" />
 
           {/* Footer */}
           <div className="mt-auto flex items-center justify-between border-t border-[var(--color-border)] pt-3">
@@ -118,7 +119,7 @@ export default function VehicleCard({ vehicle, locale, t }: VehicleCardProps) {
 
 function Spec({ icon, value }: { readonly icon: React.ReactNode; readonly value: string }) {
   return (
-    <div className="flex min-h-8 items-center gap-1.5 rounded-lg bg-[var(--color-surface-2)] px-2.5 text-xs text-[var(--color-text-2)]">
+    <div className="flex min-h-8 items-center gap-1.5 rounded-lg bg-[var(--color-surface-2)] px-2 text-[11px] text-[var(--color-text-2)] min-[390px]:px-2.5 min-[390px]:text-xs">
       <span className="shrink-0 text-[var(--accent)]">{icon}</span>
       <span className="truncate">{value}</span>
     </div>

@@ -19,6 +19,7 @@ import DealerJsonLd from '@/components/seo/DealerJsonLd';
 import HeroParallaxImage from '@/components/ui/HeroParallaxImage';
 import Reveal from '@/components/ui/Reveal';
 import HeroVehicleCard from '@/components/vehicle/HeroVehicleCard';
+import { TrustBadges } from '@/components/vehicle/TrustBadges';
 import VehicleCard from '@/components/vehicle/VehicleCard';
 import { getDealerInfo, mockVehicles } from '@/data/vehicles';
 import { getFeaturedVehicles } from '@/lib/db/vehicles';
@@ -66,6 +67,13 @@ const homeCopy = {
     ctaSub: 'Posaljite upit za konkretno vozilo ili pozovite salon. Odgovor dobijate brzo, jasno i bez obaveze.',
     ctaPrimary: 'Kontaktirajte nas',
     ctaCall: 'Pozovi direktno',
+    dealerTitle: 'Kupujete i vozilo i poverenje salona.',
+    dealerSub: 'AutoFerari selektuje vozila za kupce koji zele jasnu istoriju, realno stanje i mirnu odluku pre kupovine.',
+    dealerPillars: [
+      ['Kako biramo vozila', 'Prednost imaju primerci sa jasnim poreklom, urednom dokumentacijom i stanjem koje mozemo da preporucimo.'],
+      ['Profesionalno sourcing iskustvo', 'Pratimo uvozna trzista i biramo vozila koja imaju smisla za nase kupce, ne samo za oglas.'],
+      ['Transparentan proces', 'Pre gledanja razgovaramo o stanju, troskovima, dokumentaciji i svemu sto utice na odluku.'],
+    ],
   },
   sq: {
     eyebrow: 'Autosallon premium • Preševo',
@@ -108,6 +116,13 @@ const homeCopy = {
     ctaSub: 'Dergo kerkese per automjet konkret ose telefono sallonin. Pergjigja eshte e shpejte, e qarte dhe pa detyrim.',
     ctaPrimary: 'Kontakto sallonin',
     ctaCall: 'Telefono direkt',
+    dealerTitle: 'Bleni edhe automjetin, edhe besimin e sallonit.',
+    dealerSub: 'AutoFerari zgjedh automjete per bleres qe duan histori te qarte, gjendje reale dhe vendim te qete para blerjes.',
+    dealerPillars: [
+      ['Si i zgjedhim automjetet', 'Prioritet kane automjetet me origjine te qarte, dokumentacion dhe gjendje qe mund ta rekomandojme.'],
+      ['Sourcing profesional', 'Ndjekim tregjet e importit dhe zgjedhim automjete qe kane vlere per bleresin, jo vetem per shpalljen.'],
+      ['Proces transparent', 'Para shikimit flasim per gjendjen, kostot, dokumentet dhe cdo gje qe ndikon ne vendim.'],
+    ],
   },
 } satisfies Record<Locale, {
   eyebrow: string;
@@ -136,6 +151,9 @@ const homeCopy = {
   ctaSub: string;
   ctaPrimary: string;
   ctaCall: string;
+  dealerTitle: string;
+  dealerSub: string;
+  dealerPillars: [string, string][];
 }>;
 
 export default async function HomePage({ params }: { readonly params: Promise<{ locale: string }> }) {
@@ -160,49 +178,49 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
       <DealerJsonLd dealer={dealer} />
 
       {/* ── HERO ─────────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-white pt-[calc(6.25rem+env(safe-area-inset-top))] sm:pt-24 lg:pt-32">
+      <section className="relative overflow-hidden bg-white pt-[calc(6.15rem+env(safe-area-inset-top))] min-[390px]:pt-[calc(6.35rem+env(safe-area-inset-top))] sm:pt-24 lg:pt-32">
         <HeroParallaxImage />
         {/* Mobile: lighter overlay so background image gives atmosphere */}
         <div className="absolute inset-0 bg-white/52 sm:bg-white/72" />
         <div className="absolute inset-0 bg-[var(--color-bg)]/10" />
 
-        <div className="relative mx-auto grid max-w-7xl gap-5 px-4 pb-8 sm:gap-10 sm:px-6 sm:pb-16 lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:gap-16 lg:pb-24">
+        <div className="relative mx-auto grid max-w-7xl gap-4 px-3 pb-8 min-[390px]:gap-5 min-[390px]:px-4 sm:gap-10 sm:px-6 sm:pb-16 lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:gap-16 lg:pb-24">
 
           {/* ── Text card ── */}
-          <div className="rounded-2xl border border-white/60 bg-white/82 p-5 shadow-[0_8px_28px_rgba(15,15,20,0.07)] backdrop-blur-md sm:rounded-[32px] sm:border-white/70 sm:bg-white/72 sm:p-7 sm:shadow-[0_24px_70px_rgba(15,15,20,0.08)] lg:p-8">
+          <div className="rounded-2xl border border-white/60 bg-white/82 p-4 shadow-[0_8px_28px_rgba(15,15,20,0.07)] backdrop-blur-md min-[390px]:p-5 sm:rounded-[32px] sm:border-white/70 sm:bg-white/72 sm:p-7 sm:shadow-[0_24px_70px_rgba(15,15,20,0.08)] lg:p-8">
 
             {/* Eyebrow */}
-            <Reveal delay={80} className="mb-4 inline-flex items-center gap-2 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--accent-dark)] sm:mb-6 sm:px-4 sm:py-2">
+            <Reveal delay={80} className="mb-4 inline-flex max-w-full items-center gap-2 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--accent-dark)] min-[390px]:px-3 min-[390px]:text-[11px] sm:mb-6 sm:px-4 sm:py-2">
               <Car size={13} />
               {copy.eyebrow}
             </Reveal>
 
             {/* H1 — scaled down on mobile to avoid overflow */}
             <Reveal delay={170} className="max-w-[760px]">
-              <h1 className="text-balance text-[1.85rem] font-black leading-[1.1] text-[var(--color-text)] sm:text-5xl lg:text-[3.35rem] xl:text-[3.95rem]">
+              <h1 className="text-balance text-[1.68rem] font-black leading-[1.1] text-[var(--color-text)] min-[360px]:text-[1.78rem] min-[390px]:text-[1.85rem] sm:text-5xl lg:text-[3.35rem] xl:text-[3.95rem]">
                 {copy.title}
               </h1>
             </Reveal>
 
             {/* Lead */}
             <Reveal delay={260}>
-              <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--color-text-muted)] sm:mt-6 sm:text-lg sm:leading-8">
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-text-muted)] min-[390px]:mt-4 min-[390px]:leading-7 sm:mt-6 sm:text-lg sm:leading-8">
                 {copy.lead}
               </p>
             </Reveal>
 
             {/* CTAs — full-width on mobile, auto on sm+ */}
-            <Reveal delay={360} className="mt-5 flex flex-col gap-3 sm:mt-9 sm:flex-row">
+            <Reveal delay={360} className="mt-5 flex flex-col gap-2.5 min-[390px]:gap-3 sm:mt-9 sm:flex-row">
               <Link
                 href={`/${currentLocale}/inventory`}
-                className="btn-gold inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl px-6 text-sm sm:min-h-13 sm:w-auto sm:px-7"
+                className="btn-gold inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-5 text-sm min-[390px]:min-h-12 min-[390px]:px-6 sm:min-h-[3.25rem] sm:w-auto sm:px-7"
               >
                 {copy.primary}
                 <ArrowRight size={16} />
               </Link>
               <Link
                 href={`/${currentLocale}/contact`}
-                className="btn-outline inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl px-6 text-sm sm:min-h-13 sm:w-auto sm:px-7"
+                className="btn-outline inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-5 text-sm min-[390px]:min-h-12 min-[390px]:px-6 sm:min-h-[3.25rem] sm:w-auto sm:px-7"
               >
                 {copy.secondary}
                 <ChevronRight size={16} />
@@ -210,14 +228,14 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
             </Reveal>
 
             {/* Stats — 2×2 compact on mobile, 1×4 on sm+ */}
-            <div className="mt-5 grid grid-cols-2 gap-2 sm:mt-9 sm:max-w-xl sm:grid-cols-4 sm:gap-3">
+            <div className="mt-5 grid grid-cols-2 gap-1.5 min-[390px]:gap-2 sm:mt-9 sm:max-w-xl sm:grid-cols-4 sm:gap-3">
               {copy.stats.map(([value, label], index) => (
                 <Reveal
                   key={label}
                   delay={430 + index * 80}
-                  className="rounded-xl border border-[var(--color-border)] bg-white/80 p-3 shadow-sm sm:rounded-2xl sm:p-4"
+                  className="rounded-xl border border-[var(--color-border)] bg-white/80 p-2.5 shadow-sm min-[390px]:p-3 sm:rounded-2xl sm:p-4"
                 >
-                  <div className="text-xl font-black text-[var(--color-text)] sm:text-2xl">{value}</div>
+                  <div className="text-lg font-black text-[var(--color-text)] min-[390px]:text-xl sm:text-2xl">{value}</div>
                   <p className="mt-1 text-[10px] leading-[1.3] text-[var(--color-text-muted)] sm:mt-2 sm:text-[11px] sm:leading-4">{label}</p>
                 </Reveal>
               ))}
@@ -239,9 +257,9 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
       </section>
 
       <div className="flex flex-col">
-        <section className="order-1 bg-[var(--color-bg)] py-16 sm:order-2 sm:py-20">
+        <section className="order-1 bg-[var(--color-bg)] py-12 min-[390px]:py-14 sm:order-2 sm:py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6">
-            <div className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div className="mb-8 flex flex-col gap-4 min-[390px]:mb-10 min-[390px]:gap-5 sm:flex-row sm:items-end sm:justify-between">
               <Reveal>
                 <SectionHeader title={copy.featuredTitle} subtitle={copy.featuredSub} />
               </Reveal>
@@ -260,15 +278,15 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
           </div>
         </section>
 
-        <section className="order-2 bg-white py-16 sm:order-1 sm:py-20">
+        <section className="order-2 bg-white py-12 min-[390px]:py-14 sm:order-1 sm:py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6">
             <Reveal>
               <SectionHeader title={copy.trustTitle} subtitle={copy.trustSub} />
             </Reveal>
-            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-8 grid gap-3 min-[390px]:mt-10 min-[390px]:gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {copy.trust.map(([title, text, Icon], index) => (
-                <Reveal key={title} delay={index * 90} className="luxury-trust-card rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-sm">
-                  <div className="trust-card-icon mb-6 flex h-11 w-11 items-center justify-center rounded-2xl border border-[var(--accent-border)] bg-[var(--accent-soft)] text-[var(--accent)]">
+              <Reveal key={title} delay={index * 90} className="luxury-trust-card rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-sm min-[390px]:p-6">
+                <div className="trust-card-icon mb-4 flex h-10 w-10 items-center justify-center rounded-2xl border border-[var(--accent-border)] bg-[var(--accent-soft)] text-[var(--accent)] min-[390px]:mb-6 min-[390px]:h-11 min-[390px]:w-11">
                     <Icon size={21} />
                   </div>
                   <h3 className="text-lg font-black text-[var(--color-text)]">{title}</h3>
@@ -280,7 +298,7 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
         </section>
       </div>
 
-      <section className="relative overflow-hidden bg-[#11100E] py-20 text-white sm:py-24">
+      <section className="relative overflow-hidden bg-[#11100E] py-16 text-white min-[390px]:py-20 sm:py-24">
         <Image
           src="https://images.unsplash.com/photo-1542282088-fe8426682b8f?w=1800&q=82"
           alt=""
@@ -292,12 +310,12 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
         <div className="relative mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
           <Reveal>
             <div className="divider-gold mb-5" />
-            <h2 className="max-w-2xl text-4xl font-black leading-tight !text-white sm:text-5xl">{copy.darkTitle}</h2>
-            <p className="mt-6 max-w-xl text-base leading-8 text-white/72">{copy.darkSub}</p>
+            <h2 className="max-w-2xl text-3xl font-black leading-tight !text-white min-[390px]:text-4xl sm:text-5xl">{copy.darkTitle}</h2>
+            <p className="mt-4 max-w-xl text-sm leading-7 text-white/72 min-[390px]:mt-6 min-[390px]:text-base min-[390px]:leading-8">{copy.darkSub}</p>
           </Reveal>
           <div className="grid gap-3 sm:grid-cols-3">
             {copy.darkPoints.map((point, index) => (
-              <Reveal key={point} delay={index * 90} className="rounded-3xl border border-white/15 bg-white/[0.09] p-5 backdrop-blur-sm">
+              <Reveal key={point} delay={index * 90} className="rounded-3xl border border-white/15 bg-white/[0.09] p-4 backdrop-blur-sm min-[390px]:p-5">
                 <div className="mb-5 text-sm font-black text-white/45">0{index + 1}</div>
                 <CheckCircle2 size={20} className="mb-3 text-[var(--accent)]" />
                 <p className="text-sm font-bold leading-6 !text-white">{point}</p>
@@ -307,14 +325,34 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
         </div>
       </section>
 
-      <section className="bg-white py-16 sm:py-20">
+      <section className="bg-white py-12 min-[390px]:py-16 sm:py-20">
+        <div className="mx-auto grid max-w-7xl gap-6 px-4 min-[390px]:gap-8 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+          <Reveal>
+            <div className="divider-gold mb-5" />
+            <h2 className="max-w-2xl text-2xl font-black leading-tight text-[var(--color-text)] min-[390px]:text-3xl sm:text-4xl">{copy.dealerTitle}</h2>
+            <p className="mt-4 max-w-xl text-sm leading-7 text-[var(--color-text-muted)] min-[390px]:mt-5 sm:text-base sm:leading-8">{copy.dealerSub}</p>
+            <TrustBadges locale={currentLocale} badges={['dealer', 'transparent', 'inspection', 'swiss']} className="mt-6" />
+          </Reveal>
+          <div className="grid gap-3">
+            {copy.dealerPillars.map(([title, text], index) => (
+              <Reveal key={title} delay={index * 90} className="rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-sm transition hover:border-[var(--accent-border)] hover:shadow-[0_16px_42px_rgba(15,15,20,0.08)] min-[390px]:p-5">
+                <div className="mb-3 text-xs font-black uppercase tracking-[0.16em] text-[var(--accent-dark)]">0{index + 1}</div>
+                <h3 className="text-lg font-black text-[var(--color-text)]">{title}</h3>
+                <p className="mt-2 text-sm leading-7 text-[var(--color-text-muted)]">{text}</p>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-white py-12 min-[390px]:py-16 sm:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <Reveal>
             <SectionHeader title={copy.reviewsTitle} subtitle={copy.reviewsSub} centered />
           </Reveal>
-          <div className="mt-10 grid gap-4 lg:grid-cols-3">
+          <div className="mt-8 grid gap-3 min-[390px]:mt-10 min-[390px]:gap-4 lg:grid-cols-3">
             {copy.reviews.map(([quote, name, source], index) => (
-              <Reveal key={`${name}-${source}`} delay={index * 90} className="rounded-3xl border border-[var(--color-border)] bg-white p-6 shadow-sm">
+              <Reveal key={`${name}-${source}`} delay={index * 90} className="rounded-3xl border border-[var(--color-border)] bg-white p-5 shadow-sm min-[390px]:p-6">
                 <div className="mb-5 flex items-center gap-1 text-[var(--accent)]">
                   {Array.from({ length: 5 }, (_, i) => i + 1).map((n) => (
                     <Star key={`star-${n}`} size={15} fill="currentColor" />
@@ -334,8 +372,8 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
         </div>
       </section>
 
-      <section className="bg-[var(--color-bg)] px-4 py-16 sm:px-6 sm:py-20">
-        <Reveal className="relative mx-auto max-w-6xl overflow-hidden rounded-[34px] border border-[var(--color-border)] bg-white p-7 shadow-[0_24px_70px_rgba(15,15,20,0.1)] sm:p-10 lg:p-12">
+      <section className="bg-[var(--color-bg)] px-3 py-12 min-[390px]:px-4 min-[390px]:py-16 sm:px-6 sm:py-20">
+        <Reveal className="relative mx-auto max-w-6xl overflow-hidden rounded-3xl border border-[var(--color-border)] bg-white p-5 shadow-[0_24px_70px_rgba(15,15,20,0.1)] min-[390px]:rounded-[34px] min-[390px]:p-7 sm:p-10 lg:p-12">
           <Image
             src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=1400&q=80"
             alt=""
@@ -349,15 +387,15 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
                 <CalendarCheck size={15} />
                 Preševo premium viewing
               </div>
-              <h2 className="max-w-2xl text-4xl font-black leading-tight text-[var(--color-text)] sm:text-5xl">{copy.ctaTitle}</h2>
-              <p className="mt-5 max-w-2xl text-base leading-8 text-[var(--color-text-muted)]">{copy.ctaSub}</p>
+              <h2 className="max-w-2xl text-3xl font-black leading-tight text-[var(--color-text)] min-[390px]:text-4xl sm:text-5xl">{copy.ctaTitle}</h2>
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--color-text-muted)] min-[390px]:mt-5 min-[390px]:text-base min-[390px]:leading-8">{copy.ctaSub}</p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
-              <Link href={`/${currentLocale}/contact`} className="btn-gold inline-flex min-h-13 items-center justify-center gap-2 rounded-xl px-7 text-sm">
+              <Link href={`/${currentLocale}/contact`} className="btn-gold inline-flex min-h-[3.25rem] items-center justify-center gap-2 rounded-xl px-7 text-sm">
                 {copy.ctaPrimary}
                 <ArrowRight size={17} />
               </Link>
-              <a href={`tel:${dealer.phone}`} className="btn-outline inline-flex min-h-13 items-center justify-center gap-2 rounded-xl px-7 text-sm">
+              <a href={`tel:${dealer.phone}`} className="btn-outline inline-flex min-h-[3.25rem] items-center justify-center gap-2 rounded-xl px-7 text-sm">
                 <Phone size={17} />
                 {copy.ctaCall}
               </a>

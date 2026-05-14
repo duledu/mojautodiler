@@ -4,6 +4,9 @@ import { ArrowRight, Calendar, Camera, Fuel, Gauge, Settings2, ShieldCheck, Star
 import { Vehicle } from '@/types/vehicle';
 import { Locale, TranslationKeys } from '@/lib/i18n';
 import { formatMileage, formatPrice } from '@/lib/utils';
+import PremiumVehiclePlaceholder from '@/components/vehicle/PremiumVehiclePlaceholder';
+import { getVehicleTrustBadges, TrustBadges } from '@/components/vehicle/TrustBadges';
+import VehicleStatusBadge from '@/components/vehicle/VehicleStatusBadge';
 
 interface HeroVehicleCardProps {
   readonly vehicle: Vehicle;
@@ -17,32 +20,36 @@ interface HeroVehicleCardProps {
 export default function HeroVehicleCard({
   vehicle, locale, t, featuredLabel, verifiedLine, viewLabel,
 }: HeroVehicleCardProps) {
-  const mainImage =
-    vehicle.images[0]?.url ||
-    'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1200&q=80';
+  const mainImage = vehicle.images[0]?.url || '';
+  const trustBadges = getVehicleTrustBadges(vehicle).slice(0, 4);
 
   return (
     <Link href={`/${locale}/vehicle/${vehicle.slug}`} className="group block">
-      <article className="hero-vehicle-card overflow-hidden rounded-3xl border border-[var(--color-border)] bg-white shadow-[0_16px_56px_rgba(15,15,20,0.12)] sm:rounded-[34px]">
+      <article className="hero-vehicle-card overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white shadow-[0_16px_56px_rgba(15,15,20,0.12)] min-[390px]:rounded-3xl sm:rounded-[34px]">
 
         {/* Image */}
         <div className="relative aspect-[3/2] overflow-hidden bg-[var(--color-surface-2)]">
-          <Image
-            src={mainImage}
-            alt={vehicle.title}
-            fill
-            priority
-            sizes="(min-width: 1024px) 52vw, 100vw"
-            className="hero-card-image object-cover"
-          />
+          {mainImage ? (
+            <Image
+              src={mainImage}
+              alt={vehicle.title}
+              fill
+              priority
+              sizes="(min-width: 1024px) 52vw, 100vw"
+              className="hero-card-image object-cover"
+            />
+          ) : (
+            <PremiumVehiclePlaceholder className="hero-card-image" />
+          )}
           {/* Gradient for price readability */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
 
           {/* Featured badge */}
-          <div className="absolute left-4 top-4 flex items-center gap-1.5 rounded-full bg-[var(--accent)] px-3.5 py-1.5 text-[11px] font-black uppercase tracking-[0.14em] text-white shadow-[0_4px_12px_rgba(201,168,76,0.45)]">
+          <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-[var(--accent)] px-2.5 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-white shadow-[0_4px_12px_rgba(201,168,76,0.45)] min-[390px]:left-4 min-[390px]:top-4 min-[390px]:px-3.5 min-[390px]:text-[11px]">
             <Star size={10} fill="currentColor" />
             {featuredLabel}
           </div>
+          <VehicleStatusBadge vehicle={vehicle} compact className="absolute right-3 top-3 min-[390px]:right-4 min-[390px]:top-4" />
 
           {/* Photo count */}
           {vehicle.images.length > 1 && (
@@ -53,9 +60,9 @@ export default function HeroVehicleCard({
           )}
 
           {/* Price overlay */}
-          <div className="absolute bottom-4 left-5">
+          <div className="absolute bottom-3 left-4 min-[390px]:bottom-4 min-[390px]:left-5">
             <div
-              className="text-2xl font-black leading-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)] sm:text-3xl"
+                className="text-xl font-black leading-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)] min-[390px]:text-2xl sm:text-3xl"
               style={{ fontFamily: 'var(--font-display)' }}
             >
               {formatPrice(vehicle.price, vehicle.currency)}
@@ -67,12 +74,12 @@ export default function HeroVehicleCard({
         </div>
 
         {/* Card body */}
-        <div className="p-5 sm:p-6">
+        <div className="p-4 min-[390px]:p-5 sm:p-6">
 
           {/* Title + generation */}
           <div>
             <h2
-              className="text-xl font-black leading-snug text-[var(--color-text)] transition-colors duration-300 group-hover:text-[var(--accent-dark)] sm:text-2xl"
+              className="text-lg font-black leading-snug text-[var(--color-text)] transition-colors duration-300 group-hover:text-[var(--accent-dark)] min-[390px]:text-xl sm:text-2xl"
               style={{ fontFamily: 'var(--font-display)' }}
             >
               {vehicle.title}
@@ -83,12 +90,15 @@ export default function HeroVehicleCard({
           </div>
 
           {/* Specs grid — 2×2 on mobile, 4 cols on sm+ */}
-          <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <div className="mt-4 grid grid-cols-2 gap-1.5 min-[390px]:gap-2 sm:grid-cols-4">
             <SpecChip icon={<Calendar size={12} />} value={`${vehicle.year}.`} />
             <SpecChip icon={<Gauge size={12} />} value={formatMileage(vehicle.mileage)} />
             <SpecChip icon={<Fuel size={12} />} value={t.fuel[vehicle.fuelType]} />
             <SpecChip icon={<Settings2 size={12} />} value={t.transmission[vehicle.transmission]} />
           </div>
+
+          <TrustBadges locale={locale} badges={trustBadges.slice(0, 3)} compact className="mt-4 min-[390px]:hidden" />
+          <TrustBadges locale={locale} badges={trustBadges} compact className="mt-4 hidden min-[390px]:flex" />
 
           {/* Footer — verified line + CTA */}
           <div className="mt-5 flex flex-col gap-3 border-t border-[var(--color-border)] pt-5 min-[390px]:flex-row min-[390px]:items-center min-[390px]:justify-between min-[390px]:gap-4">

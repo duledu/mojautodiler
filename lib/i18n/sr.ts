@@ -116,7 +116,7 @@ const sr = {
   },
   contact: {
     title: 'Kontaktirajte Nas',
-    subtitle: 'Tu smo za sva vaša pitanja',
+    subtitle: 'Tu smo za sva pitanja oko vozila, kupovine i rezervacije. Pošaljite poruku ili nas pozovite direktno.',
     name: 'Ime i prezime',
     phone: 'Broj telefona',
     email: 'Email adresa',

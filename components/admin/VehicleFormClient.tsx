@@ -170,7 +170,7 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
   };
 
   return (
-    <div className="max-w-5xl space-y-6 p-4 sm:p-6 lg:p-8">
+    <div className="max-w-5xl space-y-5 p-3 min-[390px]:space-y-6 min-[390px]:p-4 sm:p-6 lg:p-8">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
@@ -218,7 +218,7 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
       </div>
 
       {/* Tab Content */}
-      <div className="rounded-3xl border border-[var(--color-border)] bg-white p-5 shadow-sm sm:p-6">
+      <div className="rounded-3xl border border-[var(--color-border)] bg-white p-4 shadow-sm min-[390px]:p-5 sm:p-6">
         {/* BASIC */}
         {activeTab === 'basic' && (
           <div className="space-y-5">

@@ -84,7 +84,7 @@ export default function AdminLeadsClient({ leads: initialLeads }: Props) {
   };
 
   return (
-    <div className="space-y-6 p-4 sm:p-6 lg:p-8">
+    <div className="space-y-5 p-3 min-[390px]:space-y-6 min-[390px]:p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-dark)]">Prodajni CRM</p>
@@ -105,7 +105,7 @@ export default function AdminLeadsClient({ leads: initialLeads }: Props) {
           ['Odgovoreni', counts.replied],
           ['Zatvoreni', counts.closed],
         ].map(([label, value]) => (
-          <article key={label} className="rounded-3xl border border-[var(--color-border)] bg-white p-5 shadow-sm">
+          <article key={label} className="rounded-3xl border border-[var(--color-border)] bg-white p-4 shadow-sm min-[390px]:p-5">
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-text-placeholder)]">{label}</p>
             <p className="mt-3 text-3xl font-black text-[var(--color-text)]" style={{ fontFamily: 'var(--font-display)' }}>{value}</p>
           </article>
@@ -158,7 +158,7 @@ export default function AdminLeadsClient({ leads: initialLeads }: Props) {
                     key={lead.id}
                     type="button"
                     onClick={() => setSelected(lead)}
-                    className={`w-full px-5 py-4 text-left transition hover:bg-[var(--color-surface-2)] ${active ? 'bg-[var(--accent-soft)] shadow-[inset_3px_0_0_var(--accent)]' : ''}`}
+                    className={`w-full px-4 py-4 text-left transition hover:bg-[var(--color-surface-2)] min-[390px]:px-5 ${active ? 'bg-[var(--accent-soft)] shadow-[inset_3px_0_0_var(--accent)]' : ''}`}
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex min-w-0 items-start gap-3">
@@ -189,7 +189,7 @@ export default function AdminLeadsClient({ leads: initialLeads }: Props) {
         </section>
 
         {selected ? (
-          <aside className="rounded-3xl border border-[var(--color-border)] bg-white p-5 shadow-sm">
+          <aside className="rounded-3xl border border-[var(--color-border)] bg-white p-4 shadow-sm min-[390px]:p-5">
             <div className="flex items-start justify-between gap-4 border-b border-[var(--color-border)] pb-5">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-text-placeholder)]">{typeLabels[selected.type]}</p>

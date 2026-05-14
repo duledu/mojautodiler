@@ -72,7 +72,7 @@ export default function AdminSettingsClient({ dealer }: Props) {
   };
 
   return (
-    <div className="max-w-5xl space-y-7 p-4 sm:p-6 lg:p-8">
+    <div className="max-w-5xl space-y-5 p-3 min-[390px]:space-y-7 min-[390px]:p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-dark)]">Konfiguracija salona</p>
@@ -100,7 +100,7 @@ export default function AdminSettingsClient({ dealer }: Props) {
         </button>
       </div>
 
-      <section className="rounded-3xl border border-[var(--color-border)] bg-white p-5 shadow-sm sm:p-6">
+      <section className="rounded-3xl border border-[var(--color-border)] bg-white p-4 shadow-sm min-[390px]:p-5 sm:p-6">
         <SectionHeader icon={<Building size={18} />} title="Informacije o salonu" text="Osnovni identitet i direktni kontakt podaci." />
 
         <div className="mt-6 space-y-5">
@@ -130,7 +130,7 @@ export default function AdminSettingsClient({ dealer }: Props) {
         </div>
       </section>
 
-      <section className="rounded-3xl border border-[var(--color-border)] bg-white p-5 shadow-sm sm:p-6">
+      <section className="rounded-3xl border border-[var(--color-border)] bg-white p-4 shadow-sm min-[390px]:p-5 sm:p-6">
         <SectionHeader icon={<Globe size={18} />} title="Drustvene mreze i linkovi" text="Kanali koji pojacavaju poverenje i vode kupca do salona." />
 
         <div className="mt-6 grid gap-5">
@@ -140,7 +140,7 @@ export default function AdminSettingsClient({ dealer }: Props) {
         </div>
       </section>
 
-      <section className="rounded-3xl border border-red-200 bg-red-50/70 p-5 sm:p-6">
+      <section className="rounded-3xl border border-red-200 bg-red-50/70 p-4 min-[390px]:p-5 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-red-200 bg-white text-red-600">
