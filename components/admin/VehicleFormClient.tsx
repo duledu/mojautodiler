@@ -188,7 +188,7 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
         <button
           type="button"
           onClick={handleSave}
-          className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 text-sm font-bold transition ${
+          className={`inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-5 text-sm font-bold transition sm:w-auto ${
             saved
               ? 'border border-emerald-200 bg-emerald-50 text-emerald-800'
               : 'btn-gold'
@@ -199,13 +199,13 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 overflow-x-auto rounded-3xl border border-[var(--color-border)] bg-white p-1.5 shadow-sm">
+      <div className="scrollbar-none flex gap-1 overflow-x-auto rounded-3xl border border-[var(--color-border)] bg-white p-1.5 shadow-sm">
         {tabs.map(tab => (
           <button
             type="button"
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 whitespace-nowrap rounded-2xl px-4 py-2.5 text-sm font-bold transition-all ${
+            className={`touch-target flex items-center gap-2 whitespace-nowrap rounded-2xl px-4 py-2.5 text-sm font-bold transition-all ${
               activeTab === tab.id
                 ? 'bg-[var(--accent)] text-white shadow-sm'
                 : 'text-[var(--color-text-muted)] hover:bg-[var(--color-surface-2)] hover:text-[var(--color-text)]'
@@ -413,7 +413,7 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
               </label>
 
               {previewUrls.length > 0 && (
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mt-4">
+                <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                   {previewUrls.map((url, i) => (
                     <div key={i} className="group relative aspect-[4/3] overflow-hidden rounded-2xl bg-[var(--color-surface-2)]">
                       {/* eslint-disable-next-line @next/next/no-img-element */}

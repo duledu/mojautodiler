@@ -86,7 +86,7 @@ export default function AdminSettingsClient({ dealer }: Props) {
         <button
           type="button"
           onClick={handleSave}
-          className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 text-sm font-bold transition ${
+          className={`inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-5 text-sm font-bold transition sm:w-auto ${
             saved
               ? 'border border-emerald-200 bg-emerald-50 text-emerald-800'
               : 'btn-gold'

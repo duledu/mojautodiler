@@ -33,9 +33,10 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
   const activeImageUrl =
     activeVehicleImage?.url ||
     'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1200&q=80';
+  const imageCount = Math.max(vehicle.images.length, 1);
 
-  const nextImg = () => setActiveImage((i) => (i + 1) % vehicle.images.length);
-  const prevImg = () => setActiveImage((i) => (i - 1 + vehicle.images.length) % vehicle.images.length);
+  const nextImg = () => setActiveImage((i) => (i + 1) % imageCount);
+  const prevImg = () => setActiveImage((i) => (i - 1 + imageCount) % imageCount);
 
   const specs = [
     { label: t.vehicle.year, value: `${vehicle.year}.` },
@@ -94,7 +95,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
             {/* Title */}
             <div>
               <h1
-                className="text-3xl font-black text-(--color-text) sm:text-4xl"
+                className="text-2xl font-black text-(--color-text) sm:text-4xl"
                 style={{ fontFamily: 'var(--font-display)' }}
               >
                 {vehicle.title}
@@ -102,11 +103,31 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
               <p className="mt-1.5 text-(--color-text-muted)">
                 {vehicle.year}. godište · {t.condition[vehicle.condition]}
               </p>
+
+              {/* Mobile inline price — visible only on smaller screens */}
+              <div className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-(--color-border) bg-white p-4 shadow-sm lg:hidden">
+                <div className="min-w-0">
+                  <div
+                    className="truncate text-xl font-black leading-tight text-(--color-gold-dark) min-[390px]:text-2xl"
+                    style={{ fontFamily: 'var(--font-display)' }}
+                  >
+                    {formatPrice(vehicle.price, vehicle.currency)}
+                  </div>
+                  <p className="mt-0.5 text-xs text-(--color-text-muted)">Cena uključuje PDV</p>
+                </div>
+                <a
+                  href={`tel:${dealer.phone}`}
+                  className="btn-gold touch-target flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm"
+                >
+                  <Phone size={14} />
+                  {t.common.call}
+                </a>
+              </div>
             </div>
 
             {/* Gallery */}
             <div>
-              <div className="relative aspect-video overflow-hidden rounded-2xl bg-(--color-surface-2) shadow-[0_4px_20px_rgba(0,0,0,0.08)]">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-(--color-surface-2) shadow-[0_4px_20px_rgba(0,0,0,0.08)] sm:aspect-video">
                 <button
                   type="button"
                   className="absolute inset-0 cursor-zoom-in"
@@ -143,22 +164,22 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
                   </>
                 )}
                 <div className="absolute bottom-3 right-3 bg-black/50 backdrop-blur-sm px-3 py-1 rounded-full text-xs text-white">
-                  {activeImage + 1} / {vehicle.images.length}
+                  {activeImage + 1} / {imageCount}
                 </div>
               </div>
 
               {vehicle.images.length > 1 && (
-                <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
+                  <div className="scrollbar-none mt-3 flex gap-2 overflow-x-auto pb-2 [-webkit-overflow-scrolling:touch]">
                   {vehicle.images.map((img, i) => (
                     <button
                       key={img.id}
                       type="button"
                       onClick={() => setActiveImage(i)}
                       className={cn(
-                        'relative shrink-0 w-20 h-14 rounded-xl overflow-hidden border-2 transition-all',
+                        'touch-target relative h-16 w-24 shrink-0 overflow-hidden rounded-xl border-2 transition-all',
                         i === activeImage
-                          ? 'border-(--color-gold) shadow-sm'
-                          : 'border-transparent opacity-60 hover:opacity-90'
+                          ? 'border-(--color-gold) shadow-sm opacity-100'
+                          : 'border-transparent opacity-55 hover:opacity-85'
                       )}
                     >
                       <Image src={img.url} alt={img.alt} fill sizes="96px" className="object-cover" />
@@ -195,10 +216,10 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
                     {specs.map(({ label, value }) => (
                       <div
                         key={label}
-                        className="flex items-center justify-between rounded-xl bg-(--color-surface-2) px-4 py-3"
+                        className="flex min-h-[4.25rem] flex-col justify-center gap-1 rounded-xl bg-(--color-surface-2) px-4 py-3 min-[390px]:flex-row min-[390px]:items-center min-[390px]:justify-between"
                       >
                         <span className="text-xs text-(--color-text-muted)">{label}</span>
-                        <span className="text-sm font-semibold text-(--color-text)">{value}</span>
+                        <span className="text-sm font-semibold text-(--color-text) min-[390px]:text-right">{value}</span>
                       </div>
                     ))}
                   </div>
@@ -421,27 +442,28 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
       </div>
 
       {/* Mobile sticky bar */}
-      <div className="fixed bottom-0 left-0 right-0 lg:hidden z-40 bg-white border-t border-(--color-border) shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
-        <div className="flex items-center p-3 gap-2">
-          <div className="flex-1 min-w-0">
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-(--color-border) bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.08)] lg:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        <div className="flex items-center gap-2 px-3 py-3 min-[390px]:px-4">
+          <div className="min-w-0 flex-1">
             <div
-              className="font-black text-base leading-tight text-(--color-gold-dark)"
+              className="truncate text-base font-black leading-tight text-(--color-gold-dark) min-[390px]:text-lg"
               style={{ fontFamily: 'var(--font-display)' }}
             >
               {formatPrice(vehicle.price, vehicle.currency)}
             </div>
-            <div className="text-xs text-(--color-text-muted) truncate">{vehicle.title}</div>
+            <div className="mt-0.5 truncate text-xs text-(--color-text-muted)">{vehicle.title}</div>
           </div>
           <a
             href={`tel:${dealer.phone}`}
-            className="btn-gold flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm shrink-0"
+            className="btn-gold touch-target flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-3 text-sm min-[390px]:px-5"
           >
-            <Phone size={14} />
-            {t.common.call}
+            <Phone size={15} />
+            <span className="hidden min-[360px]:inline">{t.common.call}</span>
           </a>
           <a
             href={`viber://chat?number=${dealer.viber.replace(/\s/g, '')}`}
-            className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#7360F2]/10 border border-[#7360F2]/20 text-[#6B5FDB] shrink-0"
+            className="touch-target flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#7360F2]/20 bg-[#7360F2]/10 text-[#6B5FDB]"
+            aria-label="Viber"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
               <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.79 14.22c-.2.2-.42.33-.67.37-.46.08-.93-.06-1.34-.29-.91-.51-1.77-1.1-2.53-1.79-.73-.67-1.39-1.41-1.96-2.22-.48-.69-.88-1.43-1.08-2.24-.08-.34-.04-.7.13-1.01.17-.31.46-.55.79-.63.08-.02.17-.03.25-.03.24 0 .48.1.64.28.41.44.77.92 1.06 1.43.15.26.12.59-.08.82l-.28.33c-.09.11-.11.27-.04.4.26.51.61.97 1.02 1.37.41.4.87.75 1.38 1.01.12.06.27.05.38-.04l.33-.27c.23-.19.56-.22.82-.07.51.29 1 .65 1.43 1.07.19.18.28.44.26.7-.02.26-.14.5-.31.67z" />
@@ -449,7 +471,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
           </a>
         </div>
       </div>
-      <div className="h-20 lg:hidden" />
+      <div className="h-18 lg:hidden" />
 
       {/* Lightbox */}
       {lightboxOpen && (
@@ -487,7 +509,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
             className="max-h-[90vh] max-w-[90vw] rounded-xl object-contain"
           />
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/60 text-sm">
-            {activeImage + 1} / {vehicle.images.length}
+            {activeImage + 1} / {imageCount}
           </div>
         </div>
       )}

@@ -226,33 +226,35 @@ export default function InventoryClient({ locale, t }: InventoryClientProps) {
           {/* Main content */}
           <div className="flex-1 min-w-0">
             {/* Toolbar */}
-            <div className="flex items-center justify-between mb-5 gap-4">
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 {/* Mobile filter button */}
                 <button
+                  type="button"
                   onClick={() => setDrawerOpen(true)}
-                  className="lg:hidden flex items-center gap-2 px-4 py-2.5 rounded-xl border border-(--color-border) bg-white text-sm font-semibold text-(--color-text-muted) hover:text-(--color-text) shadow-sm transition-colors"
+                  className="touch-target lg:hidden flex items-center gap-2 rounded-xl border border-(--color-border) bg-white px-4 py-2.5 text-sm font-semibold text-(--color-text-muted) shadow-sm transition-colors hover:text-(--color-text)"
                   style={{ fontFamily: 'var(--font-display)' }}
                 >
                   <SlidersHorizontal size={14} />
-                  {t.common.filter}
+                  <span>{t.common.filter}</span>
                   {activeFilterCount > 0 && (
-                    <span className="ml-1 bg-(--color-gold) text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-(--color-gold) text-[10px] font-black text-white">
                       {activeFilterCount}
                     </span>
                   )}
                 </button>
                 <span className="text-(--color-text-muted) text-sm">
-                  <span className="font-bold text-(--color-text)">{filtered.length}</span> vozila
+                  <span className="font-bold text-(--color-text)">{filtered.length}</span>
+                  {' '}vozila
                 </span>
               </div>
 
               {/* Sort */}
-              <div className="relative">
+              <div className="relative shrink-0">
                 <select
                   value={sort}
                   onChange={(e) => setSort(e.target.value as SortOption)}
-                  className="input-premium rounded-xl pl-3 pr-8 py-2.5 text-sm appearance-none cursor-pointer"
+                  className="input-premium rounded-xl pl-3 pr-8 py-2.5 text-sm appearance-none cursor-pointer max-w-45 sm:max-w-none"
                   style={{ fontFamily: 'var(--font-display)' }}
                 >
                   {Object.entries(t.inventory.sort).map(([k, v]) => (
@@ -319,23 +321,36 @@ export default function InventoryClient({ locale, t }: InventoryClientProps) {
             onClick={() => setDrawerOpen(false)}
             onKeyDown={(e) => e.key === 'Escape' && setDrawerOpen(false)}
           />
-          <div className="absolute right-0 top-0 bottom-0 w-80 bg-white overflow-y-auto animate-fade-in shadow-2xl">
-            <div className="sticky top-0 flex items-center justify-between p-5 border-b border-(--color-border) bg-white">
-              <h2
-                className="font-bold text-(--color-text)"
-                style={{ fontFamily: 'var(--font-display)' }}
+          <div className="absolute bottom-0 right-0 top-0 w-[min(100vw,360px)] overflow-y-auto bg-white shadow-2xl animate-fade-in">
+            <div className="sticky top-0 flex items-center justify-between p-5 border-b border-(--color-border) bg-white z-10">
+              <div className="flex items-center gap-2">
+                <h2
+                  className="font-bold text-(--color-text)"
+                  style={{ fontFamily: 'var(--font-display)' }}
+                >
+                  {t.common.filter}
+                </h2>
+                {activeFilterCount > 0 && (
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-(--color-gold) text-[10px] font-black text-white">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setDrawerOpen(false)}
+                className="touch-target flex items-center justify-center rounded-lg text-(--color-text-muted) transition-colors hover:bg-(--color-surface-2) hover:text-(--color-text)"
+                aria-label="Zatvori filtere"
               >
-                {t.common.filter}
-              </h2>
-              <button onClick={() => setDrawerOpen(false)} className="text-(--color-text-muted) hover:text-(--color-text)">
-                <X size={20} />
+                <X size={18} />
               </button>
             </div>
             <div className="p-5">
               {filterPanel}
               <button
+                type="button"
                 onClick={() => setDrawerOpen(false)}
-                className="btn-gold w-full mt-6 py-3 rounded-xl text-sm"
+                className="btn-gold w-full mt-6 py-3.5 rounded-xl text-sm"
               >
                 {t.common.apply} ({filtered.length} vozila)
               </button>
@@ -371,7 +386,7 @@ function FilterPill({ label, onRemove }: { readonly label: string; readonly onRe
   return (
     <span className="flex items-center gap-1.5 rounded-full border border-(--color-gold-border) bg-(--color-gold-bg) px-3 py-1.5 text-xs font-semibold text-(--color-gold-dark)">
       {label}
-      <button onClick={onRemove} className="hover:text-(--color-gold)">
+      <button type="button" onClick={onRemove} className="touch-target -my-3 -mr-2 inline-flex items-center justify-center hover:text-(--color-gold)" aria-label={`Ukloni filter ${label}`}>
         <X size={11} />
       </button>
     </span>

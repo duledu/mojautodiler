@@ -63,21 +63,21 @@ export default function VehicleCard({ vehicle, locale, t }: VehicleCardProps) {
 
         {/* Body */}
         <div className="flex flex-1 flex-col p-4">
-          <div className="mb-3 flex items-start justify-between gap-3">
+          <div className="mb-3 flex min-h-[3.75rem] items-start justify-between gap-3">
             <div className="min-w-0">
               <h3
-                className="truncate text-sm font-bold leading-snug text-[var(--color-text)] transition-colors group-hover:text-[var(--accent-dark)]"
+                className="line-clamp-2 text-sm font-bold leading-snug text-[var(--color-text)] transition-colors group-hover:text-[var(--accent-dark)]"
                 style={{ fontFamily: 'var(--font-display)' }}
               >
                 {vehicle.title}
               </h3>
-              <p className="mt-0.5 text-xs text-[var(--color-text-muted)]">
+              <p className="mt-0.5 truncate text-xs text-[var(--color-text-muted)]">
                 {vehicle.generation || vehicle.model}
               </p>
             </div>
             <div className="shrink-0 text-right">
               <div
-                className="text-base font-black leading-tight text-[var(--accent-dark)]"
+                className="whitespace-nowrap text-base font-black leading-tight text-[var(--accent-dark)]"
                 style={{ fontFamily: 'var(--font-display)' }}
               >
                 {formatPrice(vehicle.price, vehicle.currency)}

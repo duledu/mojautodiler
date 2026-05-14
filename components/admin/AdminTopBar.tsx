@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Bell, Car, ChevronRight, ExternalLink, Menu, MessageSquare, Settings, ShieldCheck } from 'lucide-react';
+import { Bell, ChevronRight, ExternalLink, ShieldCheck } from 'lucide-react';
 import { mockLeads } from '@/data/leads';
 
 const breadcrumbMap: Record<string, string> = {
@@ -29,17 +29,13 @@ export default function AdminTopBar() {
     })),
   ];
 
-  const mobileLinks = [
-    { href: `/${locale}/admin`, label: 'Dashboard', icon: ShieldCheck },
-    { href: `/${locale}/admin/vehicles`, label: 'Vozila', icon: Car },
-    { href: `/${locale}/admin/leads`, label: 'Upiti', icon: MessageSquare },
-    { href: `/${locale}/admin/settings`, label: 'Podešavanja', icon: Settings },
-  ];
+  const currentPageLabel = crumbs.at(-1)?.label ?? 'Admin';
 
   return (
-    <header className="sticky top-0 z-40 shrink-0 border-b border-black/10 bg-white/92 px-4 py-3 backdrop-blur-md lg:px-6">
+    <header className="sticky top-0 z-30 shrink-0 border-b border-black/10 bg-white/92 px-4 py-3 backdrop-blur-md lg:px-6">
       <div className="flex items-center justify-between gap-4">
         <div className="min-w-0">
+          {/* Desktop: full breadcrumb */}
           <nav className="hidden items-center gap-1 text-sm lg:flex" aria-label="Breadcrumb">
             {crumbs.map((crumb, index) => (
               <span key={crumb.href} className="flex items-center gap-1">
@@ -55,18 +51,14 @@ export default function AdminTopBar() {
             ))}
           </nav>
 
-          <div className="flex items-center gap-2 lg:hidden">
-            <Menu size={18} className="text-[var(--color-text-muted)]" />
-            <select
-              aria-label="Admin navigacija"
-              value={pathname}
-              onChange={(event) => { window.location.href = event.target.value; }}
-              className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm font-semibold text-[var(--color-text)]"
-            >
-              {mobileLinks.map(({ href, label }) => (
-                <option key={href} value={href}>{label}</option>
-              ))}
-            </select>
+          {/* Mobile: logo + current page name */}
+          <div className="flex items-center gap-2.5 lg:hidden">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-(--accent)">
+              <ShieldCheck size={14} className="text-white" />
+            </div>
+            <span className="font-black text-(--color-text)" style={{ fontFamily: 'var(--font-display)' }}>
+              {currentPageLabel}
+            </span>
           </div>
         </div>
 

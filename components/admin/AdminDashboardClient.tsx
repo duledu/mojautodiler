@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { AlertCircle, ArrowRight, BarChart3, Car, CheckCircle, Clock, EyeOff, MessageSquare, Phone, Plus, TrendingUp, User } from 'lucide-react';
 import { Lead } from '@/types/lead';
 import { Vehicle } from '@/types/vehicle';
@@ -50,6 +51,8 @@ const vehicleStatus: Record<string, { label: string; className: string }> = {
 };
 
 export default function AdminDashboardClient({ stats, recentLeads, recentVehicles }: Props) {
+  const pathname = usePathname();
+  const locale = pathname.split('/')[1] || 'sr';
   const kpis = [
     { label: 'Ukupno vozila', value: stats.total, icon: Car, note: 'ceo inventar' },
     { label: 'Aktivna vozila', value: stats.active, icon: TrendingUp, note: 'vidljivo na sajtu' },
@@ -71,7 +74,7 @@ export default function AdminDashboardClient({ stats, recentLeads, recentVehicle
             {new Date().toLocaleDateString('sr-RS', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
           </p>
         </div>
-        <Link href="vehicles/new" className="btn-gold inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 text-sm">
+        <Link href={`/${locale}/admin/vehicles/new`} className="btn-gold inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 text-sm">
           <Plus size={16} />
           Dodaj vozilo
         </Link>
@@ -95,7 +98,7 @@ export default function AdminDashboardClient({ stats, recentLeads, recentVehicle
 
       <div className="grid gap-5 xl:grid-cols-[1.35fr_0.85fr]">
         <section className="overflow-hidden rounded-3xl border border-[var(--color-border)] bg-white shadow-sm">
-          <PanelHeader icon={<MessageSquare size={17} />} title="Poslednji upiti" href="leads" action="Otvori CRM" badge={stats.newLeads} />
+          <PanelHeader icon={<MessageSquare size={17} />} title="Poslednji upiti" href={`/${locale}/admin/leads`} action="Otvori CRM" badge={stats.newLeads} />
           <div className="divide-y divide-[var(--color-border)]">
             {recentLeads.length === 0 ? (
               <EmptyState icon={<MessageSquare size={22} />} title="Nema novih upita" text="Kada kupci pošalju zahtev, pojaviće se ovde." />
@@ -130,15 +133,15 @@ export default function AdminDashboardClient({ stats, recentLeads, recentVehicle
               <h2 className="font-black text-[var(--color-text)]">Brze akcije</h2>
             </div>
             <div className="grid gap-2">
-              <QuickAction href="vehicles/new" icon={<Plus size={16} />} label="Dodaj novo vozilo" featured />
-              <QuickAction href="vehicles" icon={<Car size={16} />} label="Upravljaj vozilima" />
-              <QuickAction href="leads" icon={<MessageSquare size={16} />} label="Pregled upita" />
-              <QuickAction href="settings" icon={<Phone size={16} />} label="Podešavanja salona" />
+              <QuickAction href={`/${locale}/admin/vehicles/new`} icon={<Plus size={16} />} label="Dodaj novo vozilo" featured />
+              <QuickAction href={`/${locale}/admin/vehicles`} icon={<Car size={16} />} label="Upravljaj vozilima" />
+              <QuickAction href={`/${locale}/admin/leads`} icon={<MessageSquare size={16} />} label="Pregled upita" />
+              <QuickAction href={`/${locale}/admin/settings`} icon={<Phone size={16} />} label="Podešavanja salona" />
             </div>
           </section>
 
           <section className="overflow-hidden rounded-3xl border border-[var(--color-border)] bg-white shadow-sm">
-            <PanelHeader icon={<Car size={17} />} title="Poslednja vozila" href="vehicles" action="Sva vozila" />
+            <PanelHeader icon={<Car size={17} />} title="Poslednja vozila" href={`/${locale}/admin/vehicles`} action="Sva vozila" />
             <div className="divide-y divide-[var(--color-border)]">
               {recentVehicles.map((vehicle) => {
                 const status = vehicleStatus[vehicle.status] ?? vehicleStatus.hidden;

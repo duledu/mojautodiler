@@ -87,6 +87,7 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 80px;
+  overflow-x: clip;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -95,6 +96,21 @@ body {
   background: var(--color-bg);
   color: var(--color-text);
   line-height: 1.6;
+  min-width: 320px;
+  overflow-x: clip;
+}
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
 }
 h1,h2,h3,h4,h5,h6 {
   font-family: var(--font-display);
@@ -172,6 +188,16 @@ h1,h2,h3,h4,h5,h6 {
     background: var(--color-surface-2);
     border-color: var(--color-text-muted);
     transform: translateY(-2px);
+  }
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
   }
 
   /* Inputs */
@@ -276,6 +302,26 @@ h1,h2,h3,h4,h5,h6 {
     transform: translate3d(0, -1px, 0);
     border-color: var(--accent-border);
     background: var(--accent-soft);
+  }
+
+  /* Hero featured vehicle card */
+  .hero-vehicle-card {
+    transition:
+      transform 420ms var(--ease-luxury),
+      box-shadow 420ms var(--ease-luxury),
+      border-color 320ms ease;
+  }
+  .hero-vehicle-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 28px 72px rgba(15,15,20,0.16);
+    border-color: var(--accent-border);
+  }
+  .hero-vehicle-card .hero-card-image {
+    transition: transform 760ms var(--ease-luxury), filter 420ms ease;
+  }
+  .hero-vehicle-card:hover .hero-card-image {
+    transform: scale(1.03);
+    filter: saturate(1.04) contrast(1.02);
   }
 
   /* Vehicle cards */

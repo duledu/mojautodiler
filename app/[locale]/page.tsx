@@ -18,11 +18,11 @@ import {
 import DealerJsonLd from '@/components/seo/DealerJsonLd';
 import HeroParallaxImage from '@/components/ui/HeroParallaxImage';
 import Reveal from '@/components/ui/Reveal';
+import HeroVehicleCard from '@/components/vehicle/HeroVehicleCard';
 import VehicleCard from '@/components/vehicle/VehicleCard';
 import { getDealerInfo, mockVehicles } from '@/data/vehicles';
 import { getFeaturedVehicles } from '@/lib/db/vehicles';
 import { getTranslations, isValidLocale, Locale } from '@/lib/i18n';
-import { formatPrice } from '@/lib/utils';
 
 const homeCopy = {
   sr: {
@@ -32,8 +32,9 @@ const homeCopy = {
     primary: 'Pregledaj vozila',
     secondary: 'Zakazi razgledanje',
     heroNote: 'Diskretna selekcija premium vozila u Preševu, sa dokumentovanom istorijom i pregledom pre prodaje.',
-    featuredLabel: 'Izdvojeno vozilo',
+    featuredLabel: 'Izdvojena ponuda',
     verifiedLine: 'Provereno poreklo, servis i stanje',
+    viewDetails: 'Pogledaj detalje',
     stats: [
       ['100+', 'vozila prodato u poslednje 2 godine'],
       ['5.0', 'ocena kupaca na PolovniAutomobili'],
@@ -73,8 +74,9 @@ const homeCopy = {
     primary: 'Shiko automjetet',
     secondary: 'Rezervo shikim',
     heroNote: 'Seleksion diskret automjetesh premium ne Preševo, me histori te dokumentuar dhe kontroll para shitjes.',
-    featuredLabel: 'Automjet i zgjedhur',
+    featuredLabel: 'Ofertë e zgjedhur',
     verifiedLine: 'Origjine, servis dhe gjendje e verifikuar',
+    viewDetails: 'Shiko detajet',
     stats: [
       ['100+', 'automjete te shitura ne 2 vitet e fundit'],
       ['5.0', 'vleresim nga bleresit ne PolovniAutomobili'],
@@ -116,6 +118,7 @@ const homeCopy = {
   heroNote: string;
   featuredLabel: string;
   verifiedLine: string;
+  viewDetails: string;
   stats: [string, string][];
   trustTitle: string;
   trustSub: string;
@@ -143,7 +146,10 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
   const t = getTranslations(currentLocale);
   const copy = homeCopy[currentLocale];
   const dealer = getDealerInfo();
-  const featuredVehicles = await getFeaturedVehicles(4);
+  const featuredVehiclesFromDb = await getFeaturedVehicles(4);
+  const featuredVehicles = featuredVehiclesFromDb.length
+    ? featuredVehiclesFromDb
+    : mockVehicles.filter((v) => v.status === 'active' && v.featured).slice(0, 4);
   const heroVehicle =
     featuredVehicles[0] ??
     mockVehicles.find((v) => v.status === 'active') ??
@@ -154,7 +160,7 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
       <DealerJsonLd dealer={dealer} />
 
       {/* ── HERO ─────────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-white pt-20 sm:pt-24 lg:pt-32">
+      <section className="relative overflow-hidden bg-white pt-[calc(6.25rem+env(safe-area-inset-top))] sm:pt-24 lg:pt-32">
         <HeroParallaxImage />
         {/* Mobile: lighter overlay so background image gives atmosphere */}
         <div className="absolute inset-0 bg-white/52 sm:bg-white/72" />
@@ -218,82 +224,61 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
             </div>
           </div>
 
-          {/* ── Image + floating card ── */}
-          {/* pb on sm creates space for the floating card; none needed on mobile (card hidden) */}
-          <Reveal delay={260} className="relative pb-0 sm:pb-12 lg:pb-0">
-            <div className="hero-image-reveal relative overflow-hidden rounded-2xl bg-[var(--color-surface-2)] shadow-[0_8px_28px_rgba(15,15,20,0.1)] sm:rounded-[34px] sm:shadow-[0_28px_70px_rgba(15,15,20,0.15)]">
-              {/* Shorter 3:2 on mobile → taller 4:3 on sm+ */}
-              <div className="relative aspect-3/2 sm:aspect-4/3 sm:min-h-[360px] lg:min-h-[400px]">
-                <Image
-                  src="https://images.unsplash.com/photo-1550355291-bbee04a92027?w=1400&q=86"
-                  alt="Luxury dealership vehicle"
-                  fill
-                  priority
-                  sizes="(min-width: 1024px) 52vw, 100vw"
-                  className="object-cover"
-                />
-              </div>
-            </div>
-
-            {/* Floating vehicle card — hidden on mobile to avoid layout issues */}
-            <div className="luxury-float absolute bottom-0 left-4 right-4 hidden rounded-3xl border border-[var(--color-border)] bg-white p-5 shadow-[0_18px_48px_rgba(15,15,20,0.12)] sm:block sm:left-8 sm:right-auto sm:w-[370px]">
-              <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--color-text-muted)]">{copy.featuredLabel}</p>
-                  <h2 className="mt-1 truncate text-lg font-black text-[var(--color-text)]">{heroVehicle.title}</h2>
-                </div>
-                <p className="shrink-0 text-right text-lg font-black text-[var(--accent-dark)]">
-                  {formatPrice(heroVehicle.price, heroVehicle.currency)}
-                </p>
-              </div>
-              <div className="mt-4 flex items-center gap-2 border-t border-[var(--color-border)] pt-4 text-sm text-[var(--color-text-muted)]">
-                <ShieldCheck size={16} className="text-[var(--accent)]" />
-                {copy.verifiedLine}
-              </div>
-            </div>
+          {/* ── Featured vehicle card ── */}
+          <Reveal delay={260}>
+            <HeroVehicleCard
+              vehicle={heroVehicle}
+              locale={currentLocale}
+              t={t}
+              featuredLabel={copy.featuredLabel}
+              verifiedLine={copy.verifiedLine}
+              viewLabel={copy.viewDetails}
+            />
           </Reveal>
         </div>
       </section>
 
-      <section className="bg-white py-16 sm:py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <Reveal>
-            <SectionHeader title={copy.trustTitle} subtitle={copy.trustSub} />
-          </Reveal>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {copy.trust.map(([title, text, Icon], index) => (
-              <Reveal key={title} delay={index * 90} className="luxury-trust-card rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-sm">
-                <div className="trust-card-icon mb-6 flex h-11 w-11 items-center justify-center rounded-2xl border border-[var(--accent-border)] bg-[var(--accent-soft)] text-[var(--accent)]">
-                  <Icon size={21} />
-                </div>
-                <h3 className="text-lg font-black text-[var(--color-text)]">{title}</h3>
-                <p className="mt-3 text-sm leading-7 text-[var(--color-text-muted)]">{text}</p>
+      <div className="flex flex-col">
+        <section className="order-1 bg-[var(--color-bg)] py-16 sm:order-2 sm:py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6">
+            <div className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+              <Reveal>
+                <SectionHeader title={copy.featuredTitle} subtitle={copy.featuredSub} />
               </Reveal>
-            ))}
+              <Link href={`/${currentLocale}/inventory`} className="inline-flex items-center gap-2 text-sm font-bold text-[var(--accent-dark)] transition hover:text-[var(--accent)]">
+                {copy.viewAll}
+                <ArrowRight size={16} />
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+              {featuredVehicles.map((vehicle, index) => (
+                <Reveal key={vehicle.id} delay={index * 85}>
+                  <VehicleCard vehicle={vehicle} locale={currentLocale} t={t} />
+                </Reveal>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section className="bg-[var(--color-bg)] py-16 sm:py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <section className="order-2 bg-white py-16 sm:order-1 sm:py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6">
             <Reveal>
-              <SectionHeader title={copy.featuredTitle} subtitle={copy.featuredSub} />
+              <SectionHeader title={copy.trustTitle} subtitle={copy.trustSub} />
             </Reveal>
-            <Link href={`/${currentLocale}/inventory`} className="inline-flex items-center gap-2 text-sm font-bold text-[var(--accent-dark)] transition hover:text-[var(--accent)]">
-              {copy.viewAll}
-              <ArrowRight size={16} />
-            </Link>
+            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {copy.trust.map(([title, text, Icon], index) => (
+                <Reveal key={title} delay={index * 90} className="luxury-trust-card rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-sm">
+                  <div className="trust-card-icon mb-6 flex h-11 w-11 items-center justify-center rounded-2xl border border-[var(--accent-border)] bg-[var(--accent-soft)] text-[var(--accent)]">
+                    <Icon size={21} />
+                  </div>
+                  <h3 className="text-lg font-black text-[var(--color-text)]">{title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-[var(--color-text-muted)]">{text}</p>
+                </Reveal>
+              ))}
+            </div>
           </div>
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
-            {featuredVehicles.map((vehicle, index) => (
-              <Reveal key={vehicle.id} delay={index * 85}>
-                <VehicleCard vehicle={vehicle} locale={currentLocale} t={t} />
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
       <section className="relative overflow-hidden bg-[#11100E] py-20 text-white sm:py-24">
         <Image

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Vehicle } from '@/types/vehicle';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   Plus, Search, Filter, Edit2, Trash2, EyeOff, Eye,
   CheckCircle, Car, ChevronDown, MoreVertical, ArrowUpDown,
@@ -93,6 +94,8 @@ function persistVehicleDelete(id: string) {
 }
 
 export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props) {
+  const pathname = usePathname();
+  const locale = pathname.split('/')[1] || 'sr';
   const [vehicles, setVehicles] = useState(initialVehicles);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -159,7 +162,7 @@ export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props
           <p className="mt-2 text-sm text-[var(--color-text-muted)]">{vehicles.length} vozila u inventaru</p>
         </div>
         <Link
-          href="vehicles/new"
+          href={`/${locale}/admin/vehicles/new`}
           className="btn-gold inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 text-sm"
         >
           <Plus size={15} />
@@ -196,8 +199,95 @@ export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props
         </div>
       </div>
 
-      {/* Table */}
-      <div className="overflow-hidden rounded-3xl border border-[var(--color-border)] bg-white shadow-sm">
+      {/* Mobile cards */}
+      <div className="grid gap-3 md:hidden">
+        {filtered.length === 0 ? (
+          <div className="flex flex-col items-center justify-center rounded-3xl border border-[var(--color-border)] bg-white px-6 py-16 text-center shadow-sm">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-(--color-border) bg-(--color-surface-2)">
+              <Car size={20} className="text-(--color-text-muted)" />
+            </div>
+            <p className="font-semibold text-(--color-text)" style={{ fontFamily: 'var(--font-display)' }}>
+              Nema vozila
+            </p>
+            <p className="mt-1 text-sm text-(--color-text-muted)">Promijenite filter ili dodajte novo vozilo</p>
+          </div>
+        ) : (
+          filtered.map((v) => (
+            <article key={v.id} className="rounded-3xl border border-[var(--color-border)] bg-white p-4 shadow-sm">
+              <div className="flex gap-3">
+                {v.images[0]?.url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={v.images[0].url}
+                    alt={v.title}
+                    className="h-20 w-24 shrink-0 rounded-2xl object-cover"
+                  />
+                ) : (
+                  <div className="flex h-20 w-24 shrink-0 items-center justify-center rounded-2xl border border-(--color-border) bg-(--color-surface-2)">
+                    <Car size={18} className="text-(--color-text-muted)" />
+                  </div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <h2 className="line-clamp-2 text-sm font-bold leading-snug text-(--color-text)">{v.title}</h2>
+                      <p className="mt-1 text-xs text-(--color-text-muted)">
+                        {v.year} · {v.mileage.toLocaleString('sr-RS')} km
+                      </p>
+                    </div>
+                    <span className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-bold ${statusConfig[v.status]?.cls ?? statusConfig.hidden.cls}`}>
+                      {statusConfig[v.status]?.label ?? v.status}
+                    </span>
+                  </div>
+                  <p className="mt-3 text-sm font-black text-(--color-gold-dark)">
+                    {v.price.toLocaleString('sr-RS')} {v.currency}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-4 grid grid-cols-3 gap-2 border-t border-(--color-border) pt-4">
+                <Link
+                  href={`/${locale}/admin/vehicles/${v.id}/edit`}
+                  className="touch-target inline-flex items-center justify-center gap-1.5 rounded-xl border border-(--color-border) text-xs font-bold text-(--color-text-muted)"
+                >
+                  <Edit2 size={13} />
+                  Uredi
+                </Link>
+                {v.status === 'active' || v.status === 'hidden' ? (
+                  <button
+                    type="button"
+                    onClick={() => toggleStatus(v.id, v.status === 'active' ? 'hidden' : 'active')}
+                    className="touch-target inline-flex items-center justify-center gap-1.5 rounded-xl border border-(--color-border) text-xs font-bold text-(--color-text-muted)"
+                  >
+                    {v.status === 'active' ? <EyeOff size={13} /> : <Eye size={13} />}
+                    {v.status === 'active' ? 'Sakrij' : 'Prikazi'}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => toggleStatus(v.id, 'active')}
+                    className="touch-target inline-flex items-center justify-center gap-1.5 rounded-xl border border-(--color-border) text-xs font-bold text-(--color-text-muted)"
+                  >
+                    <Eye size={13} />
+                    Aktiviraj
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setConfirmDelete(v.id)}
+                  className="touch-target inline-flex items-center justify-center gap-1.5 rounded-xl border border-red-200 bg-red-50 text-xs font-bold text-red-600"
+                >
+                  <Trash2 size={13} />
+                  Obrisi
+                </button>
+              </div>
+            </article>
+          ))
+        )}
+      </div>
+
+      {/* Desktop table */}
+      <div className="hidden overflow-hidden rounded-3xl border border-[var(--color-border)] bg-white shadow-sm md:block">
         <div className="overflow-x-auto">
           <div className="min-w-[780px]">
         {/* Table header */}
@@ -264,7 +354,7 @@ export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props
                 {/* Actions */}
                 <div className="flex items-center justify-end gap-1 relative">
                   <Link
-                    href={`vehicles/${v.id}/edit`}
+                    href={`/${locale}/admin/vehicles/${v.id}/edit`}
                     className="p-1.5 rounded-lg text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-surface-2) transition-colors"
                     title="Uredi"
                   >
