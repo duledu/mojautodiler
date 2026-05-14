@@ -135,11 +135,11 @@ const homeCopy = {
   ctaCall: string;
 }>;
 
-export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function HomePage({ params }: { readonly params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   if (!isValidLocale(locale)) notFound();
 
-  const currentLocale = locale as Locale;
+  const currentLocale = locale;
   const t = getTranslations(currentLocale);
   const copy = homeCopy[currentLocale];
   const dealer = getDealerInfo();
@@ -153,53 +153,77 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     <>
       <DealerJsonLd dealer={dealer} />
 
-      <section className="relative overflow-hidden bg-white pt-24 sm:pt-28 lg:pt-32">
+      {/* ── HERO ─────────────────────────────────────────────────────────────── */}
+      <section className="relative overflow-hidden bg-white pt-20 sm:pt-24 lg:pt-32">
         <HeroParallaxImage />
-        <div className="absolute inset-0 bg-white/72" />
-        <div className="absolute inset-0 bg-[var(--color-bg)]/14" />
+        {/* Mobile: lighter overlay so background image gives atmosphere */}
+        <div className="absolute inset-0 bg-white/52 sm:bg-white/72" />
+        <div className="absolute inset-0 bg-[var(--color-bg)]/10" />
 
-        <div className="relative mx-auto grid max-w-7xl gap-12 px-4 pb-16 sm:px-6 lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:gap-16 lg:pb-24">
-          <div className="rounded-[32px] border border-white/70 bg-white/72 p-5 shadow-[0_24px_70px_rgba(15,15,20,0.08)] backdrop-blur-md sm:p-7 lg:p-8">
-            <Reveal delay={80} className="mb-6 inline-flex items-center gap-2 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-4 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--accent-dark)]">
-              <Car size={14} />
+        <div className="relative mx-auto grid max-w-7xl gap-5 px-4 pb-8 sm:gap-10 sm:px-6 sm:pb-16 lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:gap-16 lg:pb-24">
+
+          {/* ── Text card ── */}
+          <div className="rounded-2xl border border-white/60 bg-white/82 p-5 shadow-[0_8px_28px_rgba(15,15,20,0.07)] backdrop-blur-md sm:rounded-[32px] sm:border-white/70 sm:bg-white/72 sm:p-7 sm:shadow-[0_24px_70px_rgba(15,15,20,0.08)] lg:p-8">
+
+            {/* Eyebrow */}
+            <Reveal delay={80} className="mb-4 inline-flex items-center gap-2 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--accent-dark)] sm:mb-6 sm:px-4 sm:py-2">
+              <Car size={13} />
               {copy.eyebrow}
             </Reveal>
 
+            {/* H1 — scaled down on mobile to avoid overflow */}
             <Reveal delay={170} className="max-w-[760px]">
-            <h1 className="text-balance text-[2.55rem] font-black leading-[1.08] text-[var(--color-text)] sm:text-5xl lg:text-[3.35rem] xl:text-[3.95rem]">
-              {copy.title}
-            </h1>
+              <h1 className="text-balance text-[1.85rem] font-black leading-[1.1] text-[var(--color-text)] sm:text-5xl lg:text-[3.35rem] xl:text-[3.95rem]">
+                {copy.title}
+              </h1>
             </Reveal>
+
+            {/* Lead */}
             <Reveal delay={260}>
-            <p className="mt-6 max-w-2xl text-base leading-8 text-[var(--color-text-muted)] sm:text-lg">
-              {copy.lead}
-            </p>
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--color-text-muted)] sm:mt-6 sm:text-lg sm:leading-8">
+                {copy.lead}
+              </p>
             </Reveal>
 
-            <Reveal delay={360} className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <Link href={`/${currentLocale}/inventory`} className="btn-gold inline-flex min-h-13 items-center justify-center gap-2 rounded-xl px-7 text-sm">
+            {/* CTAs — full-width on mobile, auto on sm+ */}
+            <Reveal delay={360} className="mt-5 flex flex-col gap-3 sm:mt-9 sm:flex-row">
+              <Link
+                href={`/${currentLocale}/inventory`}
+                className="btn-gold inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl px-6 text-sm sm:min-h-13 sm:w-auto sm:px-7"
+              >
                 {copy.primary}
-                <ArrowRight size={17} />
+                <ArrowRight size={16} />
               </Link>
-              <Link href={`/${currentLocale}/contact`} className="btn-outline inline-flex min-h-13 items-center justify-center gap-2 rounded-xl px-7 text-sm">
+              <Link
+                href={`/${currentLocale}/contact`}
+                className="btn-outline inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl px-6 text-sm sm:min-h-13 sm:w-auto sm:px-7"
+              >
                 {copy.secondary}
-                <ChevronRight size={17} />
+                <ChevronRight size={16} />
               </Link>
             </Reveal>
 
-            <div className="mt-9 grid max-w-xl grid-cols-2 gap-3 sm:grid-cols-4">
+            {/* Stats — 2×2 compact on mobile, 1×4 on sm+ */}
+            <div className="mt-5 grid grid-cols-2 gap-2 sm:mt-9 sm:max-w-xl sm:grid-cols-4 sm:gap-3">
               {copy.stats.map(([value, label], index) => (
-                <Reveal key={label} delay={430 + index * 80} className="rounded-2xl border border-[var(--color-border)] bg-white/80 p-4 shadow-sm">
-                  <div className="text-2xl font-black text-[var(--color-text)]">{value}</div>
-                  <p className="mt-2 text-[11px] leading-4 text-[var(--color-text-muted)]">{label}</p>
+                <Reveal
+                  key={label}
+                  delay={430 + index * 80}
+                  className="rounded-xl border border-[var(--color-border)] bg-white/80 p-3 shadow-sm sm:rounded-2xl sm:p-4"
+                >
+                  <div className="text-xl font-black text-[var(--color-text)] sm:text-2xl">{value}</div>
+                  <p className="mt-1 text-[10px] leading-[1.3] text-[var(--color-text-muted)] sm:mt-2 sm:text-[11px] sm:leading-4">{label}</p>
                 </Reveal>
               ))}
             </div>
           </div>
 
-          <Reveal delay={260} className="relative pb-12 lg:pb-0">
-            <div className="hero-image-reveal relative overflow-hidden rounded-[34px] bg-[var(--color-surface-2)] shadow-[0_28px_70px_rgba(15,15,20,0.15)]">
-              <div className="relative aspect-[4/3] min-h-[360px] sm:min-h-[470px]">
+          {/* ── Image + floating card ── */}
+          {/* pb on sm creates space for the floating card; none needed on mobile (card hidden) */}
+          <Reveal delay={260} className="relative pb-0 sm:pb-12 lg:pb-0">
+            <div className="hero-image-reveal relative overflow-hidden rounded-2xl bg-[var(--color-surface-2)] shadow-[0_8px_28px_rgba(15,15,20,0.1)] sm:rounded-[34px] sm:shadow-[0_28px_70px_rgba(15,15,20,0.15)]">
+              {/* Shorter 3:2 on mobile → taller 4:3 on sm+ */}
+              <div className="relative aspect-3/2 sm:aspect-4/3 sm:min-h-[360px] lg:min-h-[400px]">
                 <Image
                   src="https://images.unsplash.com/photo-1550355291-bbee04a92027?w=1400&q=86"
                   alt="Luxury dealership vehicle"
@@ -211,7 +235,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               </div>
             </div>
 
-            <div className="luxury-float absolute bottom-0 left-4 right-4 rounded-3xl border border-[var(--color-border)] bg-white p-5 shadow-[0_18px_48px_rgba(15,15,20,0.12)] sm:left-8 sm:right-auto sm:w-[370px]">
+            {/* Floating vehicle card — hidden on mobile to avoid layout issues */}
+            <div className="luxury-float absolute bottom-0 left-4 right-4 hidden rounded-3xl border border-[var(--color-border)] bg-white p-5 shadow-[0_18px_48px_rgba(15,15,20,0.12)] sm:block sm:left-8 sm:right-auto sm:w-[370px]">
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--color-text-muted)]">{copy.featuredLabel}</p>
@@ -306,8 +331,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             {copy.reviews.map(([quote, name, source], index) => (
               <Reveal key={`${name}-${source}`} delay={index * 90} className="rounded-3xl border border-[var(--color-border)] bg-white p-6 shadow-sm">
                 <div className="mb-5 flex items-center gap-1 text-[var(--accent)]">
-                  {[...Array(5)].map((_, index) => (
-                    <Star key={index} size={15} fill="currentColor" />
+                  {Array.from({ length: 5 }, (_, i) => i + 1).map((n) => (
+                    <Star key={`star-${n}`} size={15} fill="currentColor" />
                   ))}
                 </div>
                 <p className="text-lg leading-8 text-[var(--color-text)]">&ldquo;{quote}&rdquo;</p>
@@ -359,7 +384,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   );
 }
 
-function SectionHeader({ title, subtitle, centered = false }: { title: string; subtitle: string; centered?: boolean }) {
+function SectionHeader({ title, subtitle, centered = false }: { readonly title: string; readonly subtitle: string; readonly centered?: boolean }) {
   return (
     <div className={centered ? 'mx-auto max-w-2xl text-center' : 'max-w-2xl'}>
       <div className={centered ? 'divider-gold mx-auto mb-4' : 'divider-gold mb-4'} />
