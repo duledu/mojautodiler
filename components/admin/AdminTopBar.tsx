@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Bell, ChevronRight, ExternalLink, ShieldCheck } from 'lucide-react';
+import { Bell, ChevronRight, ExternalLink, LogOut, ShieldCheck } from 'lucide-react';
 import { mockLeads } from '@/data/leads';
 
 const breadcrumbMap: Record<string, string> = {
@@ -13,6 +13,15 @@ const breadcrumbMap: Record<string, string> = {
   new: 'Novo vozilo',
   edit: 'Uredi vozilo',
 };
+
+async function handleLogout(locale: string) {
+  try {
+    await fetch('/api/admin/auth/logout', { method: 'POST' });
+  } finally {
+    // Always navigate to login, even if the network call fails
+    window.location.href = `/${locale}/admin/login`;
+  }
+}
 
 export default function AdminTopBar() {
   const pathname = usePathname();
@@ -81,6 +90,15 @@ export default function AdminTopBar() {
             <ExternalLink size={13} />
             <span className="hidden sm:inline">Pogledaj sajt</span>
           </Link>
+          <button
+            type="button"
+            onClick={() => handleLogout(locale)}
+            className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-white px-3 py-2 text-xs font-bold text-[var(--color-text-muted)] transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+            title="Odjava"
+          >
+            <LogOut size={13} />
+            <span className="hidden sm:inline">Odjava</span>
+          </button>
         </div>
       </div>
     </header>
