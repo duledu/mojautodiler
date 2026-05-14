@@ -54,8 +54,15 @@ const homeCopy = {
     featuredSub: 'Premium vozila dostupna u Preševu. Svaki oglas vodi ka detaljima i direktnom kontaktu.',
     viewAll: 'Pogledaj celu ponudu',
     darkTitle: 'Mirna odluka pre kupovine.',
+    darkAccent: 'pre kupovine',
+    darkEyebrow: 'Proces poverenja',
     darkSub: 'Razgovaramo o stanju vozila, realnim troskovima i istoriji pre nego sto dodjete do potpisa. To je razlika izmedju obicne prodaje i pouzdanog partnera.',
-    darkPoints: ['Provera dokumentacije', 'Pregled karoserije i enterijera', 'Procena stanja i preporuka'],
+    darkCards: [
+      ['Provera dokumentacije', 'Detaljno proveravamo dokumentaciju, servisnu istoriju i poreklo vozila.', ClipboardCheck],
+      ['Pregled karoserije i enterijera', 'Pregledamo spoljasnjost i unutrasnjost kako bismo uocili vazne detalje pre kupovine.', Car],
+      ['Procena stanja i preporuka', 'Dajemo realnu procenu i iskrenu preporuku - bez pritiska i neprijatnih iznenadjenja.', ShieldCheck],
+    ],
+    darkTrustStrip: ['Transparentno i iskreno', 'Iskustvo koje stedi vreme i novac', 'Bez neprijatnih iznenadjenja', 'Vas pouzdan partner'],
     reviewsTitle: 'Utisci kupaca',
     reviewsSub: 'Kratke recenzije kupaca koji su prosli kroz ceo proces od prvog poziva do isporuke.',
     reviews: [
@@ -103,8 +110,15 @@ const homeCopy = {
     featuredSub: 'Automjete premium te disponueshme ne Preševo. Cdo shpallje hap detajet dhe kontaktin direkt.',
     viewAll: 'Shiko gjithe oferten',
     darkTitle: 'Vendim i qete para blerjes.',
+    darkAccent: 'para blerjes',
+    darkEyebrow: 'Proces besimi',
     darkSub: 'Flasim per gjendjen, kostot reale dhe historine e automjetit para nenshkrimit. Kjo eshte diferenca mes shitjes se zakonshme dhe partnerit te besueshem.',
-    darkPoints: ['Kontroll dokumentacioni', 'Kontroll i karrocerise dhe interierit', 'Vleresim gjendjeje dhe rekomandim'],
+    darkCards: [
+      ['Kontroll dokumentacioni', 'Kontrollojme dokumentacionin, historine e servisit dhe origjinen e automjetit.', ClipboardCheck],
+      ['Kontroll i karrocerise dhe interierit', 'Shikojme pjesen e jashtme dhe te brendshme per detaje te rendesishme para blerjes.', Car],
+      ['Vleresim gjendjeje dhe rekomandim', 'Japim vleresim real dhe rekomandim te sinqerte - pa presion dhe pa surpriza.', ShieldCheck],
+    ],
+    darkTrustStrip: ['Transparente dhe sinqerte', 'Eksperience qe kursen kohe dhe para', 'Pa surpriza te pakendshme', 'Partneri juaj i besuar'],
     reviewsTitle: 'Pershtypjet e bleresve',
     reviewsSub: 'Recensione te shkurtra nga bleres qe kaluan procesin nga thirrja e pare deri te dorezimi.',
     reviews: [
@@ -142,8 +156,11 @@ const homeCopy = {
   featuredSub: string;
   viewAll: string;
   darkTitle: string;
+  darkAccent: string;
+  darkEyebrow: string;
   darkSub: string;
-  darkPoints: string[];
+  darkCards: [string, string, React.ElementType][];
+  darkTrustStrip: string[];
   reviewsTitle: string;
   reviewsSub: string;
   reviews: [string, string, string][];
@@ -172,6 +189,7 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
     featuredVehicles[0] ??
     mockVehicles.find((v) => v.status === 'active') ??
     mockVehicles[0];
+  const darkTitleParts = copy.darkTitle.split(copy.darkAccent);
 
   return (
     <>
@@ -298,27 +316,70 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
         </section>
       </div>
 
-      <section className="relative overflow-hidden bg-[#11100E] py-16 text-white min-[390px]:py-20 sm:py-24">
-        <Image
-          src="https://images.unsplash.com/photo-1542282088-fe8426682b8f?w=1800&q=82"
-          alt=""
-          fill
-          sizes="100vw"
-          className="object-cover opacity-[0.22]"
-        />
-        <div className="absolute inset-0 bg-[#11100E]/72" />
-        <div className="relative mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
-          <Reveal>
-            <div className="divider-gold mb-5" />
-            <h2 className="max-w-2xl text-3xl font-black leading-tight !text-white min-[390px]:text-4xl sm:text-5xl">{copy.darkTitle}</h2>
-            <p className="mt-4 max-w-xl text-sm leading-7 text-white/72 min-[390px]:mt-6 min-[390px]:text-base min-[390px]:leading-8">{copy.darkSub}</p>
-          </Reveal>
-          <div className="grid gap-3 sm:grid-cols-3">
-            {copy.darkPoints.map((point, index) => (
-              <Reveal key={point} delay={index * 90} className="rounded-3xl border border-white/15 bg-white/[0.09] p-4 backdrop-blur-sm min-[390px]:p-5">
-                <div className="mb-5 text-sm font-black text-white/45">0{index + 1}</div>
-                <CheckCircle2 size={20} className="mb-3 text-[var(--accent)]" />
-                <p className="text-sm font-bold leading-6 !text-white">{point}</p>
+      <section className="relative isolate overflow-hidden bg-[#11100E] py-16 text-white min-[390px]:py-20 sm:py-24">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          poster="/test_11.jpg"
+          className="absolute inset-0 -z-20 h-full w-full object-cover opacity-90 saturate-[1.08] contrast-[1.04]"
+          aria-hidden="true"
+        >
+          <source src="/videos/mojautodiler-premium-bg.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 -z-10 bg-[#11100E]/24" />
+        <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(17,16,14,0.90)_0%,rgba(17,16,14,0.58)_38%,rgba(17,16,14,0.18)_64%,rgba(17,16,14,0.46)_100%)]" />
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_18%_22%,rgba(201,168,76,0.28),transparent_27%),radial-gradient(circle_at_78%_22%,rgba(255,255,255,0.18),transparent_30%),linear-gradient(180deg,rgba(17,16,14,0.28)_0%,rgba(17,16,14,0.08)_42%,rgba(17,16,14,0.78)_100%)]" />
+        <div className="absolute inset-x-0 top-0 -z-10 h-24 bg-gradient-to-b from-[#11100E]/70 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 -z-10 h-32 bg-gradient-to-t from-[#11100E]/90 to-transparent" />
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="grid min-h-[24rem] gap-8 lg:grid-cols-[0.78fr_1.22fr] lg:items-center lg:gap-16">
+            <Reveal className="max-w-2xl">
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/14 bg-white/[0.08] px-3.5 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-white/76 backdrop-blur-md">
+                <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)] shadow-[0_0_18px_var(--accent)]" />
+                {copy.darkEyebrow}
+              </div>
+              <h2 className="max-w-2xl text-3xl font-black leading-tight !text-white drop-shadow-[0_4px_22px_rgba(0,0,0,0.34)] min-[390px]:text-4xl sm:text-5xl">
+                {darkTitleParts[0]}
+                <span className="text-[var(--accent)]">{copy.darkAccent}</span>
+                {darkTitleParts[1]}
+              </h2>
+              <p className="mt-4 max-w-xl text-sm leading-7 text-white/80 drop-shadow-[0_2px_10px_rgba(0,0,0,0.35)] min-[390px]:mt-6 min-[390px]:text-base min-[390px]:leading-8">{copy.darkSub}</p>
+            </Reveal>
+
+            <div className="hidden min-h-[18rem] rounded-[2rem] border border-white/0 lg:block" aria-hidden="true" />
+          </div>
+
+          <div className="mt-8 grid gap-3 md:grid-cols-3 lg:mt-10 lg:gap-4">
+            {copy.darkCards.map(([title, text, Icon], index) => (
+              <Reveal key={title} delay={180 + index * 120} className="group relative min-h-[13rem] overflow-hidden rounded-[1.75rem] border border-white/18 bg-[#12110F]/42 p-5 shadow-[0_24px_80px_rgba(0,0,0,0.30)] backdrop-blur-xl transition-all duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] before:absolute before:inset-0 before:bg-[linear-gradient(150deg,rgba(255,255,255,0.18),transparent_42%,rgba(201,168,76,0.12))] before:opacity-75 before:transition-opacity before:duration-1000 before:ease-[cubic-bezier(0.22,1,0.36,1)] min-[390px]:min-h-[14rem] sm:p-6 motion-safe:[@media(hover:hover)_and_(pointer:fine)]:hover:-translate-y-px motion-safe:[@media(hover:hover)_and_(pointer:fine)]:hover:border-white/22 motion-safe:[@media(hover:hover)_and_(pointer:fine)]:hover:bg-[#13110F]/45 motion-safe:[@media(hover:hover)_and_(pointer:fine)]:hover:shadow-[0_25px_82px_rgba(0,0,0,0.32)] motion-safe:[@media(hover:hover)_and_(pointer:fine)]:hover:before:opacity-82">
+                <div className="relative flex h-full flex-col">
+                  <div className="mb-8 flex items-start justify-between gap-4">
+                    <span className="text-4xl font-black leading-none text-white/18 transition-colors duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] sm:text-5xl motion-safe:[@media(hover:hover)_and_(pointer:fine)]:group-hover:text-[var(--accent)]/32">
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[var(--accent-border)] bg-[var(--accent)]/16 text-[var(--accent)] shadow-[inset_0_1px_0_rgba(255,255,255,0.16),0_10px_28px_rgba(0,0,0,0.22)] backdrop-blur-md transition-all duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] sm:h-14 sm:w-14 motion-safe:[@media(hover:hover)_and_(pointer:fine)]:group-hover:border-[var(--accent)]/35 motion-safe:[@media(hover:hover)_and_(pointer:fine)]:group-hover:bg-[var(--accent)]/19 motion-safe:[@media(hover:hover)_and_(pointer:fine)]:group-hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.17),0_11px_29px_rgba(0,0,0,0.23)]">
+                      <Icon size={23} />
+                    </div>
+                  </div>
+                  <div className="mt-auto">
+                    <h3 className="text-lg font-black leading-tight !text-white">{title}</h3>
+                    <p className="mt-3 max-w-sm text-sm leading-6 text-white/72">{text}</p>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+
+          <div className="mt-5 grid gap-2 rounded-3xl border border-white/14 bg-white/[0.08] p-3 shadow-[0_18px_60px_rgba(0,0,0,0.22)] backdrop-blur-xl min-[390px]:p-4 sm:grid-cols-2 lg:grid-cols-4">
+            {copy.darkTrustStrip.map((item, index) => (
+              <Reveal key={item} delay={520 + index * 70} className="flex items-center gap-2 rounded-2xl px-2 py-2 text-sm font-bold text-white/82">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--accent-border)] bg-[var(--accent)]/14 text-[var(--accent)]">
+                  <CheckCircle2 size={14} />
+                </span>
+                {item}
               </Reveal>
             ))}
           </div>
