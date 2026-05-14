@@ -335,7 +335,7 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
         <div className="absolute inset-x-0 top-0 -z-10 h-24 bg-gradient-to-b from-[#11100E]/70 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 -z-10 h-32 bg-gradient-to-t from-[#11100E]/90 to-transparent" />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="grid min-h-[24rem] gap-8 lg:grid-cols-[0.78fr_1.22fr] lg:items-center lg:gap-16">
+          <div className="grid gap-8 lg:min-h-[24rem] lg:grid-cols-[0.78fr_1.22fr] lg:items-center lg:gap-16">
             <Reveal className="max-w-2xl">
               <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/14 bg-white/[0.08] px-3.5 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-white/76 backdrop-blur-md">
                 <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)] shadow-[0_0_18px_var(--accent)]" />
@@ -352,7 +352,7 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
             <div className="hidden min-h-[18rem] rounded-[2rem] border border-white/0 lg:block" aria-hidden="true" />
           </div>
 
-          <div className="mt-8 grid gap-3 md:grid-cols-3 lg:mt-10 lg:gap-4">
+          <div className="mt-5 grid gap-3 min-[390px]:mt-6 md:grid-cols-3 lg:mt-10 lg:gap-4">
             {copy.darkCards.map(([title, text, Icon], index) => (
               <Reveal key={title} delay={180 + index * 120} className="group relative min-h-[13rem] overflow-hidden rounded-[1.75rem] border border-white/18 bg-[#12110F]/42 p-5 shadow-[0_24px_80px_rgba(0,0,0,0.30)] backdrop-blur-xl transition-all duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] before:absolute before:inset-0 before:bg-[linear-gradient(150deg,rgba(255,255,255,0.18),transparent_42%,rgba(201,168,76,0.12))] before:opacity-75 before:transition-opacity before:duration-1000 before:ease-[cubic-bezier(0.22,1,0.36,1)] min-[390px]:min-h-[14rem] sm:p-6 motion-safe:[@media(hover:hover)_and_(pointer:fine)]:hover:-translate-y-px motion-safe:[@media(hover:hover)_and_(pointer:fine)]:hover:border-white/22 motion-safe:[@media(hover:hover)_and_(pointer:fine)]:hover:bg-[#13110F]/45 motion-safe:[@media(hover:hover)_and_(pointer:fine)]:hover:shadow-[0_25px_82px_rgba(0,0,0,0.32)] motion-safe:[@media(hover:hover)_and_(pointer:fine)]:hover:before:opacity-82">
                 <div className="relative flex h-full flex-col">
