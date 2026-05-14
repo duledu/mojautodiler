@@ -130,7 +130,7 @@ export default function Footer({ locale, t }: FooterProps) {
         <div className="soft-divider my-8" />
         <div className="flex flex-col gap-2 text-xs text-[var(--color-text-muted)] sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} AutoFerari Preševo. {t.footer.rights}.</p>
-          <p>Premium auto salon • Preševo</p>
+          <p>Premium auto plac • Preševo</p>
         </div>
       </div>
     </footer>

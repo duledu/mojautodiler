@@ -31,9 +31,9 @@ const sr = {
     admin: 'Admin',
   },
   hero: {
-    tagline: 'Premium auto salon • Preševo',
+    tagline: 'Premium auto plac • Preševo',
     title: 'Pronađite Vaš\nSavršeni Automobil',
-    subtitle: 'Premium automobili sa transparentnom istorijom. Pouzdan auto salon u Preševu i jugu Srbije.',
+    subtitle: 'Premium automobili sa transparentnom istorijom. Pouzdan auto plac u Preševu i jugu Srbije.',
     ctaInventory: 'Pogledaj Vozila',
     ctaContact: 'Kontaktirajte Nas',
     ctaTrade: 'Prodajte / Zamenite',
@@ -49,7 +49,7 @@ const sr = {
       { title: 'Proverena Vozila', desc: 'Svako vozilo prolazi detaljnu tehničku proveru pre prodaje' },
       { title: 'Transparentne Cene', desc: 'Nema skrivenih troškova – cena je cena, bez iznenađenja' },
       { title: 'Stručni Savet', desc: 'Tim eksperata je tu da vam pomogne pri svakom odabiru' },
-      { title: 'Podrška Nakon Kupovine', desc: 'Brinemo o vama i nakon što napustite salon' },
+      { title: 'Podrška Nakon Kupovine', desc: 'Brinemo o vama i nakon što napustite plac' },
     ],
   },
   financing: {
@@ -200,7 +200,7 @@ const sr = {
     },
   },
   footer: {
-    tagline: 'Premium automobili sa transparentnom istorijom. Pouzdan auto salon u Preševu.',
+    tagline: 'Premium automobili sa transparentnom istorijom. Pouzdan auto plac u Preševu.',
     rights: 'Sva prava zadržana',
     links: 'Brzi linkovi',
     social: 'Pratite nas',

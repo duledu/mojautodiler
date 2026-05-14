@@ -75,12 +75,12 @@ export default function AdminSettingsClient({ dealer }: Props) {
     <div className="max-w-5xl space-y-5 p-3 min-[390px]:space-y-7 min-[390px]:p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-dark)]">Konfiguracija salona</p>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-dark)]">Konfiguracija placa</p>
           <h1 className="mt-2 text-3xl font-black text-[var(--color-text)]" style={{ fontFamily: 'var(--font-display)' }}>
             Podesavanja
           </h1>
           <p className="mt-2 max-w-xl text-sm leading-6 text-[var(--color-text-muted)]">
-            Upravljajte informacijama koje se prikazuju na sajtu, kontakt kanalima i lokalnim podacima salona.
+            Upravljajte informacijama koje se prikazuju na sajtu, kontakt kanalima i lokalnim podacima placa.
           </p>
         </div>
         <button
@@ -101,10 +101,10 @@ export default function AdminSettingsClient({ dealer }: Props) {
       </div>
 
       <section className="rounded-3xl border border-[var(--color-border)] bg-white p-4 shadow-sm min-[390px]:p-5 sm:p-6">
-        <SectionHeader icon={<Building size={18} />} title="Informacije o salonu" text="Osnovni identitet i direktni kontakt podaci." />
+        <SectionHeader icon={<Building size={18} />} title="Informacije o placu" text="Osnovni identitet i direktni kontakt podaci." />
 
         <div className="mt-6 space-y-5">
-          <InputField label="Naziv salona" icon={Building} value={form.name} onChange={update('name')} placeholder="AutoFerari Presevo" />
+          <InputField label="Naziv placa" icon={Building} value={form.name} onChange={update('name')} placeholder="AutoFerari Presevo" />
 
           <div className="grid gap-4 sm:grid-cols-2">
             <InputField label="Telefon" icon={Phone} value={form.phone} onChange={update('phone')} type="tel" placeholder="+381 64 000 0000" />
@@ -131,7 +131,7 @@ export default function AdminSettingsClient({ dealer }: Props) {
       </section>
 
       <section className="rounded-3xl border border-[var(--color-border)] bg-white p-4 shadow-sm min-[390px]:p-5 sm:p-6">
-        <SectionHeader icon={<Globe size={18} />} title="Drustvene mreze i linkovi" text="Kanali koji pojacavaju poverenje i vode kupca do salona." />
+        <SectionHeader icon={<Globe size={18} />} title="Drustvene mreze i linkovi" text="Kanali koji pojacavaju poverenje i vode kupca do placa." />
 
         <div className="mt-6 grid gap-5">
           <InputField label="Facebook URL" icon={Globe} value={form.facebook || ''} onChange={update('facebook')} placeholder="https://facebook.com/autoferari" />

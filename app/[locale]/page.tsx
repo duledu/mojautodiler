@@ -27,7 +27,7 @@ import { getTranslations, isValidLocale, Locale } from '@/lib/i18n';
 
 const homeCopy = {
   sr: {
-    eyebrow: 'Premium auto salon • Preševo',
+    eyebrow: 'Premium auto plac • Preševo',
     title: 'Premium automobili sa transparentnom istorijom.',
     lead: 'Pažljivo odabrana premium vozila iz uvoza iz Švajcarske, uz provereno stanje i sigurnu kupovinu bez pritiska.',
     primary: 'Pregledaj vozila',
@@ -45,7 +45,7 @@ const homeCopy = {
     trustTitle: 'Kupovina sa vise sigurnosti',
     trustSub: 'Svaki detalj je postavljen da kupac dobije jasnu sliku pre odluke.',
     trust: [
-      ['Pouzdan salon u Preševu', 'Lokalna reputacija za jug Srbije, potvrdjena kroz kupce i javne recenzije.', ShieldCheck],
+      ['Pouzdan auto plac u Preševu', 'Lokalna reputacija za jug Srbije, potvrdjena kroz kupce i javne recenzije.', ShieldCheck],
       ['Transparentna istorija', 'Poreklo, servis i stanje komuniciramo bez skrivenih stavki.', ClipboardCheck],
       ['Profesionalna provera', 'Vozila se pregledaju pre prodaje i pre preporuke kupcu.', Wrench],
       ['Podrska do isporuke', 'Razgledanje, probna voznja, dokumentacija i tehnicki pregled.', KeyRound],
@@ -74,7 +74,7 @@ const homeCopy = {
     ctaSub: 'Tu smo za sva pitanja oko vozila, kupovine i rezervacije. Pošaljite poruku ili nas pozovite direktno.',
     ctaPrimary: 'Kontaktirajte nas',
     ctaCall: 'Pozovi direktno',
-    dealerTitle: 'Kupujete i vozilo i poverenje salona.',
+    dealerTitle: 'Kupujete i vozilo i poverenje placa.',
     dealerSub: 'AutoFerari selektuje vozila za kupce koji zele jasnu istoriju, realno stanje i mirnu odluku pre kupovine.',
     dealerPillars: [
       ['Kako biramo vozila', 'Prednost imaju primerci sa jasnim poreklom, urednom dokumentacijom i stanjem koje mozemo da preporucimo.'],
@@ -83,7 +83,7 @@ const homeCopy = {
     ],
   },
   sq: {
-    eyebrow: 'Autosallon premium • Preševo',
+    eyebrow: 'Auto plac premium • Preševo',
     title: 'Automjete premium, te verifikuara.',
     lead: 'Automjete premium të përzgjedhura me kujdes nga importi i Zvicrës, me gjendje të verifikuar dhe blerje të sigurt pa presion.',
     primary: 'Shiko automjetet',
@@ -101,7 +101,7 @@ const homeCopy = {
     trustTitle: 'Blerje me me shume siguri',
     trustSub: 'Cdo detaj eshte vendosur qe bleresi te kete pamje te qarte para vendimit.',
     trust: [
-      ['Autosallon i besuar ne Preševo', 'Reputacion lokal per jugun e Serbise, i konfirmuar nga bleresit dhe recenzionet publike.', ShieldCheck],
+      ['Auto plac i besuar ne Preševo', 'Reputacion lokal per jugun e Serbise, i konfirmuar nga bleresit dhe recenzionet publike.', ShieldCheck],
       ['Histori transparente', 'Origjina, servisi dhe gjendja komunikohen pa kosto te fshehura.', ClipboardCheck],
       ['Kontroll profesional', 'Automjetet kontrollohen para shitjes dhe para rekomandimit.', Wrench],
       ['Mbeshtetje deri ne dorezim', 'Shikim i automjetit, test vozitje, dokumentacion dhe kontroll teknik.', KeyRound],
@@ -128,9 +128,9 @@ const homeCopy = {
     ],
     ctaTitle: 'Gati per shikim?',
     ctaSub: 'Jemi këtu për çdo pyetje rreth automjeteve, blerjes dhe rezervimit. Dërgoni mesazh ose na telefononi drejtpërdrejt.',
-    ctaPrimary: 'Kontakto sallonin',
+    ctaPrimary: 'Kontakto placin',
     ctaCall: 'Telefono direkt',
-    dealerTitle: 'Bleni edhe automjetin, edhe besimin e sallonit.',
+    dealerTitle: 'Bleni edhe automjetin, edhe besimin e placit.',
     dealerSub: 'AutoFerari zgjedh automjete per bleres qe duan histori te qarte, gjendje reale dhe vendim te qete para blerjes.',
     dealerPillars: [
       ['Si i zgjedhim automjetet', 'Prioritet kane automjetet me origjine te qarte, dokumentacion dhe gjendje qe mund ta rekomandojme.'],

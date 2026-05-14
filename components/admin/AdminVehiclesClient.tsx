@@ -152,7 +152,7 @@ export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-dark)]">Inventar salona</p>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-dark)]">Inventar placa</p>
           <h1
             className="mt-2 text-3xl font-black text-[var(--color-text)]"
             style={{ fontFamily: 'var(--font-display)' }}

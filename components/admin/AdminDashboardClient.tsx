@@ -136,7 +136,7 @@ export default function AdminDashboardClient({ stats, recentLeads, recentVehicle
               <QuickAction href={`/${locale}/admin/vehicles/new`} icon={<Plus size={16} />} label="Dodaj novo vozilo" featured />
               <QuickAction href={`/${locale}/admin/vehicles`} icon={<Car size={16} />} label="Upravljaj vozilima" />
               <QuickAction href={`/${locale}/admin/leads`} icon={<MessageSquare size={16} />} label="Pregled upita" />
-              <QuickAction href={`/${locale}/admin/settings`} icon={<Phone size={16} />} label="Podešavanja salona" />
+              <QuickAction href={`/${locale}/admin/settings`} icon={<Phone size={16} />} label="Podešavanja placa" />
             </div>
           </section>
 

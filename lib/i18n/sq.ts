@@ -31,9 +31,9 @@ const sq = {
     admin: 'Admin',
   },
   hero: {
-    tagline: 'Autosallon premium • Preševo',
+    tagline: 'Auto plac premium • Preševo',
     title: 'Gjeni Makinën\nTuaj Ideale',
-    subtitle: 'Automjete premium me histori transparente. Autosallon i besuar ne Preševo dhe jug te Serbise.',
+    subtitle: 'Automjete premium me histori transparente. Auto plac i besuar ne Preševo dhe jug te Serbise.',
     ctaInventory: 'Shiko Automjetet',
     ctaContact: 'Na Kontaktoni',
     ctaTrade: 'Shisni / Shkëmbeni',
@@ -49,7 +49,7 @@ const sq = {
       { title: 'Automjete të Verifikuara', desc: 'Çdo automjet kalon kontroll të detajuar teknik para shitjes' },
       { title: 'Çmime Transparente', desc: 'Pa kosto të fshehura – çmimi është çmimi, pa surpriza' },
       { title: 'Këshilla Ekspertësh', desc: 'Ekipi ynë është këtu t\'ju ndihmojë në çdo zgjedhje' },
-      { title: 'Mbështetje Pas Blerjes', desc: 'Kujdesemi për ju edhe pas largimit nga salloni' },
+      { title: 'Mbështetje Pas Blerjes', desc: 'Kujdesemi për ju edhe pas largimit nga placi' },
     ],
   },
   financing: {
@@ -200,7 +200,7 @@ const sq = {
     },
   },
   footer: {
-    tagline: 'Automjete premium me histori transparente. Autosallon i besuar ne Preševo.',
+    tagline: 'Automjete premium me histori transparente. Auto plac i besuar ne Preševo.',
     rights: 'Të gjitha të drejtat e rezervuara',
     links: 'Lidhje të shpejta',
     social: 'Na ndiqni',

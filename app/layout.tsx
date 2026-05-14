@@ -3,7 +3,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: { default: 'AutoFerari Preševo | Premium automobili sa transparentnom istorijom', template: '%s | AutoFerari Preševo' },
-  description: 'Premium automobili sa transparentnom istorijom. Pouzdan auto salon u Preševu za pažljivo odabrana premium vozila.',
+  description: 'Premium automobili sa transparentnom istorijom. Pouzdan auto plac u Preševu za pažljivo odabrana premium vozila.',
   manifest: '/manifest.json',
   openGraph: { type: 'website', siteName: 'AutoFerari Preševo' },
 };

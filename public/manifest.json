@@ -1,7 +1,7 @@
 {
   "name": "AutoFerari Preševo",
   "short_name": "AutoFerari",
-  "description": "Premium automobili sa transparentnom istorijom. Pouzdan auto salon u Preševu.",
+  "description": "Premium automobili sa transparentnom istorijom. Pouzdan auto plac u Preševu.",
   "start_url": "/sr",
   "display": "standalone",
   "background_color": "#0A0A0B",
@@ -86,7 +86,7 @@
     {
       "name": "Kontakt",
       "short_name": "Kontakt",
-      "description": "Kontaktirajte auto salon u Preševu",
+      "description": "Kontaktirajte auto plac u Preševu",
       "url": "/sr/contact",
       "icons": [{ "src": "/icons/shortcut-contact.png", "sizes": "96x96" }]
     }
