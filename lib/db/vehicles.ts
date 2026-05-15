@@ -56,6 +56,15 @@ export async function getVehicleBySlug(slug: string): Promise<Vehicle | null> {
   }
 }
 
+export async function getVehicleById(id: string): Promise<Vehicle | null> {
+  try {
+    const row = await prisma.vehicle.findUnique({ where: { id } });
+    return row ? toAppVehicle(row) : null;
+  } catch {
+    return mockVehicles.find((v) => v.id === id) ?? null;
+  }
+}
+
 export async function getSimilarVehicles(vehicleId: string, brand: string, limit = 4): Promise<Vehicle[]> {
   try {
     const rows = await prisma.vehicle.findMany({

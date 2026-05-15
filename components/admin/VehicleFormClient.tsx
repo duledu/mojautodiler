@@ -4,17 +4,41 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  ArrowLeft, Upload, X, Plus, Save, CheckCircle,
-  Image as ImageIcon, Video, Tag, Info, Settings2,
-  Shield, Star
+  AlertCircle, ArrowLeft, CheckCircle, Image as ImageIcon,
+  Info, Plus, Save, Settings2, Shield, Star, Tag, Upload, Video, X,
 } from 'lucide-react';
 import { Vehicle, FuelType, TransmissionType, DrivetrainType, BodyType, VehicleStatus, VehicleCondition, Currency } from '@/types/vehicle';
+
+// Browser password-manager extensions (e.g. LastPass, Bitwarden) inject
+// fdprocessedid on interactive elements after hydration. These thin wrappers
+// suppress the resulting React warning without changing any behaviour.
+function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
+  return <input suppressHydrationWarning {...props} />;
+}
+function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
+  return <select suppressHydrationWarning {...props} />;
+}
+function TextArea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  return <textarea suppressHydrationWarning {...props} />;
+}
 
 type FormData = Partial<Vehicle> & {
   equipmentInput?: string;
   safetyInput?: string;
   featuresInput?: string;
   tagsInput?: string;
+};
+
+// Per-image upload slot — tracks blob preview, R2 upload state, and final URL
+type ImageSlot = {
+  /** Stable local ID for React keying */
+  id: string;
+  /** blob:// during upload, https:// once persisted */
+  previewUrl: string;
+  /** Set to the R2 public URL after a successful upload */
+  uploadedUrl?: string;
+  uploading: boolean;
+  error?: string;
 };
 
 interface Props {
@@ -55,14 +79,14 @@ function TagInput({ label, tags, onChange }: { label: string; tags: string[]; on
   return (
     <div className="space-y-2">
       <div className="flex gap-2">
-        <input
+        <Input
           className={inputCls + ' flex-1'}
           value={val}
           onChange={e => setVal(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), add())}
           placeholder={`Dodaj ${label.toLowerCase()}...`}
         />
-        <button type="button" onClick={add} className="rounded-2xl border border-[var(--color-border)] bg-white px-3 py-2.5 text-[var(--color-text-muted)] transition hover:border-[var(--accent-border)] hover:text-[var(--accent-dark)]">
+        <button type="button" onClick={add} suppressHydrationWarning className="rounded-2xl border border-[var(--color-border)] bg-white px-3 py-2.5 text-[var(--color-text-muted)] transition hover:border-[var(--accent-border)] hover:text-[var(--accent-dark)]">
           <Plus className="w-4 h-4" />
         </button>
       </div>
@@ -87,8 +111,16 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
   const locale = pathname.split('/')[1] || 'sr';
   const [activeTab, setActiveTab] = useState('basic');
   const [saved, setSaved] = useState(false);
-  const [previewUrls, setPreviewUrls] = useState<string[]>(
-    vehicle?.images?.map(img => img.url) || []
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  // Existing images initialised as already-uploaded slots (no blob, no spinner)
+  const [imageSlots, setImageSlots] = useState<ImageSlot[]>(() =>
+    (vehicle?.images ?? []).map((img, i) => ({
+      id: `existing-${i}`,
+      previewUrl: img.url,
+      uploadedUrl: img.url,
+      uploading: false,
+    }))
   );
   const [previewVideos, setPreviewVideos] = useState<string[]>(
     vehicle?.videos?.map(v => v.url) || []
@@ -133,9 +165,16 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
   const set = (key: keyof FormData) => (val: unknown) => setForm(f => ({ ...f, [key]: val }));
 
   const handleSave = async () => {
+    setSaving(true);
+    setSaveError('');
+
     try {
-      // Images: collect URL strings (previewUrls may include blob: URLs from file picker)
-      const imageUrls = previewUrls.filter((u) => u.startsWith('http'));
+      // Only include images that have been successfully uploaded to R2 (have an uploadedUrl)
+      const imageUrls = imageSlots
+        .filter((s) => s.uploadedUrl && !s.uploading)
+        .map((s) => s.uploadedUrl as string);
+
+      console.log('[SAVE] final imageUrls before PUT:', imageUrls);
 
       const payload = {
         ...form,
@@ -143,30 +182,139 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
         slug: form.seoSlug?.trim() || undefined,
       };
 
-      if (mode === 'edit' && vehicle?.id) {
-        await fetch(`/api/admin/vehicles/${vehicle.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-      } else {
-        await fetch('/api/admin/vehicles', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
+      const res = mode === 'edit' && vehicle?.id
+        ? await fetch(`/api/admin/vehicles/${vehicle.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          })
+        : await fetch('/api/admin/vehicles', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        const msg = (data as { error?: string }).error || `Greška ${res.status}`;
+        setSaveError(msg);
+        return;
       }
-    } catch {
-      // Fail silently — the saved indicator still shows
+
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Mrežna greška pri snimanju';
+      setSaveError(msg);
+    } finally {
+      setSaving(false);
     }
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    const urls = files.map(f => URL.createObjectURL(f));
-    setPreviewUrls(prev => [...prev, ...urls]);
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    // Reset input so the same file can be re-selected after an error
+    e.target.value = '';
+    if (files.length === 0) return;
+
+    for (const file of files) {
+      const slotId = crypto.randomUUID();
+      const blobUrl = URL.createObjectURL(file);
+
+      // Show preview immediately with loading spinner
+      setImageSlots(prev => [...prev, { id: slotId, previewUrl: blobUrl, uploading: true }]);
+
+      try {
+        // ── Step 1: get presigned PUT URL ──────────────────────────────────
+        console.log(`[UPLOAD] presign start — file="${file.name}" type=${file.type} size=${file.size}`);
+
+        const presignRes = await fetch('/api/admin/upload/presign', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            filename:    file.name,
+            contentType: file.type,
+            size:        file.size,
+            vehicleId:   vehicle?.id ?? null,
+          }),
+        });
+
+        if (!presignRes.ok) {
+          const data = await presignRes.json().catch(() => ({})) as { error?: string };
+          const msg = data.error ?? `Presign HTTP ${presignRes.status}`;
+          console.error('[UPLOAD] presign failed —', msg, data);
+          throw new Error(msg);
+        }
+
+        const { uploadUrl, publicUrl } = (await presignRes.json()) as {
+          uploadUrl: string;
+          publicUrl: string;
+        };
+
+        console.log(`[UPLOAD] presign OK — publicUrl=${publicUrl}`);
+
+        // ── Step 2: PUT file directly to R2 ───────────────────────────────
+        console.log(`[UPLOAD] R2 PUT start — url starts with ${uploadUrl.slice(0, 60)}…`);
+
+        let putRes: Response;
+        try {
+          putRes = await fetch(uploadUrl, {
+            method: 'PUT',
+            body: file,
+            headers: { 'Content-Type': file.type },
+          });
+        } catch (fetchErr) {
+          // fetch() throws (does not return a Response) on network errors and CORS blocks
+          const raw = fetchErr instanceof Error ? fetchErr.message : String(fetchErr);
+          const isCors =
+            raw.toLowerCase().includes('failed to fetch') ||
+            raw.toLowerCase().includes('networkerror');
+          console.error('[UPLOAD] R2 PUT threw —', raw);
+          throw new Error(
+            isCors
+              ? 'R2 CORS error: go to Cloudflare R2 → bucket → Settings → CORS and add ' +
+                'AllowedOrigins: ["http://localhost:3000"], AllowedMethods: ["PUT"], ' +
+                'AllowedHeaders: ["content-type"]'
+              : `R2 network error: ${raw}`,
+          );
+        }
+
+        if (!putRes.ok) {
+          // Read the XML error body R2 returns for 4xx/5xx
+          let detail = '';
+          try {
+            const text = await putRes.text();
+            const codeMatch  = text.match(/<Code>(.+?)<\/Code>/);
+            const msgMatch   = text.match(/<Message>(.+?)<\/Message>/);
+            detail = codeMatch
+              ? ` — ${codeMatch[1]}${msgMatch ? ': ' + msgMatch[1] : ''}`
+              : text.slice(0, 200);
+            console.error('[UPLOAD] R2 PUT error body —', text.slice(0, 400));
+          } catch { /* ignore body read error */ }
+          throw new Error(`R2 upload failed (HTTP ${putRes.status}${detail})`);
+        }
+
+        console.log('[UPLOAD] R2 PUT success');
+
+        // ── Step 3: persist the public URL ────────────────────────────────
+        URL.revokeObjectURL(blobUrl);
+        setImageSlots(prev =>
+          prev.map(s =>
+            s.id === slotId
+              ? { id: slotId, previewUrl: publicUrl, uploadedUrl: publicUrl, uploading: false }
+              : s,
+          ),
+        );
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Upload failed';
+        console.error('[UPLOAD] slot error —', msg);
+        setImageSlots(prev =>
+          prev.map(s =>
+            s.id === slotId ? { ...s, uploading: false, error: msg } : s,
+          ),
+        );
+      }
+    }
   };
 
   return (
@@ -185,17 +333,34 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
             <p className="mt-1 text-sm text-[var(--color-text-muted)]">{form.title || 'Bez naziva'}</p>
           </div>
         </div>
-        <button
-          type="button"
-          onClick={handleSave}
-          className={`inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-5 text-sm font-bold transition sm:w-auto ${
-            saved
-              ? 'border border-emerald-200 bg-emerald-50 text-emerald-800'
-              : 'btn-gold'
-          }`}
-        >
-          {saved ? <><CheckCircle className="w-4 h-4" /> Sačuvano</> : <><Save className="w-4 h-4" /> Sačuvaj</>}
-        </button>
+        <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:items-end">
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving || imageSlots.some(s => s.uploading)}
+            suppressHydrationWarning
+            className={`inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-5 text-sm font-bold transition disabled:opacity-60 sm:w-auto ${
+              saved
+                ? 'border border-emerald-200 bg-emerald-50 text-emerald-800'
+                : saveError
+                  ? 'border border-red-200 bg-red-50 text-red-700'
+                  : 'btn-gold'
+            }`}
+          >
+            {saving ? (
+              <><span className="h-4 w-4 animate-spin rounded-full border-2 border-current/30 border-t-current" /> Snima se…</>
+            ) : saved ? (
+              <><CheckCircle className="w-4 h-4" /> Sačuvano</>
+            ) : saveError ? (
+              <><AlertCircle className="w-4 h-4" /> Greška — pokušaj ponovo</>
+            ) : (
+              <><Save className="w-4 h-4" /> Sačuvaj</>
+            )}
+          </button>
+          {saveError && (
+            <p className="w-full text-right text-xs text-red-600 sm:max-w-xs">{saveError}</p>
+          )}
+        </div>
       </div>
 
       {/* Tabs */}
@@ -205,6 +370,7 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
             type="button"
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
+            suppressHydrationWarning
             className={`touch-target flex items-center gap-2 whitespace-nowrap rounded-2xl px-4 py-2.5 text-sm font-bold transition-all ${
               activeTab === tab.id
                 ? 'bg-[var(--accent)] text-white shadow-sm'
@@ -224,50 +390,50 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
           <div className="space-y-5">
             <h2 className="border-b border-[var(--color-border)] pb-3 font-black text-[var(--color-text)]">Osnove informacije</h2>
             <Field label="Naziv oglasa" required>
-              <input className={inputCls} value={form.title} onChange={e => set('title')(e.target.value)} placeholder="BMW X5 xDrive30d M Sport" />
+              <Input className={inputCls} value={form.title} onChange={e => set('title')(e.target.value)} placeholder="BMW X5 xDrive30d M Sport" />
             </Field>
             <div className="grid sm:grid-cols-3 gap-4">
               <Field label="Brend" required>
-                <input className={inputCls} value={form.brand} onChange={e => set('brand')(e.target.value)} placeholder="BMW" />
+                <Input className={inputCls} value={form.brand} onChange={e => set('brand')(e.target.value)} placeholder="BMW" />
               </Field>
               <Field label="Model" required>
-                <input className={inputCls} value={form.model} onChange={e => set('model')(e.target.value)} placeholder="X5" />
+                <Input className={inputCls} value={form.model} onChange={e => set('model')(e.target.value)} placeholder="X5" />
               </Field>
               <Field label="Generacija">
-                <input className={inputCls} value={form.generation} onChange={e => set('generation')(e.target.value)} placeholder="G05" />
+                <Input className={inputCls} value={form.generation} onChange={e => set('generation')(e.target.value)} placeholder="G05" />
               </Field>
             </div>
             <div className="grid sm:grid-cols-3 gap-4">
               <Field label="Godište" required>
-                <input className={inputCls} type="number" value={form.year} onChange={e => set('year')(+e.target.value)} min={1990} max={2030} />
+                <Input className={inputCls} type="number" value={form.year} onChange={e => set('year')(+e.target.value)} min={1990} max={2030} />
               </Field>
               <Field label="Kilometraža" required>
-                <input className={inputCls} type="number" value={form.mileage} onChange={e => set('mileage')(+e.target.value)} placeholder="45000" />
+                <Input className={inputCls} type="number" value={form.mileage} onChange={e => set('mileage')(+e.target.value)} placeholder="45000" />
               </Field>
               <Field label="Stanje" required>
-                <select className={selectCls} value={form.condition} onChange={e => set('condition')(e.target.value as VehicleCondition)}>
+                <Select className={selectCls} value={form.condition} onChange={e => set('condition')(e.target.value as VehicleCondition)}>
                   <option value="novo">Novo</option>
                   <option value="polovno">Polovno</option>
                   <option value="uvoz">Uvoz</option>
-                </select>
+                </Select>
               </Field>
             </div>
             <div className="grid sm:grid-cols-3 gap-4">
               <Field label="Cena" required>
-                <input className={inputCls} type="number" value={form.price} onChange={e => set('price')(+e.target.value)} placeholder="25000" />
+                <Input className={inputCls} type="number" value={form.price} onChange={e => set('price')(+e.target.value)} placeholder="25000" />
               </Field>
               <Field label="Valuta">
-                <select className={selectCls} value={form.currency} onChange={e => set('currency')(e.target.value as Currency)}>
+                <Select className={selectCls} value={form.currency} onChange={e => set('currency')(e.target.value as Currency)}>
                   <option value="EUR">EUR</option>
                   <option value="RSD">RSD</option>
-                </select>
+                </Select>
               </Field>
               <Field label="Registracija">
-                <input className={inputCls} value={form.registration} onChange={e => set('registration')(e.target.value)} placeholder="06/2025" />
+                <Input className={inputCls} value={form.registration} onChange={e => set('registration')(e.target.value)} placeholder="06/2025" />
               </Field>
             </div>
             <Field label="Opis vozila">
-              <textarea
+              <TextArea
                 className={inputCls}
                 rows={5}
                 value={form.description}
@@ -276,7 +442,7 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
               />
             </Field>
             <Field label="Napomene prodavca">
-              <textarea
+              <TextArea
                 className={inputCls}
                 rows={3}
                 value={form.dealerNotes}
@@ -293,34 +459,34 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
             <h2 className="border-b border-[var(--color-border)] pb-3 font-black text-[var(--color-text)]">Tehničke specifikacije</h2>
             <div className="grid sm:grid-cols-3 gap-4">
               <Field label="Gorivo">
-                <select className={selectCls} value={form.fuelType} onChange={e => set('fuelType')(e.target.value as FuelType)}>
+                <Select className={selectCls} value={form.fuelType} onChange={e => set('fuelType')(e.target.value as FuelType)}>
                   <option value="benzin">Benzin</option>
                   <option value="dizel">Dizel</option>
                   <option value="hibrid">Hibrid</option>
                   <option value="elektricni">Električni</option>
                   <option value="plin">Plin (LPG)</option>
                   <option value="cng">CNG</option>
-                </select>
+                </Select>
               </Field>
               <Field label="Menjač">
-                <select className={selectCls} value={form.transmission} onChange={e => set('transmission')(e.target.value as TransmissionType)}>
+                <Select className={selectCls} value={form.transmission} onChange={e => set('transmission')(e.target.value as TransmissionType)}>
                   <option value="manuelni">Manuelni</option>
                   <option value="automatski">Automatski</option>
                   <option value="poluautomatski">Poluautomatski</option>
-                </select>
+                </Select>
               </Field>
               <Field label="Pogon">
-                <select className={selectCls} value={form.drivetrain} onChange={e => set('drivetrain')(e.target.value as DrivetrainType)}>
+                <Select className={selectCls} value={form.drivetrain} onChange={e => set('drivetrain')(e.target.value as DrivetrainType)}>
                   <option value="prednji">Prednji (FWD)</option>
                   <option value="zadnji">Zadnji (RWD)</option>
                   <option value="4x4">4x4 (stalni)</option>
                   <option value="awd">AWD</option>
-                </select>
+                </Select>
               </Field>
             </div>
             <div className="grid sm:grid-cols-3 gap-4">
               <Field label="Karoserija">
-                <select className={selectCls} value={form.bodyType} onChange={e => set('bodyType')(e.target.value as BodyType)}>
+                <Select className={selectCls} value={form.bodyType} onChange={e => set('bodyType')(e.target.value as BodyType)}>
                   <option value="limuzina">Limuzina (Sedan)</option>
                   <option value="hatchback">Hatchback</option>
                   <option value="karavan">Karavan</option>
@@ -329,39 +495,39 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
                   <option value="kabriolet">Kabriolet</option>
                   <option value="van">Van / Minivan</option>
                   <option value="pickup">Pickup</option>
-                </select>
+                </Select>
               </Field>
               <Field label="Zapremina motora (cm³)">
-                <input className={inputCls} type="number" value={form.engineSize || ''} onChange={e => set('engineSize')(+e.target.value)} placeholder="1998" />
+                <Input className={inputCls} type="number" value={form.engineSize || ''} onChange={e => set('engineSize')(+e.target.value)} placeholder="1998" />
               </Field>
               <Field label="Snaga (KS)">
-                <input className={inputCls} type="number" value={form.horsepower || ''} onChange={e => set('horsepower')(+e.target.value)} placeholder="190" />
+                <Input className={inputCls} type="number" value={form.horsepower || ''} onChange={e => set('horsepower')(+e.target.value)} placeholder="190" />
               </Field>
             </div>
             <div className="grid sm:grid-cols-3 gap-4">
               <Field label="Snaga (kW)">
-                <input className={inputCls} type="number" value={form.kilowatts || ''} onChange={e => set('kilowatts')(+e.target.value)} placeholder="140" />
+                <Input className={inputCls} type="number" value={form.kilowatts || ''} onChange={e => set('kilowatts')(+e.target.value)} placeholder="140" />
               </Field>
               <Field label="Broj vrata">
-                <input className={inputCls} type="number" value={form.doors} onChange={e => set('doors')(+e.target.value)} min={2} max={6} />
+                <Input className={inputCls} type="number" value={form.doors} onChange={e => set('doors')(+e.target.value)} min={2} max={6} />
               </Field>
               <Field label="Broj sedišta">
-                <input className={inputCls} type="number" value={form.seats} onChange={e => set('seats')(+e.target.value)} min={1} max={9} />
+                <Input className={inputCls} type="number" value={form.seats} onChange={e => set('seats')(+e.target.value)} min={1} max={9} />
               </Field>
             </div>
             <div className="grid sm:grid-cols-3 gap-4">
               <Field label="Boja karoserije">
-                <input className={inputCls} value={form.color} onChange={e => set('color')(e.target.value)} placeholder="Siva metalik" />
+                <Input className={inputCls} value={form.color} onChange={e => set('color')(e.target.value)} placeholder="Siva metalik" />
               </Field>
               <Field label="Boja enterijera">
-                <input className={inputCls} value={form.interiorColor} onChange={e => set('interiorColor')(e.target.value)} placeholder="Crna koža" />
+                <Input className={inputCls} value={form.interiorColor} onChange={e => set('interiorColor')(e.target.value)} placeholder="Crna koža" />
               </Field>
               <Field label="Zemlja porekla">
-                <input className={inputCls} value={form.origin} onChange={e => set('origin')(e.target.value)} placeholder="Nemačka" />
+                <Input className={inputCls} value={form.origin} onChange={e => set('origin')(e.target.value)} placeholder="Nemačka" />
               </Field>
             </div>
             <Field label="VIN broj (opciono)">
-              <input className={inputCls} value={form.vin || ''} onChange={e => set('vin')(e.target.value)} placeholder="WBA..." />
+              <Input className={inputCls} value={form.vin || ''} onChange={e => set('vin')(e.target.value)} placeholder="WBA..." />
             </Field>
           </div>
         )}
@@ -409,28 +575,55 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
                   <p className="text-sm font-bold text-[var(--color-text)]">Prevuci slike ili klikni za upload</p>
                   <p className="mt-1 text-xs text-[var(--color-text-muted)]">JPG, PNG, WebP · Max 10MB po slici</p>
                 </div>
-                <input type="file" multiple accept="image/*" className="hidden" onChange={handleImageUpload} />
+                <Input type="file" multiple accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleImageUpload} />
               </label>
 
-              {previewUrls.length > 0 && (
+              {imageSlots.length > 0 && (
                 <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                  {previewUrls.map((url, i) => (
-                    <div key={i} className="group relative aspect-[4/3] overflow-hidden rounded-2xl bg-[var(--color-surface-2)]">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={url} alt="" className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setPreviewUrls(prev => prev.filter((_, j) => j !== i))}
-                          className="p-1.5 rounded-full bg-red-500/90 text-white hover:bg-red-500 transition-colors"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                      {i === 0 && (
-                        <span className="absolute bottom-1 left-1 rounded bg-[var(--accent)] px-1.5 py-0.5 text-xs font-bold text-white">
-                          Naslovna
-                        </span>
+                  {imageSlots.map((slot, i) => (
+                    <div key={slot.id} className="group relative aspect-4/3 overflow-hidden rounded-2xl bg-(--color-surface-2)">
+                      {slot.uploading ? (
+                        /* Uploading spinner */
+                        <div className="flex h-full flex-col items-center justify-center gap-2 bg-(--color-surface-2)">
+                          <span className="h-6 w-6 animate-spin rounded-full border-2 border-(--accent-border) border-t-(--accent)" />
+                          <span className="text-[10px] font-medium text-(--color-text-muted)">Uploading…</span>
+                        </div>
+                      ) : slot.error ? (
+                        /* Upload error */
+                        <div className="flex h-full flex-col items-center justify-center gap-1.5 p-2 text-center">
+                          <AlertCircle className="h-5 w-5 shrink-0 text-red-500" />
+                          <p className="line-clamp-3 text-[10px] leading-tight text-red-600">{slot.error}</p>
+                          <button
+                            type="button"
+                            onClick={() => setImageSlots(prev => prev.filter(s => s.id !== slot.id))}
+                            className="mt-1 rounded-lg border border-red-200 bg-red-50 px-2 py-0.5 text-[10px] font-semibold text-red-600 hover:bg-red-100"
+                          >
+                            Ukloni
+                          </button>
+                        </div>
+                      ) : (
+                        /* Uploaded image */
+                        <>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={slot.previewUrl} alt="" className="h-full w-full object-cover" />
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (slot.previewUrl.startsWith('blob:')) URL.revokeObjectURL(slot.previewUrl);
+                                setImageSlots(prev => prev.filter(s => s.id !== slot.id));
+                              }}
+                              className="rounded-full bg-red-500/90 p-1.5 text-white transition-colors hover:bg-red-500"
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                          {i === 0 && (
+                            <span className="absolute bottom-1 left-1 rounded bg-(--accent) px-1.5 py-0.5 text-xs font-bold text-white">
+                              Naslovna
+                            </span>
+                          )}
+                        </>
                       )}
                     </div>
                   ))}
@@ -446,14 +639,14 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
               <div className="space-y-2">
                 {previewVideos.map((url, i) => (
                   <div key={i} className="flex items-center gap-2">
-                    <input className={inputCls + ' flex-1'} value={url} readOnly />
+                    <Input className={inputCls + ' flex-1'} value={url} readOnly />
                     <button type="button" onClick={() => setPreviewVideos(prev => prev.filter((_, j) => j !== i))} className="rounded-2xl border border-[var(--color-border)] bg-white p-2.5 text-[var(--color-text-muted)] transition hover:border-red-200 hover:text-red-500">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
                 ))}
                 <div className="flex gap-2">
-                  <input
+                  <Input
                     className={inputCls + ' flex-1'}
                     placeholder="https://youtube.com/..."
                     onKeyDown={e => {
@@ -476,22 +669,22 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
             <h2 className="border-b border-[var(--color-border)] pb-3 font-black text-[var(--color-text)]">SEO i status objave</h2>
             <div className="grid sm:grid-cols-2 gap-4">
               <Field label="Status objave">
-                <select className={selectCls} value={form.status} onChange={e => set('status')(e.target.value as VehicleStatus)}>
+                <Select className={selectCls} value={form.status} onChange={e => set('status')(e.target.value as VehicleStatus)}>
                   <option value="draft">Draft (nevidljivo)</option>
                   <option value="active">Aktivno (vidljivo)</option>
                   <option value="hidden">Skriveno</option>
                   <option value="sold">Prodano</option>
-                </select>
+                </Select>
               </Field>
               <Field label="Featured (istaknuto)">
-                <select className={selectCls} value={form.featured ? 'da' : 'ne'} onChange={e => set('featured')(e.target.value === 'da')}>
+                <Select className={selectCls} value={form.featured ? 'da' : 'ne'} onChange={e => set('featured')(e.target.value === 'da')}>
                   <option value="ne">Ne</option>
                   <option value="da">Da — prikaži na početnoj</option>
-                </select>
+                </Select>
               </Field>
             </div>
             <Field label="SEO Slug (URL putanja)">
-              <input
+              <Input
                 className={inputCls}
                 value={form.seoSlug}
                 onChange={e => set('seoSlug')(e.target.value)}
@@ -511,7 +704,7 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-text-muted)]">Pregled pre objave</p>
               {[
                 { label: 'Naziv', val: form.title, ok: !!form.title },
-                { label: 'Slike', val: `${previewUrls.length} slike`, ok: previewUrls.length > 0 },
+                { label: 'Slike', val: `${imageSlots.filter(s => s.uploadedUrl).length} slike`, ok: imageSlots.some(s => s.uploadedUrl) },
                 { label: 'Cena', val: form.price ? `${form.price} ${form.currency}` : '—', ok: !!form.price },
                 { label: 'Opis', val: form.description ? 'Postoji' : 'Nedostaje', ok: !!form.description },
                 { label: 'SEO slug', val: form.seoSlug || '—', ok: !!form.seoSlug },

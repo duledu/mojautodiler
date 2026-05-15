@@ -1,46 +1,99 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { updateVehicle, deleteVehicle } from '@/lib/db/vehicles';
 import type { VehicleStatus } from '@/types/vehicle';
 
-// PUT /api/admin/vehicles/[id] — update a vehicle (full or partial, including status)
+// PUT /api/admin/vehicles/[id] — full update (all editable fields)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
-    const body = await request.json();
-
     if (!id) {
       return NextResponse.json({ success: false, error: 'ID vozila je obavezan' }, { status: 400 });
     }
 
+    const body = await request.json();
+
+    console.info(`[VEHICLE UPDATE] id=${id} fields=${Object.keys(body).join(',')}`);
+    console.info(`[VEHICLE UPDATE] received images:`, JSON.stringify(body.images));
+
+    // Images: accept either URL strings or VehicleImage objects; drop blob: URLs
     const images: string[] | undefined = body.images
-      ? (body.images as (string | { url: string })[]).map((img) =>
-          typeof img === 'string' ? img : img.url
-        ).filter(Boolean)
+      ? (body.images as (string | { url: string })[])
+          .map((img) => (typeof img === 'string' ? img : img.url))
+          .filter((u: string) => u && u.startsWith('http'))
       : undefined;
 
-    const updated = await updateVehicle(id, {
+    console.info(`[VEHICLE UPDATE] images after filter:`, JSON.stringify(images));
+
+    const data = {
+      // ── Basic info ──────────────────────────────────────────────────────────
       ...(body.title        !== undefined && { title:          String(body.title).trim() }),
-      ...(body.price        !== undefined && { price:          Number(body.price) }),
+      ...(body.brand        !== undefined && { brand:          String(body.brand).trim() }),
+      ...(body.model        !== undefined && { model:          String(body.model).trim() }),
+      ...(body.generation   !== undefined && { generation:     body.generation?.trim() || null }),
+      ...(body.year         !== undefined && { year:           Number(body.year) }),
       ...(body.mileage      !== undefined && { mileage:        Number(body.mileage) }),
-      ...(body.status       !== undefined && { status:         body.status as VehicleStatus }),
-      ...(body.featured     !== undefined && { featured:       Boolean(body.featured) }),
+      ...(body.condition    !== undefined && { condition:      body.condition }),
+      ...(body.price        !== undefined && { price:          Number(body.price) }),
+      ...(body.currency     !== undefined && { currency:       body.currency }),
+      ...(body.registration !== undefined && { registration:   body.registration?.trim() || null }),
       ...(body.description  !== undefined && { description:    String(body.description).trim() }),
-      ...(body.dealerNotes  !== undefined && { dealerNotes:    body.dealerNotes }),
-      ...(body.equipment    !== undefined && { equipment:      body.equipment }),
-      ...(body.safetyFeatures !== undefined && { safetyFeatures: body.safetyFeatures }),
-      ...(body.features     !== undefined && { features:       body.features }),
-      ...(body.tags         !== undefined && { tags:           body.tags }),
-      ...(images            !== undefined && { images }),
-    });
+      ...(body.dealerNotes  !== undefined && { dealerNotes:    body.dealerNotes?.trim() || null }),
+      // ── Technical specs ──────────────────────────────────────────────────────
+      ...(body.fuelType     !== undefined && { fuelType:       body.fuelType }),
+      ...(body.transmission !== undefined && { transmission:   body.transmission }),
+      ...(body.drivetrain   !== undefined && { drivetrain:     body.drivetrain }),
+      ...(body.bodyType     !== undefined && { bodyType:       body.bodyType }),
+      ...(body.engineSize   !== undefined && { engineSize:     body.engineSize ? Number(body.engineSize) : null }),
+      ...(body.horsepower   !== undefined && { horsepower:     body.horsepower ? Number(body.horsepower) : null }),
+      ...(body.kilowatts    !== undefined && { kilowatts:      body.kilowatts  ? Number(body.kilowatts)  : null }),
+      ...(body.doors        !== undefined && { doors:          Number(body.doors) }),
+      ...(body.seats        !== undefined && { seats:          Number(body.seats) }),
+      ...(body.color        !== undefined && { color:          String(body.color).trim() }),
+      ...(body.interiorColor !== undefined && { interiorColor: body.interiorColor?.trim() || null }),
+      ...(body.vin          !== undefined && { vin:            body.vin?.trim() || null }),
+      ...(body.origin       !== undefined && { origin:         body.origin?.trim() || null }),
+      // ── Equipment / safety ───────────────────────────────────────────────────
+      ...(body.equipment        !== undefined && { equipment:        body.equipment }),
+      ...(body.safetyFeatures   !== undefined && { safetyFeatures:   body.safetyFeatures }),
+      ...(body.features         !== undefined && { features:         body.features }),
+      // ── Media ────────────────────────────────────────────────────────────────
+      ...(images               !== undefined && { images }),
+      ...(body.videoUrl        !== undefined && { videoUrl: body.videoUrl?.trim() || null }),
+      // ── Publishing ───────────────────────────────────────────────────────────
+      ...(body.status   !== undefined && { status:   body.status as VehicleStatus }),
+      ...(body.featured !== undefined && { featured: Boolean(body.featured) }),
+      ...(body.tags     !== undefined && { tags:     body.tags }),
+      // ── SEO ──────────────────────────────────────────────────────────────────
+      ...(body.slug     !== undefined && body.slug && { slug: String(body.slug).trim() }),
+    };
+
+    console.info(`[VEHICLE UPDATE] writing ${Object.keys(data).length} fields to DB for id=${id}`);
+
+    const updated = await updateVehicle(id, data);
+
+    console.info(`[VEHICLE UPDATE] success id=${id} slug=${updated.slug} images=${JSON.stringify((updated as { images?: unknown }).images)}`);
+
+    // Flush SSG cache for vehicle detail pages (both locales)
+    revalidatePath(`/sr/vehicle/${updated.slug}`);
+    revalidatePath(`/sq/vehicle/${updated.slug}`);
+    // Also flush inventory so counts/statuses stay current
+    revalidatePath('/sr/inventory');
+    revalidatePath('/sq/inventory');
 
     return NextResponse.json({ success: true, vehicle: updated });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : '';
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error(`[VEHICLE UPDATE] error:`, msg);
+
     if (msg.includes('Record to update not found')) {
       return NextResponse.json({ success: false, error: 'Vozilo nije pronađeno' }, { status: 404 });
+    }
+    if (msg.includes('Unique constraint') && msg.includes('slug')) {
+      return NextResponse.json({ success: false, error: 'Ovaj URL slug je već zauzet' }, { status: 409 });
     }
     return NextResponse.json({ success: false, error: 'Greška pri ažuriranju vozila' }, { status: 500 });
   }
@@ -49,7 +102,7 @@ export async function PUT(
 // DELETE /api/admin/vehicles/[id] — permanently delete a vehicle
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -62,6 +115,7 @@ export async function DELETE(
     return NextResponse.json({ success: true });
   } catch (err) {
     const msg = err instanceof Error ? err.message : '';
+    console.error(`[VEHICLE DELETE] error id=${(await params).id}:`, msg);
     if (msg.includes('Record to delete does not exist')) {
       return NextResponse.json({ success: false, error: 'Vozilo nije pronađeno' }, { status: 404 });
     }

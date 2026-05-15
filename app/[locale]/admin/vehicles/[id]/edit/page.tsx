@@ -1,10 +1,20 @@
-import { mockVehicles } from '@/data/vehicles';
-import VehicleFormClient from '@/components/admin/VehicleFormClient';
 import { notFound } from 'next/navigation';
+import { getVehicleById } from '@/lib/db/vehicles';
+import VehicleFormClient from '@/components/admin/VehicleFormClient';
 
-export default async function EditVehiclePage({ params }: { params: Promise<{ id: string }> }) {
+export default async function EditVehiclePage({
+  params,
+}: {
+  readonly params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
-  const vehicle = mockVehicles.find(v => v.id === id);
+
+  const vehicle = await getVehicleById(id);
+
+  console.info(
+    `[EDIT PAGE] id=${id} images=${JSON.stringify(vehicle?.images?.map(i => i.url))}`,
+  );
+
   if (!vehicle) notFound();
 
   return <VehicleFormClient mode="edit" vehicle={vehicle} />;

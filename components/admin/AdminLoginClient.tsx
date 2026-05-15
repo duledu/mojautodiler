@@ -102,7 +102,7 @@ export default function AdminLoginClient({ locale, redirectTo }: Props) {
         <div className="overflow-hidden rounded-3xl border border-[var(--color-border)] bg-white shadow-[0_16px_56px_rgba(15,15,20,0.09)]">
           <div className="h-1 w-full bg-[var(--accent)]" />
 
-          <form onSubmit={handleSubmit} className="space-y-4 p-5 min-[375px]:space-y-5 min-[375px]:p-6 sm:p-8">
+          <form onSubmit={handleSubmit} suppressHydrationWarning className="space-y-4 p-5 min-[375px]:space-y-5 min-[375px]:p-6 sm:p-8">
             {/* Email */}
             <div className="space-y-1.5">
               <label
@@ -125,6 +125,7 @@ export default function AdminLoginClient({ locale, redirectTo }: Props) {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={t.emailPlaceholder}
                   className="input-premium w-full rounded-2xl py-3 pl-10 pr-4 text-sm"
+                  suppressHydrationWarning
                 />
               </div>
             </div>
@@ -151,12 +152,14 @@ export default function AdminLoginClient({ locale, redirectTo }: Props) {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={t.passwordPlaceholder}
                   className="input-premium w-full rounded-2xl py-3 pl-10 pr-11 text-sm"
+                  suppressHydrationWarning
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
                   className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-placeholder)] transition hover:text-[var(--color-text-muted)]"
                   aria-label={showPassword ? 'Sakrij lozinku' : 'Prikaži lozinku'}
+                  suppressHydrationWarning
                 >
                   {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
@@ -176,6 +179,7 @@ export default function AdminLoginClient({ locale, redirectTo }: Props) {
               type="submit"
               disabled={loading}
               className="btn-gold flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+              suppressHydrationWarning
             >
               {loading ? (
                 <>

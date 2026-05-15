@@ -95,6 +95,7 @@ export default function AdminTopBar() {
             onClick={() => handleLogout(locale)}
             className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-white px-3 py-2 text-xs font-bold text-[var(--color-text-muted)] transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
             title="Odjava"
+            suppressHydrationWarning
           >
             <LogOut size={13} />
             <span className="hidden sm:inline">Odjava</span>

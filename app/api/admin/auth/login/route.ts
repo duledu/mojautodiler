@@ -43,10 +43,25 @@ export async function POST(request: NextRequest) {
   }
 
   // ── Validate credentials ──────────────────────────────────────────────────
-  if (!validateCredentials(email, password)) {
-    // Intentionally vague — don't reveal which field is wrong
+  const adminEmailSet = !!process.env.ADMIN_EMAIL;
+  const adminPasswordSet = !!process.env.ADMIN_PASSWORD;
+
+  if (!adminEmailSet || !adminPasswordSet) {
+    // Env vars missing — almost always means the server started before .env.local existed.
+    console.error(
+      '[AUTH] Login failed: ADMIN_EMAIL or ADMIN_PASSWORD env var is not set. ' +
+      'Restart the dev server after creating .env.local, ' +
+      'or add these variables to your Vercel project settings.',
+    );
     return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
   }
+
+  if (!validateCredentials(email, password)) {
+    console.warn('[AUTH] Login failed: credentials did not match for email:', email.replace(/(?<=.).(?=.*@)/g, '*'));
+    return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
+  }
+
+  console.info('[AUTH] Login successful — issuing session cookie.');
 
   // ── Issue session cookie ──────────────────────────────────────────────────
   const token = await createSessionToken();
