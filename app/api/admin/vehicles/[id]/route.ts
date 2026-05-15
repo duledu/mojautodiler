@@ -3,6 +3,11 @@ import { revalidatePath } from 'next/cache';
 import { updateVehicle, deleteVehicle } from '@/lib/db/vehicles';
 import type { VehicleStatus } from '@/types/vehicle';
 
+/** Prisma error code lives on the error as `.code`. */
+function prismaCode(err: unknown): string {
+  return (err as { code?: string }).code ?? '';
+}
+
 // PUT /api/admin/vehicles/[id] — full update (all editable fields)
 export async function PUT(
   request: NextRequest,
@@ -12,6 +17,15 @@ export async function PUT(
     const { id } = await params;
     if (!id) {
       return NextResponse.json({ success: false, error: 'ID vozila je obavezan' }, { status: 400 });
+    }
+
+    // Guard: DATABASE_URL must be present at runtime
+    if (!process.env.DATABASE_URL) {
+      console.error('[VEHICLE UPDATE] DATABASE_URL is not set in this environment.');
+      return NextResponse.json(
+        { success: false, error: 'DATABASE_URL is not configured. Add it to Vercel environment variables and redeploy.' },
+        { status: 500 },
+      );
     }
 
     const body = await request.json();
@@ -86,16 +100,30 @@ export async function PUT(
 
     return NextResponse.json({ success: true, vehicle: updated });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.error(`[VEHICLE UPDATE] error:`, msg);
+    const msg  = err instanceof Error ? err.message : String(err);
+    const code = prismaCode(err);
+    console.error(`[VEHICLE UPDATE] error code=${code || 'n/a'}:`, msg);
 
-    if (msg.includes('Record to update not found')) {
+    // P2025 — record not found
+    if (code === 'P2025' || msg.includes('Record to update not found')) {
       return NextResponse.json({ success: false, error: 'Vozilo nije pronađeno' }, { status: 404 });
     }
-    if (msg.includes('Unique constraint') && msg.includes('slug')) {
+    // P2002 — unique constraint (slug collision)
+    if (code === 'P2002' || (msg.includes('Unique constraint') && msg.includes('slug'))) {
       return NextResponse.json({ success: false, error: 'Ovaj URL slug je već zauzet' }, { status: 409 });
     }
-    return NextResponse.json({ success: false, error: 'Greška pri ažuriranju vozila' }, { status: 500 });
+    // P1001 / P1002 — can't reach DB
+    if (code === 'P1001' || code === 'P1002' || msg.toLowerCase().includes("can't reach database")) {
+      return NextResponse.json(
+        { success: false, error: `Cannot connect to database (${code}). Check DATABASE_URL in Vercel.` },
+        { status: 503 },
+      );
+    }
+    // All other errors: surface the real message since this is an authenticated admin route
+    return NextResponse.json(
+      { success: false, error: `DB error (${code || 'unknown'}): ${msg}` },
+      { status: 500 },
+    );
   }
 }
 
@@ -114,11 +142,15 @@ export async function DELETE(
     await deleteVehicle(id);
     return NextResponse.json({ success: true });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : '';
-    console.error(`[VEHICLE DELETE] error id=${(await params).id}:`, msg);
-    if (msg.includes('Record to delete does not exist')) {
+    const msg  = err instanceof Error ? err.message : String(err);
+    const code = prismaCode(err);
+    console.error(`[VEHICLE DELETE] error code=${code || 'n/a'}:`, msg);
+    if (code === 'P2025' || msg.includes('Record to delete does not exist')) {
       return NextResponse.json({ success: false, error: 'Vozilo nije pronađeno' }, { status: 404 });
     }
-    return NextResponse.json({ success: false, error: 'Greška pri brisanju vozila' }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: `DB error (${code || 'unknown'}): ${msg}` },
+      { status: 500 },
+    );
   }
 }
