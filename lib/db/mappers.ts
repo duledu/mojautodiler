@@ -13,8 +13,9 @@ import type {
   DealerSettings as PrismaSettings,
   VehicleStatus  as PrismaVehicleStatus,
   LeadStatus     as PrismaLeadStatus,
+  VatMode        as PrismaVatMode,
 } from '@prisma/client';
-import type { Vehicle, VehicleStatus } from '@/types/vehicle';
+import type { Vehicle, VehicleStatus, VatMode } from '@/types/vehicle';
 import type { Lead as AppLead, LeadStatus as AppLeadStatus } from '@/types/lead';
 
 // ─── Vehicle status ────────────────────────────────────────────────────────────
@@ -37,6 +38,18 @@ export function toAppVehicleStatus(s: PrismaVehicleStatus): VehicleStatus {
     HIDDEN:    'hidden',
   };
   return map[s] ?? 'active';
+}
+
+export function toDbVatMode(s: VatMode | undefined): PrismaVatMode {
+  const allowed: readonly VatMode[] = ['INCLUDED', 'EXCLUDED', 'NONE'];
+  const value = s ?? 'NONE';
+  return allowed.includes(value) ? (value as PrismaVatMode) : 'NONE';
+}
+
+export function toAppVatMode(s: PrismaVatMode | null | undefined): VatMode {
+  const allowed: readonly VatMode[] = ['INCLUDED', 'EXCLUDED', 'NONE'];
+  const value = s ?? 'NONE';
+  return allowed.includes(value as VatMode) ? (value as VatMode) : 'NONE';
 }
 
 // ─── Lead status ───────────────────────────────────────────────────────────────
@@ -76,6 +89,7 @@ export function toAppVehicle(v: PrismaVehicle): Vehicle {
     mileage:       v.mileage,
     price:         v.price,
     currency:      v.currency as Vehicle['currency'],
+    vatMode:       toAppVatMode(v.vatMode),
     fuelType:      v.fuelType as Vehicle['fuelType'],
     transmission:  v.transmission as Vehicle['transmission'],
     drivetrain:    v.drivetrain as Vehicle['drivetrain'],

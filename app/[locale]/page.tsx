@@ -21,9 +21,11 @@ import Reveal from '@/components/ui/Reveal';
 import HeroVehicleCard from '@/components/vehicle/HeroVehicleCard';
 import { TrustBadges } from '@/components/vehicle/TrustBadges';
 import VehicleCard from '@/components/vehicle/VehicleCard';
-import { getDealerInfo, mockVehicles } from '@/data/vehicles';
+import { getDealerInfo } from '@/data/vehicles';
 import { getFeaturedVehicles } from '@/lib/db/vehicles';
 import { getTranslations, isValidLocale, Locale } from '@/lib/i18n';
+
+export const dynamic = 'force-dynamic';
 
 const homeCopy = {
   sr: {
@@ -184,14 +186,8 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
   const t = getTranslations(currentLocale);
   const copy = homeCopy[currentLocale];
   const dealer = getDealerInfo();
-  const featuredVehiclesFromDb = await getFeaturedVehicles(4);
-  const featuredVehicles = featuredVehiclesFromDb.length
-    ? featuredVehiclesFromDb
-    : mockVehicles.filter((v) => v.status === 'active' && v.featured).slice(0, 4);
-  const heroVehicle =
-    featuredVehicles[0] ??
-    mockVehicles.find((v) => v.status === 'active') ??
-    mockVehicles[0];
+  const featuredVehicles = await getFeaturedVehicles(4);
+  const heroVehicle = featuredVehicles[0] ?? null;
   const darkTitleParts = copy.darkTitle.split(copy.darkAccent);
 
   return (
@@ -264,16 +260,18 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
           </div>
 
           {/* ── Featured vehicle card ── */}
-          <Reveal delay={260}>
-            <HeroVehicleCard
-              vehicle={heroVehicle}
-              locale={currentLocale}
-              t={t}
-              featuredLabel={copy.featuredLabel}
-              verifiedLine={copy.verifiedLine}
-              viewLabel={copy.viewDetails}
-            />
-          </Reveal>
+          {heroVehicle && (
+            <Reveal delay={260}>
+              <HeroVehicleCard
+                vehicle={heroVehicle}
+                locale={currentLocale}
+                t={t}
+                featuredLabel={copy.featuredLabel}
+                verifiedLine={copy.verifiedLine}
+                viewLabel={copy.viewDetails}
+              />
+            </Reveal>
+          )}
         </div>
       </section>
 
@@ -289,13 +287,19 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
                 <ArrowRight size={16} />
               </Link>
             </div>
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
-              {featuredVehicles.map((vehicle, index) => (
-                <Reveal key={vehicle.id} delay={index * 85}>
-                  <VehicleCard vehicle={vehicle} locale={currentLocale} t={t} />
-                </Reveal>
-              ))}
-            </div>
+            {featuredVehicles.length > 0 ? (
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+                {featuredVehicles.map((vehicle, index) => (
+                  <Reveal key={vehicle.id} delay={index * 85}>
+                    <VehicleCard vehicle={vehicle} locale={currentLocale} t={t} />
+                  </Reveal>
+                ))}
+              </div>
+            ) : (
+              <p className="py-8 text-center text-sm text-(--color-text-muted)">
+                Nema dostupnih vozila. Dodajte vozila kroz admin panel.
+              </p>
+            )}
           </div>
         </section>
 
@@ -440,7 +444,7 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
       <section className="bg-[var(--color-bg)] px-3 py-12 min-[390px]:px-4 min-[390px]:py-16 sm:px-6 sm:py-20">
         <Reveal className="relative mx-auto max-w-6xl overflow-hidden rounded-3xl border border-[var(--color-border)] bg-white p-5 shadow-[0_24px_70px_rgba(15,15,20,0.1)] min-[390px]:rounded-[34px] min-[390px]:p-7 sm:p-10 lg:p-12">
           <Image
-            src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=1400&q=80"
+            src="/test_11.jpg"
             alt=""
             fill
             sizes="100vw"

@@ -41,6 +41,7 @@ export async function POST(request: NextRequest) {
       mileage:        Number(body.mileage),
       price:          Number(body.price),
       currency:       body.currency || 'EUR',
+      vatMode:        body.vatMode || 'NONE',
       fuelType:       body.fuelType,
       transmission:   body.transmission,
       drivetrain:     body.drivetrain,

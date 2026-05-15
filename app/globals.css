@@ -338,6 +338,50 @@ h1,h2,h3,h4,h5,h6 {
   }
   .vehicle-card .card-image { transition: transform 760ms var(--ease-luxury), filter 420ms ease; }
   .vehicle-card:hover .card-image { transform: scale(1.035); filter: saturate(1.04) contrast(1.02); }
+  .vehicle-watermark {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 2;
+    pointer-events: none;
+    user-select: none;
+    transform: translate(-50%, -50%) rotate(-15deg);
+    color: rgba(255,255,255,0.16);
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 7vw, 5.4rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.08em;
+    text-shadow: 0 1px 10px rgba(0,0,0,0.18);
+    white-space: nowrap;
+  }
+  .vehicle-watermark-thumb {
+    font-size: 0.76rem;
+    letter-spacing: 0.07em;
+    opacity: 0.86;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.24);
+  }
+  .vehicle-lightbox-image {
+    line-height: 0;
+  }
+  .vehicle-watermark-lightbox {
+    color: rgba(255,255,255,0.15);
+    font-size: clamp(2.2rem, 9vw, 7rem);
+    z-index: 3;
+  }
+  .vehicle-watermark-pattern {
+    position: absolute;
+    inset: -20%;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0.08;
+    background-image: repeating-linear-gradient(
+      -15deg,
+      transparent 0 84px,
+      rgba(255,255,255,0.32) 84px 86px,
+      transparent 86px 168px
+    );
+  }
 
   /* Admin sidebar */
   .admin-sidebar-link {

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { ArrowRight, Calendar, Camera, Fuel, Gauge, Settings2, ShieldCheck, Star } from 'lucide-react';
 import { Vehicle } from '@/types/vehicle';
 import { Locale, TranslationKeys } from '@/lib/i18n';
-import { formatMileage, formatPrice } from '@/lib/utils';
+import { formatMileage, formatPrice, formatVatMode } from '@/lib/utils';
 import PremiumVehiclePlaceholder from '@/components/vehicle/PremiumVehiclePlaceholder';
 import { getVehicleTrustBadges, TrustBadges } from '@/components/vehicle/TrustBadges';
 import VehicleStatusBadge from '@/components/vehicle/VehicleStatusBadge';
@@ -22,6 +22,7 @@ export default function HeroVehicleCard({
 }: HeroVehicleCardProps) {
   const mainImage = vehicle.images[0]?.url || '';
   const trustBadges = getVehicleTrustBadges(vehicle).slice(0, 4);
+  const vatText = formatVatMode(vehicle.vatMode);
 
   return (
     <Link href={`/${locale}/vehicle/${vehicle.slug}`} className="group block">
@@ -67,9 +68,7 @@ export default function HeroVehicleCard({
             >
               {formatPrice(vehicle.price, vehicle.currency)}
             </div>
-            {vehicle.currency === 'EUR' && (
-              <p className="mt-0.5 text-xs font-medium text-white/75">+ PDV</p>
-            )}
+            {vatText && <p className="mt-0.5 text-xs font-medium text-white/75">{vatText}</p>}
           </div>
         </div>
 

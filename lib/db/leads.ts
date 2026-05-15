@@ -1,46 +1,37 @@
 import { prisma } from '@/lib/prisma';
 import { toAppLead, toDbLeadStatus } from '@/lib/db/mappers';
-import { mockLeads } from '@/data/leads';
 import type { Lead as AppLead, LeadStatus as AppLeadStatus } from '@/types/lead';
+
+const hasDatabase = () => Boolean(process.env.DATABASE_URL);
+
+function warnNoDB(fn: string) {
+  console.warn(`[DB] ${fn}: DATABASE_URL is not set - returning empty. Add DATABASE_URL to .env.local`);
+}
 
 // ─── Reads ─────────────────────────────────────────────────────────────────────
 
 export async function getAllLeads(): Promise<AppLead[]> {
-  try {
-    const rows = await prisma.lead.findMany({ orderBy: { createdAt: 'desc' } });
-    return rows.map(toAppLead);
-  } catch {
-    return mockLeads;
-  }
+  if (!hasDatabase()) { warnNoDB('getAllLeads'); return []; }
+  const rows = await prisma.lead.findMany({ orderBy: { createdAt: 'desc' } });
+  return rows.map(toAppLead);
 }
 
 export async function getRecentLeads(limit = 5): Promise<AppLead[]> {
-  try {
-    const rows = await prisma.lead.findMany({
-      orderBy: { createdAt: 'desc' },
-      take: limit,
-    });
-    return rows.map(toAppLead);
-  } catch {
-    return [...mockLeads]
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-      .slice(0, limit);
-  }
+  if (!hasDatabase()) { warnNoDB('getRecentLeads'); return []; }
+  const rows = await prisma.lead.findMany({
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+  });
+  return rows.map(toAppLead);
 }
 
 export async function getLeadStats() {
-  try {
-    const [total, newCount] = await Promise.all([
-      prisma.lead.count(),
-      prisma.lead.count({ where: { status: 'NEW' } }),
-    ]);
-    return { totalLeads: total, newLeads: newCount };
-  } catch {
-    return {
-      totalLeads: mockLeads.length,
-      newLeads:   mockLeads.filter((l) => l.status === 'new').length,
-    };
-  }
+  if (!hasDatabase()) { warnNoDB('getLeadStats'); return { totalLeads: 0, newLeads: 0 }; }
+  const [total, newCount] = await Promise.all([
+    prisma.lead.count(),
+    prisma.lead.count({ where: { status: 'NEW' } }),
+  ]);
+  return { totalLeads: total, newLeads: newCount };
 }
 
 // ─── Writes ────────────────────────────────────────────────────────────────────

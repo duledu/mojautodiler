@@ -7,7 +7,9 @@ import {
   AlertCircle, ArrowLeft, CheckCircle, Image as ImageIcon,
   Info, Plus, Save, Settings2, Shield, Star, Tag, Upload, Video, X,
 } from 'lucide-react';
-import { Vehicle, FuelType, TransmissionType, DrivetrainType, BodyType, VehicleStatus, VehicleCondition, Currency } from '@/types/vehicle';
+import { Vehicle, FuelType, TransmissionType, DrivetrainType, BodyType, VehicleStatus, VehicleCondition, Currency, VatMode } from '@/types/vehicle';
+import EquipmentPicker from '@/components/admin/EquipmentPicker';
+import { EQUIPMENT_PRESETS, SAFETY_PRESETS, CONDITION_PRESETS } from '@/data/equipment-presets';
 
 // Browser password-manager extensions (e.g. LastPass, Bitwarden) inject
 // fdprocessedid on interactive elements after hydration. These thin wrappers
@@ -134,6 +136,7 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
     mileage: 0,
     price: 0,
     currency: 'EUR',
+    vatMode: 'NONE',
     fuelType: 'benzin',
     transmission: 'manuelni',
     drivetrain: 'prednji',
@@ -209,6 +212,17 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
     } finally {
       setSaving(false);
     }
+  };
+
+  const setPrimaryImage = (slotId: string) => {
+    setImageSlots(prev => {
+      const idx = prev.findIndex(s => s.id === slotId);
+      if (idx <= 0) return prev;
+      const next = [...prev];
+      const [slot] = next.splice(idx, 1);
+      next.unshift(slot);
+      return next;
+    });
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -418,7 +432,7 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
                 </Select>
               </Field>
             </div>
-            <div className="grid sm:grid-cols-3 gap-4">
+            <div className="grid sm:grid-cols-4 gap-4">
               <Field label="Cena" required>
                 <Input className={inputCls} type="number" value={form.price} onChange={e => set('price')(+e.target.value)} placeholder="25000" />
               </Field>
@@ -426,6 +440,13 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
                 <Select className={selectCls} value={form.currency} onChange={e => set('currency')(e.target.value as Currency)}>
                   <option value="EUR">EUR</option>
                   <option value="RSD">RSD</option>
+                </Select>
+              </Field>
+              <Field label="PDV">
+                <Select className={selectCls} value={form.vatMode ?? 'NONE'} onChange={e => set('vatMode')(e.target.value as VatMode)}>
+                  <option value="INCLUDED">Cena uključuje PDV</option>
+                  <option value="EXCLUDED">+ PDV</option>
+                  <option value="NONE">Bez PDV informacije</option>
                 </Select>
               </Field>
               <Field label="Registracija">
@@ -534,25 +555,40 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
 
         {/* EQUIPMENT */}
         {activeTab === 'equipment' && (
-          <div className="space-y-6">
-            <h2 className="border-b border-[var(--color-border)] pb-3 font-black text-[var(--color-text)]">Oprema i sigurnost</h2>
+          <div className="space-y-7">
+            <h2 className="border-b border-(--color-border) pb-3 font-black text-(--color-text)">Oprema i sigurnost</h2>
+
             <div>
-              <p className="mb-3 flex items-center gap-2 text-sm font-bold text-[var(--color-text)]">
-                <Star className="h-4 w-4 text-[var(--accent)]" /> Oprema
+              <p className="mb-3 flex items-center gap-2 text-sm font-bold text-(--color-text)">
+                <Star className="h-4 w-4 text-(--accent)" /> Oprema
               </p>
-              <TagInput label="stavku opreme" tags={form.equipment || []} onChange={set('equipment')} />
+              <EquipmentPicker
+                predefined={EQUIPMENT_PRESETS}
+                selected={form.equipment || []}
+                onChange={set('equipment')}
+              />
             </div>
+
             <div>
-              <p className="mb-3 flex items-center gap-2 text-sm font-bold text-[var(--color-text)]">
-                <Shield className="h-4 w-4 text-[var(--accent)]" /> Sigurnosne karakteristike
+              <p className="mb-3 flex items-center gap-2 text-sm font-bold text-(--color-text)">
+                <Shield className="h-4 w-4 text-(--accent)" /> Sigurnost
               </p>
-              <TagInput label="sigurnosnu stavku" tags={form.safetyFeatures || []} onChange={set('safetyFeatures')} />
+              <EquipmentPicker
+                predefined={SAFETY_PRESETS}
+                selected={form.safetyFeatures || []}
+                onChange={set('safetyFeatures')}
+              />
             </div>
+
             <div>
-              <p className="mb-3 flex items-center gap-2 text-sm font-bold text-[var(--color-text)]">
-                <CheckCircle className="h-4 w-4 text-[var(--accent)]" /> Ostale karakteristike
+              <p className="mb-3 flex items-center gap-2 text-sm font-bold text-(--color-text)">
+                <CheckCircle className="h-4 w-4 text-(--accent)" /> Stanje vozila
               </p>
-              <TagInput label="karakteristiku" tags={form.features || []} onChange={set('features')} />
+              <EquipmentPicker
+                predefined={CONDITION_PRESETS}
+                selected={form.features || []}
+                onChange={set('features')}
+              />
             </div>
           </div>
         )}
@@ -606,23 +642,42 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
                         <>
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img src={slot.previewUrl} alt="" className="h-full w-full object-cover" />
-                          <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+
+                          {/* Primary badge — always visible on cover image */}
+                          {i === 0 && (
+                            <div className="absolute left-1.5 top-1.5 flex items-center gap-1 rounded-md bg-(--accent) px-1.5 py-0.5 text-[10px] font-black text-white shadow-[0_2px_8px_rgba(201,168,76,0.45)]">
+                              <Star className="h-2.5 w-2.5" fill="currentColor" />
+                              Naslovna
+                            </div>
+                          )}
+
+                          {/* Set-as-primary button — always visible on non-cover images */}
+                          {i !== 0 && !slot.uploading && (
+                            <button
+                              type="button"
+                              onClick={() => setPrimaryImage(slot.id)}
+                              title="Postavi kao naslovnu sliku"
+                              className="absolute left-1.5 top-1.5 flex items-center justify-center rounded-md border border-white/25 bg-black/50 p-1 text-white/60 backdrop-blur-sm transition-all hover:border-(--accent) hover:bg-(--accent) hover:text-white"
+                            >
+                              <Star className="h-3 w-3" />
+                            </button>
+                          )}
+
+                          {/* Hover overlay — delete only.
+                              pointer-events-none on the overlay itself so the
+                              star button behind it always receives clicks. */}
+                          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
                             <button
                               type="button"
                               onClick={() => {
                                 if (slot.previewUrl.startsWith('blob:')) URL.revokeObjectURL(slot.previewUrl);
                                 setImageSlots(prev => prev.filter(s => s.id !== slot.id));
                               }}
-                              className="rounded-full bg-red-500/90 p-1.5 text-white transition-colors hover:bg-red-500"
+                              className="pointer-events-auto rounded-full bg-red-500/90 p-1.5 text-white transition-colors hover:bg-red-500"
                             >
                               <X className="h-3.5 w-3.5" />
                             </button>
                           </div>
-                          {i === 0 && (
-                            <span className="absolute bottom-1 left-1 rounded bg-(--accent) px-1.5 py-0.5 text-xs font-bold text-white">
-                              Naslovna
-                            </span>
-                          )}
                         </>
                       )}
                     </div>
@@ -706,6 +761,7 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
                 { label: 'Naziv', val: form.title, ok: !!form.title },
                 { label: 'Slike', val: `${imageSlots.filter(s => s.uploadedUrl).length} slike`, ok: imageSlots.some(s => s.uploadedUrl) },
                 { label: 'Cena', val: form.price ? `${form.price} ${form.currency}` : '—', ok: !!form.price },
+                { label: 'PDV', val: form.vatMode === 'INCLUDED' ? 'Cena uključuje PDV' : form.vatMode === 'EXCLUDED' ? '+ PDV' : 'Bez informacije', ok: true },
                 { label: 'Opis', val: form.description ? 'Postoji' : 'Nedostaje', ok: !!form.description },
                 { label: 'SEO slug', val: form.seoSlug || '—', ok: !!form.seoSlug },
               ].map(row => (

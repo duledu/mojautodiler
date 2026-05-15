@@ -5,6 +5,7 @@ export type BodyType = 'limuzina' | 'hatchback' | 'karavan' | 'suv' | 'kupe' | '
 export type VehicleStatus = 'active' | 'sold' | 'hidden' | 'draft';
 export type VehicleCondition = 'novo' | 'polovno' | 'uvoz';
 export type Currency = 'EUR' | 'RSD' | 'USD';
+export type VatMode = 'INCLUDED' | 'EXCLUDED' | 'NONE';
 
 export interface VehicleImage {
   id: string;
@@ -31,6 +32,7 @@ export interface Vehicle {
   mileage: number;
   price: number;
   currency: Currency;
+  vatMode: VatMode;
   fuelType: FuelType;
   transmission: TransmissionType;
   drivetrain: DrivetrainType;

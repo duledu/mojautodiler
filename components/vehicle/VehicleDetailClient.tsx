@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { Vehicle } from '@/types/vehicle';
 import { Locale, TranslationKeys } from '@/lib/i18n';
-import { formatPrice, formatMileage, cn } from '@/lib/utils';
+import { formatPrice, formatMileage, cn, formatVatMode } from '@/lib/utils';
 import { getDealerInfo } from '@/data/vehicles';
 import VehicleCard from '@/components/vehicle/VehicleCard';
 import MobileContactFab from '@/components/vehicle/MobileContactFab';
@@ -59,6 +59,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
   const activeVehicleImage = vehicle.images[activeImage] || vehicle.images[0];
   const activeImageUrl = activeVehicleImage?.url || '';
   const imageCount = Math.max(vehicle.images.length, 1);
+  const vatText = formatVatMode(vehicle.vatMode);
 
   const nextImg = () => setActiveImage((i) => (i + 1) % imageCount);
   const prevImg = () => setActiveImage((i) => (i - 1 + imageCount) % imageCount);
@@ -147,7 +148,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
                   >
                     {formatPrice(vehicle.price, vehicle.currency)}
                   </div>
-                  <p className="mt-0.5 text-xs text-(--color-text-muted)">Cena uključuje PDV</p>
+                  {vatText && <p className="mt-0.5 text-xs font-medium tracking-[0.01em] text-(--color-text-muted)">{vatText}</p>}
                 </div>
                 <a
                   href={`tel:${dealer.phone}`}
@@ -180,6 +181,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
                     <PremiumVehiclePlaceholder />
                   )}
                   <span className="absolute inset-0 bg-black/10" aria-hidden="true" />
+                  {activeImageUrl && <span className="vehicle-watermark" aria-hidden="true">MOJAUTODILER</span>}
                 </button>
                 {vehicle.images.length > 1 && (
                   <>
@@ -221,6 +223,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
                       )}
                     >
                       <Image src={img.url} alt={img.alt} fill sizes="96px" className="object-cover" />
+                      <span className="vehicle-watermark vehicle-watermark-thumb" aria-hidden="true">MOJAUTODILER</span>
                     </button>
                   ))}
                 </div>
@@ -308,29 +311,19 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
                 )}
 
                 {activeTab === 'equipment' && (
-                  <div className="grid sm:grid-cols-2 gap-1.5">
-                    {vehicle.equipment.map((item) => (
-                      <div key={item} className="flex items-center gap-2.5 py-2">
-                        <div className="w-5 h-5 rounded-full bg-(--color-gold-bg) border border-(--color-gold-border) flex items-center justify-center shrink-0">
-                          <Check size={11} className="text-(--color-gold-dark)" />
-                        </div>
-                        <span className="text-sm text-(--color-text-2)">{item}</span>
-                      </div>
-                    ))}
-                  </div>
+                  <EquipmentGroups
+                    groups={[
+                      { label: 'Oprema', items: vehicle.equipment },
+                      { label: 'Stanje vozila', items: vehicle.features },
+                    ]}
+                  />
                 )}
 
                 {activeTab === 'safety' && (
-                  <div className="grid sm:grid-cols-2 gap-1.5">
-                    {vehicle.safetyFeatures.map((item) => (
-                      <div key={item} className="flex items-center gap-2.5 py-2">
-                        <div className="w-5 h-5 rounded-full bg-green-50 border border-green-200 flex items-center justify-center shrink-0">
-                          <Check size={11} className="text-green-600" />
-                        </div>
-                        <span className="text-sm text-(--color-text-2)">{item}</span>
-                      </div>
-                    ))}
-                  </div>
+                  <EquipmentGroups
+                    groups={[{ label: 'Sigurnost', items: vehicle.safetyFeatures }]}
+                    accent="green"
+                  />
                 )}
 
                 {activeTab === 'description' && (
@@ -417,41 +410,49 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
           <div>
             <div className="sticky top-24 space-y-4">
               {/* Price + contact */}
-              <div className="rounded-2xl border border-(--color-border) bg-white p-6 shadow-[0_4px_20px_rgba(0,0,0,0.07)]">
-                <div
-                  className="text-3xl font-black text-(--color-gold-dark)"
-                  style={{ fontFamily: 'var(--font-display)' }}
-                >
-                  {formatPrice(vehicle.price, vehicle.currency)}
-                </div>
-                <p className="text-xs text-(--color-text-muted) mt-1 mb-5">Cena uključuje PDV</p>
+              <div className="relative overflow-hidden rounded-[1.75rem] border border-[var(--accent-border)] bg-white p-5 shadow-[0_22px_70px_rgba(15,15,20,0.12),0_2px_10px_rgba(15,15,20,0.05)] min-[390px]:p-6">
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-[var(--accent)]" aria-hidden="true" />
+                <div className="pointer-events-none absolute -right-16 -top-20 h-40 w-40 rounded-full bg-[var(--accent-soft)] opacity-90" aria-hidden="true" />
 
-                <div className="space-y-2.5">
+                <div className="relative border-b border-[var(--color-border)] pb-5">
+                  <p className="mb-2 text-[11px] font-black uppercase tracking-[0.18em] text-[var(--color-text-muted)]">
+                    Cena vozila
+                  </p>
+                  <div
+                    className="text-[2rem] font-black leading-none text-[var(--color-text)] min-[390px]:text-[2.35rem]"
+                    style={{ fontFamily: 'var(--font-display)' }}
+                  >
+                    {formatPrice(vehicle.price, vehicle.currency)}
+                  </div>
+                  {vatText && <p className="mt-2 text-xs font-semibold tracking-[0.01em] text-[var(--color-text-muted)]">{vatText}</p>}
+                </div>
+
+                <div className="relative mt-5 space-y-3">
                   <button
                     type="button"
                     onClick={() => applyQuickLead(`${quickActionCopy.book}: ${vehicle.title}`)}
-                    className="btn-dark flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm"
+                    className="btn-gold flex min-h-[3.35rem] w-full items-center justify-center gap-2 rounded-2xl px-4 text-sm shadow-[0_16px_34px_rgba(201,168,76,0.24)]"
                   >
                     <CalendarCheck size={15} />
                     {quickActionCopy.book}
                   </button>
-                  <a
-                    href={`tel:${dealer.phone}`}
-                    className="btn-gold flex items-center justify-center gap-2 w-full rounded-xl py-3.5 text-sm"
-                  >
-                    <Phone size={15} />
-                    {t.common.call}
-                  </a>
-                  <a
-                    href={`viber://chat?number=${dealer.viber.replace(/\s/g, '')}`}
-                    className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl text-sm font-semibold border border-[#7360F2]/25 text-[#6B5FDB] bg-[#7360F2]/5 hover:bg-[#7360F2]/10 transition-colors"
-                    style={{ fontFamily: 'var(--font-display)' }}
-                  >
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.79 14.22c-.2.2-.42.33-.67.37-.46.08-.93-.06-1.34-.29-.91-.51-1.77-1.1-2.53-1.79-.73-.67-1.39-1.41-1.96-2.22-.48-.69-.88-1.43-1.08-2.24-.08-.34-.04-.7.13-1.01.17-.31.46-.55.79-.63.08-.02.17-.03.25-.03.24 0 .48.1.64.28.41.44.77.92 1.06 1.43.15.26.12.59-.08.82l-.28.33c-.09.11-.11.27-.04.4.26.51.61.97 1.02 1.37.41.4.87.75 1.38 1.01.12.06.27.05.38-.04l.33-.27c.23-.19.56-.22.82-.07.51.29 1 .65 1.43 1.07.19.18.28.44.26.7-.02.26-.14.5-.31.67z" />
-                    </svg>
-                    Viber
-                  </a>
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <a
+                      href={`tel:${dealer.phone}`}
+                      className="btn-dark flex min-h-[3rem] items-center justify-center gap-2 rounded-2xl px-3 text-sm"
+                    >
+                      <Phone size={15} />
+                      {t.common.call}
+                    </a>
+                    <a
+                      href={`viber://chat?number=${dealer.viber.replace(/\s/g, '')}`}
+                      className="flex min-h-[3rem] items-center justify-center gap-2 rounded-2xl border border-[#7360F2]/25 bg-[#7360F2]/5 px-3 text-sm font-semibold text-[#6B5FDB] transition-colors hover:bg-[#7360F2]/10"
+                      style={{ fontFamily: 'var(--font-display)' }}
+                    >
+                      <ViberIcon size={15} />
+                      Viber
+                    </a>
+                  </div>
                   <div className="grid grid-cols-2 gap-2">
                     <a
                       href={dealer.facebook}
@@ -608,13 +609,17 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
             </>
           )}
           {activeImageUrl ? (
-            <Image
-              src={activeImageUrl}
-              alt={activeVehicleImage?.alt || vehicle.title}
-              width={1400}
-              height={900}
-              className="max-h-[90vh] max-w-[90vw] rounded-xl object-contain"
-            />
+            <div className="vehicle-lightbox-image relative overflow-hidden rounded-xl">
+              <Image
+                src={activeImageUrl}
+                alt={activeVehicleImage?.alt || vehicle.title}
+                width={1400}
+                height={900}
+                className="max-h-[90vh] max-w-[90vw] object-contain"
+              />
+              <span className="vehicle-watermark vehicle-watermark-lightbox" aria-hidden="true">MOJAUTODILER</span>
+              <span className="vehicle-watermark-pattern" aria-hidden="true" />
+            </div>
           ) : (
             <div className="h-[60vh] w-[90vw] max-w-4xl overflow-hidden rounded-xl">
               <PremiumVehiclePlaceholder />
@@ -634,10 +639,61 @@ function QuickLeadButton({ icon, label, onClick }: { readonly icon: React.ReactN
     <button
       type="button"
       onClick={onClick}
-      className="touch-target inline-flex items-center justify-center gap-2 rounded-2xl border border-[var(--color-border)] bg-white px-3 py-3 text-xs font-black text-[var(--color-text-2)] transition hover:border-[var(--accent-border)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent-dark)]"
+      className="touch-target inline-flex items-center justify-center gap-2 rounded-2xl border border-(--color-border) bg-white px-3 py-3 text-xs font-black text-(--color-text-2) transition hover:border-(--accent-border) hover:bg-(--accent-soft) hover:text-(--accent-dark)"
     >
-      <span className="text-[var(--accent)]">{icon}</span>
+      <span className="text-(--accent)">{icon}</span>
       {label}
     </button>
+  );
+}
+
+type EquipmentGroupAccent = 'gold' | 'green';
+
+function EquipmentGroups({
+  groups,
+  accent = 'gold',
+}: {
+  readonly groups: { label: string; items: string[] }[];
+  readonly accent?: EquipmentGroupAccent;
+}) {
+  const visibleGroups = groups.filter((g) => g.items.length > 0);
+
+  if (visibleGroups.length === 0) {
+    return (
+      <p className="py-6 text-center text-sm text-(--color-text-muted)">
+        Nema dostupnih podataka.
+      </p>
+    );
+  }
+
+  const dotCls =
+    accent === 'green'
+      ? 'bg-green-50 border-green-200 text-green-600'
+      : 'bg-(--color-gold-bg) border-(--color-gold-border) text-(--color-gold-dark)';
+
+  return (
+    <div className="space-y-6">
+      {visibleGroups.map((group) => (
+        <div key={group.label}>
+          {visibleGroups.length > 1 && (
+            <p className="mb-3 text-xs font-black uppercase tracking-[0.14em] text-(--color-text-muted)">
+              {group.label}
+            </p>
+          )}
+          <div className="grid gap-1.5 sm:grid-cols-2">
+            {group.items.map((item) => (
+              <div key={item} className="flex items-center gap-2.5 py-1.5">
+                <div
+                  className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${dotCls}`}
+                >
+                  <Check size={11} />
+                </div>
+                <span className="text-sm text-(--color-text-2)">{item}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }

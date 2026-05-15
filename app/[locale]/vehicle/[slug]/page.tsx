@@ -1,10 +1,12 @@
 import { notFound } from 'next/navigation';
 import { isValidLocale, getTranslations } from '@/lib/i18n';
 import { getVehicleBySlug, getSimilarVehicles, getActiveVehicleSlugs } from '@/lib/db/vehicles';
-import { mockVehicles, getDealerInfo } from '@/data/vehicles';
+import { getDealerInfo } from '@/data/vehicles';
 import VehicleDetailClient from '@/components/vehicle/VehicleDetailClient';
 import VehicleJsonLd from '@/components/seo/VehicleJsonLd';
 import type { Metadata } from 'next';
+
+export const dynamic = 'force-dynamic';
 
 export async function generateStaticParams() {
   const slugs = await getActiveVehicleSlugs();
@@ -18,7 +20,7 @@ export async function generateMetadata(
   { params }: { readonly params: Promise<{ locale: string; slug: string }> }
 ): Promise<Metadata> {
   const { slug, locale } = await params;
-  const vehicle = await getVehicleBySlug(slug) ?? mockVehicles.find((v) => v.slug === slug);
+  const vehicle = await getVehicleBySlug(slug);
   if (!vehicle) return {};
 
   const dealer = getDealerInfo();
@@ -48,15 +50,11 @@ export default async function VehiclePage(
   const { locale, slug } = await params;
   if (!isValidLocale(locale)) notFound();
 
-  const vehicle =
-    await getVehicleBySlug(slug) ??
-    mockVehicles.find((v) => v.slug === slug);
-
+  const vehicle = await getVehicleBySlug(slug);
   if (!vehicle) notFound();
 
   const dealer = getDealerInfo();
   const t = getTranslations(locale);
-
   const similar = await getSimilarVehicles(vehicle.id, vehicle.brand, 4);
 
   return (

@@ -32,6 +32,12 @@ enum AdminRole {
   MANAGER
 }
 
+enum VatMode {
+  INCLUDED
+  EXCLUDED
+  NONE
+}
+
 // ─── Models ───────────────────────────────────────────────────────────────────
 
 model Vehicle {
@@ -46,6 +52,7 @@ model Vehicle {
   mileage        Int
   price          Float
   currency       String        @default("EUR")
+  vatMode        VatMode       @default(NONE)
 
   // Stored as Serbian strings matching the existing TypeScript types
   // e.g. fuelType: 'benzin' | 'dizel' | 'hibrid' | 'elektricni' | 'lpg' | 'cng'

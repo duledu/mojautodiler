@@ -1,119 +1,98 @@
-/**
- * Vehicle database helpers.
- * Every function falls back to mock data if the DB is unavailable so the
- * public site never crashes during local dev or cold starts.
- */
-
 import { prisma } from '@/lib/prisma';
-import { toAppVehicle, toDbVehicleStatus } from '@/lib/db/mappers';
-import { mockVehicles } from '@/data/vehicles';
+import { toAppVehicle, toDbVatMode, toDbVehicleStatus } from '@/lib/db/mappers';
 import type { Vehicle, VehicleStatus } from '@/types/vehicle';
+
+const hasDatabase = () => Boolean(process.env.DATABASE_URL);
+
+function warnNoDB(fn: string) {
+  console.warn(`[DB] ${fn}: DATABASE_URL is not set — returning empty. Add DATABASE_URL to .env.local`);
+}
+
+function logFetch(fn: string, count: number, first?: { title?: string; id?: string }) {
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`[DB] ${fn}: ${count} vehicles from DB. First: "${first?.title ?? 'none'}" (id=${first?.id ?? '-'})`);
+  }
+}
 
 // ─── Reads ─────────────────────────────────────────────────────────────────────
 
 export async function getFeaturedVehicles(limit = 4): Promise<Vehicle[]> {
-  try {
-    const rows = await prisma.vehicle.findMany({
-      where: { status: 'AVAILABLE', featured: true },
-      orderBy: { createdAt: 'desc' },
-      take: limit,
-    });
-    return rows.map(toAppVehicle);
-  } catch {
-    return mockVehicles
-      .filter((v) => v.status === 'active' && v.featured)
-      .slice(0, limit);
-  }
+  if (!hasDatabase()) { warnNoDB('getFeaturedVehicles'); return []; }
+  const rows = await prisma.vehicle.findMany({
+    where: { status: 'AVAILABLE', featured: true },
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+  });
+  logFetch('getFeaturedVehicles', rows.length, rows[0]);
+  return rows.map(toAppVehicle);
 }
 
 export async function getActiveVehicles(): Promise<Vehicle[]> {
-  try {
-    const rows = await prisma.vehicle.findMany({
-      where: { status: 'AVAILABLE' },
-      orderBy: { createdAt: 'desc' },
-    });
-    return rows.map(toAppVehicle);
-  } catch {
-    return mockVehicles.filter((v) => v.status === 'active');
-  }
+  if (!hasDatabase()) { warnNoDB('getActiveVehicles'); return []; }
+  const rows = await prisma.vehicle.findMany({
+    where: { status: 'AVAILABLE' },
+    orderBy: { createdAt: 'desc' },
+  });
+  logFetch('getActiveVehicles', rows.length, rows[0]);
+  return rows.map(toAppVehicle);
 }
 
 export async function getAllVehicles(): Promise<Vehicle[]> {
-  try {
-    const rows = await prisma.vehicle.findMany({ orderBy: { createdAt: 'desc' } });
-    return rows.map(toAppVehicle);
-  } catch {
-    return mockVehicles;
-  }
+  if (!hasDatabase()) { warnNoDB('getAllVehicles'); return []; }
+  const rows = await prisma.vehicle.findMany({ orderBy: { createdAt: 'desc' } });
+  logFetch('getAllVehicles', rows.length, rows[0]);
+  return rows.map(toAppVehicle);
 }
 
 export async function getVehicleBySlug(slug: string): Promise<Vehicle | null> {
-  try {
-    const row = await prisma.vehicle.findUnique({ where: { slug } });
-    return row ? toAppVehicle(row) : null;
-  } catch {
-    return mockVehicles.find((v) => v.slug === slug) ?? null;
+  if (!hasDatabase()) { warnNoDB('getVehicleBySlug'); return null; }
+  const row = await prisma.vehicle.findUnique({ where: { slug } });
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`[DB] getVehicleBySlug("${slug}"): ${row ? row.title : 'not found'}`);
   }
+  return row ? toAppVehicle(row) : null;
 }
 
 export async function getVehicleById(id: string): Promise<Vehicle | null> {
-  try {
-    const row = await prisma.vehicle.findUnique({ where: { id } });
-    return row ? toAppVehicle(row) : null;
-  } catch {
-    return mockVehicles.find((v) => v.id === id) ?? null;
-  }
+  if (!hasDatabase()) { warnNoDB('getVehicleById'); return null; }
+  const row = await prisma.vehicle.findUnique({ where: { id } });
+  return row ? toAppVehicle(row) : null;
 }
 
 export async function getSimilarVehicles(vehicleId: string, brand: string, limit = 4): Promise<Vehicle[]> {
-  try {
-    const rows = await prisma.vehicle.findMany({
-      where: {
-        brand,
-        status: 'AVAILABLE',
-        NOT: { id: vehicleId },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: limit,
-    });
-    return rows.map(toAppVehicle);
-  } catch {
-    return mockVehicles
-      .filter((v) => v.brand === brand && v.id !== vehicleId && v.status === 'active')
-      .slice(0, limit);
-  }
+  if (!hasDatabase()) { warnNoDB('getSimilarVehicles'); return []; }
+  const rows = await prisma.vehicle.findMany({
+    where: {
+      brand,
+      status: 'AVAILABLE',
+      NOT: { id: vehicleId },
+    },
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+  });
+  return rows.map(toAppVehicle);
 }
 
 export async function getActiveVehicleSlugs(): Promise<{ slug: string }[]> {
-  try {
-    return await prisma.vehicle.findMany({
-      where: { status: 'AVAILABLE' },
-      select: { slug: true },
-    });
-  } catch {
-    return mockVehicles
-      .filter((v) => v.status === 'active')
-      .map((v) => ({ slug: v.slug }));
-  }
+  if (!hasDatabase()) { warnNoDB('getActiveVehicleSlugs'); return []; }
+  return prisma.vehicle.findMany({
+    where: { status: 'AVAILABLE' },
+    select: { slug: true },
+  });
 }
 
 export async function getVehicleStats() {
-  try {
-    const [total, active, sold, hidden] = await Promise.all([
-      prisma.vehicle.count(),
-      prisma.vehicle.count({ where: { status: 'AVAILABLE' } }),
-      prisma.vehicle.count({ where: { status: 'SOLD' } }),
-      prisma.vehicle.count({ where: { status: 'HIDDEN' } }),
-    ]);
-    return { total, active, sold, hidden };
-  } catch {
-    return {
-      total:  mockVehicles.length,
-      active: mockVehicles.filter((v) => v.status === 'active').length,
-      sold:   mockVehicles.filter((v) => v.status === 'sold').length,
-      hidden: mockVehicles.filter((v) => v.status === 'hidden').length,
-    };
+  if (!hasDatabase()) {
+    warnNoDB('getVehicleStats');
+    return { total: 0, active: 0, sold: 0, hidden: 0 };
   }
+  const [total, active, sold, hidden] = await Promise.all([
+    prisma.vehicle.count(),
+    prisma.vehicle.count({ where: { status: 'AVAILABLE' } }),
+    prisma.vehicle.count({ where: { status: 'SOLD' } }),
+    prisma.vehicle.count({ where: { status: 'HIDDEN' } }),
+  ]);
+  return { total, active, sold, hidden };
 }
 
 // ─── Writes ────────────────────────────────────────────────────────────────────
@@ -135,6 +114,7 @@ export async function createVehicle(input: CreateVehicleInput) {
       mileage:        input.mileage,
       price:          input.price,
       currency:       input.currency,
+      vatMode:        toDbVatMode(input.vatMode),
       fuelType:       input.fuelType,
       transmission:   input.transmission,
       drivetrain:     input.drivetrain,
@@ -157,7 +137,7 @@ export async function createVehicle(input: CreateVehicleInput) {
       features:       input.features,
       images:         input.images,
       videoUrl:       input.videoUrl,
-      status:         toDbVehicleStatus(input.status as VehicleStatus),
+      status:         toDbVehicleStatus(input.status),
       featured:       input.featured ?? false,
       tags:           input.tags ?? [],
     },
@@ -165,12 +145,13 @@ export async function createVehicle(input: CreateVehicleInput) {
 }
 
 export async function updateVehicle(id: string, data: Partial<CreateVehicleInput> & { status?: VehicleStatus }) {
-  const { status, ...rest } = data;
+  const { status, vatMode, ...rest } = data;
   return prisma.vehicle.update({
     where: { id },
     data: {
       ...rest,
       ...(status === undefined ? {} : { status: toDbVehicleStatus(status) }),
+      ...(vatMode === undefined ? {} : { vatMode: toDbVatMode(vatMode) }),
     },
   });
 }

@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { Vehicle, VehicleFilters, SortOption } from '@/types/vehicle';
+import { Vehicle, VehicleFilters, SortOption, VatMode } from '@/types/vehicle';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -15,6 +15,12 @@ export function formatPrice(price: number, currency: string = 'EUR'): string {
 
 export function formatMileage(km: number): string {
   return new Intl.NumberFormat('de-DE').format(km) + ' km';
+}
+
+export function formatVatMode(vatMode: VatMode | null | undefined): string {
+  if (vatMode === 'INCLUDED') return 'Cena uključuje PDV';
+  if (vatMode === 'EXCLUDED') return '+ PDV';
+  return '';
 }
 
 export function filterVehicles(vehicles: Vehicle[], filters: VehicleFilters): Vehicle[] {

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { ArrowRight, Calendar, Camera, Fuel, Gauge, MapPin, Settings2 } from 'lucide-react';
 import { Vehicle } from '@/types/vehicle';
 import { Locale, TranslationKeys } from '@/lib/i18n';
-import { cn, formatMileage, formatPrice } from '@/lib/utils';
+import { cn, formatMileage, formatPrice, formatVatMode } from '@/lib/utils';
 import PremiumVehiclePlaceholder from '@/components/vehicle/PremiumVehiclePlaceholder';
 import { getVehicleTrustBadges, TrustBadges } from '@/components/vehicle/TrustBadges';
 import VehicleStatusBadge from '@/components/vehicle/VehicleStatusBadge';
@@ -18,6 +18,7 @@ export default function VehicleCard({ vehicle, locale, t }: VehicleCardProps) {
   const mainImage = vehicle.images[0]?.url || '';
   const isSold = vehicle.status === 'sold';
   const trustBadges = getVehicleTrustBadges(vehicle).slice(0, 2);
+  const vatText = formatVatMode(vehicle.vatMode);
 
   return (
     <Link href={`/${locale}/vehicle/${vehicle.slug}`} className="group block h-full">
@@ -81,9 +82,7 @@ export default function VehicleCard({ vehicle, locale, t }: VehicleCardProps) {
               >
                 {formatPrice(vehicle.price, vehicle.currency)}
               </div>
-              {vehicle.currency === 'EUR' && (
-                <div className="text-[11px] text-[var(--color-text-muted)]">+ PDV</div>
-              )}
+              {vatText && <div className="text-[11px] text-[var(--color-text-muted)]">{vatText}</div>}
             </div>
           </div>
 

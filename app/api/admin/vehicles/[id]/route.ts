@@ -53,6 +53,7 @@ export async function PUT(
       ...(body.condition    !== undefined && { condition:      body.condition }),
       ...(body.price        !== undefined && { price:          Number(body.price) }),
       ...(body.currency     !== undefined && { currency:       body.currency }),
+      ...(body.vatMode      !== undefined && { vatMode:        body.vatMode }),
       ...(body.registration !== undefined && { registration:   body.registration?.trim() || null }),
       ...(body.description  !== undefined && { description:    String(body.description).trim() }),
       ...(body.dealerNotes  !== undefined && { dealerNotes:    body.dealerNotes?.trim() || null }),

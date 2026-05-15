@@ -2,22 +2,16 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import InventoryClient from '@/components/vehicle/InventoryClient';
 import { getActiveVehicles } from '@/lib/db/vehicles';
-import { mockVehicles } from '@/data/vehicles';
 import { getTranslations, isValidLocale } from '@/lib/i18n';
+
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata(
   { params }: { params: Promise<{ locale: string }> }
 ): Promise<Metadata> {
   const { locale } = await params;
-
-  // Use DB count; fall back to mock count
-  let activeCount: number;
-  try {
-    const vehicles = await getActiveVehicles();
-    activeCount = vehicles.length;
-  } catch {
-    activeCount = mockVehicles.filter((v) => v.status === 'active').length;
-  }
+  const vehicles = await getActiveVehicles();
+  const activeCount = vehicles.length;
 
   const title = locale === 'sq'
     ? `Inventari i Automjeteve — ${activeCount} Automjete | AutoFerari Preševo`
@@ -40,5 +34,6 @@ export default async function InventoryPage({ params }: { readonly params: Promi
   const { locale } = await params;
   if (!isValidLocale(locale)) notFound();
   const t = getTranslations(locale);
-  return <InventoryClient locale={locale} t={t} />;
+  const vehicles = await getActiveVehicles();
+  return <InventoryClient locale={locale} t={t} vehicles={vehicles} />;
 }

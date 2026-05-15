@@ -41,6 +41,7 @@ async function main() {
         mileage:        v.mileage,
         price:          v.price,
         currency:       v.currency,
+        vatMode:        v.vatMode ?? 'NONE',
         fuelType:       v.fuelType,
         transmission:   v.transmission,
         drivetrain:     v.drivetrain,
@@ -71,6 +72,7 @@ async function main() {
       update: {
         title:          v.title,
         price:          v.price,
+        vatMode:        v.vatMode ?? 'NONE',
         status,
         featured:       v.featured ?? false,
         images:         imageUrls,

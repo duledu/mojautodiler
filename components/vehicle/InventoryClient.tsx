@@ -2,8 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { BadgeCheck, SlidersHorizontal, X, ChevronDown, Search, ShieldCheck } from 'lucide-react';
-import { mockVehicles } from '@/data/vehicles';
-import { VehicleFilters, SortOption, FuelType, TransmissionType, BodyType } from '@/types/vehicle';
+import { Vehicle, VehicleFilters, SortOption, FuelType, TransmissionType, BodyType } from '@/types/vehicle';
 import { filterVehicles, sortVehicles, getUniqueBrands } from '@/lib/utils';
 import VehicleCard from '@/components/vehicle/VehicleCard';
 import { Locale, TranslationKeys } from '@/lib/i18n';
@@ -12,15 +11,16 @@ import { TrustBadges } from '@/components/vehicle/TrustBadges';
 interface InventoryClientProps {
   readonly locale: Locale;
   readonly t: TranslationKeys;
+  readonly vehicles: Vehicle[];
 }
 
-export default function InventoryClient({ locale, t }: InventoryClientProps) {
+export default function InventoryClient({ locale, t, vehicles }: InventoryClientProps) {
   const [filters, setFilters] = useState<VehicleFilters>({});
   const [sort, setSort] = useState<SortOption>('newest');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const activeVehicles = useMemo(() => mockVehicles.filter((v) => v.status === 'active'), []);
+  const activeVehicles = useMemo(() => vehicles, [vehicles]);
   const brands = useMemo(() => getUniqueBrands(activeVehicles), [activeVehicles]);
 
   const filtered = useMemo(() => {
