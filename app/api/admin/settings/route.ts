@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDealerSettings, upsertDealerSettings } from '@/lib/db/settings';
 
-// GET /api/admin/settings — load dealer settings
 export async function GET() {
   try {
     const settings = await getDealerSettings();
@@ -11,14 +10,14 @@ export async function GET() {
   }
 }
 
-// PUT /api/admin/settings — save dealer settings
 export async function PUT(request: NextRequest) {
   try {
-    const body = await request.json();
+    const body = await request.json() as Record<string, string | undefined>;
 
     await upsertDealerSettings({
       businessName: body.name?.trim()         || undefined,
       phone:        body.phone?.trim()        || undefined,
+      smsPhone:     body.smsPhone?.trim()     || undefined,
       email:        body.email?.trim()        || undefined,
       address:      body.address?.trim()      || undefined,
       workingHours: body.workingHours?.trim() || undefined,

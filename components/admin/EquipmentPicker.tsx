@@ -60,9 +60,12 @@ export default function EquipmentPicker({ predefined, selected, onChange }: Prop
             {filtered.map((item) => {
               const checked = selected.includes(item);
               return (
-                <label
+                <button
                   key={item}
-                  className={`flex cursor-pointer items-center gap-2 rounded-xl px-2.5 py-2 text-xs transition-colors ${
+                  type="button"
+                  aria-pressed={checked}
+                  onClick={() => toggle(item)}
+                  className={`flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-xs transition-colors ${
                     checked
                       ? 'bg-white font-semibold text-(--accent-dark)'
                       : 'text-(--color-text-muted) hover:bg-white/70 hover:text-(--color-text)'
@@ -77,14 +80,8 @@ export default function EquipmentPicker({ predefined, selected, onChange }: Prop
                   >
                     {checked && <Check size={10} />}
                   </span>
-                  <input
-                    type="checkbox"
-                    className="sr-only"
-                    checked={checked}
-                    onChange={() => toggle(item)}
-                  />
-                  <span className="leading-tight">{item}</span>
-                </label>
+                  <span className="text-left leading-tight">{item}</span>
+                </button>
               );
             })}
           </div>

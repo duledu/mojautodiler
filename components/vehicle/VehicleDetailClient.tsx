@@ -11,7 +11,7 @@ import {
 import { Vehicle } from '@/types/vehicle';
 import { Locale, TranslationKeys } from '@/lib/i18n';
 import { formatPrice, formatMileage, cn, formatVatMode } from '@/lib/utils';
-import { getDealerInfo } from '@/data/vehicles';
+import type { DealerInfo } from '@/lib/db/mappers';
 import VehicleCard from '@/components/vehicle/VehicleCard';
 import MobileContactFab from '@/components/vehicle/MobileContactFab';
 import PremiumVehiclePlaceholder from '@/components/vehicle/PremiumVehiclePlaceholder';
@@ -23,17 +23,16 @@ interface Props {
   readonly similar: Vehicle[];
   readonly locale: Locale;
   readonly t: TranslationKeys;
+  readonly dealer: DealerInfo;
 }
 
-export default function VehicleDetailClient({ vehicle, similar, locale, t }: Props) {
+export default function VehicleDetailClient({ vehicle, similar, locale, t, dealer }: Props) {
   const formRef = useRef<HTMLDivElement | null>(null);
   const [activeImage, setActiveImage] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'specs' | 'equipment' | 'safety' | 'description'>('specs');
   const [form, setForm] = useState({ name: '', phone: '', email: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
-
-  const dealer = getDealerInfo();
   const trustBadges = getVehicleTrustBadges(vehicle);
   const quickActionCopy = locale === 'sq'
     ? {
@@ -121,8 +120,8 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
         </Link>
 
         <div className="grid gap-6 min-[390px]:gap-8 lg:grid-cols-[1fr_340px]">
-          {/* Left column */}
-          <div className="space-y-5 min-[390px]:space-y-7">
+          {/* Left column — min-w-0 prevents grid item expanding to min-content size */}
+          <div className="min-w-0 space-y-5 min-[390px]:space-y-7">
             {/* Title */}
             <div>
               <h1
@@ -161,28 +160,39 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
             </div>
 
             {/* Gallery */}
-            <div>
-              <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-(--color-surface-2) shadow-[0_4px_20px_rgba(0,0,0,0.08)] sm:aspect-video">
+            {/*
+              Double-wrapper ensures the frame never expands to image intrinsic size:
+              - Outer: hard clips any overflow from Next.js <Image> wrappers or browser quirks
+              - Inner: owns the visible aspect ratio (the "golden frame")
+              Using plain <img> (not Next.js <Image>) so no extra wrapper elements can
+              inject in-flow width and push the grid column wider than min-w-0 allows.
+            */}
+            <div className="w-full max-w-full overflow-hidden rounded-2xl">
+              <div className="relative w-full aspect-[16/9] overflow-hidden bg-(--color-surface-2) shadow-[0_4px_20px_rgba(0,0,0,0.08)]">
+                {activeImageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={activeImageUrl}
+                    alt={activeVehicleImage?.alt || vehicle.title}
+                    className="absolute inset-0 h-full w-full object-cover object-center"
+                  />
+                ) : (
+                  <PremiumVehiclePlaceholder />
+                )}
+
+                {/* Overlay + watermark */}
+                <span className="absolute inset-0 bg-black/10" aria-hidden="true" />
+                {activeImageUrl && <span className="vehicle-watermark" aria-hidden="true">MOJAUTODILER</span>}
+
+                {/* Transparent lightbox trigger */}
                 <button
                   type="button"
                   className="absolute inset-0 cursor-zoom-in"
                   onClick={() => setLightboxOpen(true)}
                   aria-label="Otvori galeriju"
-                >
-                  {activeImageUrl ? (
-                    <Image
-                      src={activeImageUrl}
-                      alt={activeVehicleImage?.alt || vehicle.title}
-                      fill
-                      sizes="(min-width: 1024px) 58vw, 100vw"
-                      className="object-cover"
-                    />
-                  ) : (
-                    <PremiumVehiclePlaceholder />
-                  )}
-                  <span className="absolute inset-0 bg-black/10" aria-hidden="true" />
-                  {activeImageUrl && <span className="vehicle-watermark" aria-hidden="true">MOJAUTODILER</span>}
-                </button>
+                />
+
+                {/* Nav arrows — after the click target, naturally on top in stacking order */}
                 {vehicle.images.length > 1 && (
                   <>
                     <button
@@ -203,13 +213,15 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
                     </button>
                   </>
                 )}
+
                 <div className="absolute bottom-3 right-3 bg-black/50 backdrop-blur-sm px-3 py-1 rounded-full text-xs text-white">
                   {activeImage + 1} / {imageCount}
                 </div>
               </div>
 
+              {/* Thumbnail strip */}
               {vehicle.images.length > 1 && (
-                  <div className="scrollbar-none mt-3 flex gap-2 overflow-x-auto pb-2 [-webkit-overflow-scrolling:touch]">
+                <div className="scrollbar-none mt-3 flex gap-2 overflow-x-auto pb-2 [-webkit-overflow-scrolling:touch]">
                   {vehicle.images.map((img, i) => (
                     <button
                       key={img.id}
@@ -222,7 +234,8 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
                           : 'border-transparent opacity-55 hover:opacity-85'
                       )}
                     >
-                      <Image src={img.url} alt={img.alt} fill sizes="96px" className="object-cover" />
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={img.url} alt={img.alt} className="absolute inset-0 h-full w-full object-cover object-center" />
                       <span className="vehicle-watermark vehicle-watermark-thumb" aria-hidden="true">MOJAUTODILER</span>
                     </button>
                   ))}
@@ -267,10 +280,12 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
                 <QuickLeadButton icon={<Video size={15} />} label={quickActionCopy.video} onClick={() => applyQuickLead(`${quickActionCopy.video}: ${vehicle.title}`)} />
                 <QuickLeadButton icon={<ShieldCheck size={15} />} label={quickActionCopy.availability} onClick={() => applyQuickLead(`${quickActionCopy.availability}: ${vehicle.title}`)} />
                 <QuickLeadButton icon={<LockKeyhole size={15} />} label={quickActionCopy.reserve} onClick={() => applyQuickLead(`${quickActionCopy.reserve}: ${vehicle.title}`)} />
-                <a href={`viber://chat?number=${dealer.viber.replace(/\s/g, '')}`} className="touch-target inline-flex items-center justify-center gap-2 rounded-2xl border border-[#7360F2]/20 bg-[#7360F2]/5 px-3 py-3 text-xs font-black text-[#6B5FDB] transition hover:bg-[#7360F2]/10">
-                  <ViberIcon size={15} />
-                  {quickActionCopy.viber}
-                </a>
+                {dealer.viber && (
+                  <a href={`viber://chat?number=%2B${dealer.viber.replace(/\D/g, '')}`} className="touch-target inline-flex items-center justify-center gap-2 rounded-2xl border border-[#7360F2]/20 bg-[#7360F2]/5 px-3 py-3 text-xs font-black text-[#6B5FDB] transition hover:bg-[#7360F2]/10">
+                    <ViberIcon size={15} />
+                    {quickActionCopy.viber}
+                  </a>
+                )}
               </div>
             </section>
 
@@ -436,49 +451,59 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
                     <CalendarCheck size={15} />
                     {quickActionCopy.book}
                   </button>
-                  <div className="grid grid-cols-2 gap-2.5">
-                    <a
-                      href={`tel:${dealer.phone}`}
-                      className="btn-dark flex min-h-[3rem] items-center justify-center gap-2 rounded-2xl px-3 text-sm"
-                    >
-                      <Phone size={15} />
-                      {t.common.call}
-                    </a>
-                    <a
-                      href={`viber://chat?number=${dealer.viber.replace(/\s/g, '')}`}
-                      className="flex min-h-[3rem] items-center justify-center gap-2 rounded-2xl border border-[#7360F2]/25 bg-[#7360F2]/5 px-3 text-sm font-semibold text-[#6B5FDB] transition-colors hover:bg-[#7360F2]/10"
-                      style={{ fontFamily: 'var(--font-display)' }}
-                    >
-                      <ViberIcon size={15} />
-                      Viber
-                    </a>
+                  <div className={`grid gap-2.5 ${dealer.phone && dealer.viber ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                    {dealer.phone && (
+                      <a
+                        href={`tel:${dealer.phone}`}
+                        className="btn-dark flex min-h-12 items-center justify-center gap-2 rounded-2xl px-3 text-sm"
+                      >
+                        <Phone size={15} />
+                        {t.common.call}
+                      </a>
+                    )}
+                    {dealer.viber && (
+                      <a
+                        href={`viber://chat?number=%2B${dealer.viber.replace(/\D/g, '')}`}
+                        className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-[#7360F2]/25 bg-[#7360F2]/5 px-3 text-sm font-semibold text-[#6B5FDB] transition-colors hover:bg-[#7360F2]/10"
+                        style={{ fontFamily: 'var(--font-display)' }}
+                      >
+                        <ViberIcon size={15} />
+                        Viber
+                      </a>
+                    )}
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <a
-                      href={dealer.facebook}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-semibold border border-[#1877F2]/20 text-[#1877F2] bg-[#1877F2]/5 hover:bg-[#1877F2]/10 transition-colors"
-                      style={{ fontFamily: 'var(--font-display)' }}
-                    >
-                      <FacebookIcon size={13} />
-                      Facebook
-                    </a>
-                    <a
-                      href={dealer.instagram}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-semibold border border-[#E1306C]/20 text-[#E1306C] bg-[#E1306C]/5 hover:bg-[#E1306C]/10 transition-colors"
-                      style={{ fontFamily: 'var(--font-display)' }}
-                    >
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-                        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                        <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-                      </svg>
-                      Instagram
-                    </a>
-                  </div>
+                  {(dealer.facebook || dealer.instagram) && (
+                    <div className={`grid gap-2 ${dealer.facebook && dealer.instagram ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                      {dealer.facebook && (
+                        <a
+                          href={dealer.facebook}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-semibold border border-[#1877F2]/20 text-[#1877F2] bg-[#1877F2]/5 hover:bg-[#1877F2]/10 transition-colors"
+                          style={{ fontFamily: 'var(--font-display)' }}
+                        >
+                          <FacebookIcon size={13} />
+                          Facebook
+                        </a>
+                      )}
+                      {dealer.instagram && (
+                        <a
+                          href={dealer.instagram}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-semibold border border-[#E1306C]/20 text-[#E1306C] bg-[#E1306C]/5 hover:bg-[#E1306C]/10 transition-colors"
+                          style={{ fontFamily: 'var(--font-display)' }}
+                        >
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                            <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+                          </svg>
+                          Instagram
+                        </a>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -489,24 +514,25 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
                     <ShieldCheck size={18} className="text-white" />
                   </div>
                   <div>
-                    <p
-                      className="font-bold text-(--color-text) text-sm"
-                      style={{ fontFamily: 'var(--font-display)' }}
-                    >
-                      {dealer.name}
+                    <p className="font-bold text-(--color-text) text-sm" style={{ fontFamily: 'var(--font-display)' }}>
+                      {dealer.name || 'AutoFerari'}
                     </p>
                     <p className="text-xs text-(--color-text-muted)">Verifikovani prodavac</p>
                   </div>
                 </div>
                 <div className="space-y-2 text-xs text-(--color-text-muted)">
-                  <div className="flex items-start gap-2">
-                    <MapPin size={13} className="shrink-0 mt-0.5 text-(--color-gold)" />
-                    <span>{dealer.address}</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Clock size={13} className="shrink-0 mt-0.5 text-(--color-gold)" />
-                    <span>{dealer.workingHours}</span>
-                  </div>
+                  {dealer.address && (
+                    <div className="flex items-start gap-2">
+                      <MapPin size={13} className="shrink-0 mt-0.5 text-(--color-gold)" />
+                      <span>{dealer.address}</span>
+                    </div>
+                  )}
+                  {dealer.workingHours && (
+                    <div className="flex items-start gap-2">
+                      <Clock size={13} className="shrink-0 mt-0.5 text-(--color-gold)" />
+                      <span className="whitespace-pre-line">{dealer.workingHours}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -544,29 +570,35 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
             </div>
             <div className="mt-0.5 truncate text-xs text-(--color-text-muted)">{vehicle.title}</div>
           </div>
-          <a
-            href={`tel:${dealer.phone}`}
-            className="btn-gold touch-target flex shrink-0 items-center gap-1.5 rounded-xl px-2.5 py-2.5 text-sm min-[390px]:px-5 min-[390px]:py-3"
-          >
-            <Phone size={15} />
-            <span className="hidden min-[360px]:inline">{t.common.call}</span>
-          </a>
-          <a
-            href={`viber://chat?number=${dealer.viber.replace(/\s/g, '')}`}
-            className="touch-target flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#7360F2]/20 bg-[#7360F2]/10 text-[#6B5FDB]"
-            aria-label="Viber"
-          >
-            <ViberIcon size={18} />
-          </a>
-          <a
-            href={dealer.instagram}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="touch-target flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#E1306C]/20 bg-[#E1306C]/10 text-[#E1306C]"
-            aria-label="Instagram"
-          >
-            <InstagramIcon size={17} />
-          </a>
+          {dealer.phone && (
+            <a
+              href={`tel:${dealer.phone}`}
+              className="btn-gold touch-target flex shrink-0 items-center gap-1.5 rounded-xl px-2.5 py-2.5 text-sm min-[390px]:px-5 min-[390px]:py-3"
+            >
+              <Phone size={15} />
+              <span className="hidden min-[360px]:inline">{t.common.call}</span>
+            </a>
+          )}
+          {dealer.viber && (
+            <a
+              href={`viber://chat?number=%2B${dealer.viber.replace(/\D/g, '')}`}
+              className="touch-target flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#7360F2]/20 bg-[#7360F2]/10 text-[#6B5FDB]"
+              aria-label="Viber"
+            >
+              <ViberIcon size={18} />
+            </a>
+          )}
+          {dealer.instagram && (
+            <a
+              href={dealer.instagram}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="touch-target flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#E1306C]/20 bg-[#E1306C]/10 text-[#E1306C]"
+              aria-label="Instagram"
+            >
+              <InstagramIcon size={17} />
+            </a>
+          )}
           <button
             type="button"
             onClick={() => applyQuickLead(`${quickActionCopy.book}: ${vehicle.title}`)}
@@ -578,7 +610,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t }: Pro
         </div>
       </div>
       <div className="h-20 lg:hidden" />
-      <MobileContactFab phone={dealer.phone} viber={dealer.viber} instagram={dealer.instagram} />
+      <MobileContactFab phone={dealer.phone} viber={dealer.viber} instagram={dealer.instagram || undefined} />
 
       {/* Lightbox */}
       {lightboxOpen && (

@@ -29,14 +29,15 @@ export default function VehicleCard({ vehicle, locale, t }: VehicleCardProps) {
         )}
       >
         {/* Image */}
-        <div className="relative aspect-[16/10] overflow-hidden bg-[var(--color-surface-2)]">
+        <div className="relative w-full aspect-[16/10] overflow-hidden bg-[var(--color-surface-2)]">
           {mainImage ? (
             <Image
               src={mainImage}
               alt={vehicle.title}
-              fill
+              width={800}
+              height={500}
               sizes="(min-width: 1280px) 25vw, (min-width: 640px) 50vw, 100vw"
-              className="card-image object-cover"
+              className="card-image absolute inset-0 h-full w-full object-cover object-center"
             />
           ) : (
             <PremiumVehiclePlaceholder className="card-image" />

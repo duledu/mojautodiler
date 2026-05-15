@@ -139,6 +139,7 @@ model DealerSettings {
   id           String   @id @default(cuid())
   businessName String   @default("AutoFerari")
   phone        String   @default("")
+  smsPhone     String?
   email        String   @default("")
   address      String   @default("")
   city         String   @default("Preševo")

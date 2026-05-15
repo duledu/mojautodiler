@@ -5,19 +5,19 @@ import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Menu, X, Phone, ShieldCheck } from 'lucide-react';
 import { Locale, localeNames, locales, TranslationKeys } from '@/lib/i18n';
-import { getDealerInfo } from '@/data/vehicles';
+import type { DealerInfo } from '@/lib/db/mappers';
 import { cn } from '@/lib/utils';
 
 interface HeaderProps {
   readonly locale: Locale;
   readonly t: TranslationKeys;
+  readonly dealer: DealerInfo;
 }
 
-export default function Header({ locale, t }: HeaderProps) {
+export default function Header({ locale, t, dealer }: HeaderProps) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const dealer = getDealerInfo();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 32);
@@ -53,11 +53,8 @@ export default function Header({ locale, t }: HeaderProps) {
             <ShieldCheck size={18} className="text-white" />
           </div>
           <div>
-            <div
-              className="text-[var(--color-text)] font-bold text-[15px] leading-none"
-              style={{ fontFamily: 'var(--font-display)' }}
-            >
-              AutoFerari
+            <div className="text-[var(--color-text)] font-bold text-[15px] leading-none" style={{ fontFamily: 'var(--font-display)' }}>
+              {dealer.name || 'AutoFerari'}
             </div>
             <div className="text-[10px] text-[var(--accent-dark)] uppercase tracking-[0.18em] leading-none mt-1">
               Auto Plac
@@ -68,9 +65,7 @@ export default function Header({ locale, t }: HeaderProps) {
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-1">
           {navLinks.map((link) => {
-            const isActive =
-              pathname === link.href ||
-              (link.href !== `/${locale}` && pathname.startsWith(link.href));
+            const isActive = pathname === link.href || (link.href !== `/${locale}` && pathname.startsWith(link.href));
             return (
               <Link
                 key={link.href}
@@ -98,7 +93,7 @@ export default function Header({ locale, t }: HeaderProps) {
                 key={l}
                 href={getLocalePath(l)}
                 className={cn(
-                    'text-xs px-2.5 py-1.5 rounded-md transition-all duration-300 ease-[var(--ease-luxury)] font-semibold',
+                  'text-xs px-2.5 py-1.5 rounded-md transition-all duration-300 ease-[var(--ease-luxury)] font-semibold',
                   l === locale
                     ? 'bg-[var(--accent)] text-white shadow-sm'
                     : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'
@@ -110,15 +105,17 @@ export default function Header({ locale, t }: HeaderProps) {
             ))}
           </div>
 
-          {/* Phone CTA */}
-          <a
-            href={`tel:${dealer.phone}`}
-            className="btn-gold flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm"
-            style={{ fontFamily: 'var(--font-display)' }}
-          >
-            <Phone size={14} />
-            <span>{dealer.phone}</span>
-          </a>
+          {/* Phone CTA — hidden when no phone configured */}
+          {dealer.phone && (
+            <a
+              href={`tel:${dealer.phone}`}
+              className="btn-gold flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm"
+              style={{ fontFamily: 'var(--font-display)' }}
+            >
+              <Phone size={14} />
+              <span>{dealer.phone}</span>
+            </a>
+          )}
         </div>
 
         {/* Mobile menu button */}
@@ -136,9 +133,7 @@ export default function Header({ locale, t }: HeaderProps) {
         <div className="mobile-menu-premium md:hidden border-t border-[var(--color-border)] bg-white">
           <div className="px-4 py-4 space-y-1">
             {navLinks.map((link) => {
-              const isActive =
-                pathname === link.href ||
-                (link.href !== `/${locale}` && pathname.startsWith(link.href));
+              const isActive = pathname === link.href || (link.href !== `/${locale}` && pathname.startsWith(link.href));
               return (
                 <Link
                   key={link.href}
@@ -163,9 +158,7 @@ export default function Header({ locale, t }: HeaderProps) {
                   href={getLocalePath(l)}
                   className={cn(
                     'text-xs px-3 py-1.5 rounded-lg font-semibold',
-                    l === locale
-                      ? 'bg-[var(--accent)] text-white'
-                      : 'bg-[var(--color-surface-2)] text-[var(--color-text-muted)]'
+                    l === locale ? 'bg-[var(--accent)] text-white' : 'bg-[var(--color-surface-2)] text-[var(--color-text-muted)]'
                   )}
                   style={{ fontFamily: 'var(--font-display)' }}
                 >
@@ -173,14 +166,16 @@ export default function Header({ locale, t }: HeaderProps) {
                 </Link>
               ))}
             </div>
-            <a
-              href={`tel:${dealer.phone}`}
-              className="btn-gold flex items-center justify-center gap-2 w-full mt-3 px-4 py-3 rounded-xl text-sm"
-              style={{ fontFamily: 'var(--font-display)' }}
-            >
-              <Phone size={14} />
-              {dealer.phone}
-            </a>
+            {dealer.phone && (
+              <a
+                href={`tel:${dealer.phone}`}
+                className="btn-gold flex items-center justify-center gap-2 w-full mt-3 px-4 py-3 rounded-xl text-sm"
+                style={{ fontFamily: 'var(--font-display)' }}
+              >
+                <Phone size={14} />
+                {dealer.phone}
+              </a>
+            )}
           </div>
         </div>
       )}

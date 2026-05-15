@@ -1,26 +1,30 @@
 import { notFound } from 'next/navigation';
-import { isValidLocale, getTranslations, Locale } from '@/lib/i18n';
+import { isValidLocale, getTranslations } from '@/lib/i18n';
+import { getDealerSettings } from '@/lib/db/settings';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import LocaleChrome from '@/components/layout/LocaleChrome';
+
+export const dynamic = 'force-dynamic';
 
 export default async function LocaleLayout({
   children,
   params,
 }: {
-  children: React.ReactNode;
-  params: Promise<{ locale: string }>;
+  readonly children: React.ReactNode;
+  readonly params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
   if (!isValidLocale(locale)) notFound();
-  
-  const t = getTranslations(locale as Locale);
+
+  const t = getTranslations(locale);
+  const dealer = await getDealerSettings();
 
   return (
     <LocaleChrome
       locale={locale}
-      header={<Header locale={locale as Locale} t={t} />}
-      footer={<Footer locale={locale as Locale} t={t} />}
+      header={<Header locale={locale} t={t} dealer={dealer} />}
+      footer={<Footer locale={locale} t={t} dealer={dealer} />}
     >
       {children}
     </LocaleChrome>

@@ -148,26 +148,44 @@ export function toAppLead(l: PrismaLead): AppLead {
 
 export type DealerInfo = {
   name: string;
-  phone: string;
-  viber: string;
-  email: string;
+  phone: string;      // tel: action
+  smsPhone: string;   // sms: action (may be same as phone or separate)
+  viber: string;      // viber://chat?number= action
+  email: string;      // mailto: action
   address: string;
   workingHours: string;
-  facebook: string;
-  instagram: string;
-  mapUrl: string;
+  facebook: string;   // external URL
+  instagram: string;  // external URL
+  mapUrl: string;     // external URL
 };
+
+/** Empty dealer — used when DB is unavailable or row doesn't exist yet. */
+export function emptyDealerInfo(): DealerInfo {
+  return {
+    name: 'AutoFerari',
+    phone: '',
+    smsPhone: '',
+    viber: '',
+    email: '',
+    address: '',
+    workingHours: '',
+    facebook: '',
+    instagram: '',
+    mapUrl: '',
+  };
+}
 
 export function toAppDealerInfo(s: PrismaSettings): DealerInfo {
   return {
-    name:         s.businessName,
-    phone:        s.phone,
-    viber:        s.viber ?? s.phone,
-    email:        s.email,
-    address:      `${s.address}${s.city ? ', ' + s.city : ''}`,
-    workingHours: s.workingHours,
-    facebook:     s.facebookUrl  ?? 'https://facebook.com/autoferari',
-    instagram:    s.instagramUrl ?? 'https://instagram.com/autoferari',
-    mapUrl:       s.mapUrl       ?? '',
+    name:         s.businessName    || 'AutoFerari',
+    phone:        s.phone           || '',
+    smsPhone:     s.smsPhone        || '',
+    viber:        s.viber           || '',
+    email:        s.email           || '',
+    address:      [s.address, s.city].filter(Boolean).join(', '),
+    workingHours: s.workingHours    || '',
+    facebook:     s.facebookUrl     || '',
+    instagram:    s.instagramUrl    || '',
+    mapUrl:       s.mapUrl          || '',
   };
 }

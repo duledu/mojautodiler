@@ -29,15 +29,16 @@ export default function HeroVehicleCard({
       <article className="hero-vehicle-card overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white shadow-[0_16px_56px_rgba(15,15,20,0.12)] min-[390px]:rounded-3xl sm:rounded-[34px]">
 
         {/* Image */}
-        <div className="relative aspect-[3/2] overflow-hidden bg-[var(--color-surface-2)]">
+        <div className="relative w-full aspect-[3/2] overflow-hidden bg-[var(--color-surface-2)]">
           {mainImage ? (
             <Image
               src={mainImage}
               alt={vehicle.title}
-              fill
+              width={1200}
+              height={800}
               priority
               sizes="(min-width: 1024px) 52vw, 100vw"
-              className="hero-card-image object-cover"
+              className="hero-card-image absolute inset-0 h-full w-full object-cover object-center"
             />
           ) : (
             <PremiumVehiclePlaceholder className="hero-card-image" />

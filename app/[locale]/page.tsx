@@ -21,7 +21,7 @@ import Reveal from '@/components/ui/Reveal';
 import HeroVehicleCard from '@/components/vehicle/HeroVehicleCard';
 import { TrustBadges } from '@/components/vehicle/TrustBadges';
 import VehicleCard from '@/components/vehicle/VehicleCard';
-import { getDealerInfo } from '@/data/vehicles';
+import { getDealerSettings } from '@/lib/db/settings';
 import { getFeaturedVehicles } from '@/lib/db/vehicles';
 import { getTranslations, isValidLocale, Locale } from '@/lib/i18n';
 
@@ -185,7 +185,7 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
   const currentLocale = locale;
   const t = getTranslations(currentLocale);
   const copy = homeCopy[currentLocale];
-  const dealer = getDealerInfo();
+  const dealer = await getDealerSettings();
   const featuredVehicles = await getFeaturedVehicles(4);
   const heroVehicle = featuredVehicles[0] ?? null;
   const darkTitleParts = copy.darkTitle.split(copy.darkAccent);
@@ -464,10 +464,12 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
                 {copy.ctaPrimary}
                 <ArrowRight size={17} />
               </Link>
-              <a href={`tel:${dealer.phone}`} className="btn-outline inline-flex min-h-[3.25rem] items-center justify-center gap-2 rounded-xl px-7 text-sm">
-                <Phone size={17} />
-                {copy.ctaCall}
-              </a>
+              {dealer.phone && (
+                <a href={`tel:${dealer.phone}`} className="btn-outline inline-flex min-h-[3.25rem] items-center justify-center gap-2 rounded-xl px-7 text-sm">
+                  <Phone size={17} />
+                  {copy.ctaCall}
+                </a>
+              )}
             </div>
           </div>
         </Reveal>

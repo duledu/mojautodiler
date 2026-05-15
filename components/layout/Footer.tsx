@@ -2,22 +2,23 @@ import Link from 'next/link';
 import { Clock, Mail, MapPin, Phone, ShieldCheck } from 'lucide-react';
 import { FacebookIcon, InstagramIcon, ViberIcon } from '@/components/ui/SocialIcons';
 import { Locale, TranslationKeys } from '@/lib/i18n';
-import { getDealerInfo } from '@/data/vehicles';
+import type { DealerInfo } from '@/lib/db/mappers';
 
 interface FooterProps {
   readonly locale: Locale;
   readonly t: TranslationKeys;
+  readonly dealer: DealerInfo;
 }
 
-export default function Footer({ locale, t }: FooterProps) {
-  const dealer = getDealerInfo();
-
+export default function Footer({ locale, t, dealer }: FooterProps) {
   const links = [
     { href: `/${locale}`, label: t.nav.home },
     { href: `/${locale}/inventory`, label: t.nav.inventory },
     { href: `/${locale}/contact`, label: t.nav.contact },
     { href: `/${locale}/admin`, label: t.nav.admin },
   ];
+
+  const cleanViber = dealer.viber.replace(/\D/g, '');
 
   return (
     <footer className="bg-[var(--color-surface-2)] border-t border-[var(--color-border)]">
@@ -30,51 +31,41 @@ export default function Footer({ locale, t }: FooterProps) {
                 <ShieldCheck size={20} />
               </div>
               <div>
-                <div
-                  className="font-bold leading-none text-[var(--color-text)]"
-                  style={{ fontFamily: 'var(--font-display)' }}
-                >
-                  AutoFerari
+                <div className="font-bold leading-none text-[var(--color-text)]" style={{ fontFamily: 'var(--font-display)' }}>
+                  {dealer.name || 'AutoFerari'}
                 </div>
-                <div className="mt-1 text-[10px] uppercase tracking-[0.18em] text-[var(--accent-dark)]">
-                  Auto Plac
-                </div>
+                <div className="mt-1 text-[10px] uppercase tracking-[0.18em] text-[var(--accent-dark)]">Auto Plac</div>
               </div>
             </Link>
-            <p className="max-w-sm text-sm leading-7 text-[var(--color-text-muted)]">
-              {t.footer.tagline}
-            </p>
+            <p className="max-w-sm text-sm leading-7 text-[var(--color-text-muted)]">{t.footer.tagline}</p>
             <div className="mt-5 flex items-center gap-2">
-              <SocialLink href={dealer.facebook} label="Facebook">
-                <FacebookIcon size={16} />
-              </SocialLink>
-              <SocialLink href={dealer.instagram} label="Instagram">
-                <InstagramIcon size={16} />
-              </SocialLink>
-              <SocialLink
-                href={`viber://chat?number=${dealer.viber.replace(/\s/g, '')}`}
-                label="Viber"
-              >
-                <ViberIcon size={16} />
-              </SocialLink>
+              {dealer.facebook && (
+                <SocialLink href={dealer.facebook} label="Facebook">
+                  <FacebookIcon size={16} />
+                </SocialLink>
+              )}
+              {dealer.instagram && (
+                <SocialLink href={dealer.instagram} label="Instagram">
+                  <InstagramIcon size={16} />
+                </SocialLink>
+              )}
+              {dealer.viber && (
+                <SocialLink href={`viber://chat?number=%2B${cleanViber}`} label="Viber">
+                  <ViberIcon size={16} />
+                </SocialLink>
+              )}
             </div>
           </div>
 
           {/* Links */}
           <div>
-            <h3
-              className="mb-5 text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-text)]"
-              style={{ fontFamily: 'var(--font-display)' }}
-            >
+            <h3 className="mb-5 text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-text)]" style={{ fontFamily: 'var(--font-display)' }}>
               {t.footer.links}
             </h3>
             <ul className="space-y-3">
               {links.map((link) => (
                 <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-[var(--color-text-muted)] transition-colors hover:text-[var(--accent-dark)]"
-                  >
+                  <Link href={link.href} className="text-sm text-[var(--color-text-muted)] transition-colors hover:text-[var(--accent-dark)]">
                     {link.label}
                   </Link>
                 </li>
@@ -84,52 +75,35 @@ export default function Footer({ locale, t }: FooterProps) {
 
           {/* Contact */}
           <div>
-            <h3
-              className="mb-5 text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-text)]"
-              style={{ fontFamily: 'var(--font-display)' }}
-            >
+            <h3 className="mb-5 text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-text)]" style={{ fontFamily: 'var(--font-display)' }}>
               {t.nav.contact}
             </h3>
             <ul className="space-y-4">
-              <ContactItem icon={<MapPin size={15} />} text={dealer.address} />
-              <ContactItem
-                icon={<Phone size={15} />}
-                text={dealer.phone}
-                href={`tel:${dealer.phone}`}
-              />
-              <ContactItem
-                icon={<Mail size={15} />}
-                text={dealer.email}
-                href={`mailto:${dealer.email}`}
-              />
-              <ContactItem icon={<Clock size={15} />} text={dealer.workingHours} />
+              {dealer.address     && <ContactItem icon={<MapPin size={15} />} text={dealer.address} />}
+              {dealer.phone       && <ContactItem icon={<Phone size={15} />}  text={dealer.phone}   href={`tel:${dealer.phone}`} />}
+              {dealer.email       && <ContactItem icon={<Mail size={15} />}   text={dealer.email}   href={`mailto:${dealer.email}`} />}
+              {dealer.workingHours && <ContactItem icon={<Clock size={15} />} text={dealer.workingHours} />}
             </ul>
           </div>
 
           {/* CTA card */}
           <div className="rounded-2xl border border-[var(--accent-border)] bg-[var(--accent-soft)] p-5">
-            <h3
-              className="text-base font-black text-[var(--color-text)]"
-              style={{ fontFamily: 'var(--font-display)' }}
-            >
+            <h3 className="text-base font-black text-[var(--color-text)]" style={{ fontFamily: 'var(--font-display)' }}>
               {t.contact.title}
             </h3>
-            <p className="mt-3 text-sm leading-7 text-[var(--color-text-muted)]">
-              {t.contact.subtitle}
-            </p>
-            <a
-              href={`tel:${dealer.phone}`}
-              className="btn-gold mt-5 inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm"
-            >
-              <Phone size={14} />
-              {t.common.call}
-            </a>
+            <p className="mt-3 text-sm leading-7 text-[var(--color-text-muted)]">{t.contact.subtitle}</p>
+            {dealer.phone && (
+              <a href={`tel:${dealer.phone}`} className="btn-gold mt-5 inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm">
+                <Phone size={14} />
+                {t.common.call}
+              </a>
+            )}
           </div>
         </div>
 
         <div className="soft-divider my-8" />
         <div className="flex flex-col gap-2 text-xs text-[var(--color-text-muted)] sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} AutoFerari Preševo. {t.footer.rights}.</p>
+          <p>© {new Date().getFullYear()} {dealer.name || 'AutoFerari'} Preševo. {t.footer.rights}.</p>
           <p>Premium auto plac • Preševo</p>
         </div>
       </div>
@@ -137,15 +111,7 @@ export default function Footer({ locale, t }: FooterProps) {
   );
 }
 
-function SocialLink({
-  href,
-  label,
-  children,
-}: {
-  readonly href: string;
-  readonly label: string;
-  readonly children: React.ReactNode;
-}) {
+function SocialLink({ href, label, children }: { readonly href: string; readonly label: string; readonly children: React.ReactNode }) {
   const external = href.startsWith('http');
   return (
     <a
@@ -160,33 +126,19 @@ function SocialLink({
   );
 }
 
-function ContactItem({
-  icon,
-  text,
-  href,
-}: {
-  readonly icon: React.ReactNode;
-  readonly text: string;
-  readonly href?: string;
-}) {
+function ContactItem({ icon, text, href }: { readonly icon: React.ReactNode; readonly text: string; readonly href?: string }) {
   const content = (
     <>
       <span className="mt-0.5 shrink-0 text-[var(--accent)]">{icon}</span>
-      <span className="text-sm leading-6 text-[var(--color-text-muted)] transition-colors group-hover:text-[var(--color-text)]">
+      <span className="whitespace-pre-line text-sm leading-6 text-[var(--color-text-muted)] transition-colors group-hover:text-[var(--color-text)]">
         {text}
       </span>
     </>
   );
-
   if (href) {
     return (
-      <li>
-        <a href={href} className="group flex items-start gap-3">
-          {content}
-        </a>
-      </li>
+      <li><a href={href} className="group flex items-start gap-3">{content}</a></li>
     );
   }
-
   return <li className="flex items-start gap-3">{content}</li>;
 }
