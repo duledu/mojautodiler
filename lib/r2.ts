@@ -12,7 +12,7 @@
  *   R2_PUBLIC_URL        – Public bucket URL, e.g. https://pub-<hash>.r2.dev
  */
 
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 // ─── Env var helper ───────────────────────────────────────────────────────────
@@ -87,7 +87,7 @@ export function validateUpload(contentType: string, sizeBytes: number): string |
 export function buildObjectKey(vehicleId: string | null | undefined, filename: string): string {
   const safeName = filename
     .toLowerCase()
-    .replace(/[^a-z0-9.\-]/g, '-')
+    .replace(/[^a-z0-9.-]/g, '-')
     .replace(/-{2,}/g, '-')
     .slice(0, 80);
 
@@ -145,4 +145,139 @@ export function r2EnvDiagnostics(): Record<string, string> {
     R2_BUCKET_NAME:       env('R2_BUCKET_NAME')       || 'MISSING',
     R2_PUBLIC_URL:        env('R2_PUBLIC_URL')         || 'MISSING',
   };
+}
+
+// ─── Temp-file cleanup ────────────────────────────────────────────────────────
+
+/** Prefix for images uploaded before a vehicle is saved. */
+export const TEMP_OBJECT_PREFIX = 'vehicles/tmp-';
+
+const DEFAULT_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 h
+
+export interface TempObjectInfo {
+  key: string;
+  lastModified: Date;
+  sizeBytes: number;
+}
+
+export interface CleanupResult {
+  scanned: number;
+  deleted: number;
+  skipped: number;
+  errors: string[];
+}
+
+/**
+ * Returns a human-readable skip reason, or null when the object is safe to delete.
+ * Three guards must all pass:
+ *   1. Key is under TEMP_OBJECT_PREFIX
+ *   2. LastModified is older than the cutoff
+ *   3. Derived public URL is not in savedUrls
+ */
+function skipReasonFor(
+  obj: TempObjectInfo,
+  cutoff: Date,
+  publicBase: string,
+  savedUrls: Set<string>,
+): string | null {
+  if (!obj.key.startsWith(TEMP_OBJECT_PREFIX)) return 'wrong-prefix';
+  if (obj.lastModified >= cutoff) return `too-recent (${obj.lastModified.toISOString()})`;
+  if (savedUrls.has(`${publicBase}/${obj.key}`)) return 'in-db';
+  return null;
+}
+
+/** Attempts to delete one object; records success/failure in result. */
+async function tryDeleteOne(obj: TempObjectInfo, result: CleanupResult): Promise<void> {
+  try {
+    await deleteObject(obj.key);
+    result.deleted++;
+    console.info(`[R2 CLEANUP] Deleted — key=${obj.key} size=${obj.sizeBytes}B`);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error(`[R2 CLEANUP] Delete failed — key=${obj.key}:`, msg);
+    result.errors.push(`Delete ${obj.key}: ${msg}`);
+  }
+}
+
+/**
+ * Lists all R2 objects under `vehicles/tmp-`.
+ * Paginates automatically; never throws — returns [] when R2 is not configured.
+ */
+export async function listTempObjects(): Promise<TempObjectInfo[]> {
+  const bucket = env('R2_BUCKET_NAME');
+  if (!bucket) {
+    console.warn('[R2 CLEANUP] R2_BUCKET_NAME not set — returning empty list');
+    return [];
+  }
+
+  const results: TempObjectInfo[] = [];
+  let token: string | undefined;
+
+  do {
+    const resp = await getClient().send(
+      new ListObjectsV2Command({ Bucket: bucket, Prefix: TEMP_OBJECT_PREFIX, ContinuationToken: token, MaxKeys: 1000 }),
+    );
+    for (const o of resp.Contents ?? []) {
+      if (o.Key && o.LastModified) results.push({ key: o.Key, lastModified: o.LastModified, sizeBytes: o.Size ?? 0 });
+    }
+    token = resp.IsTruncated ? resp.NextContinuationToken : undefined;
+  } while (token);
+
+  return results;
+}
+
+/**
+ * Deletes orphaned temporary R2 objects safely.
+ *
+ * An object is deleted only when all three of these hold:
+ *   1. Its key starts with `vehicles/tmp-`
+ *   2. Its LastModified is older than `maxAgeMs` (default 24 h)
+ *   3. Its derived public URL is NOT in `savedUrls`
+ *
+ * Never throws; errors are collected in result.errors. Returns a zero struct
+ * when R2 env vars are missing.
+ */
+export async function cleanupTempObjects(
+  savedUrls: Set<string>,
+  maxAgeMs: number = DEFAULT_MAX_AGE_MS,
+): Promise<CleanupResult> {
+  const result: CleanupResult = { scanned: 0, deleted: 0, skipped: 0, errors: [] };
+
+  const bucket     = env('R2_BUCKET_NAME');
+  const publicBase = env('R2_PUBLIC_URL').replace(/\/$/, '');
+
+  if (!bucket || !publicBase) {
+    const missing = [!bucket && 'R2_BUCKET_NAME', !publicBase && 'R2_PUBLIC_URL'].filter(Boolean);
+    console.warn(`[R2 CLEANUP] Missing env vars: ${missing.join(', ')} — aborting`);
+    return result;
+  }
+
+  const cutoff = new Date(Date.now() - maxAgeMs);
+  console.info(`[R2 CLEANUP] Starting — cutoff=${cutoff.toISOString()} savedUrls=${savedUrls.size}`);
+
+  let objects: TempObjectInfo[];
+  try {
+    objects = await listTempObjects();
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error('[R2 CLEANUP] List failed:', msg);
+    result.errors.push(`List failed: ${msg}`);
+    return result;
+  }
+
+  result.scanned = objects.length;
+  console.info(`[R2 CLEANUP] Scanned ${objects.length} object(s)`);
+
+  for (const obj of objects) {
+    const reason = skipReasonFor(obj, cutoff, publicBase, savedUrls);
+    if (reason) {
+      result.skipped++;
+      if (reason !== 'wrong-prefix') console.info(`[R2 CLEANUP] Skip (${reason}) — key=${obj.key}`);
+    } else {
+      await tryDeleteOne(obj, result);
+    }
+  }
+
+  console.info(`[R2 CLEANUP] Done — scanned=${result.scanned} deleted=${result.deleted} skipped=${result.skipped} errors=${result.errors.length}`);
+  return result;
 }
