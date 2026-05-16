@@ -22,7 +22,7 @@ import HeroVehicleCard from '@/components/vehicle/HeroVehicleCard';
 import { TrustBadges } from '@/components/vehicle/TrustBadges';
 import VehicleCard from '@/components/vehicle/VehicleCard';
 import { getDealerSettings } from '@/lib/db/settings';
-import { getFeaturedVehicles } from '@/lib/db/vehicles';
+import { getHeroVehicle, getShowcaseVehicles } from '@/lib/db/vehicles';
 import { getTranslations, isValidLocale, Locale } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
@@ -185,11 +185,11 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
   const currentLocale = locale;
   const t = getTranslations(currentLocale);
   const copy = homeCopy[currentLocale];
-  const [dealer, featuredVehicles] = await Promise.all([
+  const [dealer, heroVehicle, featuredVehicles] = await Promise.all([
     getDealerSettings(),
-    getFeaturedVehicles(4),
+    getHeroVehicle(),
+    getShowcaseVehicles(4),
   ]);
-  const heroVehicle = featuredVehicles[0] ?? null;
   const darkTitleParts = copy.darkTitle.split(copy.darkAccent);
 
   return (

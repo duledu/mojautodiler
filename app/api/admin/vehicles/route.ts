@@ -65,6 +65,7 @@ export async function POST(request: NextRequest) {
       images,
       status:         body.status || 'active',
       featured:       Boolean(body.featured),
+      showcase:       Boolean(body.showcase),
       tags:           Array.isArray(body.tags) ? body.tags : [],
       dealerId:       body.dealerId?.trim() || undefined,
       contactPhone:   body.contactPhone?.trim() || undefined,

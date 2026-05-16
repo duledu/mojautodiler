@@ -75,7 +75,8 @@ export interface Vehicle {
   images: VehicleImage[];
   videos?: VehicleVideo[];
   status: VehicleStatus;
-  featured?: boolean;
+  featured?: boolean;   // homepage hero (max 1 at a time)
+  showcase?: boolean;   // "Aktuelna premium selekcija" grid (multiple allowed)
   tags?: string[];
   dealerNotes?: string;
   dealerId?: string;

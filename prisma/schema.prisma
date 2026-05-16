@@ -96,7 +96,8 @@ model Vehicle {
   videoUrl       String?       // Optional YouTube / direct URL
 
   status         VehicleStatus @default(AVAILABLE)
-  featured       Boolean       @default(false)
+  featured       Boolean       @default(false)  // homepage hero (max 1)
+  showcase       Boolean       @default(false)  // "Aktuelna premium selekcija" (multiple allowed)
 
   dealerId       String?
   dealer         Dealer?       @relation(fields: [dealerId], references: [id], onDelete: SetNull)
@@ -114,6 +115,7 @@ model Vehicle {
   @@index([brand])
   @@index([dealerId])
   @@index([featured])
+  @@index([showcase])
   @@index([createdAt])
 }
 

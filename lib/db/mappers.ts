@@ -156,12 +156,15 @@ export function toAppVehicle(v: PrismaVehicle & { dealer?: PrismaDealer | null }
     videoUrl:      v.videoUrl ?? undefined,
     status:        toAppVehicleStatus(v.status),
     featured:      v.featured,
+    showcase:      v.showcase,
     tags:          v.tags,
     dealerId:      v.dealerId ?? undefined,
     dealer:        v.dealer ? toAppDealer(v.dealer) : undefined,
     contactPhone:  v.contactPhone ?? undefined,
     contactViber:  v.contactViber ?? undefined,
     contactName:   v.contactName ?? undefined,
+    // seoSlug mirrors slug so the edit form pre-fills the SEO slug input correctly
+    seoSlug:       v.slug,
     createdAt:     v.createdAt.toISOString(),
     updatedAt:     v.updatedAt.toISOString(),
   } as unknown as Vehicle;

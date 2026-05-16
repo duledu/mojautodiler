@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Vehicle } from '@/types/vehicle';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Plus, Search, Filter, Edit2, Trash2, EyeOff, Eye,
-  CheckCircle, Car, ChevronDown, MoreVertical, ArrowUpDown,
+  CheckCircle, Car, ChevronDown, MoreVertical, ArrowUpDown, Star, StarOff, LayoutGrid,
 } from 'lucide-react';
 
 interface Props {
@@ -93,6 +93,22 @@ function persistVehicleDelete(id: string) {
   fetch(`/api/admin/vehicles/${id}`, { method: 'DELETE' }).catch(console.error);
 }
 
+function persistVehicleHero(id: string, featured: boolean) {
+  fetch(`/api/admin/vehicles/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ featured }),
+  }).catch(console.error);
+}
+
+function persistVehicleShowcase(id: string, showcase: boolean) {
+  fetch(`/api/admin/vehicles/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ showcase }),
+  }).catch(console.error);
+}
+
 export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props) {
   const pathname = usePathname();
   const locale = pathname.split('/')[1] || 'sr';
@@ -102,7 +118,21 @@ export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props
   const [sortKey, setSortKey] = useState<SortKey>('createdAt');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  // Viewport-relative anchor for the fixed-position dropdown (avoids overflow-hidden clipping)
+  const [menuAnchor, setMenuAnchor] = useState<{ top: number; right: number } | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+
+  const closeMenu = () => {
+    setOpenMenu(null);
+    setMenuAnchor(null);
+  };
+
+  const openMenuFor = (vehicleId: string, e: React.MouseEvent<HTMLButtonElement>) => {
+    if (openMenu === vehicleId) { closeMenu(); return; }
+    const r = e.currentTarget.getBoundingClientRect();
+    setMenuAnchor({ top: r.bottom + 4, right: window.innerWidth - r.right });
+    setOpenMenu(vehicleId);
+  };
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
@@ -129,7 +159,7 @@ export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props
 
   const toggleStatus = (id: string, newStatus: Vehicle['status']) => {
     setVehicles((vs) => vs.map((v) => (v.id === id ? { ...v, status: newStatus } : v)));
-    setOpenMenu(null);
+    closeMenu();
     persistVehicleStatus(id, newStatus);
   };
 
@@ -137,6 +167,32 @@ export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props
     setVehicles((vs) => vs.filter((v) => v.id !== id));
     setConfirmDelete(null);
     persistVehicleDelete(id);
+  };
+
+  // Hero: at most one vehicle has featured=true at a time (enforced server-side too)
+  const setHero = (id: string) => {
+    setVehicles((vs) => vs.map((v) => ({ ...v, featured: v.id === id })));
+    closeMenu();
+    persistVehicleHero(id, true);
+  };
+
+  const removeHero = (id: string) => {
+    setVehicles((vs) => vs.map((v) => (v.id === id ? { ...v, featured: false } : v)));
+    closeMenu();
+    persistVehicleHero(id, false);
+  };
+
+  // Showcase: multiple vehicles can be in the premium selection grid simultaneously
+  const addToShowcase = (id: string) => {
+    setVehicles((vs) => vs.map((v) => (v.id === id ? { ...v, showcase: true } : v)));
+    closeMenu();
+    persistVehicleShowcase(id, true);
+  };
+
+  const removeFromShowcase = (id: string) => {
+    setVehicles((vs) => vs.map((v) => (v.id === id ? { ...v, showcase: false } : v)));
+    closeMenu();
+    persistVehicleShowcase(id, false);
   };
 
   const counts = {
@@ -147,19 +203,32 @@ export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props
     draft: vehicles.filter((v) => v.status === 'draft').length,
   };
 
+  // Close the dropdown when the user scrolls or resizes — the fixed position
+  // becomes stale after either event.
+  useEffect(() => {
+    if (!openMenu) return;
+    const close = () => { setOpenMenu(null); setMenuAnchor(null); };
+    window.addEventListener('scroll', close, { capture: true, passive: true });
+    window.addEventListener('resize', close);
+    return () => {
+      window.removeEventListener('scroll', close, { capture: true });
+      window.removeEventListener('resize', close);
+    };
+  }, [openMenu]);
+
   return (
     <div className="space-y-5 p-3 min-[390px]:space-y-6 min-[390px]:p-4 sm:p-6 lg:p-8">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-dark)]">Inventar placa</p>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-(--accent-dark)">Inventar placa</p>
           <h1
-            className="mt-2 text-3xl font-black text-[var(--color-text)]"
+            className="mt-2 text-3xl font-black text-(--color-text)"
             style={{ fontFamily: 'var(--font-display)' }}
           >
             Vozila
           </h1>
-          <p className="mt-2 text-sm text-[var(--color-text-muted)]">{vehicles.length} vozila u inventaru</p>
+          <p className="mt-2 text-sm text-(--color-text-muted)">{vehicles.length} vozila u inventaru</p>
         </div>
         <Link
           href={`/${locale}/admin/vehicles/new`}
@@ -202,7 +271,7 @@ export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props
       {/* Mobile cards */}
       <div className="grid gap-3 md:hidden">
         {filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-3xl border border-[var(--color-border)] bg-white px-6 py-16 text-center shadow-sm">
+          <div className="flex flex-col items-center justify-center rounded-3xl border border-(--color-border) bg-white px-6 py-16 text-center shadow-sm">
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-(--color-border) bg-(--color-surface-2)">
               <Car size={20} className="text-(--color-text-muted)" />
             </div>
@@ -213,28 +282,42 @@ export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props
           </div>
         ) : (
           filtered.map((v) => (
-            <article key={v.id} className="rounded-3xl border border-[var(--color-border)] bg-white p-3.5 shadow-sm min-[390px]:p-4">
+            <article key={v.id} className="rounded-3xl border border-(--color-border) bg-white p-3.5 shadow-sm min-[390px]:p-4">
               <div className="flex gap-2.5 min-[390px]:gap-3">
                 {v.images[0]?.url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={v.images[0].url}
                     alt={v.title}
-                    className="h-[4.5rem] w-20 shrink-0 rounded-2xl object-cover min-[390px]:h-20 min-[390px]:w-24"
+                    className="h-18 w-20 shrink-0 rounded-2xl object-cover min-[390px]:h-20 min-[390px]:w-24"
                   />
                 ) : (
-                  <div className="flex h-[4.5rem] w-20 shrink-0 items-center justify-center rounded-2xl border border-(--color-border) bg-(--color-surface-2) min-[390px]:h-20 min-[390px]:w-24">
+                  <div className="flex h-18 w-20 shrink-0 items-center justify-center rounded-2xl border border-(--color-border) bg-(--color-surface-2) min-[390px]:h-20 min-[390px]:w-24">
                     <Car size={18} className="text-(--color-text-muted)" />
                   </div>
                 )}
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <h2 className="line-clamp-2 text-sm font-bold leading-snug text-(--color-text)">{v.title}</h2>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {v.featured && (
+                          <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full border border-(--accent-border) bg-(--accent-soft) px-1.5 py-px text-[9px] font-black uppercase tracking-wide text-(--accent-dark)">
+                            <Star size={7} fill="currentColor" />
+                            Hero
+                          </span>
+                        )}
+                        {v.showcase && (
+                          <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full border border-blue-200 bg-blue-50 px-1.5 py-px text-[9px] font-black uppercase tracking-wide text-blue-700">
+                            <LayoutGrid size={7} />
+                            Selekcija
+                          </span>
+                        )}
+                        <h2 className="line-clamp-2 text-sm font-bold leading-snug text-(--color-text)">{v.title}</h2>
+                      </div>
                       <p className="mt-1 text-xs text-(--color-text-muted)">
                         {v.year} · {v.mileage.toLocaleString('sr-RS')} km
                       </p>
-                      {v.dealer && <p className="mt-1 truncate text-[11px] font-bold text-[var(--accent-dark)]">{v.dealer.name}</p>}
+                      {v.dealer && <p className="mt-1 truncate text-[11px] font-bold text-(--accent-dark)">{v.dealer.name}</p>}
                     </div>
                     <span className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-bold ${statusConfig[v.status]?.cls ?? statusConfig.hidden.cls}`}>
                       {statusConfig[v.status]?.label ?? v.status}
@@ -246,7 +329,8 @@ export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props
                 </div>
               </div>
 
-              <div className="mt-4 grid grid-cols-3 gap-1.5 border-t border-(--color-border) pt-4 min-[390px]:gap-2">
+              {/* 2×2 action grid — fits down to 320px without overflow */}
+              <div className="mt-4 grid grid-cols-2 gap-1.5 border-t border-(--color-border) pt-4 min-[390px]:gap-2">
                 <Link
                   href={`/${locale}/admin/vehicles/${v.id}/edit`}
                   className="touch-target inline-flex items-center justify-center gap-1 rounded-xl border border-(--color-border) text-[11px] font-bold text-(--color-text-muted) min-[390px]:gap-1.5 min-[390px]:text-xs"
@@ -273,6 +357,25 @@ export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props
                     Aktiviraj
                   </button>
                 )}
+                {v.featured ? (
+                  <button
+                    type="button"
+                    onClick={() => removeHero(v.id)}
+                    className="touch-target inline-flex items-center justify-center gap-1 rounded-xl border border-(--accent-border) bg-(--accent-soft) text-[11px] font-bold text-(--accent-dark) min-[390px]:gap-1.5 min-[390px]:text-xs"
+                  >
+                    <StarOff size={13} />
+                    Ukloni hero
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setHero(v.id)}
+                    className="touch-target inline-flex items-center justify-center gap-1 rounded-xl border border-(--color-border) text-[11px] font-bold text-(--color-text-muted) min-[390px]:gap-1.5 min-[390px]:text-xs"
+                  >
+                    <Star size={13} />
+                    Postavi hero
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={() => setConfirmDelete(v.id)}
@@ -281,6 +384,26 @@ export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props
                   <Trash2 size={13} />
                   Obrisi
                 </button>
+                {/* Showcase spans the full 2-col width as a 5th action */}
+                {v.showcase ? (
+                  <button
+                    type="button"
+                    onClick={() => removeFromShowcase(v.id)}
+                    className="touch-target col-span-2 inline-flex items-center justify-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 text-[11px] font-bold text-blue-700 min-[390px]:text-xs"
+                  >
+                    <LayoutGrid size={13} />
+                    Ukloni iz premium selekcije
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => addToShowcase(v.id)}
+                    className="touch-target col-span-2 inline-flex items-center justify-center gap-1.5 rounded-xl border border-(--color-border) text-[11px] font-bold text-(--color-text-muted) min-[390px]:text-xs"
+                  >
+                    <LayoutGrid size={13} />
+                    Dodaj u premium selekciju
+                  </button>
+                )}
               </div>
             </article>
           ))
@@ -288,127 +411,199 @@ export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props
       </div>
 
       {/* Desktop table */}
-      <div className="hidden overflow-hidden rounded-3xl border border-[var(--color-border)] bg-white shadow-sm md:block">
+      <div className="hidden overflow-hidden rounded-3xl border border-(--color-border) bg-white shadow-sm md:block">
         <div className="overflow-x-auto">
-          <div className="min-w-[780px]">
-        {/* Table header */}
-        <div className="grid grid-cols-[2fr_1fr_1fr_1fr_72px] gap-4 border-b border-[var(--color-border)] bg-[var(--color-surface-2)] px-5 py-3.5">
-          <SortButton col="title" label="Vozilo" sortKey={sortKey} onSort={handleSort} />
-          <SortButton col="price" label="Cena" sortKey={sortKey} onSort={handleSort} />
-          <SortButton col="year" label="Godište" sortKey={sortKey} onSort={handleSort} />
-          <span className="text-xs font-semibold text-(--color-text-muted)">Status</span>
-          <span className="text-xs font-semibold text-(--color-text-muted) text-right">Akcije</span>
-        </div>
-
-        {filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="w-12 h-12 rounded-2xl bg-(--color-surface-2) border border-(--color-border) flex items-center justify-center mb-4">
-              <Car size={20} className="text-(--color-text-muted)" />
+          <div className="min-w-195">
+            {/* Table header */}
+            <div className="grid grid-cols-[2fr_1fr_1fr_1fr_72px] gap-4 border-b border-(--color-border) bg-(--color-surface-2) px-5 py-3.5">
+              <SortButton col="title" label="Vozilo" sortKey={sortKey} onSort={handleSort} />
+              <SortButton col="price" label="Cena" sortKey={sortKey} onSort={handleSort} />
+              <SortButton col="year" label="Godište" sortKey={sortKey} onSort={handleSort} />
+              <span className="text-xs font-semibold text-(--color-text-muted)">Status</span>
+              <span className="text-xs font-semibold text-(--color-text-muted) text-right">Akcije</span>
             </div>
-            <p className="font-semibold text-(--color-text)" style={{ fontFamily: 'var(--font-display)' }}>
-              Nema vozila
-            </p>
-            <p className="text-(--color-text-muted) text-sm mt-1">Promijenite filter ili dodajte novo vozilo</p>
-          </div>
-        ) : (
-          <div className="divide-y divide-(--color-border)">
-            {filtered.map((v) => (
-              <div
-                key={v.id}
-                className="grid grid-cols-[2fr_1fr_1fr_1fr_72px] gap-4 px-5 py-4 items-center hover:bg-(--color-surface-2) transition-colors group"
-              >
-                {/* Vehicle */}
-                <div className="flex items-center gap-3 min-w-0">
-                  {v.images[0]?.url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={v.images[0].url}
-                      alt={v.title}
-                      className="w-14 h-10 object-cover rounded-xl shrink-0"
-                    />
-                  ) : (
-                    <div className="w-14 h-10 rounded-xl bg-(--color-surface-2) border border-(--color-border) shrink-0 flex items-center justify-center">
-                      <Car size={15} className="text-(--color-text-muted)" />
-                    </div>
-                  )}
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-(--color-text) truncate">{v.title}</p>
-                    <p className="text-xs text-(--color-text-muted) mt-0.5">
-                      {v.mileage.toLocaleString('sr-RS')} km · {v.fuelType}
-                    </p>
-                    {v.dealer && <p className="mt-0.5 truncate text-[11px] font-bold text-[var(--accent-dark)]">{v.dealer.name}</p>}
-                  </div>
+
+            {filtered.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <div className="w-12 h-12 rounded-2xl bg-(--color-surface-2) border border-(--color-border) flex items-center justify-center mb-4">
+                  <Car size={20} className="text-(--color-text-muted)" />
                 </div>
-
-                {/* Price */}
-                <p className="text-sm font-bold text-(--color-gold-dark)">
-                  {v.price.toLocaleString('sr-RS')} {v.currency}
+                <p className="font-semibold text-(--color-text)" style={{ fontFamily: 'var(--font-display)' }}>
+                  Nema vozila
                 </p>
-
-                {/* Year */}
-                <p className="text-sm text-(--color-text-2)">{v.year}</p>
-
-                {/* Status */}
-                <span className={`inline-flex text-xs px-2.5 py-1 rounded-full font-medium w-fit ${statusConfig[v.status]?.cls ?? statusConfig.hidden.cls}`}>
-                  {statusConfig[v.status]?.label ?? v.status}
-                </span>
-
-                {/* Actions */}
-                <div className="flex items-center justify-end gap-1 relative">
-                  <Link
-                    href={`/${locale}/admin/vehicles/${v.id}/edit`}
-                    className="p-1.5 rounded-lg text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-surface-2) transition-colors"
-                    title="Uredi"
+                <p className="text-(--color-text-muted) text-sm mt-1">Promijenite filter ili dodajte novo vozilo</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-(--color-border)">
+                {filtered.map((v) => (
+                  <div
+                    key={v.id}
+                    className="grid grid-cols-[2fr_1fr_1fr_1fr_72px] gap-4 px-5 py-4 items-center hover:bg-(--color-surface-2) transition-colors group"
                   >
-                    <Edit2 size={14} />
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => setOpenMenu(openMenu === v.id ? null : v.id)}
-                    className="p-1.5 rounded-lg text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-surface-2) transition-colors"
-                  >
-                    <MoreVertical size={14} />
-                  </button>
-
-                  {openMenu === v.id && (
-                    <menu
-                      className="absolute right-0 top-full mt-1 z-20 bg-white border border-(--color-border) rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.1)] py-1 w-48 list-none p-0 m-0"
-                      onMouseLeave={() => setOpenMenu(null)}
-                    >
-                      {v.status !== 'sold' && (
-                        <button
-                          type="button"
-                          onClick={() => toggleStatus(v.id, 'sold')}
-                          className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-(--color-text-2) hover:text-(--color-text) hover:bg-(--color-surface-2) transition-colors"
-                        >
-                          <CheckCircle size={13} className="text-blue-500" />
-                          Označi kao prodano
-                        </button>
+                    {/* Vehicle */}
+                    <div className="flex items-center gap-3 min-w-0">
+                      {v.images[0]?.url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={v.images[0].url}
+                          alt={v.title}
+                          className="w-14 h-10 object-cover rounded-xl shrink-0"
+                        />
+                      ) : (
+                        <div className="w-14 h-10 rounded-xl bg-(--color-surface-2) border border-(--color-border) shrink-0 flex items-center justify-center">
+                          <Car size={15} className="text-(--color-text-muted)" />
+                        </div>
                       )}
-                      <ToggleVisibilityButton
-                        status={v.status}
-                        vehicleId={v.id}
-                        onToggle={toggleStatus}
-                      />
-                      <div className="my-1 border-t border-(--color-border)" />
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {v.featured && (
+                            <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full border border-(--accent-border) bg-(--accent-soft) px-1.5 py-px text-[9px] font-black uppercase tracking-wide text-(--accent-dark)">
+                              <Star size={7} fill="currentColor" />
+                              Hero
+                            </span>
+                          )}
+                          {v.showcase && (
+                            <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full border border-blue-200 bg-blue-50 px-1.5 py-px text-[9px] font-black uppercase tracking-wide text-blue-700">
+                              <LayoutGrid size={7} />
+                              Selekcija
+                            </span>
+                          )}
+                          <p className="text-sm font-semibold text-(--color-text) truncate">{v.title}</p>
+                        </div>
+                        <p className="text-xs text-(--color-text-muted) mt-0.5">
+                          {v.mileage.toLocaleString('sr-RS')} km · {v.fuelType}
+                        </p>
+                        {v.dealer && <p className="mt-0.5 truncate text-[11px] font-bold text-(--accent-dark)">{v.dealer.name}</p>}
+                      </div>
+                    </div>
+
+                    {/* Price */}
+                    <p className="text-sm font-bold text-(--color-gold-dark)">
+                      {v.price.toLocaleString('sr-RS')} {v.currency}
+                    </p>
+
+                    {/* Year */}
+                    <p className="text-sm text-(--color-text-2)">{v.year}</p>
+
+                    {/* Status */}
+                    <span className={`inline-flex text-xs px-2.5 py-1 rounded-full font-medium w-fit ${statusConfig[v.status]?.cls ?? statusConfig.hidden.cls}`}>
+                      {statusConfig[v.status]?.label ?? v.status}
+                    </span>
+
+                    {/* Actions — edit link + three-dot menu */}
+                    <div className="flex items-center justify-end gap-1">
+                      <Link
+                        href={`/${locale}/admin/vehicles/${v.id}/edit`}
+                        className="p-1.5 rounded-lg text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-surface-2) transition-colors"
+                        title="Uredi"
+                      >
+                        <Edit2 size={14} />
+                      </Link>
                       <button
                         type="button"
-                        onClick={() => { setConfirmDelete(v.id); setOpenMenu(null); }}
-                        className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                        onClick={(e) => openMenuFor(v.id, e)}
+                        className="p-1.5 rounded-lg text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-surface-2) transition-colors"
+                        aria-label="Više akcija"
                       >
-                        <Trash2 size={13} />
-                        Obriši vozilo
+                        <MoreVertical size={14} />
                       </button>
-                    </menu>
-                  )}
-                </div>
+
+                      {/* Dropdown rendered inline but positioned fixed — immune to overflow-hidden */}
+                      {openMenu === v.id && menuAnchor && (
+                        <menu
+                          style={{ top: menuAnchor.top, right: menuAnchor.right }}
+                          className="fixed z-50 m-0 list-none w-52 rounded-2xl border border-(--color-border) bg-white p-0 py-1 shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
+                        >
+                          {/* Status actions */}
+                          {v.status !== 'sold' && (
+                            <button
+                              type="button"
+                              onClick={() => toggleStatus(v.id, 'sold')}
+                              className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-(--color-text-2) hover:text-(--color-text) hover:bg-(--color-surface-2) transition-colors"
+                            >
+                              <CheckCircle size={13} className="text-blue-500" />
+                              Označi kao prodano
+                            </button>
+                          )}
+                          <ToggleVisibilityButton
+                            status={v.status}
+                            vehicleId={v.id}
+                            onToggle={toggleStatus}
+                          />
+
+                          {/* Hero actions */}
+                          <div className="my-1 border-t border-(--color-border)" />
+                          {v.featured ? (
+                            <button
+                              type="button"
+                              onClick={() => removeHero(v.id)}
+                              className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-(--accent-dark) hover:bg-(--accent-soft) transition-colors"
+                            >
+                              <StarOff size={13} className="text-(--accent)" />
+                              Ukloni homepage hero
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => setHero(v.id)}
+                              className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-(--color-text-2) hover:text-(--color-text) hover:bg-(--color-surface-2) transition-colors"
+                            >
+                              <Star size={13} className="text-(--accent)" />
+                              Postavi kao hero
+                            </button>
+                          )}
+
+                          {/* Showcase (premium selection) actions */}
+                          {v.showcase ? (
+                            <button
+                              type="button"
+                              onClick={() => removeFromShowcase(v.id)}
+                              className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-blue-700 hover:bg-blue-50 transition-colors"
+                            >
+                              <LayoutGrid size={13} className="text-blue-500" />
+                              Ukloni iz premium selekcije
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => addToShowcase(v.id)}
+                              className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-(--color-text-2) hover:text-(--color-text) hover:bg-(--color-surface-2) transition-colors"
+                            >
+                              <LayoutGrid size={13} className="text-blue-500" />
+                              Dodaj u premium selekciju
+                            </button>
+                          )}
+
+                          {/* Destructive */}
+                          <div className="my-1 border-t border-(--color-border)" />
+                          <button
+                            type="button"
+                            onClick={() => { setConfirmDelete(v.id); closeMenu(); }}
+                            className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                          >
+                            <Trash2 size={13} />
+                            Obriši vozilo
+                          </button>
+                        </menu>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        )}
+            )}
           </div>
         </div>
       </div>
+
+      {/* Transparent backdrop — captures outside clicks to close the action menu.
+          Rendered below the menu (z-40 < z-50) so menu items remain clickable. */}
+      {openMenu !== null && (
+        <div
+          className="fixed inset-0 z-40"
+          aria-hidden="true"
+          onClick={closeMenu}
+        />
+      )}
 
       {/* Delete confirm modal */}
       {confirmDelete && (

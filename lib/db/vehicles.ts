@@ -16,6 +16,56 @@ function logFetch(fn: string, count: number, first?: { title?: string; id?: stri
 
 // ─── Reads ─────────────────────────────────────────────────────────────────────
 
+/**
+ * Returns the single homepage hero vehicle — the one with featured=true.
+ * Falls back to the most recently added active vehicle when no hero is set.
+ * At most ONE vehicle can have featured=true (enforced at write time).
+ */
+export async function getHeroVehicle(): Promise<Vehicle | null> {
+  if (!hasDatabase()) { warnNoDB('getHeroVehicle'); return null; }
+  const hero = await prisma.vehicle.findFirst({
+    where: { status: 'AVAILABLE', featured: true },
+    include: { dealer: true },
+  });
+  if (hero) return toAppVehicle(hero);
+  // Fallback: newest active vehicle so the homepage is never blank
+  const fallback = await prisma.vehicle.findFirst({
+    where: { status: 'AVAILABLE' },
+    orderBy: { createdAt: 'desc' },
+    include: { dealer: true },
+  });
+  return fallback ? toAppVehicle(fallback) : null;
+}
+
+/**
+ * Returns vehicles for the "Aktuelna premium selekcija" homepage grid.
+ * Uses vehicles explicitly marked showcase=true. Falls back to the newest
+ * active vehicles when no vehicles have been added to the showcase yet, so
+ * the section is never empty on a fresh install.
+ */
+export async function getShowcaseVehicles(limit = 4): Promise<Vehicle[]> {
+  if (!hasDatabase()) { warnNoDB('getShowcaseVehicles'); return []; }
+  const showcased = await prisma.vehicle.findMany({
+    where: { status: 'AVAILABLE', showcase: true },
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+    include: { dealer: true },
+  });
+  if (showcased.length > 0) {
+    logFetch('getShowcaseVehicles (showcased)', showcased.length, showcased[0]);
+    return showcased.map(toAppVehicle);
+  }
+  // Fallback: no vehicles explicitly showcased yet — show newest active
+  const rows = await prisma.vehicle.findMany({
+    where: { status: 'AVAILABLE' },
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+    include: { dealer: true },
+  });
+  logFetch('getShowcaseVehicles (fallback)', rows.length, rows[0]);
+  return rows.map(toAppVehicle);
+}
+
 export async function getFeaturedVehicles(limit = 4): Promise<Vehicle[]> {
   if (!hasDatabase()) { warnNoDB('getFeaturedVehicles'); return []; }
   const rows = await prisma.vehicle.findMany({
@@ -106,61 +156,83 @@ export type CreateVehicleInput = Omit<
 > & { images: string[]; videoUrl?: string; dealerId?: string; contactPhone?: string; contactViber?: string; contactName?: string };
 
 export async function createVehicle(input: CreateVehicleInput) {
-  return prisma.vehicle.create({
-    data: {
-      slug:           input.slug,
-      title:          input.title,
-      brand:          input.brand,
-      model:          input.model,
-      generation:     input.generation,
-      year:           input.year,
-      mileage:        input.mileage,
-      price:          input.price,
-      currency:       input.currency,
-      vatMode:        toDbVatMode(input.vatMode),
-      fuelType:       input.fuelType,
-      transmission:   input.transmission,
-      drivetrain:     input.drivetrain,
-      bodyType:       input.bodyType,
-      condition:      input.condition,
-      engineSize:     input.engineSize,
-      horsepower:     input.horsepower,
-      kilowatts:      input.kilowatts,
-      doors:          input.doors,
-      seats:          input.seats,
-      color:          input.color,
-      interiorColor:  input.interiorColor,
-      vin:            input.vin,
-      registration:   input.registration,
-      origin:         input.origin,
-      description:    input.description,
-      dealerNotes:    input.dealerNotes,
-      equipment:      input.equipment,
-      safetyFeatures: input.safetyFeatures,
-      features:       input.features,
-      images:         input.images,
-      videoUrl:       input.videoUrl,
-      status:         toDbVehicleStatus(input.status),
-      featured:       input.featured ?? false,
-      tags:           input.tags ?? [],
-      dealerId:       input.dealerId,
-      contactPhone:   input.contactPhone,
-      contactViber:   input.contactViber,
-      contactName:    input.contactName,
-    },
-  });
+  const createData = {
+    slug:           input.slug,
+    title:          input.title,
+    brand:          input.brand,
+    model:          input.model,
+    generation:     input.generation,
+    year:           input.year,
+    mileage:        input.mileage,
+    price:          input.price,
+    currency:       input.currency,
+    vatMode:        toDbVatMode(input.vatMode),
+    fuelType:       input.fuelType,
+    transmission:   input.transmission,
+    drivetrain:     input.drivetrain,
+    bodyType:       input.bodyType,
+    condition:      input.condition,
+    engineSize:     input.engineSize,
+    horsepower:     input.horsepower,
+    kilowatts:      input.kilowatts,
+    doors:          input.doors,
+    seats:          input.seats,
+    color:          input.color,
+    interiorColor:  input.interiorColor,
+    vin:            input.vin,
+    registration:   input.registration,
+    origin:         input.origin,
+    description:    input.description,
+    dealerNotes:    input.dealerNotes,
+    equipment:      input.equipment,
+    safetyFeatures: input.safetyFeatures,
+    features:       input.features,
+    images:         input.images,
+    videoUrl:       input.videoUrl,
+    status:         toDbVehicleStatus(input.status),
+    featured:       input.featured ?? false,
+    showcase:       input.showcase ?? false,
+    tags:           input.tags ?? [],
+    dealerId:       input.dealerId,
+    contactPhone:   input.contactPhone,
+    contactViber:   input.contactViber,
+    contactName:    input.contactName,
+  };
+
+  // Creating a hero vehicle: demote any existing hero first (same transaction)
+  if (input.featured) {
+    return prisma.$transaction(async (tx) => {
+      await tx.vehicle.updateMany({ where: { featured: true }, data: { featured: false } });
+      return tx.vehicle.create({ data: createData });
+    });
+  }
+
+  return prisma.vehicle.create({ data: createData });
 }
 
 export async function updateVehicle(id: string, data: Partial<CreateVehicleInput> & { status?: VehicleStatus }) {
-  const { status, vatMode, ...rest } = data;
-  return prisma.vehicle.update({
-    where: { id },
-    data: {
-      ...rest,
-      ...(status === undefined ? {} : { status: toDbVehicleStatus(status) }),
-      ...(vatMode === undefined ? {} : { vatMode: toDbVatMode(vatMode) }),
-    },
-  });
+  const { status, vatMode, featured, ...rest } = data;
+
+  const dbData = {
+    ...rest,
+    ...(featured !== undefined && { featured }),
+    ...(status === undefined ? {} : { status: toDbVehicleStatus(status) }),
+    ...(vatMode === undefined ? {} : { vatMode: toDbVatMode(vatMode) }),
+  };
+
+  // Promoting a vehicle to hero: atomically demote all others in the same transaction
+  // so at most one vehicle ever has featured=true.
+  if (featured === true) {
+    return prisma.$transaction(async (tx) => {
+      await tx.vehicle.updateMany({
+        where: { id: { not: id }, featured: true },
+        data: { featured: false },
+      });
+      return tx.vehicle.update({ where: { id }, data: dbData });
+    });
+  }
+
+  return prisma.vehicle.update({ where: { id }, data: dbData });
 }
 
 export async function deleteVehicle(id: string) {

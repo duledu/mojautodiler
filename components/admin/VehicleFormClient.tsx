@@ -1,17 +1,24 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   AlertCircle, ArrowLeft, CheckCircle, Image as ImageIcon,
-  Info, Plus, Save, Settings2, Shield, Star, Tag, Upload, Video, X,
+  Info, LayoutGrid, Plus, Save, Settings2, Share2, Shield, Star, Tag, Upload, Video, X,
 } from 'lucide-react';
 import { Dealer, Vehicle, FuelType, TransmissionType, DrivetrainType, BodyType, VehicleStatus, VehicleCondition, Currency, VatMode } from '@/types/vehicle';
 import EquipmentPicker from '@/components/admin/EquipmentPicker';
 import { EQUIPMENT_PRESETS, SAFETY_PRESETS, CONDITION_PRESETS } from '@/data/equipment-presets';
 import SortableImageGrid from '@/components/admin/SortableImageGrid';
 import type { ImageSlot } from '@/components/admin/media-types';
+
+// Dynamically imported — html-to-image and qrcode are browser-only
+const SocialCreativeGenerator = dynamic(
+  () => import('@/components/admin/SocialCreativeGenerator'),
+  { ssr: false },
+);
 
 // Browser password-manager extensions (e.g. LastPass, Bitwarden) inject
 // fdprocessedid on interactive elements after hydration. These thin wrappers
@@ -108,6 +115,7 @@ export default function VehicleFormClient({ mode, vehicle, dealers = [] }: Props
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
+  const [showCreative, setShowCreative] = useState(false);
   // Existing images initialised as already-uploaded slots (no blob, no spinner)
   const [imageSlots, setImageSlots] = useState<ImageSlot[]>(() =>
     (vehicle?.images ?? []).map((img, i) => ({
@@ -155,6 +163,7 @@ export default function VehicleFormClient({ mode, vehicle, dealers = [] }: Props
     dealerNotes: '',
     seoSlug: '',
     featured: false,
+    showcase: false,
     dealerId: '',
     contactPhone: '',
     contactViber: '',
@@ -376,29 +385,43 @@ export default function VehicleFormClient({ mode, vehicle, dealers = [] }: Props
           </div>
         </div>
         <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:items-end">
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={saving || imageSlots.some(s => s.uploading)}
-            suppressHydrationWarning
-            className={`inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-5 text-sm font-bold transition disabled:opacity-60 sm:w-auto ${
-              saved
-                ? 'border border-emerald-200 bg-emerald-50 text-emerald-800'
-                : saveError
-                  ? 'border border-red-200 bg-red-50 text-red-700'
-                  : 'btn-gold'
-            }`}
-          >
-            {saving ? (
-              <><span className="h-4 w-4 animate-spin rounded-full border-2 border-current/30 border-t-current" /> Snima se…</>
-            ) : saved ? (
-              <><CheckCircle className="w-4 h-4" /> Sačuvano</>
-            ) : saveError ? (
-              <><AlertCircle className="w-4 h-4" /> Greška — pokušaj ponovo</>
-            ) : (
-              <><Save className="w-4 h-4" /> Sačuvaj</>
+          <div className="flex gap-2">
+            {mode === 'edit' && vehicle?.id && (
+              <button
+                type="button"
+                onClick={() => setShowCreative(true)}
+                suppressHydrationWarning
+                className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-(--color-border) bg-white px-4 text-sm font-bold text-(--color-text-muted) transition hover:border-(--accent-border) hover:text-(--accent-dark)"
+                title="Generiši Social Media kreativni"
+              >
+                <Share2 className="w-4 h-4" />
+                <span className="hidden sm:inline">Social Media</span>
+              </button>
             )}
-          </button>
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={saving || imageSlots.some(s => s.uploading)}
+              suppressHydrationWarning
+              className={`inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl px-5 text-sm font-bold transition disabled:opacity-60 sm:flex-none sm:w-auto ${
+                saved
+                  ? 'border border-emerald-200 bg-emerald-50 text-emerald-800'
+                  : saveError
+                    ? 'border border-red-200 bg-red-50 text-red-700'
+                    : 'btn-gold'
+              }`}
+            >
+              {saving ? (
+                <><span className="h-4 w-4 animate-spin rounded-full border-2 border-current/30 border-t-current" /> Snima se…</>
+              ) : saved ? (
+                <><CheckCircle className="w-4 h-4" /> Sačuvano</>
+              ) : saveError ? (
+                <><AlertCircle className="w-4 h-4" /> Greška — pokušaj ponovo</>
+              ) : (
+                <><Save className="w-4 h-4" /> Sačuvaj</>
+              )}
+            </button>
+          </div>
           {saveError && (
             <p className="w-full text-right text-xs text-red-600 sm:max-w-xs">{saveError}</p>
           )}
@@ -431,6 +454,90 @@ export default function VehicleFormClient({ mode, vehicle, dealers = [] }: Props
         {activeTab === 'basic' && (
           <div className="space-y-5">
             <h2 className="border-b border-[var(--color-border)] pb-3 font-black text-[var(--color-text)]">Osnove informacije</h2>
+
+            {/* Featured / hero toggle — prominent, at top of basic info */}
+            <button
+              type="button"
+              role="switch"
+              aria-checked={Boolean(form.featured)}
+              onClick={() => set('featured')(!form.featured)}
+              className={`flex w-full items-center justify-between gap-4 rounded-2xl p-4 text-left transition-colors ${
+                form.featured
+                  ? 'border border-(--accent-border) bg-(--accent-soft)'
+                  : 'border border-(--color-border) bg-(--color-surface-2) hover:border-(--accent-border)'
+              }`}
+            >
+              <div>
+                <div className="flex items-center gap-2">
+                  <Star
+                    className={`h-4 w-4 ${form.featured ? 'text-(--accent)' : 'text-(--color-text-muted)'}`}
+                    fill={form.featured ? 'currentColor' : 'none'}
+                  />
+                  <span className={`text-sm font-black ${form.featured ? 'text-(--accent-dark)' : 'text-(--color-text)'}`}>
+                    Istaknuto vozilo (Hero)
+                  </span>
+                </div>
+                <p className="mt-0.5 pl-6 text-xs text-(--color-text-muted)">
+                  Prikazuje se kao hero na početnoj strani.{' '}
+                  <span className="font-semibold">Samo jedno vozilo može biti hero.</span>{' '}
+                  Uključivanjem, prethodni hero se automatski isključuje.
+                </p>
+              </div>
+              {/* Toggle switch */}
+              <span
+                className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
+                  form.featured ? 'bg-(--accent)' : 'bg-(--color-border)'
+                }`}
+                aria-hidden="true"
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                    form.featured ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </span>
+            </button>
+
+            {/* Showcase toggle — vehicle appears in "Aktuelna premium selekcija" */}
+            <button
+              type="button"
+              role="switch"
+              aria-checked={Boolean(form.showcase)}
+              onClick={() => set('showcase')(!form.showcase)}
+              className={`flex w-full items-center justify-between gap-4 rounded-2xl p-4 text-left transition-colors ${
+                form.showcase
+                  ? 'border border-blue-200 bg-blue-50'
+                  : 'border border-(--color-border) bg-(--color-surface-2) hover:border-blue-200'
+              }`}
+            >
+              <div>
+                <div className="flex items-center gap-2">
+                  <LayoutGrid
+                    className={`h-4 w-4 ${form.showcase ? 'text-blue-600' : 'text-(--color-text-muted)'}`}
+                  />
+                  <span className={`text-sm font-black ${form.showcase ? 'text-blue-700' : 'text-(--color-text)'}`}>
+                    Aktuelna premium selekcija
+                  </span>
+                </div>
+                <p className="mt-0.5 pl-6 text-xs text-(--color-text-muted)">
+                  Prikazuje se u premium selekciji na početnoj strani.
+                  Više vozila može biti u selekciji istovremeno.
+                </p>
+              </div>
+              <span
+                className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
+                  form.showcase ? 'bg-blue-500' : 'bg-(--color-border)'
+                }`}
+                aria-hidden="true"
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                    form.showcase ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </span>
+            </button>
+
             <Field label="Naziv oglasa" required>
               <Input className={inputCls} value={form.title} onChange={e => set('title')(e.target.value)} placeholder="BMW X5 xDrive30d M Sport" />
             </Field>
@@ -726,22 +833,19 @@ export default function VehicleFormClient({ mode, vehicle, dealers = [] }: Props
         {activeTab === 'seo' && (
           <div className="space-y-5">
             <h2 className="border-b border-[var(--color-border)] pb-3 font-black text-[var(--color-text)]">SEO i status objave</h2>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <Field label="Status objave">
-                <Select className={selectCls} value={form.status} onChange={e => set('status')(e.target.value as VehicleStatus)}>
-                  <option value="draft">Draft (nevidljivo)</option>
-                  <option value="active">Aktivno (vidljivo)</option>
-                  <option value="hidden">Skriveno</option>
-                  <option value="sold">Prodano</option>
-                </Select>
-              </Field>
-              <Field label="Featured (istaknuto)">
-                <Select className={selectCls} value={form.featured ? 'da' : 'ne'} onChange={e => set('featured')(e.target.value === 'da')}>
-                  <option value="ne">Ne</option>
-                  <option value="da">Da — prikaži na početnoj</option>
-                </Select>
-              </Field>
-            </div>
+            <Field label="Status objave">
+              <Select className={selectCls} value={form.status} onChange={e => set('status')(e.target.value as VehicleStatus)}>
+                <option value="draft">Draft (nevidljivo)</option>
+                <option value="active">Aktivno (vidljivo)</option>
+                <option value="hidden">Skriveno</option>
+                <option value="sold">Prodano</option>
+              </Select>
+              <p className="mt-1 text-xs text-(--color-text-muted)">
+                Istaknuto vozilo (hero) se upravlja u kartici{' '}
+                <strong>Osnovno</strong>.
+                {form.featured && <span className="ml-1 font-bold text-(--accent-dark)">★ Trenutno istaknuto</span>}
+              </p>
+            </Field>
             <Field label="SEO Slug (URL putanja)">
               <Input
                 className={inputCls}
@@ -778,6 +882,16 @@ export default function VehicleFormClient({ mode, vehicle, dealers = [] }: Props
           </div>
         )}
       </div>
+
+      {/* Social media creative generator modal */}
+      {showCreative && vehicle?.id && (
+        <SocialCreativeGenerator
+          vehicle={vehicle}
+          dealerName={form.contactName || selectedDealer?.name || 'Moja Auto Diler'}
+          dealerPhone={form.contactPhone || selectedDealer?.phone || ''}
+          onClose={() => setShowCreative(false)}
+        />
+      )}
     </div>
   );
 }
