@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { updateVehicle, deleteVehicle } from '@/lib/db/vehicles';
+import { updateVehicle, deleteVehicle, syncVehicleMedia } from '@/lib/db/vehicles';
 import type { VehicleStatus } from '@/types/vehicle';
 
 /** Prisma error code lives on the error as `.code`. */
@@ -91,6 +91,14 @@ export async function PUT(
     const updated = await updateVehicle(id, data);
 
     console.info(`[VEHICLE UPDATE] success id=${id} slug=${updated.slug} images=${JSON.stringify((updated as { images?: unknown }).images)}`);
+
+    // Sync VehicleMedia metadata (non-blocking — never fails the request)
+    if (images) {
+      const imageKeys = typeof body.imageKeys === 'object' && body.imageKeys !== null
+        ? (body.imageKeys as Record<string, string>)
+        : {};
+      void syncVehicleMedia(id, images, imageKeys);
+    }
 
     // Flush SSG cache for vehicle detail pages (both locales)
     revalidatePath(`/sr/vehicle/${updated.slug}`);

@@ -159,3 +159,62 @@ export async function updateVehicle(id: string, data: Partial<CreateVehicleInput
 export async function deleteVehicle(id: string) {
   return prisma.vehicle.delete({ where: { id } });
 }
+
+// ─── Media sync ────────────────────────────────────────────────────────────────
+
+/**
+ * Keeps the VehicleMedia table consistent with Vehicle.images.
+ *
+ * Called after every vehicle create/update so the media table always reflects
+ * the current ordered image list.
+ *
+ * - Upserts one VehicleMedia row per URL (creates if new, updates sort+primary).
+ * - imageKeys maps publicUrl → r2Key for images uploaded in this session;
+ *   keys are stored permanently so future deletes can reach R2.
+ * - Deletes any VehicleMedia rows whose URL is no longer in the list.
+ */
+export async function syncVehicleMedia(
+  vehicleId: string,
+  imageUrls: string[],
+  imageKeys: Record<string, string> = {},
+): Promise<void> {
+  if (!process.env.DATABASE_URL) return;
+
+  try {
+    // Upsert in order — sortOrder = array index, isPrimary = first image
+    for (let i = 0; i < imageUrls.length; i++) {
+      const url   = imageUrls[i];
+      const r2Key = imageKeys[url] ?? null;
+
+      await prisma.vehicleMedia.upsert({
+        where:  { vehicleId_url: { vehicleId, url } },
+        create: {
+          vehicleId,
+          url,
+          r2Key,
+          type:      'image',
+          sortOrder: i,
+          isPrimary: i === 0,
+        },
+        update: {
+          ...(r2Key ? { r2Key } : {}),  // only overwrite key if we have one
+          sortOrder: i,
+          isPrimary: i === 0,
+        },
+      });
+    }
+
+    // Remove records for images that have been removed from the list
+    if (imageUrls.length > 0) {
+      await prisma.vehicleMedia.deleteMany({
+        where: {
+          vehicleId,
+          url: { notIn: imageUrls },
+        },
+      });
+    }
+  } catch (err) {
+    // Non-fatal: VehicleMedia is a metadata layer; Vehicle.images is the source of truth
+    console.error('[DB] syncVehicleMedia failed (non-fatal):', err instanceof Error ? err.message : err);
+  }
+}

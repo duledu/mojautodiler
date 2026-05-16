@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAllVehicles, createVehicle } from '@/lib/db/vehicles';
+import { getAllVehicles, createVehicle, syncVehicleMedia } from '@/lib/db/vehicles';
 import { slugify } from '@/lib/utils';
 
 // GET /api/admin/vehicles — list all vehicles (all statuses)
@@ -67,6 +67,12 @@ export async function POST(request: NextRequest) {
       featured:       Boolean(body.featured),
       tags:           Array.isArray(body.tags) ? body.tags : [],
     });
+
+    // Sync VehicleMedia metadata for the new vehicle
+    const imageKeys = typeof body.imageKeys === 'object' && body.imageKeys !== null
+      ? (body.imageKeys as Record<string, string>)
+      : {};
+    void syncVehicleMedia(vehicle.id, images, imageKeys);
 
     return NextResponse.json({ success: true, vehicle }, { status: 201 });
   } catch (err) {

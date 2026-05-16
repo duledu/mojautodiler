@@ -31,7 +31,7 @@ const homeCopy = {
   sr: {
     eyebrow: 'Premium ponuda • Preševo',
     title: 'Premium automobili sa transparentnom istorijom.',
-    lead: 'Pažljivo odabrana premium vozila iz uvoza iz Švajcarske, uz provereno stanje i sigurnu kupovinu bez pritiska.',
+    lead: 'Pažljivo odabrana premium vozila iz uvoza iz inostranstva, uz provereno stanje i sigurnu kupovinu bez pritiska.',
     primary: 'Pregledaj vozila',
     secondary: 'Zakazi razgledanje',
     heroNote: 'Diskretna selekcija premium vozila u Srbiji, sa dokumentovanom istorijom i pregledom pre prodaje.',
@@ -88,7 +88,7 @@ const homeCopy = {
   sq: {
     eyebrow: 'Ofertë premium • Preševo',
     title: 'Automjete premium, te verifikuara.',
-    lead: 'Automjete premium të përzgjedhura me kujdes nga importi i Zvicrës, me gjendje të verifikuar dhe blerje të sigurt pa presion.',
+    lead: 'Automjete premium të përzgjedhura me kujdes nga importi jashtë vendit, me gjendje të verifikuar dhe blerje të sigurt pa presion.',
     primary: 'Shiko automjetet',
     secondary: 'Rezervo shikim',
     heroNote: 'Seleksion diskret automjetesh premium ne Serbi, me histori te dokumentuar dhe kontroll para shitjes.',

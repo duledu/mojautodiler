@@ -12,7 +12,7 @@
  *   R2_PUBLIC_URL        – Public bucket URL, e.g. https://pub-<hash>.r2.dev
  */
 
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 // ─── Env var helper ───────────────────────────────────────────────────────────
@@ -114,6 +114,19 @@ export async function createPresignedPut(key: string, contentType: string): Prom
   const url = await getSignedUrl(getClient(), command, { expiresIn: 300 });
   console.info(`[R2] presign OK — url starts with ${url.slice(0, 60)}…`);
   return url;
+}
+
+/**
+ * Deletes an object from R2 by its storage key.
+ * Throws if R2 is not configured or the deletion fails.
+ */
+export async function deleteObject(key: string): Promise<void> {
+  const bucket = env('R2_BUCKET_NAME');
+  if (!bucket) throw new Error('R2_BUCKET_NAME env var is not set.');
+
+  console.info(`[R2] deleting object — bucket=${bucket} key=${key}`);
+  await getClient().send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
+  console.info(`[R2] object deleted — key=${key}`);
 }
 
 /** Constructs the public URL for a stored object. */

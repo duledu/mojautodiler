@@ -36,7 +36,7 @@ const iconMap = {
 const copy = {
   sr: {
     verified: 'Provereno vozilo',
-    swiss: 'Uvoz iz Svajcarske',
+    swiss: 'Uvoz iz inostranstva',
     service: 'Servisna istorija',
     vin: 'VIN proveren',
     inspection: 'Multi-point provera',
@@ -46,7 +46,7 @@ const copy = {
   },
   sq: {
     verified: 'Automjet i verifikuar',
-    swiss: 'Import nga Zvicra',
+    swiss: 'Import nga jashtë vendit',
     service: 'Histori servisi',
     vin: 'VIN i verifikuar',
     inspection: 'Kontroll profesional',

@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { FacebookIcon, InstagramIcon, ViberIcon } from '@/components/ui/SocialIcons';
 import {
@@ -181,10 +182,16 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
             <div className="w-full max-w-full overflow-hidden rounded-2xl">
               <div className="relative w-full aspect-[16/9] overflow-hidden bg-(--color-surface-2) shadow-[0_4px_20px_rgba(0,0,0,0.08)]">
                 {activeImageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  // Using explicit width/height (not fill) so Next.js generates
+                  // optimised srcsets without injecting extra wrapper elements.
+                  // CSS absolute+inset-0+h-full+w-full controls the rendered size.
+                  <Image
                     src={activeImageUrl}
                     alt={activeVehicleImage?.alt || vehicle.title}
+                    width={1600}
+                    height={900}
+                    priority
+                    sizes="(min-width: 1024px) 58vw, 100vw"
                     className="absolute inset-0 h-full w-full object-cover object-center"
                   />
                 ) : (
@@ -245,8 +252,14 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                           : 'border-transparent opacity-55 hover:opacity-85'
                       )}
                     >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={img.url} alt={img.alt} className="absolute inset-0 h-full w-full object-cover object-center" />
+                      <Image
+                        src={img.url}
+                        alt={img.alt}
+                        width={192}
+                        height={128}
+                        sizes="96px"
+                        className="absolute inset-0 h-full w-full object-cover object-center"
+                      />
                       <span className="vehicle-watermark vehicle-watermark-thumb" aria-hidden="true">MOJAUTODILER</span>
                     </button>
                   ))}

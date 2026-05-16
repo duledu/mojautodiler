@@ -93,11 +93,39 @@ model Vehicle {
   updatedAt      DateTime      @updatedAt
 
   leads          Lead[]
+  media          VehicleMedia[]
 
   @@index([status])
   @@index([brand])
   @@index([featured])
   @@index([createdAt])
+}
+
+// ─── Vehicle media ────────────────────────────────────────────────────────────
+// Stores one record per image/video. r2Key is set only for files uploaded via
+// the admin panel to Cloudflare R2; external/mock URLs have r2Key = null.
+// Vehicle.images (String[]) stays as a denormalised ordered URL cache so all
+// existing read paths continue to work without changes.
+
+model VehicleMedia {
+  id         String   @id @default(cuid())
+  vehicleId  String
+  vehicle    Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  url        String   // Public CDN / R2 URL
+  r2Key      String?  // R2 object key — null for pre-existing / external images
+  type       String   @default("image") // "image" | "video"
+  mimeType   String?
+  sizeBytes  Int?
+
+  sortOrder  Int      @default(0)
+  isPrimary  Boolean  @default(false)
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([vehicleId, url])
+  @@index([vehicleId, sortOrder])
 }
 
 model Lead {

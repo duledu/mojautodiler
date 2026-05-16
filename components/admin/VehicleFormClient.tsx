@@ -39,6 +39,10 @@ type ImageSlot = {
   previewUrl: string;
   /** Set to the R2 public URL after a successful upload */
   uploadedUrl?: string;
+  /** R2 object key — set only for images uploaded via the admin panel.
+   *  Used to delete the file from R2 when the slot is removed.
+   *  null/undefined for pre-existing images loaded from the DB. */
+  r2Key?: string;
   uploading: boolean;
   error?: string;
 };
@@ -172,16 +176,21 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
     setSaveError('');
 
     try {
-      // Only include images that have been successfully uploaded to R2 (have an uploadedUrl)
-      const imageUrls = imageSlots
-        .filter((s) => s.uploadedUrl && !s.uploading)
-        .map((s) => s.uploadedUrl as string);
+      // Build the ordered list of persisted image slots
+      const uploadedSlots = imageSlots.filter((s) => s.uploadedUrl && !s.uploading);
+      const imageUrls = uploadedSlots.map((s) => s.uploadedUrl as string);
+      // r2Key map: url → key (only for R2-uploaded images — pre-existing images have no key)
+      const imageKeys: Record<string, string> = {};
+      for (const s of uploadedSlots) {
+        if (s.r2Key && s.uploadedUrl) imageKeys[s.uploadedUrl] = s.r2Key;
+      }
 
       console.log('[SAVE] final imageUrls before PUT:', imageUrls);
 
       const payload = {
         ...form,
         images: imageUrls,
+        imageKeys,          // consumed by the API to upsert VehicleMedia records
         slug: form.seoSlug?.trim() || undefined,
       };
 
@@ -225,6 +234,39 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
     });
   };
 
+  /**
+   * Removes an image slot from the gallery.
+   * If the slot has an R2 key and the vehicle already exists in the DB, the
+   * file is deleted from R2 and the VehicleMedia record is removed immediately.
+   * For new vehicles (no vehicle.id yet) orphaned R2 files are acceptable; they
+   * live under a tmp-xxx prefix and can be cleaned up by a scheduled job later.
+   */
+  const handleDeleteSlot = async (slot: ImageSlot) => {
+    // Release the blob preview URL if still allocated
+    if (slot.previewUrl.startsWith('blob:')) URL.revokeObjectURL(slot.previewUrl);
+
+    // If we have both a key AND an existing vehicle ID, delete from R2 + DB now.
+    if (slot.r2Key && vehicle?.id && slot.uploadedUrl) {
+      try {
+        const res = await fetch(`/api/admin/vehicles/${vehicle.id}/media`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: slot.uploadedUrl, r2Key: slot.r2Key }),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({})) as { error?: string };
+          console.error('[DELETE MEDIA] server error:', data.error ?? res.status);
+        }
+      } catch (err) {
+        console.error('[DELETE MEDIA] network error:', err);
+        // Don't block the UI — the slot is removed from local state regardless.
+        // The next vehicle save will also clean up orphaned VehicleMedia records.
+      }
+    }
+
+    setImageSlots(prev => prev.filter(s => s.id !== slot.id));
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     // Reset input so the same file can be re-selected after an error
@@ -260,9 +302,10 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
           throw new Error(msg);
         }
 
-        const { uploadUrl, publicUrl } = (await presignRes.json()) as {
+        const { uploadUrl, publicUrl, key } = (await presignRes.json()) as {
           uploadUrl: string;
           publicUrl: string;
+          key: string;
         };
 
         console.log(`[UPLOAD] presign OK — publicUrl=${publicUrl}`);
@@ -310,12 +353,12 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
 
         console.log('[UPLOAD] R2 PUT success');
 
-        // ── Step 3: persist the public URL ────────────────────────────────
+        // ── Step 3: persist the public URL + R2 key ───────────────────────
         URL.revokeObjectURL(blobUrl);
         setImageSlots(prev =>
           prev.map(s =>
             s.id === slotId
-              ? { id: slotId, previewUrl: publicUrl, uploadedUrl: publicUrl, uploading: false }
+              ? { id: slotId, previewUrl: publicUrl, uploadedUrl: publicUrl, r2Key: key, uploading: false }
               : s,
           ),
         );
@@ -669,10 +712,7 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
                           <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
                             <button
                               type="button"
-                              onClick={() => {
-                                if (slot.previewUrl.startsWith('blob:')) URL.revokeObjectURL(slot.previewUrl);
-                                setImageSlots(prev => prev.filter(s => s.id !== slot.id));
-                              }}
+                              onClick={() => handleDeleteSlot(slot)}
                               className="pointer-events-auto rounded-full bg-red-500/90 p-1.5 text-white transition-colors hover:bg-red-500"
                             >
                               <X className="h-3.5 w-3.5" />
