@@ -8,4 +8,4 @@ Disallow: /sq/admin/
 # Disallow API
 Disallow: /api/
 
-Sitemap: https://autoferari.rs/sitemap.xml
+Sitemap: https://mojautodiler.rs/sitemap.xml

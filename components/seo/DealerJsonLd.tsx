@@ -13,17 +13,17 @@ export default function DealerJsonLd({ dealer }: { dealer: DealerInfo }) {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'AutoDealer',
-    name: dealer.name,
+    name: dealer.name || 'Moj Auto Diler',
     telephone: dealer.phone,
     email: dealer.email,
     address: {
       '@type': 'PostalAddress',
-      addressLocality: 'Preševo',
-      addressRegion: 'Pčinja District',
+      addressLocality: 'Srbija',
+      addressRegion: 'Srbija',
       addressCountry: 'RS',
       streetAddress: dealer.address,
     },
-    url: 'https://autoferari.rs',
+    url: 'https://mojautodiler.rs',
     openingHours: dealer.workingHours,
     sameAs: [
       dealer.facebook,

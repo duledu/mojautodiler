@@ -387,14 +387,14 @@ export const mockVehicles: Vehicle[] = [
 ];
 
 export const getDealerInfo = () => ({
-  name: 'AutoFerari Preševo',
+  name: 'Moj Auto Diler',
   tagline: 'Premium automobili sa transparentnom istorijom.',
   phone: '+381 63 123 4567',
   viber: '+381 63 123 4567',
-  email: 'info@autoferari.rs',
-  address: 'Preševo, Srbija',
+  email: 'info@mojautodiler.rs',
+  address: 'Srbija',
   workingHours: 'Pon-Pet: 09:00 - 18:00 | Sub: 09:00 - 14:00',
-  facebook: 'https://facebook.com/autoferari',
-  instagram: 'https://instagram.com/autoferari',
-  mapUrl: 'https://maps.google.com/?q=Presevo,Serbia',
+  facebook: 'https://facebook.com/mojautodiler',
+  instagram: 'https://instagram.com/mojautodiler',
+  mapUrl: 'https://maps.google.com/?q=Serbia',
 });

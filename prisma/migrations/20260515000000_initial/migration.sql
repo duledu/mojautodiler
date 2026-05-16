@@ -91,11 +91,11 @@ CREATE TABLE "AdminUser" (
 -- CreateTable
 CREATE TABLE "DealerSettings" (
     "id" TEXT NOT NULL,
-    "businessName" TEXT NOT NULL DEFAULT 'AutoFerari',
+    "businessName" TEXT NOT NULL DEFAULT 'Moj Auto Diler',
     "phone" TEXT NOT NULL DEFAULT '',
     "email" TEXT NOT NULL DEFAULT '',
     "address" TEXT NOT NULL DEFAULT '',
-    "city" TEXT NOT NULL DEFAULT 'Preševo',
+    "city" TEXT NOT NULL DEFAULT 'Srbija',
     "country" TEXT NOT NULL DEFAULT 'Serbia',
     "workingHours" TEXT NOT NULL DEFAULT '',
     "viber" TEXT,

@@ -63,7 +63,7 @@ export default async function VehiclePage(
 
   return (
     <>
-      <VehicleJsonLd vehicle={vehicle} dealerName={dealer.name} dealerUrl="https://autoferari.rs" />
+      <VehicleJsonLd vehicle={vehicle} dealerName={dealer.name} dealerUrl="https://mojautodiler.rs" />
       <VehicleDetailClient vehicle={vehicle} similar={similar} locale={locale} t={t} dealer={dealer} />
     </>
   );

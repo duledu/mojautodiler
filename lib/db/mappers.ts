@@ -162,7 +162,7 @@ export type DealerInfo = {
 /** Empty dealer — used when DB is unavailable or row doesn't exist yet. */
 export function emptyDealerInfo(): DealerInfo {
   return {
-    name: 'AutoFerari',
+    name: 'Moj Auto Diler',
     phone: '',
     smsPhone: '',
     viber: '',
@@ -175,14 +175,43 @@ export function emptyDealerInfo(): DealerInfo {
   };
 }
 
+function normalizeDealerName(name: string | null | undefined): string {
+  const value = (name || '').trim();
+  const retiredBrand = /Auto.?Ferari/i;
+  const retiredLocation = /Pre(?:š|s)evo/i;
+  if (!value || /^Moj[ae] Auto Diler$/.test(value) || retiredBrand.test(value)) {
+    return 'Moj Auto Diler';
+  }
+  return value
+    .replace(/Moj[ae] Auto Diler/g, 'Moj Auto Diler')
+    .replace(retiredBrand, 'Moj Auto Diler')
+    .replace(retiredLocation, '')
+    .trim();
+}
+
+function normalizeDealerCity(city: string | null | undefined): string {
+  const value = (city || '').trim();
+  return /^Pre(?:š|s)evo$/i.test(value) ? '' : value;
+}
+
+export function normalizeDealerAddress(address: string | null | undefined, city?: string | null): string {
+  const parts = [address, city]
+    .flatMap((value) => (value || '').split(','))
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .filter((part) => !/^Pre(?:š|s)evo$/i.test(part));
+
+  return parts.length > 0 ? Array.from(new Set(parts)).join(', ') : '';
+}
+
 export function toAppDealerInfo(s: PrismaSettings): DealerInfo {
   return {
-    name:         s.businessName    || 'AutoFerari',
+    name:         normalizeDealerName(s.businessName),
     phone:        s.phone           || '',
     smsPhone:     s.smsPhone        || '',
     viber:        s.viber           || '',
     email:        s.email           || '',
-    address:      [s.address, s.city].filter(Boolean).join(', '),
+    address:      normalizeDealerAddress(s.address, normalizeDealerCity(s.city)),
     workingHours: s.workingHours    || '',
     facebook:     s.facebookUrl     || '',
     instagram:    s.instagramUrl    || '',

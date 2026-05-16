@@ -7,7 +7,7 @@ import type { Locale } from '@/lib/i18n';
 const copy = {
   sr: {
     title: 'Prijavite se',
-    subtitle: 'Admin panel · AutoFerari Preševo',
+    subtitle: 'Admin panel · Moj Auto Diler',
     email: 'Email adresa',
     emailPlaceholder: 'admin@example.com',
     password: 'Lozinka',
@@ -20,7 +20,7 @@ const copy = {
   },
   sq: {
     title: 'Kyçuni',
-    subtitle: 'Paneli admin · AutoFerari Preševo',
+    subtitle: 'Paneli admin · Moj Auto Diler',
     email: 'Adresa email',
     emailPlaceholder: 'admin@example.com',
     password: 'Fjalëkalimi',

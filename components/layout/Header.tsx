@@ -54,10 +54,10 @@ export default function Header({ locale, t, dealer }: HeaderProps) {
           </div>
           <div>
             <div className="text-[var(--color-text)] font-bold text-[15px] leading-none" style={{ fontFamily: 'var(--font-display)' }}>
-              {dealer.name || 'AutoFerari'}
+              {dealer.name || 'Moj Auto Diler'}
             </div>
             <div className="text-[10px] text-[var(--accent-dark)] uppercase tracking-[0.18em] leading-none mt-1">
-              Auto Plac
+              AUTO PLAC
             </div>
           </div>
         </Link>

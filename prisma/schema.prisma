@@ -1,4 +1,4 @@
-// Prisma schema — AutoFerari dealership platform
+// Prisma schema — Moj Auto Diler platform
 // Provider: PostgreSQL (Neon)
 // Run: npx prisma generate && npx prisma migrate dev
 
@@ -137,12 +137,12 @@ model AdminUser {
 
 model DealerSettings {
   id           String   @id @default(cuid())
-  businessName String   @default("AutoFerari")
+  businessName String   @default("Moj Auto Diler")
   phone        String   @default("")
   smsPhone     String?
   email        String   @default("")
   address      String   @default("")
-  city         String   @default("Preševo")
+  city         String   @default("Srbija")
   country      String   @default("Serbia")
   workingHours String   @default("")
   viber        String?

@@ -101,7 +101,7 @@ export default function VehicleCard({ vehicle, locale, t }: VehicleCardProps) {
           <div className="mt-auto flex items-center justify-between border-t border-[var(--color-border)] pt-3">
             <div className="flex items-center gap-1 text-xs text-[var(--color-text-muted)]">
               <MapPin size={11} className="shrink-0" />
-              <span>Preševo</span>
+              <span>Srbija</span>
             </div>
             <span
               className="inline-flex items-center gap-1 text-xs font-bold text-[var(--accent-dark)]"

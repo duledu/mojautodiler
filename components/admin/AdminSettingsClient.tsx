@@ -136,7 +136,7 @@ export default function AdminSettingsClient({ dealer }: Props) {
       <section className="rounded-3xl border border-(--color-border) bg-white p-4 shadow-sm min-[390px]:p-5 sm:p-6">
         <SectionHeader icon={<Building size={18} />} title="Informacije o placu" text="Osnovni identitet i direktni kontakt podaci — koriste se na svim stranicama." />
         <div className="mt-6 space-y-5">
-          <InputField label="Naziv placa" icon={Building} value={form.name} onChange={update('name')} placeholder="AutoFerari Preševo" />
+          <InputField label="Naziv placa" icon={Building} value={form.name} onChange={update('name')} placeholder="Moj Auto Diler" />
 
           <div className="grid gap-4 sm:grid-cols-2">
             <InputField label="Telefon (poziv)" icon={Phone} value={form.phone} onChange={update('phone')} type="tel" placeholder="+381 64 000 0000" />
@@ -144,8 +144,8 @@ export default function AdminSettingsClient({ dealer }: Props) {
           </div>
 
           <InputField label="Viber broj" icon={Phone} value={form.viber} onChange={update('viber')} type="tel" placeholder="+381 64 000 0000" />
-          <InputField label="Email" icon={Mail} value={form.email} onChange={update('email')} type="email" placeholder="info@autoferari.rs" />
-          <InputField label="Adresa" icon={MapPin} value={form.address} onChange={update('address')} placeholder="Preševo, Srbija" />
+          <InputField label="Email" icon={Mail} value={form.email} onChange={update('email')} type="email" placeholder="info@mojautodiler.rs" />
+          <InputField label="Adresa" icon={MapPin} value={form.address} onChange={update('address')} placeholder="Srbija" />
 
           <div className="space-y-2">
             <label className="text-xs font-bold uppercase tracking-[0.14em] text-(--color-text-muted)">Radno vreme</label>
@@ -167,8 +167,8 @@ export default function AdminSettingsClient({ dealer }: Props) {
       <section className="rounded-3xl border border-(--color-border) bg-white p-4 shadow-sm min-[390px]:p-5 sm:p-6">
         <SectionHeader icon={<Globe size={18} />} title="Društvene mreže i linkovi" text="Prazna polja se automatski skrivaju na sajtu." />
         <div className="mt-6 grid gap-5">
-          <InputField label="Facebook URL" icon={Globe} value={form.facebook} onChange={update('facebook')} placeholder="https://facebook.com/autoferari" />
-          <InputField label="Instagram URL" icon={Globe} value={form.instagram} onChange={update('instagram')} placeholder="https://instagram.com/autoferari" />
+          <InputField label="Facebook URL" icon={Globe} value={form.facebook} onChange={update('facebook')} placeholder="https://facebook.com/mojautodiler" />
+          <InputField label="Instagram URL" icon={Globe} value={form.instagram} onChange={update('instagram')} placeholder="https://instagram.com/mojautodiler" />
           <InputField label="Google Maps URL" icon={MapPin} value={form.mapUrl} onChange={update('mapUrl')} placeholder="https://maps.google.com/..." />
         </div>
       </section>

@@ -1,7 +1,6 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { FacebookIcon, InstagramIcon, ViberIcon } from '@/components/ui/SocialIcons';
 import {
@@ -28,6 +27,7 @@ interface Props {
 
 export default function VehicleDetailClient({ vehicle, similar, locale, t, dealer }: Props) {
   const formRef = useRef<HTMLDivElement | null>(null);
+  const touchStartX = useRef<number | null>(null);
   const [activeImage, setActiveImage] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'specs' | 'equipment' | 'safety' | 'description'>('specs');
@@ -62,6 +62,17 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
 
   const nextImg = () => setActiveImage((i) => (i + 1) % imageCount);
   const prevImg = () => setActiveImage((i) => (i - 1 + imageCount) % imageCount);
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    touchStartX.current = null;
+    if (Math.abs(dx) < 48) return; // not a swipe
+    if (dx < 0) nextImg(); else prevImg();
+  };
 
   const specs = [
     { label: t.vehicle.year, value: `${vehicle.year}.` },
@@ -515,7 +526,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                   </div>
                   <div>
                     <p className="font-bold text-(--color-text) text-sm" style={{ fontFamily: 'var(--font-display)' }}>
-                      {dealer.name || 'AutoFerari'}
+                      {dealer.name || 'Moj Auto Diler'}
                     </p>
                     <p className="text-xs text-(--color-text-muted)">Verifikovani prodavac</p>
                   </div>
@@ -614,50 +625,65 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
 
       {/* Lightbox */}
       {lightboxOpen && (
-        <div className="fixed inset-0 z-50 bg-black/92 flex items-center justify-center animate-fade-in">
-          <button
-            type="button"
-            onClick={() => setLightboxOpen(false)}
-            className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center text-white bg-white/15 rounded-full hover:bg-white/25 z-10"
-          >
-            <X size={20} />
-          </button>
-          {vehicle.images.length > 1 && (
-            <>
-              <button
-                type="button"
-                onClick={prevImg}
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center text-white bg-white/15 rounded-full hover:bg-white/25"
-              >
-                <ChevronLeft size={24} />
-              </button>
-              <button
-                type="button"
-                onClick={nextImg}
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center text-white bg-white/15 rounded-full hover:bg-white/25"
-              >
-                <ChevronRight size={24} />
-              </button>
-            </>
-          )}
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/92 animate-fade-in"
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+        >
+          {/* Image — pointer-events-none so it NEVER intercepts arrow or swipe events */}
           {activeImageUrl ? (
-            <div className="vehicle-lightbox-image relative overflow-hidden rounded-xl">
-              <Image
+            <div className="pointer-events-none vehicle-lightbox-image relative max-h-[90vh] max-w-[90vw] overflow-hidden rounded-xl">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src={activeImageUrl}
                 alt={activeVehicleImage?.alt || vehicle.title}
-                width={1400}
-                height={900}
-                className="max-h-[90vh] max-w-[90vw] object-contain"
+                className="block max-h-[90vh] max-w-[90vw] object-contain"
               />
               <span className="vehicle-watermark vehicle-watermark-lightbox" aria-hidden="true">MOJAUTODILER</span>
               <span className="vehicle-watermark-pattern" aria-hidden="true" />
             </div>
           ) : (
-            <div className="h-[60vh] w-[90vw] max-w-4xl overflow-hidden rounded-xl">
+            <div className="pointer-events-none h-[60vh] w-[90vw] max-w-4xl overflow-hidden rounded-xl">
               <PremiumVehiclePlaceholder />
             </div>
           )}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/60 text-sm">
+
+          {/* Close — z-20 so it is always above the image div */}
+          <button
+            type="button"
+            onClick={() => setLightboxOpen(false)}
+            aria-label="Zatvori galeriju"
+            className="absolute right-3 top-3 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/35 sm:right-4 sm:top-4"
+          >
+            <X size={20} />
+          </button>
+
+          {/* Nav arrows — rendered AFTER the image div so they are naturally on top
+              in the stacking context; z-20 makes this explicit and guarantees taps
+              on both portrait and landscape mobile reach the buttons. */}
+          {vehicle.images.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={prevImg}
+                aria-label="Prethodna slika"
+                className="absolute left-2 top-1/2 z-20 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/35 sm:left-4"
+              >
+                <ChevronLeft size={26} />
+              </button>
+              <button
+                type="button"
+                onClick={nextImg}
+                aria-label="Sledeća slika"
+                className="absolute right-2 top-1/2 z-20 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/35 sm:right-4"
+              >
+                <ChevronRight size={26} />
+              </button>
+            </>
+          )}
+
+          {/* Counter */}
+          <div className="absolute bottom-4 left-1/2 z-20 -translate-x-1/2 rounded-full bg-black/50 px-3 py-1 text-sm text-white/80">
             {activeImage + 1} / {imageCount}
           </div>
         </div>

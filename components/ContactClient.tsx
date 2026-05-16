@@ -56,7 +56,7 @@ export default function ContactClient({ t, dealer }: ContactClientProps) {
             {contactRows.length > 0 && (
               <div className="rounded-3xl border border-[var(--color-border)] bg-white p-6 shadow-sm sm:p-7">
                 <h2 className="mb-6 text-xl font-black text-[var(--color-text)]">
-                  {dealer.name || 'AutoFerari'}
+                  {dealer.name || 'Moj Auto Diler'}
                 </h2>
                 <div className="space-y-5">
                   {contactRows.map(({ icon: Icon, label, value, href }) => (

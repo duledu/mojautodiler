@@ -1,6 +1,6 @@
 import { unstable_cache } from 'next/cache';
 import { prisma } from '@/lib/prisma';
-import { toAppDealerInfo, emptyDealerInfo, type DealerInfo } from '@/lib/db/mappers';
+import { toAppDealerInfo, emptyDealerInfo, normalizeDealerAddress, type DealerInfo } from '@/lib/db/mappers';
 
 // ─── Read ──────────────────────────────────────────────────────────────────────
 
@@ -49,9 +49,14 @@ export interface UpdateSettingsInput {
 }
 
 export async function upsertDealerSettings(data: UpdateSettingsInput) {
+  const cleanData = {
+    ...data,
+    ...(data.address !== undefined && { address: normalizeDealerAddress(data.address) }),
+    ...(data.city !== undefined && { city: normalizeDealerAddress(data.city) }),
+  };
   const existing = await prisma.dealerSettings.findFirst();
   if (existing) {
-    return prisma.dealerSettings.update({ where: { id: existing.id }, data });
+    return prisma.dealerSettings.update({ where: { id: existing.id }, data: cleanData });
   }
-  return prisma.dealerSettings.create({ data });
+  return prisma.dealerSettings.create({ data: cleanData });
 }

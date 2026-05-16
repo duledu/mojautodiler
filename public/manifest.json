@@ -1,7 +1,7 @@
 {
-  "name": "AutoFerari Preševo",
-  "short_name": "AutoFerari",
-  "description": "Premium automobili sa transparentnom istorijom. Pouzdan auto plac u Preševu.",
+  "name": "Moj Auto Diler",
+  "short_name": "AutoDiler",
+  "description": "Premium auto market za pažljivo odabrana vozila sa transparentnom istorijom.",
   "start_url": "/sr",
   "display": "standalone",
   "background_color": "#0A0A0B",

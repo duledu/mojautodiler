@@ -32,9 +32,9 @@ export default function Footer({ locale, t, dealer }: FooterProps) {
               </div>
               <div>
                 <div className="font-bold leading-none text-[var(--color-text)]" style={{ fontFamily: 'var(--font-display)' }}>
-                  {dealer.name || 'AutoFerari'}
+                  {dealer.name || 'Moj Auto Diler'}
                 </div>
-                <div className="mt-1 text-[10px] uppercase tracking-[0.18em] text-[var(--accent-dark)]">Auto Plac</div>
+                <div className="mt-1 text-[10px] uppercase tracking-[0.18em] text-[var(--accent-dark)]">PREMIUM AUTO MARKET</div>
               </div>
             </Link>
             <p className="max-w-sm text-sm leading-7 text-[var(--color-text-muted)]">{t.footer.tagline}</p>
@@ -103,8 +103,8 @@ export default function Footer({ locale, t, dealer }: FooterProps) {
 
         <div className="soft-divider my-8" />
         <div className="flex flex-col gap-2 text-xs text-[var(--color-text-muted)] sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} {dealer.name || 'AutoFerari'} Preševo. {t.footer.rights}.</p>
-          <p>Premium auto plac • Preševo</p>
+          <p>© {new Date().getFullYear()} {dealer.name || 'Moj Auto Diler'}. {t.footer.rights}.</p>
+          <p>PREMIUM AUTO MARKET • Srbija</p>
         </div>
       </div>
     </footer>
