@@ -201,6 +201,7 @@ const sr = {
   },
   footer: {
     tagline: 'Premium automobili sa transparentnom istorijom. Pouzdan premium auto market u Srbiji.',
+    platformDisclaimer: 'Vozila prikazana na platformi dolaze iz ponude odabranih partnerskih auto placeva. MojAutoDiler ne poseduje nuzno sva vozila direktno, vec ih pazljivo bira i predstavlja na jednom mestu radi lakseg i sigurnijeg pregleda ponude.',
     rights: 'Sva prava zadržana',
     links: 'Brzi linkovi',
     social: 'Pratite nas',

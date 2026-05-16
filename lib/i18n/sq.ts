@@ -201,6 +201,7 @@ const sq = {
   },
   footer: {
     tagline: 'Automjete premium me histori transparente. Premium auto market i besuar ne Serbi.',
+    platformDisclaimer: 'Automjetet e shfaqura ne platforme vijne nga oferta e auto placeve partnere te perzgjedhura. MojAutoDiler nuk i posedon domosdoshmerisht te gjitha automjetet direkt, por i zgjedh me kujdes dhe i prezanton ne nje vend per pregled me te lehte dhe me te sigurt.',
     rights: 'Të gjitha të drejtat e rezervuara',
     links: 'Lidhje të shpejta',
     social: 'Na ndiqni',

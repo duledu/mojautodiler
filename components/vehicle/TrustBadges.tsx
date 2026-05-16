@@ -41,7 +41,7 @@ const copy = {
     vin: 'VIN proveren',
     inspection: 'Multi-point provera',
     transparent: 'Transparentna kupovina',
-    warranty: 'Garancija placa',
+    warranty: 'Garancija dilera',
     dealer: 'Pouzdan prodavac',
   },
   sq: {
@@ -51,7 +51,7 @@ const copy = {
     vin: 'VIN i verifikuar',
     inspection: 'Kontroll profesional',
     transparent: 'Blerje transparente',
-    warranty: 'Garanci placi',
+    warranty: 'Garanci dileri',
     dealer: 'Shites i besuar',
   },
 } satisfies Record<Locale, Record<TrustBadgeKey, string>>;

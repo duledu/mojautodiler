@@ -57,7 +57,7 @@ export default function Header({ locale, t, dealer }: HeaderProps) {
               {dealer.name || 'Moj Auto Diler'}
             </div>
             <div className="text-[10px] text-[var(--accent-dark)] uppercase tracking-[0.18em] leading-none mt-1">
-              AUTO PLAC
+              PREMIUM AUTO MARKET
             </div>
           </div>
         </Link>

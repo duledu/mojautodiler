@@ -7,11 +7,13 @@ import { FacebookIcon, InstagramIcon, ViberIcon } from '@/components/ui/SocialIc
 import {
   Phone, ChevronLeft, ChevronRight, X, Check,
   ArrowLeft, Send, MapPin, Clock, ShieldCheck, CalendarCheck, Video, LockKeyhole, MessageCircle,
+  Building2,
 } from 'lucide-react';
 import { Vehicle } from '@/types/vehicle';
 import { Locale, TranslationKeys } from '@/lib/i18n';
 import { formatPrice, formatMileage, cn, formatVatMode } from '@/lib/utils';
 import type { DealerInfo } from '@/lib/db/mappers';
+import { resolveVehicleContact } from '@/lib/vehicle-contact';
 import VehicleCard from '@/components/vehicle/VehicleCard';
 import MobileContactFab from '@/components/vehicle/MobileContactFab';
 import PremiumVehiclePlaceholder from '@/components/vehicle/PremiumVehiclePlaceholder';
@@ -35,6 +37,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
   const [form, setForm] = useState({ name: '', phone: '', email: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
   const trustBadges = getVehicleTrustBadges(vehicle);
+  const contact = resolveVehicleContact(vehicle, dealer);
   const quickActionCopy = locale === 'sq'
     ? {
         book: 'Rezervo shikim',
@@ -56,6 +59,9 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
         confidenceSub: 'Pazljivo odabrano vozilo, profesionalno provereno i predstavljeno transparentno pre odluke.',
         bullets: ['Kilometraza i dokumentacija proveravaju se pre objave.', 'Vozilo se vizuelno i tehnicki pregleda pre preporuke.', 'Pazljivo selektovan uvoz za kupce koji traze sigurnost.', 'Kupovina je jasna, bez pritiska i bez skrivenih stavki.'],
       };
+  const platformDisclaimer = locale === 'sq'
+    ? 'Automjetet ne platforme vijne nga oferta e auto dilereve partnere te perzgjedhur. MojAutoDiler nuk i posedon domosdoshmerisht te gjitha automjetet direkt, por i kuron dhe i prezanton ne nje vend per nje pregled me te lehte dhe me te sigurt.'
+    : 'Vozila prikazana na platformi dolaze iz ponude odabranih partnerskih auto dilera. MojAutoDiler ne poseduje nuzno sva vozila direktno, vec ih pazljivo bira i predstavlja na jednom mestu radi lakseg i sigurnijeg pregleda ponude.';
   const activeVehicleImage = vehicle.images[activeImage] || vehicle.images[0];
   const activeImageUrl = activeVehicleImage?.url || '';
   const imageCount = Math.max(vehicle.images.length, 1);
@@ -99,8 +105,29 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
     { key: 'description', label: t.vehicle.description },
   ] as const;
 
-  const applyQuickLead = (message: string) => {
+  const recordLeadIntent = (intent: string, channel: string, message?: string) => {
+    fetch('/api/leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'inquiry',
+        name: form.name || 'Kontakt akcija',
+        phone: form.phone || contact.phone || 'N/A',
+        email: form.email || undefined,
+        message: message || `${intent}: ${vehicle.title}`,
+        vehicleId: vehicle.id,
+        vehicleTitle: vehicle.title,
+        dealerId: contact.dealerId,
+        dealerName: contact.dealerName,
+        intent,
+        preferredContactChannel: channel,
+      }),
+    }).catch(console.error);
+  };
+
+  const applyQuickLead = (message: string, intent: string = 'general_inquiry') => {
     setForm((current) => ({ ...current, message }));
+    recordLeadIntent(intent, 'web', message);
     formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
@@ -162,7 +189,8 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                   {vatText && <p className="mt-0.5 text-xs font-medium tracking-[0.01em] text-(--color-text-muted)">{vatText}</p>}
                 </div>
                 <a
-                  href={`tel:${dealer.phone}`}
+                  href={`tel:${contact.phone}`}
+                  onClick={() => recordLeadIntent('phone_call', 'phone')}
                   className="btn-gold touch-target flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm"
                 >
                   <Phone size={14} />
@@ -300,17 +328,56 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                 <MessageCircle size={20} className="shrink-0 text-[var(--accent)]" />
               </div>
               <div className="grid gap-2 min-[430px]:grid-cols-2 lg:grid-cols-5">
-                <QuickLeadButton icon={<CalendarCheck size={15} />} label={quickActionCopy.book} onClick={() => applyQuickLead(`${quickActionCopy.book}: ${vehicle.title}`)} />
-                <QuickLeadButton icon={<Video size={15} />} label={quickActionCopy.video} onClick={() => applyQuickLead(`${quickActionCopy.video}: ${vehicle.title}`)} />
-                <QuickLeadButton icon={<ShieldCheck size={15} />} label={quickActionCopy.availability} onClick={() => applyQuickLead(`${quickActionCopy.availability}: ${vehicle.title}`)} />
-                <QuickLeadButton icon={<LockKeyhole size={15} />} label={quickActionCopy.reserve} onClick={() => applyQuickLead(`${quickActionCopy.reserve}: ${vehicle.title}`)} />
-                {dealer.viber && (
-                  <a href={`viber://chat?number=%2B${dealer.viber.replace(/\D/g, '')}`} className="touch-target inline-flex items-center justify-center gap-2 rounded-2xl border border-[#7360F2]/20 bg-[#7360F2]/5 px-3 py-3 text-xs font-black text-[#6B5FDB] transition hover:bg-[#7360F2]/10">
+                <QuickLeadButton icon={<CalendarCheck size={15} />} label={quickActionCopy.book} onClick={() => applyQuickLead(`${quickActionCopy.book}: ${vehicle.title}`, 'schedule_viewing')} />
+                <QuickLeadButton icon={<Video size={15} />} label={quickActionCopy.video} onClick={() => applyQuickLead(`${quickActionCopy.video}: ${vehicle.title}`, 'request_video')} />
+                <QuickLeadButton icon={<ShieldCheck size={15} />} label={quickActionCopy.availability} onClick={() => applyQuickLead(`${quickActionCopy.availability}: ${vehicle.title}`, 'general_inquiry')} />
+                <QuickLeadButton icon={<LockKeyhole size={15} />} label={quickActionCopy.reserve} onClick={() => applyQuickLead(`${quickActionCopy.reserve}: ${vehicle.title}`, 'reservation_request')} />
+                {contact.viber && (
+                  <a href={`viber://chat?number=%2B${contact.viber.replace(/\D/g, '')}`} onClick={() => recordLeadIntent('viber_click', 'viber')} className="touch-target inline-flex items-center justify-center gap-2 rounded-2xl border border-[#7360F2]/20 bg-[#7360F2]/5 px-3 py-3 text-xs font-black text-[#6B5FDB] transition hover:bg-[#7360F2]/10">
                     <ViberIcon size={15} />
                     {quickActionCopy.viber}
                   </a>
                 )}
               </div>
+            </section>
+
+            <section className="rounded-3xl border border-(--color-border) bg-white p-6 shadow-sm sm:p-8">
+              <div className="flex flex-col gap-4 min-[430px]:flex-row min-[430px]:items-start min-[430px]:justify-between">
+                <div className="min-w-0">
+                  <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] text-(--color-gold-dark)">
+                    <Building2 size={12} />
+                    {locale === 'sq' ? 'Partner i Rrjetit' : 'Partnerska Mreža'}
+                  </div>
+                  <h2 className="text-2xl font-black text-(--color-text) sm:text-3xl" style={{ fontFamily: 'var(--font-display)' }}>
+                    {contact.name}
+                  </h2>
+                  <div className="mt-2.5 flex flex-wrap items-center gap-x-5 gap-y-2">
+                    <div className="flex items-center gap-1.5 text-sm font-medium text-(--color-text-muted)">
+                      <MapPin size={14} className="text-(--color-gold)" />
+                      {contact.location}
+                    </div>
+                    {contact.isVerified && (
+                      <div className="flex items-center gap-1.5 text-sm font-bold text-emerald-700">
+                        <ShieldCheck size={14} />
+                        {locale === 'sq' ? 'Verifikuar' : 'Verifikovan diler'}
+                      </div>
+                    )}
+                  </div>
+                  {contact.workingHours && (
+                    <div className="mt-4 flex items-start gap-2 text-xs text-(--color-text-muted)">
+                      <Clock size={14} className="mt-0.5 shrink-0 text-(--color-gold)" />
+                      <span className="whitespace-pre-line leading-relaxed">{contact.workingHours}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="grid gap-2 min-[430px]:min-w-40">
+                  {contact.phone && <a href={`tel:${contact.phone}`} onClick={() => recordLeadIntent('phone_call', 'phone')} className="btn-gold inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm"><Phone size={15} />{t.common.call}</a>}
+                  {contact.viber && <a href={`viber://chat?number=%2B${contact.viber.replace(/\D/g, '')}`} onClick={() => recordLeadIntent('viber_click', 'viber')} className="btn-outline inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm"><ViberIcon size={15} />Viber</a>}
+                </div>
+              </div>
+              <p className="mt-5 rounded-2xl border border-[var(--accent-border)] bg-[var(--accent-soft)] p-3 text-xs leading-5 text-[var(--color-text-muted)] min-[390px]:p-4">
+                {platformDisclaimer}
+              </p>
             </section>
 
             {/* Tabs */}
@@ -405,7 +472,11 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                   <span className="text-green-700 text-sm font-medium">{t.contact.success}</span>
                 </div>
               ) : (
-                <form onSubmit={(e) => { e.preventDefault(); setSubmitted(true); }} className="space-y-4">
+                <form onSubmit={(e) => {
+                  e.preventDefault();
+                  recordLeadIntent('general_inquiry', form.email ? 'email' : 'phone', form.message || `${t.inquiry.interested}: ${vehicle.title}`);
+                  setSubmitted(true);
+                }} className="space-y-4">
                   <div className="grid sm:grid-cols-2 gap-4">
                     <input
                       required type="text"
@@ -469,25 +540,27 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                 <div className="relative mt-5 space-y-3">
                   <button
                     type="button"
-                    onClick={() => applyQuickLead(`${quickActionCopy.book}: ${vehicle.title}`)}
+                    onClick={() => applyQuickLead(`${quickActionCopy.book}: ${vehicle.title}`, 'schedule_viewing')}
                     className="btn-gold flex min-h-[3.35rem] w-full items-center justify-center gap-2 rounded-2xl px-4 text-sm shadow-[0_16px_34px_rgba(201,168,76,0.24)]"
                   >
                     <CalendarCheck size={15} />
                     {quickActionCopy.book}
                   </button>
-                  <div className={`grid gap-2.5 ${dealer.phone && dealer.viber ? 'grid-cols-2' : 'grid-cols-1'}`}>
-                    {dealer.phone && (
+                  <div className={`grid gap-2.5 ${contact.phone && contact.viber ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                    {contact.phone && (
                       <a
-                        href={`tel:${dealer.phone}`}
+                        href={`tel:${contact.phone}`}
+                        onClick={() => recordLeadIntent('phone_call', 'phone')}
                         className="btn-dark flex min-h-12 items-center justify-center gap-2 rounded-2xl px-3 text-sm"
                       >
                         <Phone size={15} />
                         {t.common.call}
                       </a>
                     )}
-                    {dealer.viber && (
+                    {contact.viber && (
                       <a
-                        href={`viber://chat?number=%2B${dealer.viber.replace(/\D/g, '')}`}
+                        href={`viber://chat?number=%2B${contact.viber.replace(/\D/g, '')}`}
+                        onClick={() => recordLeadIntent('viber_click', 'viber')}
                         className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-[#7360F2]/25 bg-[#7360F2]/5 px-3 text-sm font-semibold text-[#6B5FDB] transition-colors hover:bg-[#7360F2]/10"
                         style={{ fontFamily: 'var(--font-display)' }}
                       >
@@ -496,11 +569,11 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                       </a>
                     )}
                   </div>
-                  {(dealer.facebook || dealer.instagram) && (
-                    <div className={`grid gap-2 ${dealer.facebook && dealer.instagram ? 'grid-cols-2' : 'grid-cols-1'}`}>
-                      {dealer.facebook && (
+                  {(contact.facebook || contact.instagram) && (
+                    <div className={`grid gap-2 ${contact.facebook && contact.instagram ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                      {contact.facebook && (
                         <a
-                          href={dealer.facebook}
+                          href={contact.facebook}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-semibold border border-[#1877F2]/20 text-[#1877F2] bg-[#1877F2]/5 hover:bg-[#1877F2]/10 transition-colors"
@@ -510,9 +583,9 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                           Facebook
                         </a>
                       )}
-                      {dealer.instagram && (
+                      {contact.instagram && (
                         <a
-                          href={dealer.instagram}
+                          href={contact.instagram}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-semibold border border-[#E1306C]/20 text-[#E1306C] bg-[#E1306C]/5 hover:bg-[#E1306C]/10 transition-colors"
@@ -532,31 +605,23 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
               </div>
 
               {/* Dealer card */}
-              <div className="rounded-2xl border border-(--color-border) bg-white p-5 shadow-[0_2px_10px_rgba(0,0,0,0.05)]">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-(--color-gold) flex items-center justify-center shrink-0">
-                    <ShieldCheck size={18} className="text-white" />
-                  </div>
-                  <div>
-                    <p className="font-bold text-(--color-text) text-sm" style={{ fontFamily: 'var(--font-display)' }}>
-                      {dealer.name || 'Moj Auto Diler'}
-                    </p>
-                    <p className="text-xs text-(--color-text-muted)">Verifikovani prodavac</p>
-                  </div>
-                </div>
-                <div className="space-y-2 text-xs text-(--color-text-muted)">
-                  {dealer.address && (
-                    <div className="flex items-start gap-2">
-                      <MapPin size={13} className="shrink-0 mt-0.5 text-(--color-gold)" />
-                      <span>{dealer.address}</span>
+              <div className="rounded-2xl border border-(--color-border) bg-white p-5 shadow-sm">
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(--color-gold-bg) text-(--color-gold-dark) border border-(--color-gold-border)">
+                      <ShieldCheck size={20} />
                     </div>
-                  )}
-                  {dealer.workingHours && (
-                    <div className="flex items-start gap-2">
-                      <Clock size={13} className="shrink-0 mt-0.5 text-(--color-gold)" />
-                      <span className="whitespace-pre-line">{dealer.workingHours}</span>
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-(--color-gold-dark)">
+                        {contact.hasPartnerDealer 
+                          ? (locale === 'sq' ? 'Verifikuar' : 'Verifikovan auto diler') 
+                          : 'Platforma'}
+                      </p>
+                      <p className="truncate font-black text-(--color-text) text-base" style={{ fontFamily: 'var(--font-display)' }}>
+                        {contact.name}
+                      </p>
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -594,27 +659,29 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
             </div>
             <div className="mt-0.5 truncate text-xs text-(--color-text-muted)">{vehicle.title}</div>
           </div>
-          {dealer.phone && (
+          {contact.phone && (
             <a
-              href={`tel:${dealer.phone}`}
+              href={`tel:${contact.phone}`}
+              onClick={() => recordLeadIntent('phone_call', 'phone')}
               className="btn-gold touch-target flex shrink-0 items-center gap-1.5 rounded-xl px-2.5 py-2.5 text-sm min-[390px]:px-5 min-[390px]:py-3"
             >
               <Phone size={15} />
               <span className="hidden min-[360px]:inline">{t.common.call}</span>
             </a>
           )}
-          {dealer.viber && (
+          {contact.viber && (
             <a
-              href={`viber://chat?number=%2B${dealer.viber.replace(/\D/g, '')}`}
+              href={`viber://chat?number=%2B${contact.viber.replace(/\D/g, '')}`}
+              onClick={() => recordLeadIntent('viber_click', 'viber')}
               className="touch-target flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#7360F2]/20 bg-[#7360F2]/10 text-[#6B5FDB]"
               aria-label="Viber"
             >
               <ViberIcon size={18} />
             </a>
           )}
-          {dealer.instagram && (
+          {contact.instagram && (
             <a
-              href={dealer.instagram}
+              href={contact.instagram}
               target="_blank"
               rel="noopener noreferrer"
               className="touch-target flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#E1306C]/20 bg-[#E1306C]/10 text-[#E1306C]"
@@ -625,7 +692,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
           )}
           <button
             type="button"
-            onClick={() => applyQuickLead(`${quickActionCopy.book}: ${vehicle.title}`)}
+            onClick={() => applyQuickLead(`${quickActionCopy.book}: ${vehicle.title}`, 'schedule_viewing')}
             className="btn-dark touch-target hidden shrink-0 items-center gap-1.5 rounded-xl px-3 py-3 text-xs min-[430px]:flex"
           >
             <CalendarCheck size={14} />
@@ -634,7 +701,13 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
         </div>
       </div>
       <div className="h-20 lg:hidden" />
-      <MobileContactFab phone={dealer.phone} viber={dealer.viber} instagram={dealer.instagram || undefined} />
+      <MobileContactFab
+        phone={contact.phone}
+        viber={contact.viber}
+        instagram={contact.instagram || undefined}
+        onPhoneClick={() => recordLeadIntent('phone_call', 'phone')}
+        onViberClick={() => recordLeadIntent('viber_click', 'viber')}
+      />
 
       {/* Lightbox */}
       {lightboxOpen && (

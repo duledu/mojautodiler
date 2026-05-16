@@ -38,6 +38,9 @@ export default function Footer({ locale, t, dealer }: FooterProps) {
               </div>
             </Link>
             <p className="max-w-sm text-sm leading-7 text-[var(--color-text-muted)]">{t.footer.tagline}</p>
+            <p className="mt-4 max-w-sm rounded-2xl border border-[var(--accent-border)] bg-white/65 p-3 text-xs leading-5 text-[var(--color-text-muted)]">
+              {t.footer.platformDisclaimer}
+            </p>
             <div className="mt-5 flex items-center gap-2">
               {dealer.facebook && (
                 <SocialLink href={dealer.facebook} label="Facebook">

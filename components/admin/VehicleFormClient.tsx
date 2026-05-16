@@ -7,7 +7,7 @@ import {
   AlertCircle, ArrowLeft, CheckCircle, Image as ImageIcon,
   Info, Plus, Save, Settings2, Shield, Star, Tag, Upload, Video, X,
 } from 'lucide-react';
-import { Vehicle, FuelType, TransmissionType, DrivetrainType, BodyType, VehicleStatus, VehicleCondition, Currency, VatMode } from '@/types/vehicle';
+import { Dealer, Vehicle, FuelType, TransmissionType, DrivetrainType, BodyType, VehicleStatus, VehicleCondition, Currency, VatMode } from '@/types/vehicle';
 import EquipmentPicker from '@/components/admin/EquipmentPicker';
 import { EQUIPMENT_PRESETS, SAFETY_PRESETS, CONDITION_PRESETS } from '@/data/equipment-presets';
 import SortableImageGrid from '@/components/admin/SortableImageGrid';
@@ -38,6 +38,7 @@ type FormData = Partial<Vehicle> & {
 interface Props {
   mode: 'new' | 'edit';
   vehicle?: Vehicle;
+  dealers?: Dealer[];
 }
 
 const tabs = [
@@ -100,7 +101,7 @@ function TagInput({ label, tags, onChange }: { label: string; tags: string[]; on
   );
 }
 
-export default function VehicleFormClient({ mode, vehicle }: Props) {
+export default function VehicleFormClient({ mode, vehicle, dealers = [] }: Props) {
   const pathname = usePathname();
   const locale = pathname.split('/')[1] || 'sr';
   const [activeTab, setActiveTab] = useState('basic');
@@ -154,8 +155,13 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
     dealerNotes: '',
     seoSlug: '',
     featured: false,
+    dealerId: '',
+    contactPhone: '',
+    contactViber: '',
+    contactName: '',
     ...vehicle,
   });
+  const selectedDealer = dealers.find((dealer) => dealer.id === form.dealerId) ?? vehicle?.dealer;
 
   const set = (key: keyof FormData) => (val: unknown) => setForm(f => ({ ...f, [key]: val }));
 
@@ -175,8 +181,10 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
 
       console.log('[SAVE] final imageUrls before PUT:', imageUrls);
 
+      const { dealer: _dealer, ...formPayload } = form;
+      void _dealer;
       const payload = {
-        ...form,
+        ...formPayload,
         images: imageUrls,
         imageKeys,          // consumed by the API to upsert VehicleMedia records
         slug: form.seoSlug?.trim() || undefined,
@@ -473,6 +481,44 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
                 <Input className={inputCls} value={form.registration} onChange={e => set('registration')(e.target.value)} placeholder="06/2025" />
               </Field>
             </div>
+            <section className="rounded-3xl border border-[var(--accent-border)] bg-[var(--accent-soft)] p-4">
+              <div className="mb-4 flex flex-col gap-1">
+                <p className="text-sm font-black text-[var(--color-text)]">Partnerski auto plac</p>
+                <p className="text-xs leading-5 text-[var(--color-text-muted)]">Dodelite vozilo kuriranom partneru. Kontakt override koristite samo kada ovo vozilo ima poseban broj ili kontakt osobu.</p>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label="Partner">
+                  <Select className={selectCls} value={form.dealerId || ''} onChange={e => set('dealerId')(e.target.value || undefined)}>
+                    <option value="">MojAutoDiler platforma / bez partnera</option>
+                    {dealers.map((dealer) => (
+                      <option key={dealer.id} value={dealer.id}>{dealer.name} - {dealer.location}</option>
+                    ))}
+                  </Select>
+                </Field>
+                <div className="rounded-2xl border border-white/70 bg-white/75 p-3 text-xs leading-5 text-[var(--color-text-muted)]">
+                  {selectedDealer ? (
+                    <>
+                      <p className="font-black text-[var(--color-text)]">{selectedDealer.name}</p>
+                      <p>{selectedDealer.location}</p>
+                      <p>{selectedDealer.phone}</p>
+                    </>
+                  ) : (
+                    <p>Bez partnera: koristi se glavni MojAutoDiler kontakt iz podesavanja.</p>
+                  )}
+                </div>
+              </div>
+              <div className="mt-4 grid gap-4 sm:grid-cols-3">
+                <Field label="Kontakt ime override">
+                  <Input className={inputCls} value={form.contactName || ''} onChange={e => set('contactName')(e.target.value)} placeholder="npr. Menadzer prodaje" />
+                </Field>
+                <Field label="Telefon override">
+                  <Input className={inputCls} value={form.contactPhone || ''} onChange={e => set('contactPhone')(e.target.value)} placeholder="+381..." />
+                </Field>
+                <Field label="Viber override">
+                  <Input className={inputCls} value={form.contactViber || ''} onChange={e => set('contactViber')(e.target.value)} placeholder="+381..." />
+                </Field>
+              </div>
+            </section>
             <Field label="Opis vozila">
               <TextArea
                 className={inputCls}

@@ -10,13 +10,15 @@
 import type {
   Vehicle as PrismaVehicle,
   Lead    as PrismaLead,
+  Dealer  as PrismaDealer,
   DealerSettings as PrismaSettings,
   VehicleStatus  as PrismaVehicleStatus,
   LeadStatus     as PrismaLeadStatus,
   VatMode        as PrismaVatMode,
+  DealerStatus   as PrismaDealerStatus,
 } from '@prisma/client';
-import type { Vehicle, VehicleStatus, VatMode } from '@/types/vehicle';
-import type { Lead as AppLead, LeadStatus as AppLeadStatus } from '@/types/lead';
+import type { Dealer, DealerStatus, Vehicle, VehicleStatus, VatMode } from '@/types/vehicle';
+import type { Lead as AppLead, LeadStatus as AppLeadStatus, LeadIntent, PreferredContactChannel } from '@/types/lead';
 
 // ─── Vehicle status ────────────────────────────────────────────────────────────
 
@@ -56,28 +58,62 @@ export function toAppVatMode(s: PrismaVatMode | null | undefined): VatMode {
 
 export function toDbLeadStatus(s: AppLeadStatus): PrismaLeadStatus {
   const map: Record<AppLeadStatus, PrismaLeadStatus> = {
-    new:     'NEW',
-    read:    'CONTACTED',
-    replied: 'CONTACTED',   // no direct equivalent; nearest is CONTACTED
-    closed:  'CLOSED',
-    spam:    'SPAM',
+    novo:        'NEW',
+    kontaktiran: 'CONTACTED',
+    zakazano:    'SCHEDULED',
+    rezervisano: 'RESERVED',
+    prodato:     'SOLD',
+    izgubljeno:  'LOST',
   };
   return map[s] ?? 'NEW';
 }
 
 export function toAppLeadStatus(s: PrismaLeadStatus): AppLeadStatus {
   const map: Record<PrismaLeadStatus, AppLeadStatus> = {
-    NEW:       'new',
-    CONTACTED: 'read',
-    CLOSED:    'closed',
-    SPAM:      'spam',
+    NEW:       'novo',
+    CONTACTED: 'kontaktiran',
+    SCHEDULED: 'zakazano',
+    RESERVED:  'rezervisano',
+    SOLD:      'prodato',
+    LOST:      'izgubljeno',
+    CLOSED:    'izgubljeno',
+    SPAM:      'izgubljeno',
   };
-  return map[s] ?? 'new';
+  return map[s] ?? 'novo';
+}
+
+export function toDbDealerStatus(s: DealerStatus | undefined): PrismaDealerStatus {
+  return s === 'hidden' ? 'HIDDEN' : 'ACTIVE';
+}
+
+export function toAppDealerStatus(s: PrismaDealerStatus): DealerStatus {
+  return s === 'HIDDEN' ? 'hidden' : 'active';
+}
+
+export function toAppDealer(d: PrismaDealer): Dealer {
+  return {
+    id:           d.id,
+    name:         d.name,
+    slug:         d.slug,
+    logo:         d.logo ?? undefined,
+    phone:        d.phone,
+    viber:        d.viber ?? undefined,
+    instagram:    d.instagram ?? undefined,
+    facebook:     d.facebook ?? undefined,
+    location:     d.location,
+    address:      d.address ?? undefined,
+    description:  d.description ?? undefined,
+    workingHours: d.workingHours ?? undefined,
+    isVerified:   d.isVerified,
+    status:       toAppDealerStatus(d.status),
+    createdAt:    d.createdAt.toISOString(),
+    updatedAt:    d.updatedAt.toISOString(),
+  };
 }
 
 // ─── Vehicle ───────────────────────────────────────────────────────────────────
 
-export function toAppVehicle(v: PrismaVehicle): Vehicle {
+export function toAppVehicle(v: PrismaVehicle & { dealer?: PrismaDealer | null }): Vehicle {
   return {
     id:            v.id,
     slug:          v.slug,
@@ -121,6 +157,11 @@ export function toAppVehicle(v: PrismaVehicle): Vehicle {
     status:        toAppVehicleStatus(v.status),
     featured:      v.featured,
     tags:          v.tags,
+    dealerId:      v.dealerId ?? undefined,
+    dealer:        v.dealer ? toAppDealer(v.dealer) : undefined,
+    contactPhone:  v.contactPhone ?? undefined,
+    contactViber:  v.contactViber ?? undefined,
+    contactName:   v.contactName ?? undefined,
     createdAt:     v.createdAt.toISOString(),
     updatedAt:     v.updatedAt.toISOString(),
   } as unknown as Vehicle;
@@ -135,6 +176,10 @@ export function toAppLead(l: PrismaLead): AppLead {
     status:       toAppLeadStatus(l.status),
     vehicleId:    l.vehicleId ?? undefined,
     vehicleTitle: l.vehicleTitle ?? undefined,
+    dealerId:     l.dealerId ?? undefined,
+    dealerName:   l.dealerName ?? undefined,
+    intent:       (l.intent ?? 'general_inquiry') as LeadIntent,
+    preferredContactChannel: (l.preferredContactChannel ?? 'web') as PreferredContactChannel,
     name:         l.name,
     phone:        l.phone,
     email:        l.email ?? undefined,

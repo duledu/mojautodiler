@@ -234,6 +234,7 @@ export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props
                       <p className="mt-1 text-xs text-(--color-text-muted)">
                         {v.year} · {v.mileage.toLocaleString('sr-RS')} km
                       </p>
+                      {v.dealer && <p className="mt-1 truncate text-[11px] font-bold text-[var(--accent-dark)]">{v.dealer.name}</p>}
                     </div>
                     <span className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-bold ${statusConfig[v.status]?.cls ?? statusConfig.hidden.cls}`}>
                       {statusConfig[v.status]?.label ?? v.status}
@@ -335,6 +336,7 @@ export default function AdminVehiclesClient({ vehicles: initialVehicles }: Props
                     <p className="text-xs text-(--color-text-muted) mt-0.5">
                       {v.mileage.toLocaleString('sr-RS')} km · {v.fuelType}
                     </p>
+                    {v.dealer && <p className="mt-0.5 truncate text-[11px] font-bold text-[var(--accent-dark)]">{v.dealer.name}</p>}
                   </div>
                 </div>
 

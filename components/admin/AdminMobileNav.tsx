@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Car, LayoutDashboard, MessageSquare, Settings } from 'lucide-react';
+import { Building2, Car, LayoutDashboard, MessageSquare, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function AdminMobileNav() {
@@ -12,6 +12,7 @@ export default function AdminMobileNav() {
   const links = [
     { href: `/${locale}/admin`, icon: LayoutDashboard, label: 'Dashboard', exact: true },
     { href: `/${locale}/admin/vehicles`, icon: Car, label: 'Vozila' },
+    { href: `/${locale}/admin/dealers`, icon: Building2, label: 'Partneri' },
     { href: `/${locale}/admin/leads`, icon: MessageSquare, label: 'Upiti' },
     { href: `/${locale}/admin/settings`, icon: Settings, label: 'Više' },
   ];

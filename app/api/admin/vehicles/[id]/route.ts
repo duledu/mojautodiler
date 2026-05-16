@@ -82,6 +82,10 @@ export async function PUT(
       ...(body.status   !== undefined && { status:   body.status as VehicleStatus }),
       ...(body.featured !== undefined && { featured: Boolean(body.featured) }),
       ...(body.tags     !== undefined && { tags:     body.tags }),
+      ...(body.dealerId !== undefined && { dealerId: body.dealerId?.trim() || null }),
+      ...(body.contactPhone !== undefined && { contactPhone: body.contactPhone?.trim() || null }),
+      ...(body.contactViber !== undefined && { contactViber: body.contactViber?.trim() || null }),
+      ...(body.contactName !== undefined && { contactName: body.contactName?.trim() || null }),
       // ── SEO ──────────────────────────────────────────────────────────────────
       ...(body.slug     !== undefined && body.slug && { slug: String(body.slug).trim() }),
     };

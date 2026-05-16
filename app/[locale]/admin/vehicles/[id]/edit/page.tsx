@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getVehicleById } from '@/lib/db/vehicles';
+import { getActiveDealers } from '@/lib/db/dealers';
 import VehicleFormClient from '@/components/admin/VehicleFormClient';
 
 export default async function EditVehiclePage({
@@ -9,7 +10,10 @@ export default async function EditVehiclePage({
 }) {
   const { id } = await params;
 
-  const vehicle = await getVehicleById(id);
+  const [vehicle, dealers] = await Promise.all([
+    getVehicleById(id),
+    getActiveDealers(),
+  ]);
 
   console.info(
     `[EDIT PAGE] id=${id} images=${JSON.stringify(vehicle?.images?.map(i => i.url))}`,
@@ -17,5 +21,5 @@ export default async function EditVehiclePage({
 
   if (!vehicle) notFound();
 
-  return <VehicleFormClient mode="edit" vehicle={vehicle} />;
+  return <VehicleFormClient mode="edit" vehicle={vehicle} dealers={dealers} />;
 }

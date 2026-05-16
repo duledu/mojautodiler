@@ -185,8 +185,10 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
   const currentLocale = locale;
   const t = getTranslations(currentLocale);
   const copy = homeCopy[currentLocale];
-  const dealer = await getDealerSettings();
-  const featuredVehicles = await getFeaturedVehicles(4);
+  const [dealer, featuredVehicles] = await Promise.all([
+    getDealerSettings(),
+    getFeaturedVehicles(4),
+  ]);
   const heroVehicle = featuredVehicles[0] ?? null;
   const darkTitleParts = copy.darkTitle.split(copy.darkAccent);
 

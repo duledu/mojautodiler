@@ -22,6 +22,13 @@ export default function InventoryClient({ locale, t, vehicles }: InventoryClient
 
   const activeVehicles = useMemo(() => vehicles, [vehicles]);
   const brands = useMemo(() => getUniqueBrands(activeVehicles), [activeVehicles]);
+  const dealers = useMemo(() => {
+    const map = new Map<string, { id: string; name: string; location: string }>();
+    for (const vehicle of activeVehicles) {
+      if (vehicle.dealer) map.set(vehicle.dealer.id, { id: vehicle.dealer.id, name: vehicle.dealer.name, location: vehicle.dealer.location });
+    }
+    return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }, [activeVehicles]);
 
   const filtered = useMemo(() => {
     let vehicles = filterVehicles(activeVehicles, filters);
@@ -85,6 +92,21 @@ export default function InventoryClient({ locale, t, vehicles }: InventoryClient
           ))}
         </select>
       </FilterField>
+
+      {dealers.length > 0 && (
+        <FilterField label={locale === 'sq' ? 'Auto diler' : 'Auto diler'}>
+          <select
+            value={filters.dealerId || ''}
+            onChange={(e) => updateFilter('dealerId', e.target.value)}
+            className="input-premium w-full rounded-xl px-3 py-2.5 text-sm"
+          >
+            <option value="">{locale === 'sq' ? 'Te gjithe partneret' : 'Svi partneri'}</option>
+            {dealers.map((dealer) => (
+              <option key={dealer.id} value={dealer.id}>{dealer.name} - {dealer.location}</option>
+            ))}
+          </select>
+        </FilterField>
+      )}
 
       {/* Year range */}
       <FilterField label="Godište">
@@ -291,6 +313,9 @@ export default function InventoryClient({ locale, t, vehicles }: InventoryClient
                 )}
                 {filters.transmission && (
                   <FilterPill label={t.transmission[filters.transmission]} onRemove={() => updateFilter('transmission', undefined)} />
+                )}
+                {filters.dealerId && (
+                  <FilterPill label={dealers.find((dealer) => dealer.id === filters.dealerId)?.name ?? 'Partner'} onRemove={() => updateFilter('dealerId', undefined)} />
                 )}
               </div>
             )}

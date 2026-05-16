@@ -9,9 +9,11 @@ interface MobileContactFabProps {
   readonly phone: string;
   readonly viber?: string;
   readonly instagram?: string;
+  readonly onPhoneClick?: () => void;
+  readonly onViberClick?: () => void;
 }
 
-export default function MobileContactFab({ phone, viber, instagram }: MobileContactFabProps) {
+export default function MobileContactFab({ phone, viber, instagram, onPhoneClick, onViberClick }: MobileContactFabProps) {
   const [open, setOpen] = useState(false);
   const cleanViber = viber ? viber.replace(/\D/g, '') : '';
 
@@ -19,11 +21,11 @@ export default function MobileContactFab({ phone, viber, instagram }: MobileCont
     <div className="fixed bottom-[5.65rem] right-3 z-40 min-[390px]:right-4 lg:hidden">
       <div className={cn('mb-2 grid gap-2 transition-all duration-300', open ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0')}>
         {viber && (
-          <a href={`viber://chat?number=%2B${cleanViber}`} className="touch-target flex h-11 w-11 items-center justify-center rounded-2xl bg-[#7360F2] text-white shadow-[0_12px_28px_rgba(115,96,242,0.28)] min-[390px]:h-12 min-[390px]:w-12" aria-label="Viber">
+          <a href={`viber://chat?number=%2B${cleanViber}`} onClick={onViberClick} className="touch-target flex h-11 w-11 items-center justify-center rounded-2xl bg-[#7360F2] text-white shadow-[0_12px_28px_rgba(115,96,242,0.28)] min-[390px]:h-12 min-[390px]:w-12" aria-label="Viber">
             <ViberIcon size={20} />
           </a>
         )}
-        <a href={`tel:${phone}`} className="touch-target flex h-11 w-11 items-center justify-center rounded-2xl bg-(--color-text) text-white shadow-[0_12px_28px_rgba(15,15,20,0.2)] min-[390px]:h-12 min-[390px]:w-12" aria-label="Pozovi">
+        <a href={`tel:${phone}`} onClick={onPhoneClick} className="touch-target flex h-11 w-11 items-center justify-center rounded-2xl bg-(--color-text) text-white shadow-[0_12px_28px_rgba(15,15,20,0.2)] min-[390px]:h-12 min-[390px]:w-12" aria-label="Pozovi">
           <Phone size={19} />
         </a>
         {instagram && (

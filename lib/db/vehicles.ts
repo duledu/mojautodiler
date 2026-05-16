@@ -22,6 +22,7 @@ export async function getFeaturedVehicles(limit = 4): Promise<Vehicle[]> {
     where: { status: 'AVAILABLE', featured: true },
     orderBy: { createdAt: 'desc' },
     take: limit,
+    include: { dealer: true },
   });
   logFetch('getFeaturedVehicles', rows.length, rows[0]);
   return rows.map(toAppVehicle);
@@ -32,6 +33,7 @@ export async function getActiveVehicles(): Promise<Vehicle[]> {
   const rows = await prisma.vehicle.findMany({
     where: { status: 'AVAILABLE' },
     orderBy: { createdAt: 'desc' },
+    include: { dealer: true },
   });
   logFetch('getActiveVehicles', rows.length, rows[0]);
   return rows.map(toAppVehicle);
@@ -39,14 +41,14 @@ export async function getActiveVehicles(): Promise<Vehicle[]> {
 
 export async function getAllVehicles(): Promise<Vehicle[]> {
   if (!hasDatabase()) { warnNoDB('getAllVehicles'); return []; }
-  const rows = await prisma.vehicle.findMany({ orderBy: { createdAt: 'desc' } });
+  const rows = await prisma.vehicle.findMany({ orderBy: { createdAt: 'desc' }, include: { dealer: true } });
   logFetch('getAllVehicles', rows.length, rows[0]);
   return rows.map(toAppVehicle);
 }
 
 export async function getVehicleBySlug(slug: string): Promise<Vehicle | null> {
   if (!hasDatabase()) { warnNoDB('getVehicleBySlug'); return null; }
-  const row = await prisma.vehicle.findUnique({ where: { slug } });
+  const row = await prisma.vehicle.findUnique({ where: { slug }, include: { dealer: true } });
   if (process.env.NODE_ENV !== 'production') {
     console.log(`[DB] getVehicleBySlug("${slug}"): ${row ? row.title : 'not found'}`);
   }
@@ -55,7 +57,7 @@ export async function getVehicleBySlug(slug: string): Promise<Vehicle | null> {
 
 export async function getVehicleById(id: string): Promise<Vehicle | null> {
   if (!hasDatabase()) { warnNoDB('getVehicleById'); return null; }
-  const row = await prisma.vehicle.findUnique({ where: { id } });
+  const row = await prisma.vehicle.findUnique({ where: { id }, include: { dealer: true } });
   return row ? toAppVehicle(row) : null;
 }
 
@@ -69,6 +71,7 @@ export async function getSimilarVehicles(vehicleId: string, brand: string, limit
     },
     orderBy: { createdAt: 'desc' },
     take: limit,
+    include: { dealer: true },
   });
   return rows.map(toAppVehicle);
 }
@@ -99,8 +102,8 @@ export async function getVehicleStats() {
 
 export type CreateVehicleInput = Omit<
   Vehicle,
-  'id' | 'createdAt' | 'updatedAt' | 'images'
-> & { images: string[]; videoUrl?: string };
+  'id' | 'createdAt' | 'updatedAt' | 'images' | 'dealer'
+> & { images: string[]; videoUrl?: string; dealerId?: string; contactPhone?: string; contactViber?: string; contactName?: string };
 
 export async function createVehicle(input: CreateVehicleInput) {
   return prisma.vehicle.create({
@@ -140,6 +143,10 @@ export async function createVehicle(input: CreateVehicleInput) {
       status:         toDbVehicleStatus(input.status),
       featured:       input.featured ?? false,
       tags:           input.tags ?? [],
+      dealerId:       input.dealerId,
+      contactPhone:   input.contactPhone,
+      contactViber:   input.contactViber,
+      contactName:    input.contactName,
     },
   });
 }

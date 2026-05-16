@@ -19,10 +19,12 @@ interface Props {
 }
 
 const statusConfig: Record<string, { label: string; classes: string; next: string; nextLabel: string }> = {
-  new: { label: 'Novo', classes: 'bg-amber-50 text-amber-800 border-amber-200', next: 'read', nextLabel: 'Oznaci procitano' },
-  read: { label: 'Procitano', classes: 'bg-blue-50 text-blue-800 border-blue-200', next: 'replied', nextLabel: 'Oznaci odgovoreno' },
-  replied: { label: 'Odgovoreno', classes: 'bg-emerald-50 text-emerald-800 border-emerald-200', next: 'closed', nextLabel: 'Zatvori upit' },
-  closed: { label: 'Zatvoreno', classes: 'bg-neutral-100 text-neutral-500 border-neutral-200', next: 'new', nextLabel: 'Ponovo otvori' },
+  novo: { label: 'Novo', classes: 'bg-amber-50 text-amber-800 border-amber-200', next: 'kontaktiran', nextLabel: 'Oznaci kontaktirano' },
+  kontaktiran: { label: 'Kontaktiran', classes: 'bg-blue-50 text-blue-800 border-blue-200', next: 'zakazano', nextLabel: 'Zakazi gledanje' },
+  zakazano: { label: 'Zakazano gledanje', classes: 'bg-cyan-50 text-cyan-800 border-cyan-200', next: 'rezervisano', nextLabel: 'Rezervisi' },
+  rezervisano: { label: 'Rezervisano', classes: 'bg-violet-50 text-violet-800 border-violet-200', next: 'prodato', nextLabel: 'Prodato' },
+  prodato: { label: 'Prodato', classes: 'bg-emerald-50 text-emerald-800 border-emerald-200', next: 'novo', nextLabel: 'Ponovo otvori' },
+  izgubljeno: { label: 'Izgubljeno', classes: 'bg-neutral-100 text-neutral-500 border-neutral-200', next: 'novo', nextLabel: 'Ponovo otvori' },
 };
 
 const typeLabels: Record<string, string> = {
@@ -34,6 +36,16 @@ const sourceLabels: Record<string, string> = {
   web: 'Web',
   viber: 'Viber',
   phone: 'Telefon',
+  email: 'Email',
+};
+
+const intentLabels: Record<string, string> = {
+  phone_call: 'Poziv',
+  viber_click: 'Viber klik',
+  request_video: 'Video zahtev',
+  reservation_request: 'Rezervacija',
+  schedule_viewing: 'Zakazivanje',
+  general_inquiry: 'Opsti upit',
 };
 
 function timeAgo(date: string): string {
@@ -77,10 +89,12 @@ export default function AdminLeadsClient({ leads: initialLeads }: Props) {
 
   const counts = {
     all: leads.length,
-    new: leads.filter((lead) => lead.status === 'new').length,
-    read: leads.filter((lead) => lead.status === 'read').length,
-    replied: leads.filter((lead) => lead.status === 'replied').length,
-    closed: leads.filter((lead) => lead.status === 'closed').length,
+    novo: leads.filter((lead) => lead.status === 'novo').length,
+    kontaktiran: leads.filter((lead) => lead.status === 'kontaktiran').length,
+    zakazano: leads.filter((lead) => lead.status === 'zakazano').length,
+    rezervisano: leads.filter((lead) => lead.status === 'rezervisano').length,
+    prodato: leads.filter((lead) => lead.status === 'prodato').length,
+    izgubljeno: leads.filter((lead) => lead.status === 'izgubljeno').length,
   };
 
   return (
@@ -92,18 +106,20 @@ export default function AdminLeadsClient({ leads: initialLeads }: Props) {
             Upiti kupaca
           </h1>
           <p className="mt-2 text-sm text-[var(--color-text-muted)]">
-            {counts.new > 0 && <span className="font-bold text-amber-800">{counts.new} novih / </span>}
+            {counts.novo > 0 && <span className="font-bold text-amber-800">{counts.novo} novih / </span>}
             {leads.length} ukupno evidentiranih kontakata
           </p>
         </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         {[
-          ['Novi upiti - poruke', counts.new],
-          ['Procitani', counts.read],
-          ['Odgovoreni', counts.replied],
-          ['Zatvoreni', counts.closed],
+          ['Novo', counts.novo],
+          ['Kontaktiran', counts.kontaktiran],
+          ['Zakazano', counts.zakazano],
+          ['Rezervisano', counts.rezervisano],
+          ['Prodato', counts.prodato],
+          ['Izgubljeno', counts.izgubljeno],
         ].map(([label, value]) => (
           <article key={label} className="rounded-3xl border border-[var(--color-border)] bg-white p-4 shadow-sm min-[390px]:p-5">
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-text-placeholder)]">{label}</p>
@@ -130,10 +146,12 @@ export default function AdminLeadsClient({ leads: initialLeads }: Props) {
             className="input-premium w-full cursor-pointer appearance-none rounded-2xl py-3 pl-4 pr-10 text-sm"
           >
             <option value="all">Svi ({counts.all})</option>
-            <option value="new">Novi ({counts.new})</option>
-            <option value="read">Procitani ({counts.read})</option>
-            <option value="replied">Odgovoreni ({counts.replied})</option>
-            <option value="closed">Zatvoreni ({counts.closed})</option>
+            <option value="novo">Novo ({counts.novo})</option>
+            <option value="kontaktiran">Kontaktiran ({counts.kontaktiran})</option>
+            <option value="zakazano">Zakazano ({counts.zakazano})</option>
+            <option value="rezervisano">Rezervisano ({counts.rezervisano})</option>
+            <option value="prodato">Prodato ({counts.prodato})</option>
+            <option value="izgubljeno">Izgubljeno ({counts.izgubljeno})</option>
           </select>
           <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]" />
         </div>
@@ -162,7 +180,7 @@ export default function AdminLeadsClient({ leads: initialLeads }: Props) {
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex min-w-0 items-start gap-3">
-                        <span className={`mt-2 h-2.5 w-2.5 shrink-0 rounded-full ${lead.status === 'new' ? 'bg-[var(--accent)]' : 'bg-[var(--color-border-strong)]'}`} />
+                        <span className={`mt-2 h-2.5 w-2.5 shrink-0 rounded-full ${lead.status === 'novo' ? 'bg-[var(--accent)]' : 'bg-[var(--color-border-strong)]'}`} />
                         <div className="min-w-0">
                           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                             <p className="font-bold text-[var(--color-text)]">{lead.name}</p>
@@ -171,6 +189,10 @@ export default function AdminLeadsClient({ leads: initialLeads }: Props) {
                           {lead.vehicleTitle && (
                             <p className="mt-1 truncate text-xs font-bold text-[var(--accent-dark)]">{lead.vehicleTitle}</p>
                           )}
+                          <div className="mt-1 flex flex-wrap gap-1.5">
+                            <span className="rounded-full bg-[var(--color-surface-2)] px-2 py-0.5 text-[10px] font-bold text-[var(--color-text-muted)]">{intentLabels[lead.intent] ?? lead.intent}</span>
+                            {lead.dealerName && <span className="rounded-full bg-[var(--accent-soft)] px-2 py-0.5 text-[10px] font-bold text-[var(--accent-dark)]">{lead.dealerName}</span>}
+                          </div>
                           <p className="mt-1 line-clamp-1 text-sm text-[var(--color-text-muted)]">{lead.message}</p>
                         </div>
                       </div>
@@ -209,6 +231,9 @@ export default function AdminLeadsClient({ leads: initialLeads }: Props) {
               {selected.phone && <ContactRow href={`tel:${selected.phone}`} icon={<Phone size={15} />} label={selected.phone} />}
               {selected.email && <ContactRow href={`mailto:${selected.email}`} icon={<Mail size={15} />} label={selected.email} />}
               {selected.vehicleTitle && <ContactRow icon={<Car size={15} />} label={selected.vehicleTitle} />}
+              {selected.dealerName && <ContactRow icon={<Car size={15} />} label={`Partner: ${selected.dealerName}`} />}
+              <ContactRow icon={<MessageSquare size={15} />} label={`Intent: ${intentLabels[selected.intent] ?? selected.intent}`} />
+              <ContactRow icon={<MessageSquare size={15} />} label={`Kanal: ${sourceLabels[selected.preferredContactChannel] ?? selected.preferredContactChannel}`} />
               <ContactRow icon={<Clock size={15} />} label={new Date(selected.createdAt).toLocaleString('sr-RS')} muted />
             </div>
 

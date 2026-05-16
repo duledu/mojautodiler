@@ -1,6 +1,11 @@
 import { prisma } from '@/lib/prisma';
 import { toAppLead, toDbLeadStatus } from '@/lib/db/mappers';
-import type { Lead as AppLead, LeadStatus as AppLeadStatus } from '@/types/lead';
+import type {
+  Lead as AppLead,
+  LeadIntent,
+  LeadStatus as AppLeadStatus,
+  PreferredContactChannel,
+} from '@/types/lead';
 
 const hasDatabase = () => Boolean(process.env.DATABASE_URL);
 
@@ -43,8 +48,12 @@ export interface CreateLeadInput {
   message: string;
   type?: string;
   source?: string;
+  intent?: LeadIntent;
+  preferredContactChannel?: PreferredContactChannel;
   vehicleId?: string;
   vehicleTitle?: string;
+  dealerId?: string;
+  dealerName?: string;
 }
 
 export async function createLead(input: CreateLeadInput): Promise<AppLead> {
@@ -56,8 +65,12 @@ export async function createLead(input: CreateLeadInput): Promise<AppLead> {
       message:      input.message,
       type:         input.type ?? 'contact',
       source:       input.source ?? 'web',
+      intent:       input.intent ?? 'general_inquiry',
+      preferredContactChannel: input.preferredContactChannel ?? 'web',
       vehicleId:    input.vehicleId,
       vehicleTitle: input.vehicleTitle,
+      dealerId:     input.dealerId,
+      dealerName:   input.dealerName,
       status:       'NEW',
     },
   });

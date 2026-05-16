@@ -18,6 +18,22 @@ export default function ContactClient({ t, dealer }: ContactClientProps) {
 
   const cleanViber = dealer.viber.replace(/\D/g, '');
 
+  const recordContact = (intent: string, channel: string, message?: string) => {
+    fetch('/api/leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'contact',
+        name: form.name || 'Kontakt akcija',
+        phone: form.phone || dealer.phone || 'N/A',
+        email: form.email || undefined,
+        message: message || form.message || 'Kontakt sa platforme',
+        intent,
+        preferredContactChannel: channel,
+      }),
+    }).catch(console.error);
+  };
+
   // Only show contact rows that have data
   const contactRows = [
     dealer.phone       && { icon: Phone,   label: 'Telefon',              value: dealer.phone,       href: `tel:${dealer.phone}` },
@@ -89,6 +105,7 @@ export default function ContactClient({ t, dealer }: ContactClientProps) {
                   <a
                     key={item.label}
                     href={item.href}
+                    onClick={() => recordContact(item.label === 'Viber' ? 'viber_click' : item.label === t.common.call ? 'phone_call' : 'general_inquiry', item.label === 'Viber' ? 'viber' : item.label === t.common.call ? 'phone' : 'web')}
                     target={item.href.startsWith('http') ? '_blank' : undefined}
                     rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
                     className="flex items-center gap-3 rounded-2xl border border-[var(--color-border)] bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--accent-border)] hover:shadow-[0_12px_28px_rgba(15,15,20,0.08)]"
@@ -115,7 +132,11 @@ export default function ContactClient({ t, dealer }: ContactClientProps) {
                 <p className="text-sm text-[var(--color-text-muted)]">Kontaktiraćemo vas uskoro.</p>
               </div>
             ) : (
-              <form onSubmit={(e) => { e.preventDefault(); setSubmitted(true); }} className="space-y-5">
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                recordContact('general_inquiry', form.email ? 'email' : 'phone', form.message);
+                setSubmitted(true);
+              }} className="space-y-5">
                 <Field label={`${t.contact.name} *`}>
                   <input required type="text" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} className="input-premium w-full rounded-xl px-4 py-3 text-sm" />
                 </Field>

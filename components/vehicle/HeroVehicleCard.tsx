@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, Calendar, Camera, Fuel, Gauge, Settings2, ShieldCheck, Star } from 'lucide-react';
+import { ArrowRight, Building2, Calendar, Camera, Fuel, Gauge, MapPin, Settings2, ShieldCheck, Star } from 'lucide-react';
 import { Vehicle } from '@/types/vehicle';
 import { Locale, TranslationKeys } from '@/lib/i18n';
 import { formatMileage, formatPrice, formatVatMode } from '@/lib/utils';
@@ -100,8 +100,19 @@ export default function HeroVehicleCard({
           <TrustBadges locale={locale} badges={trustBadges.slice(0, 3)} compact className="mt-4 min-[390px]:hidden" />
           <TrustBadges locale={locale} badges={trustBadges} compact className="mt-4 hidden min-[390px]:flex" />
 
+          <div className="mt-6 mb-6 flex flex-wrap items-center gap-1.5">
+            <span className="inline-flex items-center gap-1 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-2.5 py-1 text-[10px] font-black text-[var(--accent-dark)] min-[390px]:text-[11px]">
+              <Building2 size={11} />
+              {locale === 'sq' ? 'Auto diler partner' : 'Partnerski auto diler'}
+            </span>
+            <span className="inline-flex items-center gap-1 rounded-full border border-[var(--color-border)] bg-white px-2.5 py-1 text-[10px] font-bold text-[var(--color-text-muted)] min-[390px]:text-[11px]">
+              <MapPin size={11} />
+              {vehicle.dealer?.location || 'Srbija'}
+            </span>
+          </div>
+
           {/* Footer — verified line + CTA */}
-          <div className="mt-5 flex flex-col gap-3 border-t border-[var(--color-border)] pt-5 min-[390px]:flex-row min-[390px]:items-center min-[390px]:justify-between min-[390px]:gap-4">
+          <div className="mt-0 flex flex-col gap-3 border-t border-[var(--color-border)] pt-6 min-[390px]:flex-row min-[390px]:items-center min-[390px]:justify-between min-[390px]:gap-4">
             <div className="flex min-w-0 items-center gap-2 text-xs text-[var(--color-text-muted)]">
               <ShieldCheck size={14} className="shrink-0 text-[var(--accent)]" />
               <span className="line-clamp-2 leading-snug min-[390px]:truncate">{verifiedLine}</span>

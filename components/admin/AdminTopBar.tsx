@@ -28,7 +28,7 @@ export default function AdminTopBar() {
   const segments = pathname.split('/').filter(Boolean);
   const locale = segments[0] || 'sr';
   const adminSegments = segments.slice(2);
-  const newLeads = mockLeads.filter((lead) => lead.status === 'new').length;
+  const newLeads = mockLeads.filter((lead) => lead.status === 'novo').length;
 
   const crumbs = [
     { label: 'Admin', href: `/${locale}/admin` },

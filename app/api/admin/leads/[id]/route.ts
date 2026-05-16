@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { updateLeadStatus } from '@/lib/db/leads';
 import type { LeadStatus } from '@/types/lead';
 
-const VALID_STATUSES: LeadStatus[] = ['new', 'read', 'replied', 'closed', 'spam'];
+const VALID_STATUSES: LeadStatus[] = ['novo', 'kontaktiran', 'zakazano', 'rezervisano', 'prodato', 'izgubljeno'];
 
 // PUT /api/admin/leads/[id] — update lead status
 export async function PUT(

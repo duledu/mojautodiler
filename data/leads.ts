@@ -4,7 +4,9 @@ export const mockLeads: Lead[] = [
   {
     id: '1',
     type: 'inquiry',
-    status: 'new',
+    status: 'novo',
+    intent: 'schedule_viewing',
+    preferredContactChannel: 'web',
     vehicleId: '1',
     vehicleTitle: 'BMW X5 xDrive30d',
     name: 'Marko Petrović',
@@ -17,7 +19,9 @@ export const mockLeads: Lead[] = [
   {
     id: '2',
     type: 'inquiry',
-    status: 'read',
+    status: 'kontaktiran',
+    intent: 'general_inquiry',
+    preferredContactChannel: 'web',
     vehicleId: '5',
     vehicleTitle: 'Porsche Cayenne Coupé',
     name: 'Ana Jovanović',
@@ -30,7 +34,9 @@ export const mockLeads: Lead[] = [
   {
     id: '3',
     type: 'contact',
-    status: 'replied',
+    status: 'kontaktiran',
+    intent: 'schedule_viewing',
+    preferredContactChannel: 'web',
     name: 'Stefan Nikolić',
     phone: '+381 63 555 9012',
     message: 'Imam interesse u kupovini automobila. Mogu li doći u subotu?',
@@ -40,7 +46,9 @@ export const mockLeads: Lead[] = [
   {
     id: '4',
     type: 'inquiry',
-    status: 'new',
+    status: 'novo',
+    intent: 'general_inquiry',
+    preferredContactChannel: 'viber',
     vehicleId: '3',
     vehicleTitle: 'Audi A6 45 TFSI S-Line',
     name: 'Milan Stanković',
@@ -55,7 +63,9 @@ export function addLead(lead: Omit<Lead, 'id' | 'createdAt' | 'status'>): Lead {
   const newLead: Lead = {
     ...lead,
     id: String(mockLeads.length + 1),
-    status: 'new',
+    status: 'novo',
+    intent: lead.intent ?? 'general_inquiry',
+    preferredContactChannel: lead.preferredContactChannel ?? 'web',
     createdAt: new Date().toISOString(),
   };
   mockLeads.push(newLead);

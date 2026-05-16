@@ -23,6 +23,10 @@ enum VehicleStatus {
 enum LeadStatus {
   NEW
   CONTACTED
+  SCHEDULED
+  RESERVED
+  SOLD
+  LOST
   CLOSED
   SPAM
 }
@@ -36,6 +40,11 @@ enum VatMode {
   INCLUDED
   EXCLUDED
   NONE
+}
+
+enum DealerStatus {
+  ACTIVE
+  HIDDEN
 }
 
 // ─── Models ───────────────────────────────────────────────────────────────────
@@ -89,6 +98,12 @@ model Vehicle {
   status         VehicleStatus @default(AVAILABLE)
   featured       Boolean       @default(false)
 
+  dealerId       String?
+  dealer         Dealer?       @relation(fields: [dealerId], references: [id], onDelete: SetNull)
+  contactPhone   String?
+  contactViber   String?
+  contactName    String?
+
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
@@ -97,8 +112,35 @@ model Vehicle {
 
   @@index([status])
   @@index([brand])
+  @@index([dealerId])
   @@index([featured])
   @@index([createdAt])
+}
+
+model Dealer {
+  id           String       @id @default(cuid())
+  name         String
+  slug         String       @unique
+  logo         String?
+  phone        String
+  viber        String?
+  instagram    String?
+  facebook     String?
+  location     String
+  address      String?
+  description  String?
+  workingHours String?
+  isVerified   Boolean      @default(true)
+  status       DealerStatus @default(ACTIVE)
+
+  vehicles     Vehicle[]
+  leads        Lead[]
+
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@index([status])
+  @@index([slug])
 }
 
 // ─── Vehicle media ────────────────────────────────────────────────────────────
@@ -141,12 +183,20 @@ model Lead {
   vehicle      Vehicle?   @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
   vehicleTitle String?    // Denormalized for display when vehicle is deleted
 
+  dealerId     String?
+  dealer       Dealer?    @relation(fields: [dealerId], references: [id], onDelete: SetNull)
+  dealerName   String?
+
   status       LeadStatus @default(NEW)
+  intent       String     @default("general_inquiry")
+  preferredContactChannel String @default("web")
 
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
   @@index([status])
+  @@index([dealerId])
+  @@index([intent])
   @@index([createdAt])
 }
 

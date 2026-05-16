@@ -30,17 +30,21 @@ function timeAgo(date: string): string {
 }
 
 const leadStatus: Record<string, string> = {
-  new: 'bg-amber-50 text-amber-800 border-amber-200',
-  read: 'bg-blue-50 text-blue-800 border-blue-200',
-  replied: 'bg-emerald-50 text-emerald-800 border-emerald-200',
-  closed: 'bg-neutral-100 text-neutral-500 border-neutral-200',
+  novo: 'bg-amber-50 text-amber-800 border-amber-200',
+  kontaktiran: 'bg-blue-50 text-blue-800 border-blue-200',
+  zakazano: 'bg-cyan-50 text-cyan-800 border-cyan-200',
+  rezervisano: 'bg-violet-50 text-violet-800 border-violet-200',
+  prodato: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+  izgubljeno: 'bg-neutral-100 text-neutral-500 border-neutral-200',
 };
 
 const leadStatusLabel: Record<string, string> = {
-  new: 'Novo',
-  read: 'Pročitano',
-  replied: 'Odgovoreno',
-  closed: 'Zatvoreno',
+  novo: 'Novo',
+  kontaktiran: 'Kontaktiran',
+  zakazano: 'Zakazano',
+  rezervisano: 'Rezervisano',
+  prodato: 'Prodato',
+  izgubljeno: 'Izgubljeno',
 };
 
 const vehicleStatus: Record<string, { label: string; className: string }> = {

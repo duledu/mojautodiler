@@ -66,6 +66,10 @@ export async function POST(request: NextRequest) {
       status:         body.status || 'active',
       featured:       Boolean(body.featured),
       tags:           Array.isArray(body.tags) ? body.tags : [],
+      dealerId:       body.dealerId?.trim() || undefined,
+      contactPhone:   body.contactPhone?.trim() || undefined,
+      contactViber:   body.contactViber?.trim() || undefined,
+      contactName:    body.contactName?.trim() || undefined,
     });
 
     // Sync VehicleMedia metadata for the new vehicle

@@ -35,6 +35,7 @@ export function filterVehicles(vehicles: Vehicle[], filters: VehicleFilters): Ve
     if (filters.fuelType && v.fuelType !== filters.fuelType) return false;
     if (filters.transmission && v.transmission !== filters.transmission) return false;
     if (filters.bodyType && v.bodyType !== filters.bodyType) return false;
+    if (filters.dealerId && v.dealerId !== filters.dealerId) return false;
     return true;
   });
 }

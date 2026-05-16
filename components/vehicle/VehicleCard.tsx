@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, Calendar, Camera, Fuel, Gauge, MapPin, Settings2 } from 'lucide-react';
+import { ArrowRight, Building2, Calendar, Camera, Fuel, Gauge, MapPin, Settings2, ShieldCheck } from 'lucide-react';
 import { Vehicle } from '@/types/vehicle';
 import { Locale, TranslationKeys } from '@/lib/i18n';
 import { cn, formatMileage, formatPrice, formatVatMode } from '@/lib/utils';
@@ -95,13 +95,26 @@ export default function VehicleCard({ vehicle, locale, t }: VehicleCardProps) {
             <Spec icon={<Settings2 size={11} />} value={t.transmission[vehicle.transmission]} />
           </div>
 
-          <TrustBadges locale={locale} badges={trustBadges} compact className="mt-3" />
+          <TrustBadges locale={locale} badges={trustBadges} compact className="mt-4" />
+
+          <div className="mt-4 mb-5 flex flex-wrap items-center gap-1.5">
+            <span className="inline-flex items-center gap-1 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-2 py-1 text-[10px] font-black text-[var(--accent-dark)]">
+              <Building2 size={11} />
+              {locale === 'sq' ? 'Auto diler partner' : 'Partnerski auto diler'}
+            </span>
+            {vehicle.dealer?.isVerified && (
+              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-[10px] font-black text-emerald-700">
+                <ShieldCheck size={11} />
+                {locale === 'sq' ? 'I verifikuar' : 'Verifikovan'}
+              </span>
+            )}
+          </div>
 
           {/* Footer */}
-          <div className="mt-auto flex items-center justify-between border-t border-[var(--color-border)] pt-3">
+          <div className="mt-auto flex items-center justify-between border-t border-[var(--color-border)] pt-4">
             <div className="flex items-center gap-1 text-xs text-[var(--color-text-muted)]">
               <MapPin size={11} className="shrink-0" />
-              <span>Srbija</span>
+              <span>{vehicle.dealer?.location || 'Srbija'}</span>
             </div>
             <span
               className="inline-flex items-center gap-1 text-xs font-bold text-[var(--accent-dark)]"

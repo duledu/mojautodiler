@@ -86,6 +86,36 @@ async function main() {
   // ── Dealer settings ───────────────────────────────────────────────────────
   const dealer = getDealerInfo();
   const existing = await prisma.dealerSettings.findFirst();
+  const defaultDealer = await prisma.dealer.upsert({
+    where: { slug: 'moj-auto-diler' },
+    create: {
+      name: 'Moj Auto Diler',
+      slug: 'moj-auto-diler',
+      phone: dealer.phone,
+      viber: dealer.viber,
+      instagram: dealer.instagram,
+      facebook: dealer.facebook,
+      location: 'Srbija',
+      address: dealer.address,
+      workingHours: dealer.workingHours,
+      description: 'Kurirana platforma i partnerska mreza za premium vozila.',
+      isVerified: true,
+      status: 'ACTIVE',
+    },
+    update: {
+      phone: dealer.phone,
+      viber: dealer.viber,
+      instagram: dealer.instagram,
+      facebook: dealer.facebook,
+      address: dealer.address,
+      workingHours: dealer.workingHours,
+    },
+  });
+
+  await prisma.vehicle.updateMany({
+    where: { dealerId: null },
+    data: { dealerId: defaultDealer.id },
+  });
 
   if (!existing) {
     await prisma.dealerSettings.create({
