@@ -10,6 +10,8 @@ import {
 import { Vehicle, FuelType, TransmissionType, DrivetrainType, BodyType, VehicleStatus, VehicleCondition, Currency, VatMode } from '@/types/vehicle';
 import EquipmentPicker from '@/components/admin/EquipmentPicker';
 import { EQUIPMENT_PRESETS, SAFETY_PRESETS, CONDITION_PRESETS } from '@/data/equipment-presets';
+import SortableImageGrid from '@/components/admin/SortableImageGrid';
+import type { ImageSlot } from '@/components/admin/media-types';
 
 // Browser password-manager extensions (e.g. LastPass, Bitwarden) inject
 // fdprocessedid on interactive elements after hydration. These thin wrappers
@@ -31,21 +33,7 @@ type FormData = Partial<Vehicle> & {
   tagsInput?: string;
 };
 
-// Per-image upload slot — tracks blob preview, R2 upload state, and final URL
-type ImageSlot = {
-  /** Stable local ID for React keying */
-  id: string;
-  /** blob:// during upload, https:// once persisted */
-  previewUrl: string;
-  /** Set to the R2 public URL after a successful upload */
-  uploadedUrl?: string;
-  /** R2 object key — set only for images uploaded via the admin panel.
-   *  Used to delete the file from R2 when the slot is removed.
-   *  null/undefined for pre-existing images loaded from the DB. */
-  r2Key?: string;
-  uploading: boolean;
-  error?: string;
-};
+// ImageSlot is imported from media-types.ts (shared with SortableImageGrid)
 
 interface Props {
   mode: 'new' | 'edit';
@@ -223,18 +211,7 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
     }
   };
 
-  const setPrimaryImage = (slotId: string) => {
-    setImageSlots(prev => {
-      const idx = prev.findIndex(s => s.id === slotId);
-      if (idx <= 0) return prev;
-      const next = [...prev];
-      const [slot] = next.splice(idx, 1);
-      next.unshift(slot);
-      return next;
-    });
-  };
-
-  /**
+/**
    * Removes an image slot from the gallery.
    * If the slot has an R2 key and the vehicle already exists in the DB, the
    * file is deleted from R2 and the VehicleMedia record is removed immediately.
@@ -658,71 +635,12 @@ export default function VehicleFormClient({ mode, vehicle }: Props) {
               </label>
 
               {imageSlots.length > 0 && (
-                <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                  {imageSlots.map((slot, i) => (
-                    <div key={slot.id} className="group relative aspect-4/3 overflow-hidden rounded-2xl bg-(--color-surface-2)">
-                      {slot.uploading ? (
-                        /* Uploading spinner */
-                        <div className="flex h-full flex-col items-center justify-center gap-2 bg-(--color-surface-2)">
-                          <span className="h-6 w-6 animate-spin rounded-full border-2 border-(--accent-border) border-t-(--accent)" />
-                          <span className="text-[10px] font-medium text-(--color-text-muted)">Uploading…</span>
-                        </div>
-                      ) : slot.error ? (
-                        /* Upload error */
-                        <div className="flex h-full flex-col items-center justify-center gap-1.5 p-2 text-center">
-                          <AlertCircle className="h-5 w-5 shrink-0 text-red-500" />
-                          <p className="line-clamp-3 text-[10px] leading-tight text-red-600">{slot.error}</p>
-                          <button
-                            type="button"
-                            onClick={() => setImageSlots(prev => prev.filter(s => s.id !== slot.id))}
-                            className="mt-1 rounded-lg border border-red-200 bg-red-50 px-2 py-0.5 text-[10px] font-semibold text-red-600 hover:bg-red-100"
-                          >
-                            Ukloni
-                          </button>
-                        </div>
-                      ) : (
-                        /* Uploaded image */
-                        <>
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={slot.previewUrl} alt="" className="h-full w-full object-cover" />
-
-                          {/* Primary badge — always visible on cover image */}
-                          {i === 0 && (
-                            <div className="absolute left-1.5 top-1.5 flex items-center gap-1 rounded-md bg-(--accent) px-1.5 py-0.5 text-[10px] font-black text-white shadow-[0_2px_8px_rgba(201,168,76,0.45)]">
-                              <Star className="h-2.5 w-2.5" fill="currentColor" />
-                              Naslovna
-                            </div>
-                          )}
-
-                          {/* Set-as-primary button — always visible on non-cover images */}
-                          {i !== 0 && !slot.uploading && (
-                            <button
-                              type="button"
-                              onClick={() => setPrimaryImage(slot.id)}
-                              title="Postavi kao naslovnu sliku"
-                              className="absolute left-1.5 top-1.5 flex items-center justify-center rounded-md border border-white/25 bg-black/50 p-1 text-white/60 backdrop-blur-sm transition-all hover:border-(--accent) hover:bg-(--accent) hover:text-white"
-                            >
-                              <Star className="h-3 w-3" />
-                            </button>
-                          )}
-
-                          {/* Hover overlay — delete only.
-                              pointer-events-none on the overlay itself so the
-                              star button behind it always receives clicks. */}
-                          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteSlot(slot)}
-                              className="pointer-events-auto rounded-full bg-red-500/90 p-1.5 text-white transition-colors hover:bg-red-500"
-                            >
-                              <X className="h-3.5 w-3.5" />
-                            </button>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                <SortableImageGrid
+                  slots={imageSlots}
+                  vehicleId={vehicle?.id}
+                  onSlotsChange={setImageSlots}
+                  onDelete={handleDeleteSlot}
+                />
               )}
             </div>
 
