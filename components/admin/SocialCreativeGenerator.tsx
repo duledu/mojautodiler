@@ -59,10 +59,10 @@ export default function SocialCreativeGenerator({
 
   const exportRef = useRef<HTMLDivElement>(null);
 
-  const siteOrigin =
-    typeof globalThis.window === 'undefined'
-      ? 'https://mojautodiler.rs'
-      : globalThis.window.location.origin;
+  // Always use the configured public site URL, never window.location.origin.
+  // window.location.origin encodes the admin domain (localhost, staging, etc.)
+  // into the QR code, making it unscannable in production exports.
+  const siteOrigin = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mojautodiler.rs').replace(/\/$/, '');
   const listingUrl = `${new URL(siteOrigin).hostname}/sr/vehicle/${vehicle.slug}`;
   const fullListingUrl = `${siteOrigin}/sr/vehicle/${vehicle.slug}`;
   const primaryImageUrl = vehicle.images[0]?.url ?? '';
@@ -99,11 +99,15 @@ export default function SocialCreativeGenerator({
     return () => { cancelled = true; };
   }, [primaryImageUrl]);
 
-  // Generate QR code data URL
+  // Generate QR code data URL — high resolution for sharp export.
+  // errorCorrectionLevel M (15% redundancy) survives mild JPEG compression.
+  // margin 2 = 2-module quiet zone on top of the container's own padding.
+  // width 360 rendered at 2.4× the canvas display size → always crisp.
   useEffect(() => {
     QRCode.toDataURL(fullListingUrl, {
-      width: 280,
-      margin: 1,
+      width: 360,
+      margin: 2,
+      errorCorrectionLevel: 'M',
       color: { dark: '#0A0A0E', light: '#FFFFFF' },
     })
       .then(setQrDataUrl)

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   AlertCircle, ArrowLeft, CheckCircle, Image as ImageIcon,
-  Info, LayoutGrid, Plus, Save, Settings2, Share2, Shield, Star, Tag, Upload, Video, X,
+  Info, LayoutGrid, Plus, Save, Settings2, Share2, Shield, Sparkles, Star, Tag, Upload, Video, X,
 } from 'lucide-react';
 import { Dealer, Vehicle, FuelType, TransmissionType, DrivetrainType, BodyType, VehicleStatus, VehicleCondition, Currency, VatMode } from '@/types/vehicle';
 import EquipmentPicker from '@/components/admin/EquipmentPicker';
@@ -17,6 +17,10 @@ import type { ImageSlot } from '@/components/admin/media-types';
 // Dynamically imported — html-to-image and qrcode are browser-only
 const SocialCreativeGenerator = dynamic(
   () => import('@/components/admin/SocialCreativeGenerator'),
+  { ssr: false },
+);
+const MarketingImageGenerator = dynamic(
+  () => import('@/components/admin/MarketingImageGenerator'),
   { ssr: false },
 );
 
@@ -115,7 +119,8 @@ export default function VehicleFormClient({ mode, vehicle, dealers = [] }: Props
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
-  const [showCreative, setShowCreative] = useState(false);
+  const [showCreative,   setShowCreative]   = useState(false);
+  const [showMarketing,  setShowMarketing]  = useState(false);
   // Existing images initialised as already-uploaded slots (no blob, no spinner)
   const [imageSlots, setImageSlots] = useState<ImageSlot[]>(() =>
     (vehicle?.images ?? []).map((img, i) => ({
@@ -387,16 +392,30 @@ export default function VehicleFormClient({ mode, vehicle, dealers = [] }: Props
         <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:items-end">
           <div className="flex gap-2">
             {mode === 'edit' && vehicle?.id && (
-              <button
-                type="button"
-                onClick={() => setShowCreative(true)}
-                suppressHydrationWarning
-                className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-(--color-border) bg-white px-4 text-sm font-bold text-(--color-text-muted) transition hover:border-(--accent-border) hover:text-(--accent-dark)"
-                title="Generiši Social Media kreativni"
-              >
-                <Share2 className="w-4 h-4" />
-                <span className="hidden sm:inline">Social Media</span>
-              </button>
+              <>
+                {/* AI Marketing Image Generator */}
+                <button
+                  type="button"
+                  onClick={() => setShowMarketing(true)}
+                  suppressHydrationWarning
+                  className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-(--accent-border) bg-(--accent-soft) px-4 text-sm font-bold text-(--accent-dark) transition hover:bg-(--accent-soft)/80"
+                  title="AI Marketing Image Generator"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span className="hidden sm:inline">AI Marketing</span>
+                </button>
+                {/* Social Media Creative */}
+                <button
+                  type="button"
+                  onClick={() => setShowCreative(true)}
+                  suppressHydrationWarning
+                  className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-(--color-border) bg-white px-4 text-sm font-bold text-(--color-text-muted) transition hover:border-(--accent-border) hover:text-(--accent-dark)"
+                  title="Generiši Social Media kreativni"
+                >
+                  <Share2 className="w-4 h-4" />
+                  <span className="hidden sm:inline">Social Media</span>
+                </button>
+              </>
             )}
             <button
               type="button"
@@ -428,24 +447,31 @@ export default function VehicleFormClient({ mode, vehicle, dealers = [] }: Props
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="scrollbar-none flex gap-1 overflow-x-auto rounded-3xl border border-[var(--color-border)] bg-white p-1.5 shadow-sm">
-        {tabs.map(tab => (
-          <button
-            type="button"
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            suppressHydrationWarning
-            className={`touch-target flex items-center gap-2 whitespace-nowrap rounded-2xl px-4 py-2.5 text-sm font-bold transition-all ${
-              activeTab === tab.id
-                ? 'bg-[var(--accent)] text-white shadow-sm'
-                : 'text-[var(--color-text-muted)] hover:bg-[var(--color-surface-2)] hover:text-[var(--color-text)]'
-            }`}
-          >
-            <tab.icon className="w-3.5 h-3.5" />
-            {tab.label}
-          </button>
-        ))}
+      {/* Tabs — horizontally scrollable on mobile, never overlap */}
+      <div className="relative">
+        <div className="scrollbar-none flex gap-2 overflow-x-auto rounded-3xl border border-[var(--color-border)] bg-white p-1.5 shadow-sm">
+          {tabs.map(tab => (
+            <button
+              type="button"
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              suppressHydrationWarning
+              className={`flex-shrink-0 touch-target flex items-center gap-2 whitespace-nowrap rounded-2xl px-4 py-2.5 text-sm font-bold transition-all ${
+                activeTab === tab.id
+                  ? 'bg-[var(--accent)] text-white shadow-sm'
+                  : 'text-[var(--color-text-muted)] hover:bg-[var(--color-surface-2)] hover:text-[var(--color-text)]'
+              }`}
+            >
+              <tab.icon className="w-3.5 h-3.5 flex-shrink-0" />
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        {/* Fade gradient signals more tabs to the right on mobile */}
+        <div
+          className="pointer-events-none absolute inset-y-0 right-0 w-10 rounded-r-3xl bg-gradient-to-l from-white to-transparent sm:hidden"
+          aria-hidden="true"
+        />
       </div>
 
       {/* Tab Content */}
@@ -890,6 +916,15 @@ export default function VehicleFormClient({ mode, vehicle, dealers = [] }: Props
           dealerName={form.contactName || selectedDealer?.name || 'Moja Auto Diler'}
           dealerPhone={form.contactPhone || selectedDealer?.phone || ''}
           onClose={() => setShowCreative(false)}
+        />
+      )}
+
+      {/* AI Marketing Image Generator modal */}
+      {showMarketing && vehicle?.id && vehicle?.slug && (
+        <MarketingImageGenerator
+          vehicleId={vehicle.id}
+          vehicleSlug={vehicle.slug}
+          onClose={() => setShowMarketing(false)}
         />
       )}
     </div>

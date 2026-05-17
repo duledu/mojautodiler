@@ -53,7 +53,7 @@ function sc(format: CreativeFormat) {
     url:         Math.round(21 * min),
     cta:         Math.round(22 * min),
     line:        Math.max(2, Math.round(3 * r)),
-    qr:          Math.round(118 * Math.max(r, 0.68)),
+    qr:          Math.round(148 * Math.max(r, 0.68)),
     panelPad:    Math.round(28 * min),
   };
 }
@@ -194,12 +194,13 @@ export const SocialCreativeCanvas = forwardRef<HTMLDivElement, SocialCreativeCan
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              background: 'linear-gradient(135deg, rgba(255,255,255,0.18), rgba(201,168,76,0.16) 42%, rgba(5,6,9,0.22))',
+              // No backdropFilter — html-to-image cannot render it and produces glitched
+              // rasterisation. Higher-opacity solid gradient gives the same frosted look.
+              background: 'linear-gradient(135deg, rgba(8,9,13,0.72), rgba(255,255,255,0.08) 42%, rgba(201,168,76,0.10))',
               border: '1.5px solid rgba(242,213,122,0.45)',
               borderRadius: 100,
               padding: `${s.badgePadV}px ${s.badgePadH}px`,
-              boxShadow: '0 14px 44px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.22)',
-              backdropFilter: 'blur(12px)',
+              boxShadow: '0 14px 44px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.20)',
             }}
           >
             <span
@@ -345,18 +346,19 @@ export const SocialCreativeCanvas = forwardRef<HTMLDivElement, SocialCreativeCan
               <div
                 key={spec}
                 style={{
-                  background: 'linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.07))',
-                  border: '1px solid rgba(255,255,255,0.22)',
+                  // No backdropFilter — causes glitched rasterisation in html-to-image.
+                  // Slightly higher background opacity achieves the same frosted-pill look.
+                  background: 'linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.10))',
+                  border: '1px solid rgba(255,255,255,0.28)',
                   borderRadius: 999,
                   padding: `${s.specPadV}px ${s.specPadH}px`,
                   fontSize: s.spec,
                   fontWeight: 800,
-                  color: 'rgba(255,255,255,0.88)',
+                  color: 'rgba(255,255,255,0.92)',
                   fontFamily: FONT,
                   whiteSpace: 'nowrap',
                   letterSpacing: '0.035em',
-                  boxShadow: '0 12px 32px rgba(0,0,0,0.24), inset 0 1px 0 rgba(255,255,255,0.13)',
-                  backdropFilter: 'blur(10px)',
+                  boxShadow: '0 12px 32px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.18)',
                 }}
               >
                 {spec}
@@ -372,10 +374,11 @@ export const SocialCreativeCanvas = forwardRef<HTMLDivElement, SocialCreativeCan
               gap: Math.round(24 * Math.max(h / 1920, 0.68)),
               padding: s.panelPad,
               borderRadius: isCompact ? 24 : 34,
-              background: 'linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.07) 48%, rgba(201,168,76,0.10))',
-              border: '1px solid rgba(255,255,255,0.18)',
-              boxShadow: '0 22px 70px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.18)',
-              backdropFilter: 'blur(18px)',
+              // No backdropFilter — html-to-image cannot render it (causes blurred/glitched export).
+              // Solid dark base at high opacity replaces the frosted-glass look without artifacts.
+              background: 'linear-gradient(135deg, rgba(8,9,13,0.88), rgba(18,20,26,0.86) 52%, rgba(22,18,6,0.84))',
+              border: '1px solid rgba(255,255,255,0.16)',
+              boxShadow: '0 22px 70px rgba(0,0,0,0.52), inset 0 1px 0 rgba(255,255,255,0.14)',
             }}
           >
             <div
@@ -463,8 +466,12 @@ export const SocialCreativeCanvas = forwardRef<HTMLDivElement, SocialCreativeCan
             {qrDataUrl && (
               <div
                 style={{
-                  background: 'linear-gradient(180deg, rgba(255,255,255,0.98), rgba(242,242,238,0.96))',
-                  padding: Math.round(s.qr * 0.105),
+                  // Solid white — no semi-transparency so QR modules are always
+                  // maximum contrast against a clean white background.
+                  background: '#FFFFFF',
+                  // Generous quiet zone: QR spec requires ≥4 modules; padding
+                  // of 14 % of display size gives ~20 px at story resolution.
+                  padding: Math.round(s.qr * 0.14),
                   borderRadius: 18,
                   flexShrink: 0,
                   border: '1px solid rgba(255,255,255,0.72)',
