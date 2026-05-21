@@ -14,12 +14,6 @@ import { SocialCreativeCanvas, CREATIVE_DIMS, CreativeFormat } from '@/component
 
 const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mojautodiler.com').replace(/\/$/, '');
 
-const FORMAT_LABELS: Record<CreativeFormat, string> = {
-  square:   'Kvadrat 1:1',
-  portrait: 'Portret 4:5',
-  story:    'Story 9:16',
-};
-
 interface Props {
   readonly vehicle: Vehicle;
   readonly locale: Locale;
@@ -36,13 +30,74 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
   const [loadError, setLoadError]   = useState('');
   const [mounted, setMounted]       = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
+  const copy = locale === 'sq'
+    ? {
+        formatLabels: {
+          square: 'Katëror 1:1',
+          portrait: 'Portret 4:5',
+          story: 'Story 9:16',
+        } satisfies Record<CreativeFormat, string>,
+        shareIntro: 'Shiko këtë automjet në MojAutoDiler:',
+        loadError: 'Ngarkimi nuk pati sukses. Provoni përsëri.',
+        downloadError: 'Shkarkimi nuk pati sukses. Provoni përsëri.',
+        title: 'Shpërndaje dhe përfito 100€ zbritje',
+        descriptionStart: 'Shpërndani një ose më shumë automjete nga oferta jonë në rrjetet sociale, ndiqni ose etiketoni',
+        descriptionMiddle: 'dhe na dërgoni screenshot-in përmes formularit të kontaktit.',
+        descriptionEnd: 'Përfitoni',
+        discount: '100€ zbritje',
+        descriptionAfterDiscount: 'për automjetin që dëshironi të blini.',
+        copied: 'U kopjua!',
+        share: 'Shpërndaje',
+        downloadPost: 'Shkarko postimin për rrjete',
+        stepsTitle: 'Përfito 100€ zbritje - ja si',
+        step1: 'Shkarko imazhin dhe publikoje në Instagram, Facebook ose TikTok',
+        step2Prefix: 'Në postim etiketo ose ndiq',
+        step3: 'Na dërgo screenshot-in e postimit përmes formularit të kontaktit',
+        step4: 'Zbritja prej 100€ aplikohet gjatë blerjes së automjetit',
+        note: 'Shënim: publikimi automatik në Instagram dhe TikTok nuk është i mundur nga shfletuesi. Pas shkarkimit të imazhit, publikimi bëhet manualisht.',
+        exporting: 'Po gjenerohet...',
+        loading: 'Duke ngarkuar...',
+        downloadImage: 'Shkarko imazhin',
+        ctaText: 'E ke tashmë screenshot-in e postimit? Dërgoje tani dhe përfito zbritjen.',
+        ctaButton: 'Dërgo screenshot-in',
+      }
+    : {
+        formatLabels: {
+          square: 'Kvadrat 1:1',
+          portrait: 'Portret 4:5',
+          story: 'Story 9:16',
+        } satisfies Record<CreativeFormat, string>,
+        shareIntro: 'Pogledaj ovaj automobil na MojAutoDiler:',
+        loadError: 'Učitavanje nije uspelo. Pokušajte ponovo.',
+        downloadError: 'Preuzimanje nije uspelo. Pokušajte ponovo.',
+        title: 'Podeli i ostvari 100€ popusta',
+        descriptionStart: 'Podelite jedno ili više vozila iz naše ponude na društvenim mrežama, zapratite ili tagujte',
+        descriptionMiddle: 'i pošaljite nam screenshot kroz kontakt formu.',
+        descriptionEnd: 'Ostvarujete',
+        discount: '100€ popusta',
+        descriptionAfterDiscount: 'na vozilo koje želite da kupite.',
+        copied: 'Kopirano!',
+        share: 'Podeli',
+        downloadPost: 'Preuzmi objavu za mreže',
+        stepsTitle: 'Ostvari 100€ popusta — evo kako',
+        step1: 'Preuzmi sliku i objavi je na Instagram, Facebook ili TikTok',
+        step2Prefix: 'U objavi označi ili zaprati',
+        step3: 'Pošalji nam screenshot objave kroz kontakt formu',
+        step4: 'Popust od 100€ se pripisuje pri kupovini vozila',
+        note: 'Napomena: automatsko objavljivanje na Instagram i TikTok nije moguće putem pregledača — potrebno je ručno objavljivanje nakon preuzimanja slike.',
+        exporting: 'Generišem...',
+        loading: 'Učitavanje...',
+        downloadImage: 'Preuzmi sliku',
+        ctaText: 'Već imaš screenshot objave? Pošalji nam ga odmah i ostvari popust.',
+        ctaButton: 'Pošalji screenshot',
+      };
 
   // Needed to avoid createPortal calling document.body during SSR
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setMounted(true); }, []);
 
   const vehicleUrl  = `${SITE}/${locale}/vehicle/${vehicle.slug}`;
-  const shareText   = `Pogledaj ovaj automobil na MojAutoDiler:\n${vehicle.title}\n${vehicleUrl}`;
+  const shareText   = `${copy.shareIntro}\n${vehicle.title}\n${vehicleUrl}`;
   const contactHref = `/${locale}/contact?vehicle=${encodeURIComponent(vehicle.slug)}&discount=share&vehicleTitle=${encodeURIComponent(vehicle.title)}`;
   const canvasReady = Boolean(imageDataUrl && qrDataUrl);
   const dims        = CREATIVE_DIMS[format];
@@ -95,7 +150,7 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
       setImageDataUrl(imgDataUrl);
       setQrDataUrl(qr);
     } catch {
-      setLoadError('Učitavanje nije uspelo. Pokušajte ponovo.');
+      setLoadError(copy.loadError);
     }
   };
 
@@ -122,7 +177,7 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
       a.download = `${vehicle.slug}-${format}.png`;
       a.click();
     } catch {
-      setLoadError('Preuzimanje nije uspelo. Pokušajte ponovo.');
+      setLoadError(copy.downloadError);
     } finally {
       setExporting(false);
     }
@@ -141,15 +196,15 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
             className="font-black text-[var(--color-text)] sm:text-lg"
             style={{ fontFamily: 'var(--font-display)' }}
           >
-            Podeli i ostvari 100€ popusta
+            {copy.title}
           </h2>
           <p className="mt-1.5 text-sm leading-6 text-[var(--color-text-muted)]">
-            Podelite jedno ili više vozila iz naše ponude na društvenim mrežama, zapratite ili
-            tagujte <strong className="text-[var(--color-text)]">MojAutoDiler</strong> i pošaljite
-            nam screenshot kroz kontakt formu.
-            Ostvarujete{' '}
-            <strong className="text-[var(--color-text)]">100€ popusta</strong> na vozilo koje
-            želite da kupite.
+            {copy.descriptionStart}{' '}
+            <strong className="text-[var(--color-text)]">MojAutoDiler</strong>{' '}
+            {copy.descriptionMiddle}{' '}
+            {copy.descriptionEnd}{' '}
+            <strong className="text-[var(--color-text)]">{copy.discount}</strong>{' '}
+            {copy.descriptionAfterDiscount}
           </p>
         </div>
       </div>
@@ -163,7 +218,7 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
           className="btn-gold inline-flex min-h-10 items-center gap-2 rounded-xl px-4 text-sm"
         >
           {copied ? <Check size={15} /> : <Share2 size={15} />}
-          {copied ? 'Kopirano!' : 'Podeli'}
+          {copied ? copy.copied : copy.share}
         </button>
 
         {/* Viber */}
@@ -218,7 +273,7 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
           <div className="flex items-center gap-2">
             <Camera size={15} className="shrink-0 text-[var(--accent)]" />
             <span className="text-sm font-bold text-[var(--color-text)]">
-              Preuzmi objavu za mreže
+              {copy.downloadPost}
             </span>
           </div>
           {showDownload
@@ -230,7 +285,7 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
           <div className="mt-4 space-y-4">
             {/* Format selector */}
             <div className="flex flex-wrap gap-2">
-              {(Object.keys(FORMAT_LABELS) as CreativeFormat[]).map((f) => (
+              {(Object.keys(copy.formatLabels) as CreativeFormat[]).map((f) => (
                 <button
                   key={f}
                   type="button"
@@ -242,7 +297,7 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
                       : 'border-[var(--color-border)] bg-white text-[var(--color-text-muted)] hover:border-[var(--accent-border)]'
                   )}
                 >
-                  {FORMAT_LABELS[f]}
+                  {copy.formatLabels[f]}
                 </button>
               ))}
             </div>
@@ -250,30 +305,29 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
             {/* Steps */}
             <div className="rounded-xl border border-[var(--color-border)] bg-white p-4">
               <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--color-text-muted)]">
-                Ostvari 100€ popusta — evo kako
+                {copy.stepsTitle}
               </p>
               <ol className="space-y-1.5 text-sm text-[var(--color-text-muted)]">
                 <li className="flex gap-2">
                   <span className="shrink-0 font-black text-[var(--accent)]">1.</span>
-                  Preuzmi sliku i objavi je na Instagram, Facebook ili TikTok
+                  {copy.step1}
                 </li>
                 <li className="flex gap-2">
                   <span className="shrink-0 font-black text-[var(--accent)]">2.</span>
-                  U objavi označi ili zaprati{' '}
+                  {copy.step2Prefix}{' '}
                   <strong className="text-[var(--color-text)]">@MojAutoDiler</strong>
                 </li>
                 <li className="flex gap-2">
                   <span className="shrink-0 font-black text-[var(--accent)]">3.</span>
-                  Pošalji nam screenshot objave kroz kontakt formu
+                  {copy.step3}
                 </li>
                 <li className="flex gap-2">
                   <span className="shrink-0 font-black text-[var(--accent)]">4.</span>
-                  Popust od 100€ se pripisuje pri kupovini vozila
+                  {copy.step4}
                 </li>
               </ol>
               <p className="mt-3 rounded-lg bg-[var(--color-surface-2)] px-3 py-2 text-xs text-[var(--color-text-muted)]">
-                Napomena: automatsko objavljivanje na Instagram i TikTok nije moguće putem
-                pregledača — potrebno je ručno objavljivanje nakon preuzimanja slike.
+                {copy.note}
               </p>
             </div>
 
@@ -290,9 +344,9 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
               className="btn-gold inline-flex min-h-10 items-center gap-2 rounded-xl px-5 text-sm disabled:opacity-55"
             >
               <Download size={15} />
-              {exporting    ? 'Generišem...'  :
-               !canvasReady ? 'Učitavanje...' :
-               'Preuzmi sliku'}
+              {exporting    ? copy.exporting  :
+               !canvasReady ? copy.loading :
+               copy.downloadImage}
             </button>
           </div>
         )}
@@ -301,14 +355,14 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
       {/* ── CTA to contact form ───────────────────────────────────────────────── */}
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--accent-border)] pt-4">
         <p className="text-xs text-[var(--color-text-muted)]">
-          Već imaš screenshot objave? Pošalji nam ga odmah i ostvari popust.
+          {copy.ctaText}
         </p>
         <Link
           href={contactHref}
           className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--accent-border)] bg-white px-4 py-2.5 text-sm font-bold text-[var(--color-text)] transition hover:bg-[var(--accent-soft)]"
         >
           <ExternalLink size={13} />
-          Pošalji screenshot
+          {copy.ctaButton}
         </Link>
       </div>
 

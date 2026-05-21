@@ -37,8 +37,35 @@ interface ContactClientProps {
 // `dealer` is kept in props for when the left-side contact info block is restored
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function ContactClient({ locale, t, dealer, heroVehicle, discountMode, discountVehicleTitle }: ContactClientProps) {
+  const discountCopy = locale === 'sq'
+    ? {
+        defaultMessage: (title: string) => `Përshëndetje, po dërgoj screenshot-in për zbritjen 100€ nga shpërndarja e automjetit: ${title}.`,
+        formatsError: 'Formatet e lejuara: JPG, PNG, WEBP',
+        sizeError: 'Madhësia maksimale është 5 MB',
+        bannerTitle: 'Me shpërndarje përfitoni 100€ zbritje',
+        vehicle: 'Automjeti',
+        bannerText: 'Bashkëngjitni screenshot-in e postimit ose etiketimit në fushën më poshtë.',
+        successFollowUp: 'Do t’ju kontaktojmë së shpejti.',
+        attachLabel: 'Bashkëngjit imazh (opsionale)',
+        helperText: 'Dërgoni screenshot-in e postimit që ta evidentojmë zbritjen tuaj.',
+        removeImage: 'Hiq imazhin',
+        uploadText: 'Klikoni për të shtuar imazh - JPG, PNG, WEBP, maks. 5 MB',
+      }
+    : {
+        defaultMessage: (title: string) => `Zdravo, šaljem screenshot o deljenju za 100€ popusta za vozilo: ${title}.`,
+        formatsError: 'Dozvoljeni formati: JPG, PNG, WEBP',
+        sizeError: 'Maksimalna veličina je 5 MB',
+        bannerTitle: 'Deljenjem ostvarujete 100€ popusta',
+        vehicle: 'Vozilo',
+        bannerText: 'Priložite screenshot vaše objave ili tagovanja u polju ispod.',
+        successFollowUp: 'Kontaktiraćemo vas uskoro.',
+        attachLabel: 'Priloži sliku (opciono)',
+        helperText: 'Pošaljite screenshot objave kako bismo evidentirali vaš popust.',
+        removeImage: 'Ukloni sliku',
+        uploadText: 'Klikni za dodavanje slike — JPG, PNG, WEBP, max 5 MB',
+      };
   const defaultMessage = discountMode && discountVehicleTitle
-    ? `Zdravo, šaljem screenshot o deljenju za 100€ popusta za vozilo: ${discountVehicleTitle}.`
+    ? discountCopy.defaultMessage(discountVehicleTitle)
     : '';
   const [form, setForm]             = useState({ name: '', phone: '', email: '', message: defaultMessage });
   const [submitted, setSubmitted]   = useState(false);
@@ -56,12 +83,12 @@ export default function ContactClient({ locale, t, dealer, heroVehicle, discount
     if (!file) { setImageFile(null); setImagePreview(''); return; }
 
     if (!ACCEPTED_MIMES.includes(file.type)) {
-      setImageError('Dozvoljeni formati: JPG, PNG, WEBP');
+      setImageError(discountCopy.formatsError);
       setImageFile(null); setImagePreview('');
       return;
     }
     if (file.size > MAX_BYTES) {
-      setImageError('Maksimalna veličina je 5 MB');
+      setImageError(discountCopy.sizeError);
       setImageFile(null); setImagePreview('');
       return;
     }
@@ -146,14 +173,14 @@ export default function ContactClient({ locale, t, dealer, heroVehicle, discount
             {/* Discount context banner — shown when arriving from vehicle share flow */}
             {discountMode && (
               <div className="mb-5 rounded-2xl border border-[var(--accent-border)] bg-[var(--accent-soft)] p-4">
-                <p className="text-sm font-black text-[var(--color-text)]">Deljenjem ostvarujete 100€ popusta</p>
+                <p className="text-sm font-black text-[var(--color-text)]">{discountCopy.bannerTitle}</p>
                 {discountVehicleTitle && (
                   <p className="mt-1 text-xs text-[var(--color-text-muted)]">
-                    Vozilo: <strong className="text-[var(--color-text)]">{discountVehicleTitle}</strong>
+                    {discountCopy.vehicle}: <strong className="text-[var(--color-text)]">{discountVehicleTitle}</strong>
                   </p>
                 )}
                 <p className="mt-1.5 text-xs text-[var(--color-text-muted)]">
-                  Priložite screenshot vaše objave ili tagovanja u polju ispod.
+                  {discountCopy.bannerText}
                 </p>
               </div>
             )}
@@ -164,7 +191,7 @@ export default function ContactClient({ locale, t, dealer, heroVehicle, discount
                   <Check size={28} />
                 </div>
                 <p className="font-bold text-[var(--color-text)]">{t.contact.success}</p>
-                <p className="text-sm text-[var(--color-text-muted)]">Kontaktiraćemo vas uskoro.</p>
+                <p className="text-sm text-[var(--color-text-muted)]">{discountCopy.successFollowUp}</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-5">
@@ -211,11 +238,11 @@ export default function ContactClient({ locale, t, dealer, heroVehicle, discount
                 {/* ── Image attachment ─────────────────────────────────────────── */}
                 <div className="space-y-2">
                   <span className="block text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--color-text-2)]">
-                    Priloži sliku (opciono)
+                    {discountCopy.attachLabel}
                   </span>
                   {discountMode && (
                     <p className="text-xs text-[var(--color-text-muted)]">
-                      Pošaljite screenshot objave kako bismo evidentirali vaš popust.
+                      {discountCopy.helperText}
                     </p>
                   )}
 
@@ -239,7 +266,7 @@ export default function ContactClient({ locale, t, dealer, heroVehicle, discount
                       <button
                         type="button"
                         onClick={clearImage}
-                        aria-label="Ukloni sliku"
+                        aria-label={discountCopy.removeImage}
                         className="shrink-0 rounded-lg p-1.5 text-[var(--color-text-muted)] transition hover:bg-[var(--color-border)] hover:text-[var(--color-text)]"
                       >
                         <X size={16} />
@@ -250,7 +277,7 @@ export default function ContactClient({ locale, t, dealer, heroVehicle, discount
                     <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-[var(--color-border)] px-4 py-4 transition hover:border-[var(--accent-border)] hover:bg-[var(--accent-soft)]">
                       <Paperclip size={16} className="shrink-0 text-[var(--accent)]" />
                       <span className="select-none text-sm text-[var(--color-text-muted)]">
-                        Klikni za dodavanje slike — JPG, PNG, WEBP, max 5 MB
+                        {discountCopy.uploadText}
                       </span>
                       <input
                         ref={fileInputRef}

@@ -48,14 +48,14 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
   const contact = resolveVehicleContact(vehicle, dealer);
   const quickActionCopy = locale === 'sq'
     ? {
-        book: 'Rezervo shikim',
-        video: 'Kerko video',
-        availability: 'Kontrollo disponueshmerine',
+        book: 'Rezervo shikimin',
+        video: 'Kërko video',
+        availability: 'Kontrollo disponueshmërinë',
         reserve: 'Rezervo automjetin',
-        viber: 'Pyet ne Viber',
-        confidenceTitle: 'Pse ky automjet dallohet',
-        confidenceSub: 'Perzgjedhje e kujdesshme, kontroll profesional dhe prezantim transparent para vendimit.',
-        bullets: ['Kilometrazha dhe dokumentet kontrollohen para publikimit.', 'Automjeti vleresohet vizualisht dhe teknikisht para rekomandimit.', 'Import i zgjedhur me kujdes per bleres serioze.', 'Proces blerjeje i qarte, pa presion dhe pa kosto te fshehura.'],
+        viber: 'Pyet në Viber',
+        confidenceTitle: 'Pse dallohet ky automjet',
+        confidenceSub: 'Përzgjedhje e kujdesshme, kontroll profesional dhe prezantim transparent para vendimit.',
+        bullets: ['Kilometrazha dhe dokumentet kontrollohen para publikimit.', 'Automjeti vlerësohet vizualisht dhe teknikisht para rekomandimit.', 'Import i zgjedhur me kujdes për blerës seriozë.', 'Proces blerjeje i qartë, pa presion dhe pa kosto të fshehura.'],
       }
     : {
         book: 'Zakazi gledanje',
@@ -66,6 +66,33 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
         confidenceTitle: 'Zasto se ovo vozilo izdvaja',
         confidenceSub: 'Pazljivo odabrano vozilo, profesionalno provereno i predstavljeno transparentno pre odluke.',
         bullets: ['Kilometraza i dokumentacija proveravaju se pre objave.', 'Vozilo se vizuelno i tehnicki pregleda pre preporuke.', 'Pazljivo selektovan uvoz za kupce koji traze sigurnost.', 'Kupovina je jasna, bez pritiska i bez skrivenih stavki.'],
+      };
+  const vehicleDetailCopy = locale === 'sq'
+    ? {
+        home: 'Kryefaqja',
+        backToInventory: 'Kthehu te lista e automjeteve',
+        dealerConfidence: 'Besueshmëria e dilerit',
+        quickActionsTitle: 'Veprime të shpejta për blerësit',
+        quickActionsSub: 'Zgjidhni hapin e radhës për këtë automjet.',
+        priceLabel: 'Çmimi i automjetit',
+        promoEyebrow: 'Aksion special',
+        promoTitle: 'Përfito 100€ zbritje',
+        promoText: 'Shpërndaj një automjet nga oferta jonë, ndiq dhe etiketo MojAutoDiler, pastaj na dërgo screenshot-in.',
+        promoRule: 'Zbritja është fikse 100€ dhe nuk rritet duke shpërndarë më shumë automjete.',
+        promoButton: 'Dërgo screenshot-in',
+      }
+    : {
+        home: 'Početna',
+        backToInventory: 'Nazad na listu vozila',
+        dealerConfidence: 'Dealer confidence',
+        quickActionsTitle: 'Brze akcije za kupce',
+        quickActionsSub: 'Izaberite najbrzi sledeci korak za ovo vozilo.',
+        priceLabel: 'Cena vozila',
+        promoEyebrow: 'Posebna akcija',
+        promoTitle: 'Ostvari 100€ popusta',
+        promoText: 'Podeli jedno drugo vozilo iz naše ponude, zaprati i taguj MojAutoDiler, pa nam pošalji screenshot.',
+        promoRule: 'Popust je fiksno 100€ i ne uvećava se deljenjem više vozila.',
+        promoButton: 'Pošalji screenshot',
       };
   const platformDisclaimer = locale === 'sq'
     ? 'Automjetet ne platforme vijne nga oferta e auto dilereve partnere te perzgjedhur. MojAutoDiler nuk i posedon domosdoshmerisht te gjitha automjetet direkt, por i kuron dhe i prezanton ne nje vend per nje pregled me te lehte dhe me te sigurt.'
@@ -145,7 +172,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
       <div className="bg-white border-b border-(--color-border)">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-2 text-xs text-(--color-text-muted)">
           <Link href={`/${locale}`} className="hover:text-(--color-text) transition-colors">
-            Početna
+            {vehicleDetailCopy.home}
           </Link>
           <span>/</span>
           <Link href={`/${locale}/inventory`} className="hover:text-(--color-text) transition-colors">
@@ -163,7 +190,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
           style={{ fontFamily: 'var(--font-display)' }}
         >
           <ArrowLeft size={15} />
-          Nazad na listu vozila
+          {vehicleDetailCopy.backToInventory}
         </Link>
 
         <div className="grid gap-6 min-[390px]:gap-8 lg:grid-cols-[1fr_340px]">
@@ -245,12 +272,16 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                 <span className="absolute inset-0 bg-black/10" aria-hidden="true" />
                 {activeImageUrl && <span className="vehicle-watermark" aria-hidden="true">MOJAUTODILER</span>}
 
-                {/* Transparent lightbox trigger */}
+                {/* Transparent lightbox trigger
+                    suppressHydrationWarning: password-manager extensions inject
+                    fdprocessedid on this button client-side; the prop prevents
+                    React from reporting a mismatch for that attribute. */}
                 <button
                   type="button"
                   className="absolute inset-0 cursor-zoom-in"
                   onClick={() => setLightboxOpen(true)}
                   aria-label="Otvori galeriju"
+                  suppressHydrationWarning
                 />
 
                 {/* Nav arrows — after the click target, naturally on top in stacking order */}
@@ -315,7 +346,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                 <div className="max-w-2xl">
                   <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-xs font-bold text-[var(--accent-dark)] shadow-sm">
                     <ShieldCheck size={14} />
-                    Dealer confidence
+                    {vehicleDetailCopy.dealerConfidence}
                   </div>
                   <h2 className="text-xl font-black text-[var(--color-text)] min-[390px]:text-2xl" style={{ fontFamily: 'var(--font-display)' }}>
                     {quickActionCopy.confidenceTitle}
@@ -337,8 +368,8 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
             <section className="rounded-3xl border border-(--color-border) bg-white p-4 shadow-sm min-[390px]:p-5 sm:p-6">
               <div className="mb-4 flex items-center justify-between gap-3">
                 <div>
-                  <h2 className="font-black text-(--color-text)" style={{ fontFamily: 'var(--font-display)' }}>Brze akcije za kupce</h2>
-                  <p className="mt-1 text-sm text-(--color-text-muted)">Izaberite najbrzi sledeci korak za ovo vozilo.</p>
+                  <h2 className="font-black text-(--color-text)" style={{ fontFamily: 'var(--font-display)' }}>{vehicleDetailCopy.quickActionsTitle}</h2>
+                  <p className="mt-1 text-sm text-(--color-text-muted)">{vehicleDetailCopy.quickActionsSub}</p>
                 </div>
                 <MessageCircle size={20} className="shrink-0 text-[var(--accent)]" />
               </div>
@@ -544,7 +575,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
 
                 <div className="relative border-b border-[var(--color-border)] pb-5">
                   <p className="mb-2 text-[11px] font-black uppercase tracking-[0.18em] text-[var(--color-text-muted)]">
-                    Cena vozila
+                    {vehicleDetailCopy.priceLabel}
                   </p>
                   <div
                     className="text-[2rem] font-black leading-none text-[var(--color-text)] min-[390px]:text-[2.35rem]"
@@ -649,26 +680,26 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-[var(--accent)]" aria-hidden="true" />
 
                 <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--accent-dark)]">
-                  Posebna akcija
+                  {vehicleDetailCopy.promoEyebrow}
                 </p>
                 <h3
                   className="text-base font-black leading-snug text-[var(--color-text)]"
                   style={{ fontFamily: 'var(--font-display)' }}
                 >
-                  Ostvari 100€ popusta
+                  {vehicleDetailCopy.promoTitle}
                 </h3>
                 <p className="mt-2.5 text-sm leading-6 text-[var(--color-text-muted)]">
-                  Podeli jedno drugo vozilo iz naše ponude, zaprati i taguj MojAutoDiler, pa nam pošalji screenshot.
+                  {vehicleDetailCopy.promoText}
                 </p>
                 <p className="mt-2 text-xs leading-5 text-[var(--color-text-muted)] opacity-70">
-                  Popust je fiksno 100€ i ne uvećava se deljenjem više vozila.
+                  {vehicleDetailCopy.promoRule}
                 </p>
                 <Link
                   href={`/${locale}/contact?discount=share&vehicle=${encodeURIComponent(vehicle.slug)}&vehicleTitle=${encodeURIComponent(vehicle.title)}`}
                   className="btn-gold mt-4 flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm"
                 >
                   <Send size={14} />
-                  Pošalji screenshot
+                  {vehicleDetailCopy.promoButton}
                 </Link>
               </div>
             </div>
@@ -743,7 +774,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
             className="btn-dark touch-target hidden shrink-0 items-center gap-1.5 rounded-xl px-3 py-3 text-xs min-[430px]:flex"
           >
             <CalendarCheck size={14} />
-            Book
+            {quickActionCopy.book}
           </button>
         </div>
       </div>
