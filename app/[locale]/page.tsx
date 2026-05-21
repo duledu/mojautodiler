@@ -10,7 +10,6 @@ import {
   ChevronRight,
   ClipboardCheck,
   KeyRound,
-  Phone,
   ShieldCheck,
   Star,
   Wrench,
@@ -73,7 +72,7 @@ const homeCopy = {
       ['Auto je bio tacno kao u opisu. Dogovor i preuzimanje su prosli profesionalno.', 'Arben K.', 'Verified buyer'],
     ],
     ctaTitle: 'Spremni za razgledanje?',
-    ctaSub: 'Tu smo za sva pitanja oko vozila, kupovine i rezervacije. Pošaljite poruku ili nas pozovite direktno.',
+    ctaSub: 'Tu smo za sva pitanja oko vozila, kupovine i rezervacije.\nPošaljite poruku i javićemo se u najkraćem roku.',
     ctaBadge: 'Premium ponuda • Preševo',
     ctaPrimary: 'Kontaktirajte nas',
     ctaCall: 'Pozovi direktno',
@@ -130,7 +129,7 @@ const homeCopy = {
       ['Automjeti ishte sakte si ne pershkrim. Marrveshja dhe dorezimi ishin profesionale.', 'Arben K.', 'Verified buyer'],
     ],
     ctaTitle: 'Gati per shikim?',
-    ctaSub: 'Jemi këtu për çdo pyetje rreth automjeteve, blerjes dhe rezervimit. Dërgoni mesazh ose na telefononi drejtpërdrejt.',
+    ctaSub: 'Jemi këtu për çdo pyetje rreth automjeteve, blerjes dhe rezervimit.\nDërgoni mesazh dhe do t\'ju përgjigjemi sa më shpejt.',
     ctaBadge: 'Ofertë premium • Preševo',
     ctaPrimary: 'Kontakto placin',
     ctaCall: 'Telefono direkt',
@@ -459,19 +458,13 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
                 {copy.ctaBadge}
               </div>
               <h2 className="max-w-2xl text-3xl font-black leading-tight text-[var(--color-text)] min-[390px]:text-4xl sm:text-5xl">{copy.ctaTitle}</h2>
-              <p className="mt-4 max-w-xl text-pretty text-sm leading-7 text-[var(--color-text-muted)] min-[390px]:mt-5 min-[390px]:text-base min-[390px]:leading-8">{copy.ctaSub}</p>
+              <p className="mt-4 max-w-xl whitespace-pre-line text-sm leading-7 text-[var(--color-text-muted)] min-[390px]:mt-5 min-[390px]:text-base min-[390px]:leading-8">{copy.ctaSub}</p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
               <Link href={`/${currentLocale}/contact`} className="btn-gold inline-flex min-h-[3.25rem] items-center justify-center gap-2 rounded-xl px-7 text-sm">
                 {copy.ctaPrimary}
                 <ArrowRight size={17} />
               </Link>
-              {dealer.phone && (
-                <a href={`tel:${dealer.phone}`} className="btn-outline inline-flex min-h-[3.25rem] items-center justify-center gap-2 rounded-xl px-7 text-sm">
-                  <Phone size={17} />
-                  {copy.ctaCall}
-                </a>
-              )}
             </div>
           </div>
         </Reveal>
