@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Clock, Mail, MapPin, Phone, ShieldCheck } from 'lucide-react';
+import { Clock, Mail, MapPin, ShieldCheck } from 'lucide-react';
 import { FacebookIcon, InstagramIcon, ViberIcon } from '@/components/ui/SocialIcons';
 import { Locale, TranslationKeys } from '@/lib/i18n';
 import type { DealerInfo } from '@/lib/db/mappers';
@@ -76,31 +76,31 @@ export default function Footer({ locale, t, dealer }: FooterProps) {
             </ul>
           </div>
 
-          {/* Contact */}
+          {/* Contact — phone row hidden; data kept in admin/database */}
           <div>
             <h3 className="mb-5 text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-text)]" style={{ fontFamily: 'var(--font-display)' }}>
               {t.nav.contact}
             </h3>
             <ul className="space-y-4">
-              {dealer.address     && <ContactItem icon={<MapPin size={15} />} text={dealer.address} />}
-              {dealer.phone       && <ContactItem icon={<Phone size={15} />}  text={dealer.phone}   href={`tel:${dealer.phone}`} />}
-              {dealer.email       && <ContactItem icon={<Mail size={15} />}   text={dealer.email}   href={`mailto:${dealer.email}`} />}
-              {dealer.workingHours && <ContactItem icon={<Clock size={15} />} text={dealer.workingHours} />}
+              {dealer.address      && <ContactItem icon={<MapPin size={15} />} text={dealer.address} />}
+              {dealer.email        && <ContactItem icon={<Mail size={15} />}   text={dealer.email}   href={`mailto:${dealer.email}`} />}
+              {dealer.workingHours && <ContactItem icon={<Clock size={15} />}  text={dealer.workingHours} />}
             </ul>
           </div>
 
-          {/* CTA card */}
+          {/* CTA card — phone button hidden; card title and description kept */}
           <div className="rounded-2xl border border-[var(--accent-border)] bg-[var(--accent-soft)] p-5">
             <h3 className="text-base font-black text-[var(--color-text)]" style={{ fontFamily: 'var(--font-display)' }}>
               {t.contact.title}
             </h3>
             <p className="mt-3 text-sm leading-7 text-[var(--color-text-muted)]">{t.contact.subtitle}</p>
+            {/* Phone CTA button — temporarily hidden; dealer phone data kept in system.
             {dealer.phone && (
               <a href={`tel:${dealer.phone}`} className="btn-gold mt-5 inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm">
                 <Phone size={14} />
                 {t.common.call}
               </a>
-            )}
+            )} */}
           </div>
         </div>
 

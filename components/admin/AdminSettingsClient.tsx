@@ -144,7 +144,7 @@ export default function AdminSettingsClient({ dealer }: Props) {
           </div>
 
           <InputField label="Viber broj" icon={Phone} value={form.viber} onChange={update('viber')} type="tel" placeholder="+381 64 000 0000" />
-          <InputField label="Email" icon={Mail} value={form.email} onChange={update('email')} type="email" placeholder="info@mojautodiler.rs" />
+          <InputField label="Email" icon={Mail} value={form.email} onChange={update('email')} type="email" placeholder="info@mojautodiler.com" />
           <InputField label="Adresa" icon={MapPin} value={form.address} onChange={update('address')} placeholder="Srbija" />
 
           <div className="space-y-2">

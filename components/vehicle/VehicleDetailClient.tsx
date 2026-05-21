@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FacebookIcon, InstagramIcon, ViberIcon } from '@/components/ui/SocialIcons';
@@ -15,10 +16,17 @@ import { formatPrice, formatMileage, cn, formatVatMode } from '@/lib/utils';
 import type { DealerInfo } from '@/lib/db/mappers';
 import { resolveVehicleContact } from '@/lib/vehicle-contact';
 import VehicleCard from '@/components/vehicle/VehicleCard';
+import VehicleShareSection from '@/components/vehicle/VehicleShareSection';
 import MobileContactFab from '@/components/vehicle/MobileContactFab';
 import PremiumVehiclePlaceholder from '@/components/vehicle/PremiumVehiclePlaceholder';
 import { getVehicleTrustBadges, TrustBadges } from '@/components/vehicle/TrustBadges';
 import VehicleStatusBadge from '@/components/vehicle/VehicleStatusBadge';
+
+// ssr: false guarantees no SSR output → zero hydration mismatch risk
+const VehicleTitleShareButton = dynamic(
+  () => import('@/components/vehicle/VehicleTitleShareButton'),
+  { ssr: false },
+);
 
 interface Props {
   readonly vehicle: Vehicle;
@@ -163,12 +171,19 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
           <div className="min-w-0 space-y-5 min-[390px]:space-y-7">
             {/* Title */}
             <div>
-              <h1
-                className="text-xl font-black leading-tight text-(--color-text) min-[390px]:text-2xl sm:text-4xl"
-                style={{ fontFamily: 'var(--font-display)' }}
-              >
-                {vehicle.title}
-              </h1>
+              <div className="flex items-start justify-between gap-3">
+                <h1
+                  className="text-xl font-black leading-tight text-(--color-text) min-[390px]:text-2xl sm:text-4xl"
+                  style={{ fontFamily: 'var(--font-display)' }}
+                >
+                  {vehicle.title}
+                </h1>
+                <VehicleTitleShareButton
+                  vehicleSlug={vehicle.slug}
+                  vehicleTitle={vehicle.title}
+                  locale={locale}
+                />
+              </div>
               <p className="mt-1.5 text-(--color-text-muted)">
                 {vehicle.year}. godište · {t.condition[vehicle.condition]}
               </p>
@@ -453,6 +468,9 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
               </div>
             </div>
 
+            {/* Share + discount section */}
+            <VehicleShareSection vehicle={vehicle} locale={locale} dealer={dealer} />
+
             {/* Inquiry form */}
             <div ref={formRef} className="scroll-mt-28 rounded-2xl border border-(--color-border) bg-white p-4 shadow-[0_2px_12px_rgba(0,0,0,0.05)] min-[390px]:p-6">
               <h3
@@ -613,8 +631,8 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                     </div>
                     <div className="min-w-0">
                       <p className="text-[10px] font-bold uppercase tracking-widest text-(--color-gold-dark)">
-                        {contact.hasPartnerDealer 
-                          ? (locale === 'sq' ? 'Verifikuar' : 'Verifikovan auto diler') 
+                        {contact.hasPartnerDealer
+                          ? (locale === 'sq' ? 'Verifikuar' : 'Verifikovan auto diler')
                           : 'Platforma'}
                       </p>
                       <p className="truncate font-black text-(--color-text) text-base" style={{ fontFamily: 'var(--font-display)' }}>
@@ -623,6 +641,35 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                     </div>
                   </div>
                 </div>
+              </div>
+
+              {/* 100€ discount sidebar promo card */}
+              <div className="relative overflow-hidden rounded-2xl border border-[var(--accent-border)] bg-white p-5 shadow-sm">
+                {/* Thin gold top accent — matches the price card language */}
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-[var(--accent)]" aria-hidden="true" />
+
+                <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--accent-dark)]">
+                  Posebna akcija
+                </p>
+                <h3
+                  className="text-base font-black leading-snug text-[var(--color-text)]"
+                  style={{ fontFamily: 'var(--font-display)' }}
+                >
+                  Ostvari 100€ popusta
+                </h3>
+                <p className="mt-2.5 text-sm leading-6 text-[var(--color-text-muted)]">
+                  Podeli jedno drugo vozilo iz naše ponude, zaprati i taguj MojAutoDiler, pa nam pošalji screenshot.
+                </p>
+                <p className="mt-2 text-xs leading-5 text-[var(--color-text-muted)] opacity-70">
+                  Popust je fiksno 100€ i ne uvećava se deljenjem više vozila.
+                </p>
+                <Link
+                  href={`/${locale}/contact?discount=share&vehicle=${encodeURIComponent(vehicle.slug)}&vehicleTitle=${encodeURIComponent(vehicle.title)}`}
+                  className="btn-gold mt-4 flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm"
+                >
+                  <Send size={14} />
+                  Pošalji screenshot
+                </Link>
               </div>
             </div>
           </div>

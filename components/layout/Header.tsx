@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { Menu, X, Phone, ShieldCheck } from 'lucide-react';
+import { Menu, X, ShieldCheck } from 'lucide-react';
 import { Locale, localeNames, locales, TranslationKeys } from '@/lib/i18n';
 import type { DealerInfo } from '@/lib/db/mappers';
 import { cn } from '@/lib/utils';
@@ -105,7 +105,7 @@ export default function Header({ locale, t, dealer }: HeaderProps) {
             ))}
           </div>
 
-          {/* Phone CTA — hidden when no phone configured */}
+          {/* Phone CTA — temporarily hidden; dealer phone data kept in system.
           {dealer.phone && (
             <a
               href={`tel:${dealer.phone}`}
@@ -115,7 +115,7 @@ export default function Header({ locale, t, dealer }: HeaderProps) {
               <Phone size={14} />
               <span>{dealer.phone}</span>
             </a>
-          )}
+          )} */}
         </div>
 
         {/* Mobile menu button */}
@@ -166,6 +166,7 @@ export default function Header({ locale, t, dealer }: HeaderProps) {
                 </Link>
               ))}
             </div>
+            {/* Phone CTA — temporarily hidden; dealer phone data kept in system.
             {dealer.phone && (
               <a
                 href={`tel:${dealer.phone}`}
@@ -175,7 +176,7 @@ export default function Header({ locale, t, dealer }: HeaderProps) {
                 <Phone size={14} />
                 {dealer.phone}
               </a>
-            )}
+            )} */}
           </div>
         </div>
       )}
