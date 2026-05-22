@@ -33,7 +33,7 @@ export default function HeroVehicleCard({
           {mainImage ? (
             <Image
               src={mainImage}
-              alt={vehicle.title}
+              alt={`${vehicle.title} ${vehicle.year} — premium uvozno vozilo`}
               width={1200}
               height={800}
               priority

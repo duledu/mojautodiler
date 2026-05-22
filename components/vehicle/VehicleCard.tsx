@@ -33,7 +33,7 @@ export default function VehicleCard({ vehicle, locale, t }: VehicleCardProps) {
           {mainImage ? (
             <Image
               src={mainImage}
-              alt={vehicle.title}
+              alt={`${vehicle.title} ${vehicle.year}`}
               width={800}
               height={500}
               sizes="(min-width: 1280px) 25vw, (min-width: 640px) 50vw, 100vw"

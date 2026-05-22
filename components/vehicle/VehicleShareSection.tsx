@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import {
-  Camera, Check, ChevronDown, ChevronUp, Download, ExternalLink, Gift, Share2,
+  Camera, Check, ChevronDown, ChevronUp, Download, ExternalLink, Gift, Loader2, Share2,
 } from 'lucide-react';
 import type { Vehicle } from '@/types/vehicle';
 import type { Locale } from '@/lib/i18n';
@@ -14,6 +14,11 @@ import { SocialCreativeCanvas, CREATIVE_DIMS, CreativeFormat } from '@/component
 
 const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mojautodiler.com').replace(/\/$/, '');
 
+// Mobile: keep the source image under this byte limit to avoid OOM during export.
+// The proxy already returns the full image; we don't compress it further because
+// html-to-image will rasterise it at canvas resolution anyway.
+const FETCH_TIMEOUT_MS = 10_000;
+
 interface Props {
   readonly vehicle: Vehicle;
   readonly locale: Locale;
@@ -21,15 +26,17 @@ interface Props {
 }
 
 export default function VehicleShareSection({ vehicle, locale, dealer }: Props) {
-  const [copied, setCopied]         = useState(false);
+  const [copied, setCopied]           = useState(false);
   const [showDownload, setShowDownload] = useState(false);
-  const [format, setFormat]         = useState<CreativeFormat>('square');
-  const [exporting, setExporting]   = useState(false);
+  const [format, setFormat]           = useState<CreativeFormat>('square');
+  const [exporting, setExporting]     = useState(false);
+  const [loadingData, setLoadingData] = useState(false);
   const [imageDataUrl, setImageDataUrl] = useState('');
-  const [qrDataUrl, setQrDataUrl]   = useState('');
-  const [loadError, setLoadError]   = useState('');
-  const [mounted, setMounted]       = useState(false);
+  const [qrDataUrl, setQrDataUrl]     = useState('');
+  const [loadError, setLoadError]     = useState('');
+  const [mounted, setMounted]         = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
+
   const copy = locale === 'sq'
     ? {
         formatLabels: {
@@ -99,8 +106,13 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
   const vehicleUrl  = `${SITE}/${locale}/vehicle/${vehicle.slug}`;
   const shareText   = `${copy.shareIntro}\n${vehicle.title}\n${vehicleUrl}`;
   const contactHref = `/${locale}/contact?vehicle=${encodeURIComponent(vehicle.slug)}&discount=share&vehicleTitle=${encodeURIComponent(vehicle.title)}`;
-  const canvasReady = Boolean(imageDataUrl && qrDataUrl);
   const dims        = CREATIVE_DIMS[format];
+
+  // FIX: canvasReady only requires the QR code. Vehicle image is optional —
+  // SocialCreativeCanvas renders gracefully without it (dark background).
+  // Previously: Boolean(imageDataUrl && qrDataUrl) → if image fetch failed,
+  // imageDataUrl='' and '' && qrDataUrl === '' → canvasReady=false forever.
+  const canvasReady = Boolean(qrDataUrl);
 
   // ── Share / copy ─────────────────────────────────────────────────────────────
   const copyToClipboard = async (text: string) => {
@@ -121,24 +133,39 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
 
   // ── Canvas data ───────────────────────────────────────────────────────────────
   const loadCanvasData = async () => {
+    setLoadingData(true);
     setLoadError('');
     try {
-      // 1. Vehicle image → base64 via existing proxy (no auth needed)
+      // 1. Vehicle image → base64 via proxy (no auth needed).
+      //    Wrapped in its own try/catch so a failed image never blocks the QR step.
       let imgDataUrl = '';
       const imgUrl = vehicle.images[0]?.url;
       if (imgUrl) {
-        const resp = await fetch(`/api/admin/proxy-image?url=${encodeURIComponent(imgUrl)}`);
-        if (resp.ok) {
-          const blob = await resp.blob();
-          imgDataUrl = await new Promise<string>((resolve) => {
-            const r = new FileReader();
-            r.onload = () => resolve(r.result as string);
-            r.readAsDataURL(blob);
-          });
+        try {
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+          const resp = await fetch(
+            `/api/admin/proxy-image?url=${encodeURIComponent(imgUrl)}`,
+            { signal: controller.signal },
+          );
+          clearTimeout(timer);
+          if (resp.ok) {
+            const blob = await resp.blob();
+            // FIX: FileReader now has an onerror handler so the Promise never hangs.
+            imgDataUrl = await new Promise<string>((resolve) => {
+              const r = new FileReader();
+              r.onload  = () => resolve(r.result as string);
+              r.onerror = () => resolve(''); // graceful fallback — canvas renders without image
+              r.readAsDataURL(blob);
+            });
+          }
+        } catch {
+          // Network timeout, CORS, or abort — proceed without image.
+          // Canvas will render with a dark background; QR + text still usable.
         }
       }
 
-      // 2. QR code (client-side)
+      // 2. QR code (client-side).
       const QRCode = (await import('qrcode')).default;
       const qr = await QRCode.toDataURL(vehicleUrl, {
         width: 360,
@@ -151,37 +178,74 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
       setQrDataUrl(qr);
     } catch {
       setLoadError(copy.loadError);
+    } finally {
+      setLoadingData(false);
     }
   };
 
   const handleToggleDownload = async () => {
     const next = !showDownload;
     setShowDownload(next);
-    if (next && !canvasReady) await loadCanvasData();
+    if (next && !canvasReady && !loadingData) {
+      await loadCanvasData();
+    }
   };
 
   // ── Export ────────────────────────────────────────────────────────────────────
   const handleDownload = async () => {
-    if (!canvasRef.current || !canvasReady) return;
+    if (!canvasRef.current || !canvasReady || exporting) return;
     setExporting(true);
     try {
-      const { toPng } = await import('html-to-image');
-      const dataUrl = await toPng(canvasRef.current, {
+      // FIX: Wait for every <img> in the canvas to finish decoding before
+      // capturing. html-to-image snapshots the DOM immediately — if the vehicle
+      // image hasn't painted yet the export is blank. img.decode() resolves only
+      // once the image is fully decoded and ready to rasterise.
+      const imgs = Array.from(canvasRef.current.querySelectorAll('img'));
+      await Promise.all(imgs.map(img => img.decode().catch(() => {})));
+
+      // Short settle: lets the browser flush any pending paints to the off-screen
+      // element before html-to-image walks the DOM tree.
+      await new Promise(r => setTimeout(r, 80));
+
+      // FIX: Use toBlob instead of toPng.
+      //   • toBlob skips the data-URL base64 round-trip (saves ~33 % memory).
+      //   • cacheBust: false — all resources are already data: URLs; re-fetching
+      //     them with a cache-busting param wastes time and fails on mobile CORS.
+      const { toBlob } = await import('html-to-image');
+      const blob = await toBlob(canvasRef.current, {
         width:      dims.w,
         height:     dims.h,
         pixelRatio: 1,
-        cacheBust:  true,
+        cacheBust:  false,
+        type:       'image/png',
       });
+
+      if (!blob) throw new Error('toBlob returned null');
+
+      // FIX: Blob-URL anchor is the only reliably cross-platform mobile download
+      // method. data-URL href clicks are blocked on iOS Safari and truncated on
+      // some Android browsers when the URL exceeds ~2 MB.
+      const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href     = dataUrl;
+      a.href     = url;
       a.download = `${vehicle.slug}-${format}.png`;
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
+      // Revoke after a generous delay so the OS download manager can finish reading.
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
     } catch {
       setLoadError(copy.downloadError);
     } finally {
       setExporting(false);
     }
   };
+
+  const isButtonBusy = exporting || loadingData;
+  const buttonLabel  = exporting   ? copy.exporting
+                     : loadingData ? copy.loading
+                     : !canvasReady ? copy.loading
+                     : copy.downloadImage;
 
   return (
     <section className="rounded-3xl border border-[var(--accent-border)] bg-gradient-to-br from-[var(--accent-soft)] via-white to-white p-5 shadow-sm sm:p-6">
@@ -226,7 +290,6 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
           href={`viber://forward?text=${encodeURIComponent(shareText)}`}
           className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[#7360F2]/20 bg-[#7360F2]/6 px-3.5 text-sm font-semibold text-[#6B5FDB] transition hover:bg-[#7360F2]/12"
         >
-          {/* Viber icon */}
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M11.4 0C5.4 0 .6 4.8.6 10.8c0 3 1.2 5.7 3.3 7.8L2.4 24l5.7-1.5c1.5.6 3 .9 4.5.9 6 0 10.8-4.8 10.8-10.8S17.4 0 11.4 0zm5.4 15.6c-.3.6-.9 1.2-1.5 1.2-.3 0-.9-.3-2.1-.9-1.2-.6-2.1-1.2-2.7-2.1-.9-.9-1.5-1.8-2.1-2.7-.6-1.2-.9-1.8-.9-2.1 0-.6.6-1.2 1.2-1.5.3-.3.6-.3.9-.3.3 0 .6 0 .9.9.3.9.9 2.1.9 2.1s.3.3 0 .6c0 .3-.3.6-.6.9l-.3.3c.3.6.9 1.2 1.5 1.8.6.6 1.2 1.2 1.8 1.5l.3-.3c.3-.3.6-.6.9-.6h.6s1.2.6 2.1.9c.9.3.9.6.9.9 0 .3 0 .6-.3.9z" />
           </svg>
@@ -240,7 +303,6 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
           rel="noopener noreferrer"
           className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[#25D366]/20 bg-[#25D366]/6 px-3.5 text-sm font-semibold text-[#128C7E] transition hover:bg-[#25D366]/12"
         >
-          {/* WhatsApp icon */}
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
           </svg>
@@ -254,13 +316,11 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
           rel="noopener noreferrer"
           className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[#1877F2]/20 bg-[#1877F2]/6 px-3.5 text-sm font-semibold text-[#1877F2] transition hover:bg-[#1877F2]/12"
         >
-          {/* Facebook icon */}
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
           </svg>
           Facebook
         </a>
-
       </div>
 
       {/* ── Social image download ─────────────────────────────────────────────── */}
@@ -340,13 +400,13 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
             <button
               type="button"
               onClick={handleDownload}
-              disabled={exporting || !canvasReady}
+              disabled={isButtonBusy || !canvasReady}
               className="btn-gold inline-flex min-h-10 items-center gap-2 rounded-xl px-5 text-sm disabled:opacity-55"
             >
-              <Download size={15} />
-              {exporting    ? copy.exporting  :
-               !canvasReady ? copy.loading :
-               copy.downloadImage}
+              {isButtonBusy
+                ? <Loader2 size={15} className="animate-spin" />
+                : <Download size={15} />}
+              {buttonLabel}
             </button>
           </div>
         )}
@@ -366,9 +426,10 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
         </Link>
       </div>
 
-      {/* ── Off-screen canvas portal (capture target for html-to-image) ─────────
-          Rendered only after image+QR are ready, positioned far off-screen so it
-          never interferes with the visible layout. */}
+      {/* ── Off-screen canvas portal (capture target for html-to-image) ───────────
+          Rendered only once QR is ready (canvasReady = Boolean(qrDataUrl)).
+          Vehicle image is optional — canvas renders gracefully without it.
+          Positioned far off-screen so it never interferes with visible layout. */}
       {mounted && canvasReady && createPortal(
         <div
           style={{

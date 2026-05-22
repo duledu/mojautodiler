@@ -24,17 +24,31 @@ export async function generateMetadata(
   if (!vehicle) return {};
 
   const image = vehicle.images[0]?.url;
+  const isSq = locale === 'sq';
   const title = `${vehicle.title} — ${vehicle.year} | ${dealer.name}`;
-  const description = `${vehicle.title}, ${vehicle.year}. godište, ${vehicle.mileage.toLocaleString('sr-RS')} km, ${vehicle.price.toLocaleString('sr-RS')} ${vehicle.currency}. ${(vehicle.description || '').slice(0, 120)}`;
+  const mileageStr = vehicle.mileage.toLocaleString('sr-RS');
+  const priceStr   = vehicle.price.toLocaleString('sr-RS');
+  const snippet    = (vehicle.description || '').slice(0, 100);
+  const description = isSq
+    ? `${vehicle.title}, ${vehicle.year}, ${mileageStr} km, ${priceStr} ${vehicle.currency}. ${snippet}`
+    : `${vehicle.title}, ${vehicle.year}. godište, ${mileageStr} km, ${priceStr} ${vehicle.currency}. ${snippet}`;
+  const isSold = vehicle.status === 'sold';
 
   return {
     title,
     description,
+    ...(isSold ? { robots: { index: false, follow: false } } : {}),
     openGraph: {
       title,
       description,
-      images: image ? [{ url: image, width: 1200, height: 630, alt: vehicle.title }] : [],
+      images: image ? [{ url: image, width: 1200, height: 630, alt: `${vehicle.title} ${vehicle.year}` }] : [],
       type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: image ? [image] : [],
     },
     alternates: {
       canonical: `/${locale}/vehicle/${slug}`,

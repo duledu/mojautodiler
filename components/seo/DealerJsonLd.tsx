@@ -1,3 +1,5 @@
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mojautodiler.rs';
+
 interface DealerInfo {
   name: string;
   phone: string;
@@ -9,11 +11,12 @@ interface DealerInfo {
   mapUrl?: string;
 }
 
-export default function DealerJsonLd({ dealer }: { dealer: DealerInfo }) {
+export default function DealerJsonLd({ dealer }: { readonly dealer: DealerInfo }) {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'AutoDealer',
     name: dealer.name || 'Moj Auto Diler',
+    description: 'Pažljivo odabrana premium vozila iz uvoza sa transparentnom istorijom, dokumentovanim stanjem i sigurnom kupovinom u Srbiji.',
     telephone: dealer.phone,
     email: dealer.email,
     address: {
@@ -23,12 +26,18 @@ export default function DealerJsonLd({ dealer }: { dealer: DealerInfo }) {
       addressCountry: 'RS',
       streetAddress: dealer.address,
     },
-    url: 'https://mojautodiler.rs',
+    url: SITE,
     openingHours: dealer.workingHours,
-    sameAs: [
-      dealer.facebook,
-      dealer.instagram,
-    ].filter(Boolean),
+    areaServed: { '@type': 'Country', name: 'Serbia' },
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: 'Premium uvozna vozila',
+      itemListElement: [{
+        '@type': 'OfferCatalog',
+        name: 'Polovni automobili iz uvoza',
+      }],
+    },
+    sameAs: [dealer.facebook, dealer.instagram].filter(Boolean),
     priceRange: '€€€',
     currenciesAccepted: 'EUR, RSD',
     paymentAccepted: 'Cash, Credit Card, Bank Transfer',
