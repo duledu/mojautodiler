@@ -346,28 +346,29 @@ h1,h2,h3,h4,h5,h6 {
     pointer-events: none;
     user-select: none;
     transform: translate(-50%, -50%) rotate(-15deg);
-    color: rgba(255,255,255,0.16);
+    color: rgba(255,255,255,0.12);
     font-family: var(--font-display);
-    font-size: clamp(1.8rem, 7vw, 5.4rem);
-    font-weight: 800;
+    font-size: clamp(1rem, 3.5vw, 2.6rem);
+    font-weight: 700;
     line-height: 1;
-    letter-spacing: 0.08em;
-    text-shadow: 0 1px 10px rgba(0,0,0,0.18);
+    letter-spacing: 0.06em;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.10);
     white-space: nowrap;
   }
   .vehicle-watermark-thumb {
-    font-size: 0.76rem;
-    letter-spacing: 0.07em;
-    opacity: 0.86;
-    text-shadow: 0 1px 4px rgba(0,0,0,0.24);
+    font-size: 0.52rem;
+    letter-spacing: 0.06em;
+    opacity: 0.80;
+    text-shadow: none;
   }
   .vehicle-lightbox-image {
     line-height: 0;
   }
   .vehicle-watermark-lightbox {
-    color: rgba(255,255,255,0.15);
-    font-size: clamp(2.2rem, 9vw, 7rem);
+    color: rgba(255,255,255,0.11);
+    font-size: clamp(1.1rem, 4.5vw, 3.5rem);
     z-index: 3;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.08);
   }
   .vehicle-watermark-pattern {
     position: absolute;
