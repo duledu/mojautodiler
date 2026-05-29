@@ -177,6 +177,13 @@ const sr = {
     hidden: 'Skriveno',
     draft: 'Nacrt',
   },
+  badges: {
+    featured:      'IZDVOJENA PONUDA',
+    featuredShort: 'Izdvojeno',
+    new:           'NOVO U PONUDI',
+    newShort:      'Novo',
+    akcija:        'AKCIJA',
+  },
   admin: {
     dashboard: 'Kontrolna tabla',
     vehicles: 'Vozila',

@@ -7,6 +7,7 @@ import { cn, formatMileage, formatPrice, formatVatMode } from '@/lib/utils';
 import PremiumVehiclePlaceholder from '@/components/vehicle/PremiumVehiclePlaceholder';
 import { getVehicleTrustBadges, TrustBadges } from '@/components/vehicle/TrustBadges';
 import VehicleStatusBadge from '@/components/vehicle/VehicleStatusBadge';
+import { VehiclePromoBadge } from '@/components/vehicle/VehiclePromoBadge';
 
 interface VehicleCardProps {
   readonly vehicle: Vehicle;
@@ -45,13 +46,11 @@ export default function VehicleCard({ vehicle, locale, t }: VehicleCardProps) {
           <div className="absolute inset-0 bg-black/10" />
 
           {isSold && <VehicleStatusBadge vehicle={vehicle} compact className="absolute left-3 top-3" />}
-          {vehicle.featured && !isSold && (
-            <div
-              className="absolute left-3 top-3 rounded-full bg-[var(--accent)] px-2.5 py-1 text-[11px] font-bold text-white shadow-sm"
-              style={{ fontFamily: 'var(--font-display)' }}
-            >
-              Izdvojeno
-            </div>
+          {!isSold && vehicle.onSale && (
+            <VehiclePromoBadge variant="akcija" locale={locale} compact className="absolute left-3 top-3" />
+          )}
+          {!isSold && !vehicle.onSale && vehicle.featured && (
+            <VehiclePromoBadge variant="featured" locale={locale} compact className="absolute left-3 top-3" />
           )}
 
           {vehicle.images.length > 1 && (

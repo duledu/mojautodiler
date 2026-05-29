@@ -157,6 +157,7 @@ export function toAppVehicle(v: PrismaVehicle & { dealer?: PrismaDealer | null }
     status:        toAppVehicleStatus(v.status),
     featured:      v.featured,
     showcase:      v.showcase,
+    onSale:        v.onSale,
     tags:          v.tags,
     dealerId:      v.dealerId ?? undefined,
     dealer:        v.dealer ? toAppDealer(v.dealer) : undefined,

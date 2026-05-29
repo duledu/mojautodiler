@@ -98,6 +98,7 @@ model Vehicle {
   status         VehicleStatus @default(AVAILABLE)
   featured       Boolean       @default(false)  // homepage hero (max 1)
   showcase       Boolean       @default(false)  // "Aktuelna premium selekcija" (multiple allowed)
+  onSale         Boolean       @default(false)  // "AKCIJA" / "OFERTË" promo badge
 
   dealerId       String?
   dealer         Dealer?       @relation(fields: [dealerId], references: [id], onDelete: SetNull)
@@ -116,6 +117,7 @@ model Vehicle {
   @@index([dealerId])
   @@index([featured])
   @@index([showcase])
+  @@index([onSale])
   @@index([createdAt])
 }
 

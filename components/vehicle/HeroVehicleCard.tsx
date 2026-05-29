@@ -1,12 +1,13 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, Building2, Calendar, Camera, Fuel, Gauge, MapPin, Settings2, ShieldCheck, Star } from 'lucide-react';
+import { ArrowRight, Building2, Calendar, Camera, Fuel, Gauge, MapPin, Settings2, ShieldCheck } from 'lucide-react';
 import { Vehicle } from '@/types/vehicle';
 import { Locale, TranslationKeys } from '@/lib/i18n';
 import { formatMileage, formatPrice, formatVatMode } from '@/lib/utils';
 import PremiumVehiclePlaceholder from '@/components/vehicle/PremiumVehiclePlaceholder';
 import { getVehicleTrustBadges, TrustBadges } from '@/components/vehicle/TrustBadges';
 import VehicleStatusBadge from '@/components/vehicle/VehicleStatusBadge';
+import { VehiclePromoBadge } from '@/components/vehicle/VehiclePromoBadge';
 
 interface HeroVehicleCardProps {
   readonly vehicle: Vehicle;
@@ -46,10 +47,12 @@ export default function HeroVehicleCard({
           {/* Gradient for price readability */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
 
-          {/* Featured badge */}
-          <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-[var(--accent)] px-2.5 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-white shadow-[0_4px_12px_rgba(201,168,76,0.45)] min-[390px]:left-4 min-[390px]:top-4 min-[390px]:px-3.5 min-[390px]:text-[11px]">
-            <Star size={10} fill="currentColor" />
-            {featuredLabel}
+          {/* Featured badge + optional AKCIJA badge, stacked */}
+          <div className="absolute left-3 top-3 flex flex-col items-start gap-1.5 min-[390px]:left-4 min-[390px]:top-4">
+            <VehiclePromoBadge variant="featured" locale={locale} label={featuredLabel} />
+            {vehicle.onSale && (
+              <VehiclePromoBadge variant="akcija" locale={locale} />
+            )}
           </div>
           <VehicleStatusBadge vehicle={vehicle} compact className="absolute right-3 top-3 min-[390px]:right-4 min-[390px]:top-4" />
 

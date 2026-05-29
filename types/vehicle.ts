@@ -77,6 +77,7 @@ export interface Vehicle {
   status: VehicleStatus;
   featured?: boolean;   // homepage hero (max 1 at a time)
   showcase?: boolean;   // "Aktuelna premium selekcija" grid (multiple allowed)
+  onSale?: boolean;     // "AKCIJA" / "OFERTË" promo badge
   tags?: string[];
   dealerNotes?: string;
   dealerId?: string;

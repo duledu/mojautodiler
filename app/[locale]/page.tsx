@@ -78,7 +78,7 @@ const homeCopy = {
     viewDetails: 'Pogledaj detalje',
     stats: [
       ['100+', 'vozila prodato u poslednje 2 godine'],
-      ['5.0', 'ocena kupaca na PolovniAutomobili'],
+      ['5.0', 'ocena kupaca'],
       ['100%', 'zadovoljnih kupaca nakon isporuke'],
       ['24h', 'brz odgovor za pregled vozila'],
     ],
@@ -135,7 +135,7 @@ const homeCopy = {
     viewDetails: 'Shiko detajet',
     stats: [
       ['100+', 'automjete te shitura ne 2 vitet e fundit'],
-      ['5.0', 'vleresim nga bleresit ne PolovniAutomobili'],
+      ['5.0', 'vleresim nga bleresit'],
       ['98%', 'bleres te kenaqur pas dorezimit'],
       ['24h', 'pergjigje e shpejte per shikim'],
     ],
@@ -293,7 +293,18 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
                   className="rounded-xl border border-[var(--color-border)] bg-white/80 p-2.5 shadow-sm min-[390px]:p-3 sm:rounded-2xl sm:p-4"
                 >
                   <div className="text-lg font-black text-[var(--color-text)] min-[390px]:text-xl sm:text-2xl">{value}</div>
-                  <p className="mt-1 text-[10px] leading-[1.3] text-[var(--color-text-muted)] sm:mt-2 sm:text-[11px] sm:leading-4">{label}</p>
+                  {value === '5.0' ? (
+                    <>
+                      <div className="mt-1 flex items-center gap-[3px]">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                          <Star key={i} size={10} fill="currentColor" className="text-[var(--accent)]" />
+                        ))}
+                      </div>
+                      <p className="mt-0.5 text-[10px] leading-[1.3] text-[var(--color-text-muted)] sm:text-[11px] sm:leading-4">{label}</p>
+                    </>
+                  ) : (
+                    <p className="mt-1 text-[10px] leading-[1.3] text-[var(--color-text-muted)] sm:mt-2 sm:text-[11px] sm:leading-4">{label}</p>
+                  )}
                 </Reveal>
               ))}
             </div>

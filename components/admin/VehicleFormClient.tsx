@@ -169,6 +169,7 @@ export default function VehicleFormClient({ mode, vehicle, dealers = [] }: Props
     seoSlug: '',
     featured: false,
     showcase: false,
+    onSale: false,
     dealerId: '',
     contactPhone: '',
     contactViber: '',
@@ -559,6 +560,45 @@ export default function VehicleFormClient({ mode, vehicle, dealers = [] }: Props
                 <span
                   className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
                     form.showcase ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </span>
+            </button>
+
+            {/* AKCIJA toggle — shows the "AKCIJA" / "OFERTË" promo badge on vehicle cards */}
+            <button
+              type="button"
+              role="switch"
+              aria-checked={Boolean(form.onSale)}
+              onClick={() => set('onSale')(!form.onSale)}
+              className={`flex w-full items-center justify-between gap-4 rounded-2xl p-4 text-left transition-colors ${
+                form.onSale
+                  ? 'border border-(--accent-border) bg-(--accent-soft)'
+                  : 'border border-(--color-border) bg-(--color-surface-2) hover:border-(--accent-border)'
+              }`}
+            >
+              <div>
+                <div className="flex items-center gap-2">
+                  <Tag
+                    className={`h-4 w-4 ${form.onSale ? 'text-(--accent)' : 'text-(--color-text-muted)'}`}
+                  />
+                  <span className={`text-sm font-black ${form.onSale ? 'text-(--accent-dark)' : 'text-(--color-text)'}`}>
+                    AKCIJA — posebna ponuda
+                  </span>
+                </div>
+                <p className="mt-0.5 pl-6 text-xs text-(--color-text-muted)">
+                  Prikazuje zlatni "AKCIJA" badge na kartici vozila. Vidljivo na svim stranicama.
+                </p>
+              </div>
+              <span
+                className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
+                  form.onSale ? 'bg-(--accent)' : 'bg-(--color-border)'
+                }`}
+                aria-hidden="true"
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                    form.onSale ? 'translate-x-6' : 'translate-x-1'
                   }`}
                 />
               </span>

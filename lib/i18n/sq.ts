@@ -177,6 +177,13 @@ const sq = {
     hidden: 'I fshehur',
     draft: 'Draft',
   },
+  badges: {
+    featured:      'OFERTË E ZGJEDHUR',
+    featuredShort: 'Zgjedhur',
+    new:           'E RE NË OFERTË',
+    newShort:      'E re',
+    akcija:        'OFERTË',
+  },
   admin: {
     dashboard: 'Paneli i Kontrollit',
     vehicles: 'Automjetet',

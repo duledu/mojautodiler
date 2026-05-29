@@ -192,8 +192,10 @@ export async function createVehicle(input: CreateVehicleInput) {
     status:         toDbVehicleStatus(input.status),
     featured:       input.featured ?? false,
     showcase:       input.showcase ?? false,
+    onSale:         input.onSale ?? false,
     tags:           input.tags ?? [],
-    dealerId:       input.dealerId,
+    // Prisma 6: use nested relation syntax instead of scalar dealerId
+    ...(input.dealerId && { dealer: { connect: { id: input.dealerId } } }),
     contactPhone:   input.contactPhone,
     contactViber:   input.contactViber,
     contactName:    input.contactName,
@@ -211,13 +213,21 @@ export async function createVehicle(input: CreateVehicleInput) {
 }
 
 export async function updateVehicle(id: string, data: Partial<CreateVehicleInput> & { status?: VehicleStatus }) {
-  const { status, vatMode, featured, ...rest } = data;
+  // Prisma 6: scalar foreign-key fields (dealerId) are not accepted directly in
+  // update payloads when a corresponding relation field exists — use nested syntax.
+  const { status, vatMode, featured, onSale, dealerId, ...rest } = data;
 
   const dbData = {
     ...rest,
-    ...(featured !== undefined && { featured }),
-    ...(status === undefined ? {} : { status: toDbVehicleStatus(status) }),
-    ...(vatMode === undefined ? {} : { vatMode: toDbVatMode(vatMode) }),
+    ...(featured  !== undefined && { featured }),
+    ...(onSale    !== undefined && { onSale }),
+    ...(status    === undefined ? {} : { status: toDbVehicleStatus(status) }),
+    ...(vatMode   === undefined ? {} : { vatMode: toDbVatMode(vatMode) }),
+    ...(dealerId  !== undefined && {
+      dealer: dealerId
+        ? { connect: { id: dealerId } }
+        : { disconnect: true },
+    }),
   };
 
   // Promoting a vehicle to hero: atomically demote all others in the same transaction

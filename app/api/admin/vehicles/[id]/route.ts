@@ -82,6 +82,7 @@ export async function PUT(
       ...(body.status   !== undefined && { status:   body.status as VehicleStatus }),
       ...(body.featured !== undefined && { featured: Boolean(body.featured) }),
       ...(body.showcase !== undefined && { showcase: Boolean(body.showcase) }),
+      ...(body.onSale   !== undefined && { onSale:   Boolean(body.onSale) }),
       ...(body.tags     !== undefined && { tags:     body.tags }),
       ...(body.dealerId !== undefined && { dealerId: body.dealerId?.trim() || null }),
       ...(body.contactPhone !== undefined && { contactPhone: body.contactPhone?.trim() || null }),
