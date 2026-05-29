@@ -226,7 +226,7 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
   const [dealer, heroVehicle, featuredVehicles] = await Promise.all([
     getDealerSettings(),
     getHeroVehicle(),
-    getShowcaseVehicles(4),
+    getShowcaseVehicles(8),
   ]);
   const darkTitleParts = copy.darkTitle.split(copy.darkAccent);
 
