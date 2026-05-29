@@ -1,11 +1,33 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { verifySessionToken, ADMIN_COOKIE } from '@/lib/admin-auth';
+import {
+  isSiteLockEnabled,
+  shouldBypassLock,
+  computePreviewToken,
+  LOCK_COOKIE,
+} from '@/lib/site-lock';
 
 const LOCALES = ['sr', 'sq'] as const;
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // ── Site lock (public preview gate) ──────────────────────────────────────────
+  // Runs before admin protection. Bypass list covers admin routes, API, _next,
+  // static assets, and the /lock page itself.
+  if (isSiteLockEnabled() && !shouldBypassLock(pathname)) {
+    const cookie = request.cookies.get(LOCK_COOKIE);
+    const valid  = cookie?.value
+      ? cookie.value === await computePreviewToken()
+      : false;
+
+    if (!valid) {
+      const lockUrl = new URL('/lock', request.url);
+      lockUrl.searchParams.set('from', pathname + (request.nextUrl.search ?? ''));
+      return NextResponse.redirect(lockUrl);
+    }
+  }
 
   // ── Protect admin JSON API routes (/api/admin/* except auth endpoints) ────
   if (pathname.startsWith('/api/admin/') && !pathname.startsWith('/api/admin/auth/')) {
@@ -43,10 +65,9 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Locale-prefixed admin UI pages
-    '/sr/admin/:path*',
-    '/sq/admin/:path*',
-    // Admin API routes (auth endpoints are excluded in the handler above)
-    '/api/admin/:path*',
+    // All routes except Next.js static files and images — lock check needs full coverage.
+    // The shouldBypassLock() helper inside the proxy handler excludes admin, api,
+    // _next, and static assets from the lock check.
+    '/((?!_next/static|_next/image|favicon.ico).*)' ,
   ],
 };

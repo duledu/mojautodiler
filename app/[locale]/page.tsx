@@ -136,7 +136,7 @@ const homeCopy = {
     stats: [
       ['100+', 'automjete te shitura ne 2 vitet e fundit'],
       ['5.0', 'vleresim nga bleresit'],
-      ['98%', 'bleres te kenaqur pas dorezimit'],
+      ['100%', 'bleres te kenaqur pas dorezimit'],
       ['24h', 'pergjigje e shpejte per shikim'],
     ],
     trustTitle: 'Blerje me me shume siguri',
