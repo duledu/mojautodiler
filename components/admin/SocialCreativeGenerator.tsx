@@ -11,6 +11,7 @@ import {
   CreativeFormat,
   CREATIVE_DIMS,
 } from '@/components/admin/SocialCreativeCanvas';
+import { waitForExportReady } from '@/components/admin/VehiclePhotoLayer';
 
 const FORMAT_OPTIONS: {
   id: CreativeFormat;
@@ -27,15 +28,6 @@ const FORMAT_OPTIONS: {
 // comfortably on modern phones with the sticky-footer layout.
 const PREVIEW_W = 240;
 
-// Extracted to keep useEffect nesting below the 4-level limit (S2004).
-function blobToDataUrl(blob: Blob): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
-}
 
 interface Props {
   readonly vehicle: Vehicle;
@@ -57,7 +49,9 @@ export default function SocialCreativeGenerator({
   const [imageError, setImageError] = useState('');
   const [exporting, setExporting] = useState<'png' | 'jpeg' | null>(null);
 
-  const exportRef = useRef<HTMLDivElement>(null);
+  const exportRef  = useRef<HTMLDivElement>(null);
+  // Holds the active blob URL so it can be revoked on cleanup.
+  const blobUrlRef = useRef<string>('');
 
   // Always use the configured public site URL, never window.location.origin.
   // window.location.origin encodes the admin domain (localhost, staging, etc.)
@@ -74,23 +68,34 @@ export default function SocialCreativeGenerator({
     return () => { document.body.style.overflow = prev; };
   }, []);
 
-  // Fetch vehicle image through admin proxy → data URL (avoids CORS on canvas export)
+  // Fetch vehicle image through admin proxy → blob URL.
+  // Using URL.createObjectURL() instead of FileReader data URLs because
+  // html-to-image internally calls fetch() on img.src — fetch(dataUrl) fails
+  // silently for large images (>~200 KB) in some browsers, while blob URLs
+  // (same-origin, no size limit) are always fetchable.
   useEffect(() => {
     if (!primaryImageUrl) return;
     let cancelled = false;
+    console.log('[SocialCreative] proxy fetch →', primaryImageUrl);
 
     fetch(`/api/admin/proxy-image?url=${encodeURIComponent(primaryImageUrl)}`)
       .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!res.ok) throw new Error(`Proxy HTTP ${res.status}`);
         return res.blob();
       })
-      .then(blobToDataUrl)
-      .then((dataUrl) => {
-        if (!cancelled) setImageDataUrl(dataUrl);
+      .then((blob) => {
+        if (cancelled) return;
+        if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
+        const blobUrl = URL.createObjectURL(blob);
+        blobUrlRef.current = blobUrl;
+        console.log('[SocialCreative] proxy ok, blob URL created');
+        setImageDataUrl(blobUrl);
       })
-      .catch((err) => {
-        if (!cancelled)
-          setImageError(err instanceof Error ? err.message : 'Greška pri učitavanju slike');
+      .catch((err: Error) => {
+        if (!cancelled) {
+          console.error('[SocialCreative] proxy failed:', err.message);
+          setImageError(err.message);
+        }
       })
       .finally(() => {
         if (!cancelled) setLoadingImage(false);
@@ -98,6 +103,11 @@ export default function SocialCreativeGenerator({
 
     return () => { cancelled = true; };
   }, [primaryImageUrl]);
+
+  // Revoke the blob URL when the modal closes.
+  useEffect(() => () => {
+    if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
+  }, []);
 
   // Generate QR code data URL — high resolution for sharp export.
   // errorCorrectionLevel M (15% redundancy) survives mild JPEG compression.
@@ -125,16 +135,24 @@ export default function SocialCreativeGenerator({
     if (!exportRef.current) return;
     setExporting(type);
     try {
-      const dataUrl =
-        type === 'png'
-          ? await toPng(exportRef.current, { pixelRatio: 1, cacheBust: true })
-          : await toJpeg(exportRef.current, { quality: 0.93, pixelRatio: 1, cacheBust: true });
+      // Wait for VehiclePhotoLayer canvas draw + QR img decode.
+      await waitForExportReady(exportRef.current);
+
+      const opts     = { pixelRatio: 1, cacheBust: true } as const;
+      const jpegOpts = { ...opts, quality: 0.93 };
+
+      const dataUrl = type === 'png'
+        ? await toPng(exportRef.current, opts)
+        : await toJpeg(exportRef.current, jpegOpts);
+
+      console.log('[SocialCreative] export ok ~', Math.round(dataUrl.length / 1024), 'KB');
+
       const a = document.createElement('a');
       a.download = `${vehicle.slug}-${format}.${type === 'jpeg' ? 'jpg' : 'png'}`;
       a.href = dataUrl;
       a.click();
     } catch (err) {
-      console.error('[CREATIVE] export error:', err);
+      console.error('[SocialCreative] export error:', err);
     } finally {
       setExporting(null);
     }

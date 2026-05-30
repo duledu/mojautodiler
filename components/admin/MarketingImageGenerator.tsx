@@ -10,6 +10,7 @@ import {
   MARKETING_W,
   MARKETING_H,
 } from '@/components/admin/MarketingCanvas';
+import { waitForExportReady } from '@/components/admin/VehiclePhotoLayer';
 import type { MarketingTheme, CreativeDirection } from '@/lib/ai/marketing';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -80,6 +81,8 @@ export default function MarketingImageGenerator({ vehicleId, vehicleSlug, onClos
   // Track the last resolved image URL to avoid clearing it on restyle when
   // the vehicle hasn't changed (the proxy effect dep won't re-fire otherwise).
   const lastImageUrlRef = useRef<string>('');
+  // Active blob URL — revoked when a new one is created or on unmount.
+  const blobUrlRef      = useRef<string>('');
 
   const loadingImage = !!apiData?.primaryImageUrl && !imageDataUrl && !error;
   const exportRef    = useRef<HTMLDivElement>(null);
@@ -132,26 +135,44 @@ export default function MarketingImageGenerator({ vehicleId, vehicleSlug, onClos
     return () => { cancelled = true; };
   }, [vehicleId, apiRun]);
 
-  // ── Fetch vehicle image through proxy (avoid CORS on canvas) ────────────────
+  // ── Fetch vehicle image through proxy → blob URL ────────────────────────────
+  // Using URL.createObjectURL() instead of FileReader data URLs because
+  // html-to-image internally calls fetch() on img.src — fetch(dataUrl) fails
+  // silently for large images in some browsers, while blob URLs (same-origin,
+  // no size limit) are always fetchable by html-to-image's resource embedder.
   useEffect(() => {
-    if (!apiData?.primaryImageUrl) return;
+    const imageUrl = apiData?.primaryImageUrl;
+    if (!imageUrl) return;
     let cancelled = false;
+    console.log('[MarketingImage] proxy fetch →', imageUrl);
 
-    fetch(`/api/admin/proxy-image?url=${encodeURIComponent(apiData.primaryImageUrl)}`)
-      .then((r) => { if (!r.ok) throw new Error(`Proxy ${r.status}`); return r.blob(); })
-      .then((blob) => new Promise<string>((res, rej) => {
-        const reader = new FileReader();
-        reader.onload  = () => res(reader.result as string);
-        reader.onerror = rej;
-        reader.readAsDataURL(blob);
-      }))
-      .then((url) => { if (!cancelled) setImageDataUrl(url); })
+    fetch(`/api/admin/proxy-image?url=${encodeURIComponent(imageUrl)}`)
+      .then((r) => {
+        if (!r.ok) throw new Error(`Proxy HTTP ${r.status}`);
+        return r.blob();
+      })
+      .then((blob) => {
+        if (cancelled) return;
+        if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
+        const blobUrl = URL.createObjectURL(blob);
+        blobUrlRef.current = blobUrl;
+        console.log('[MarketingImage] proxy ok, blob URL created');
+        setImageDataUrl(blobUrl);
+      })
       .catch((err: Error) => {
-        if (!cancelled) setError(`Greška pri učitavanju slike: ${err.message}`);
+        if (!cancelled) {
+          console.error('[MarketingImage] proxy failed:', err.message);
+          setError(`Greška pri učitavanju slike: ${err.message}`);
+        }
       });
 
     return () => { cancelled = true; };
   }, [apiData?.primaryImageUrl]);
+
+  // Revoke the blob URL when the modal closes.
+  useEffect(() => () => {
+    if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
+  }, []);
 
   // ── Color picker / HEX input sync ───────────────────────────────────────────
   const handlePickerChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -188,9 +209,18 @@ export default function MarketingImageGenerator({ vehicleId, vehicleSlug, onClos
     if (!exportRef.current) return;
     setExporting(type);
     try {
+      // Wait for VehiclePhotoLayer canvas draw + QR img decode.
+      await waitForExportReady(exportRef.current);
+
+      const opts     = { pixelRatio: 1, cacheBust: true } as const;
+      const jpegOpts = { ...opts, quality: 0.93 };
+
       const dataUrl = type === 'png'
-        ? await toPng(exportRef.current,  { pixelRatio: 1, cacheBust: true })
-        : await toJpeg(exportRef.current, { quality: 0.93, pixelRatio: 1, cacheBust: true });
+        ? await toPng(exportRef.current, opts)
+        : await toJpeg(exportRef.current, jpegOpts);
+
+      console.log('[MarketingImage] export ok ~', Math.round(dataUrl.length / 1024), 'KB');
+
       const a = document.createElement('a');
       a.download = `marketing-${vehicleSlug}-${theme}.${type === 'jpeg' ? 'jpg' : 'png'}`;
       a.href = dataUrl;

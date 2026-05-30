@@ -37,6 +37,7 @@ import { forwardRef } from 'react';
 import type { CSSProperties } from 'react';
 import { formatPrice, formatMileage } from '@/lib/utils';
 import type { MarketingTheme, CreativeDirection, CropStrategy } from '@/lib/ai/marketing';
+import { VehiclePhotoLayer } from '@/components/admin/VehiclePhotoLayer';
 
 export const MARKETING_W = 1080;
 export const MARKETING_H = 1920;
@@ -128,8 +129,9 @@ function BrandBadge({ ac, dark }: { ac: string; dark: boolean }) {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function cropPos(c: CropStrategy): string {
-  return { center: 'center 50%', center_low: 'center 60%', center_high: 'center 38%', establish_wide: 'center 50%' }[c] ?? 'center 50%';
+/** Converts crop strategy to a 0–1 vertical focal point for VehiclePhotoLayer. */
+function cropPosY(c: CropStrategy): number {
+  return ({ center: 0.5, center_low: 0.6, center_high: 0.38, establish_wide: 0.5 } as Record<string, number>)[c] ?? 0.5;
 }
 
 function photoFilter(t: CreativeDirection['imageTreatment'], dark: boolean): string {
@@ -184,7 +186,6 @@ function PremiumCanvas({ vehicle, accentColor: ac, tagline, imageDataUrl, qrData
   const SIDE      = 52;
   const msz       = modelFontSize(creative.typographyMode);
   const filt      = photoFilter(creative.imageTreatment, dark);
-  const pos       = cropPos(creative.cropStrategy);
 
   // Fixed Y anchors within the info strip — consistent editorial rhythm
   const Y_BRAND    = INFO_Y + 36;
@@ -216,7 +217,13 @@ function PremiumCanvas({ vehicle, accentColor: ac, tagline, imageDataUrl, qrData
         boxShadow: dark ? 'none' : '0 24px 64px rgba(9,9,13,0.18)',
       }}>
         {imageDataUrl
-          ? <img src={imageDataUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: pos, filter: filt }} />
+          ? <VehiclePhotoLayer
+              src={imageDataUrl}
+              width={W}
+              height={photoH}
+              posY={cropPosY(creative.cropStrategy)}
+              filter={filt}
+            />
           : <div style={{ position: 'absolute', inset: 0, ...PhotoPlaceholder({ ac, dark }) }} />
         }
 

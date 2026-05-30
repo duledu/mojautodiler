@@ -58,8 +58,19 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: `Upstream ${upstream.status}` }, { status: 502 });
   }
 
-  const contentType = upstream.headers.get('content-type') ?? 'image/jpeg';
   const buf = await upstream.arrayBuffer();
+
+  // Normalize content-type: some CDN/R2 configs return application/octet-stream.
+  // Detect the real image type from magic bytes so browsers can render the img.
+  let contentType = upstream.headers.get('content-type') ?? '';
+  if (!contentType.startsWith('image/')) {
+    const b = new Uint8Array(buf.slice(0, 12));
+    if (b[0] === 0xff && b[1] === 0xd8)                                   contentType = 'image/jpeg';
+    else if (b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47) contentType = 'image/png';
+    else if (b[0] === 0x47 && b[1] === 0x49 && b[2] === 0x46)             contentType = 'image/gif';
+    else if (b[0] === 0x52 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x46) contentType = 'image/webp';
+    else                                                                   contentType = 'image/jpeg';
+  }
 
   return new NextResponse(buf, {
     headers: {

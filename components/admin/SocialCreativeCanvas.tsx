@@ -1,6 +1,7 @@
 import { forwardRef } from 'react';
 import { Vehicle } from '@/types/vehicle';
 import { formatPrice, formatMileage } from '@/lib/utils';
+import { VehiclePhotoLayer } from '@/components/admin/VehiclePhotoLayer';
 
 export type CreativeFormat = 'story' | 'square' | 'portrait';
 
@@ -109,19 +110,12 @@ export const SocialCreativeCanvas = forwardRef<HTMLDivElement, SocialCreativeCan
         }}
       >
         {imageDataUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <VehiclePhotoLayer
             src={imageDataUrl}
-            alt=""
-            style={{
-              position: 'absolute',
-              inset: 0,
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              objectPosition: 'center 36%',
-              filter: 'saturate(1.08) contrast(1.08) brightness(0.92)',
-            }}
+            width={w}
+            height={h}
+            posY={0.36}
+            filter="saturate(1.08) contrast(1.08) brightness(0.92)"
           />
         )}
 
