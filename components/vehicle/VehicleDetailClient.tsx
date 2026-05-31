@@ -17,6 +17,7 @@ import type { DealerInfo } from '@/lib/db/mappers';
 import { resolveVehicleContact } from '@/lib/vehicle-contact';
 import VehicleCard from '@/components/vehicle/VehicleCard';
 import VehicleShareSection from '@/components/vehicle/VehicleShareSection';
+import { EmbedPlayer } from '@/components/vehicle/EmbedPlayer';
 import MobileContactFab from '@/components/vehicle/MobileContactFab';
 import PremiumVehiclePlaceholder from '@/components/vehicle/PremiumVehiclePlaceholder';
 import { getVehicleTrustBadges, TrustBadges } from '@/components/vehicle/TrustBadges';
@@ -498,6 +499,19 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                 )}
               </div>
             </div>
+
+            {/* Video / embed — shown when a YouTube or Instagram URL is saved */}
+            {vehicle.videoUrl && (
+              <section className="rounded-3xl border border-(--color-border) bg-white p-4 shadow-sm min-[390px]:p-5 sm:p-6">
+                <div className="mb-4 flex items-center gap-2">
+                  <Video size={16} className="text-[var(--accent)]" />
+                  <h3 className="font-black text-(--color-text)" style={{ fontFamily: 'var(--font-display)' }}>
+                    Video
+                  </h3>
+                </div>
+                <EmbedPlayer url={vehicle.videoUrl} />
+              </section>
+            )}
 
             {/* Share + discount section */}
             <VehicleShareSection vehicle={vehicle} locale={locale} dealer={dealer} />

@@ -74,6 +74,7 @@ export interface Vehicle {
   features: string[];
   images: VehicleImage[];
   videos?: VehicleVideo[];
+  videoUrl?: string;        // single YouTube / Instagram URL or embed code
   status: VehicleStatus;
   featured?: boolean;   // homepage hero (max 1 at a time)
   showcase?: boolean;   // "Aktuelna premium selekcija" grid (multiple allowed)

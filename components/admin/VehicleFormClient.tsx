@@ -130,9 +130,7 @@ export default function VehicleFormClient({ mode, vehicle, dealers = [] }: Props
       uploading: false,
     }))
   );
-  const [previewVideos, setPreviewVideos] = useState<string[]>(
-    vehicle?.videos?.map(v => v.url) || []
-  );
+  const [videoEmbedInput, setVideoEmbedInput] = useState<string>(vehicle?.videoUrl ?? '');
   const [form, setForm] = useState<FormData>({
     title: '',
     brand: '',
@@ -202,6 +200,7 @@ export default function VehicleFormClient({ mode, vehicle, dealers = [] }: Props
         ...formPayload,
         images: imageUrls,
         imageKeys,          // consumed by the API to upsert VehicleMedia records
+        videoUrl: videoEmbedInput.trim() || null,
         slug: form.seoSlug?.trim() || undefined,
       };
 
@@ -863,34 +862,32 @@ export default function VehicleFormClient({ mode, vehicle, dealers = [] }: Props
               )}
             </div>
 
-            {/* Video */}
+            {/* Video / Embed */}
             <div>
-              <p className="mb-3 flex items-center gap-2 text-sm font-bold text-[var(--color-text)]">
-                <Video className="h-4 w-4 text-[var(--accent)]" /> Video (YouTube URL)
+              <p className="mb-1 flex items-center gap-2 text-sm font-bold text-[var(--color-text)]">
+                <Video className="h-4 w-4 text-[var(--accent)]" /> Video embed
               </p>
-              <div className="space-y-2">
-                {previewVideos.map((url, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <Input className={inputCls + ' flex-1'} value={url} readOnly />
-                    <button type="button" onClick={() => setPreviewVideos(prev => prev.filter((_, j) => j !== i))} className="rounded-2xl border border-[var(--color-border)] bg-white p-2.5 text-[var(--color-text-muted)] transition hover:border-red-200 hover:text-red-500">
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ))}
-                <div className="flex gap-2">
-                  <Input
-                    className={inputCls + ' flex-1'}
-                    placeholder="https://youtube.com/..."
-                    onKeyDown={e => {
-                      if (e.key === 'Enter') {
-                        const target = e.currentTarget;
-                        if (target.value) { setPreviewVideos(prev => [...prev, target.value]); target.value = ''; }
-                      }
-                    }}
-                  />
-                  <button type="button" className="rounded-2xl border border-[var(--color-border)] bg-white px-3 py-2.5 text-xs font-bold text-[var(--color-text-muted)] transition hover:border-[var(--accent-border)] hover:text-[var(--accent-dark)]">Enter</button>
-                </div>
-              </div>
+              <p className="mb-3 text-[11px] text-[var(--color-text-muted)]">
+                Nalepite YouTube URL, Instagram reel/post URL ili kompletan Instagram embed code.
+                Vrednost se čuva automatski pri snimanju.
+              </p>
+              <TextArea
+                className={inputCls}
+                rows={3}
+                value={videoEmbedInput}
+                onChange={e => setVideoEmbedInput(e.target.value)}
+                placeholder={"https://youtube.com/watch?v=…\nhttps://www.instagram.com/reel/…\n<blockquote class=\"instagram-media\" …"}
+                style={{ fontFamily: 'monospace', fontSize: 12, resize: 'vertical' }}
+              />
+              {videoEmbedInput.trim() && (
+                <button
+                  type="button"
+                  onClick={() => setVideoEmbedInput('')}
+                  className="mt-1.5 flex items-center gap-1 text-[11px] text-(--color-text-muted) transition hover:text-red-500"
+                >
+                  <X className="h-3 w-3" /> Ukloni embed
+                </button>
+              )}
             </div>
           </div>
         )}
