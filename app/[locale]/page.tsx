@@ -237,9 +237,9 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
       {/* ── HERO ─────────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-white pt-[calc(6.15rem+env(safe-area-inset-top))] min-[390px]:pt-[calc(6.35rem+env(safe-area-inset-top))] sm:pt-24 lg:pt-32">
         <HeroParallaxImage />
-        {/* Mobile: lighter overlay so background image gives atmosphere */}
-        <div className="absolute inset-0 bg-white/52 sm:bg-white/72" />
-        <div className="absolute inset-0 bg-[var(--color-bg)]/10" />
+        {/* Soft white wash keeps the hero image subtle behind glass surfaces. */}
+        <div className="absolute inset-0 bg-white/66 sm:bg-white/78" />
+        <div className="absolute inset-0 bg-[var(--color-bg)]/14" />
 
         <div className="relative mx-auto grid max-w-7xl gap-4 px-3 pb-8 min-[390px]:gap-5 min-[390px]:px-4 sm:gap-10 sm:px-6 sm:pb-16 lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:gap-16 lg:pb-24">
 
@@ -495,12 +495,14 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
       <section className="bg-[var(--color-bg)] px-3 py-12 min-[390px]:px-4 min-[390px]:py-16 sm:px-6 sm:py-20">
         <Reveal className="relative mx-auto max-w-6xl overflow-hidden rounded-3xl border border-[var(--color-border)] bg-white p-5 shadow-[0_24px_70px_rgba(15,15,20,0.1)] min-[390px]:rounded-[34px] min-[390px]:p-7 sm:p-10 lg:p-12">
           <Image
-            src="/test_11.jpg"
+            src="/mojautodiler_front.jpg"
             alt=""
             fill
-            sizes="100vw"
-            className="pointer-events-none object-cover opacity-[0.045] blur-[1px]"
+            sizes="(min-width: 1024px) 72rem, 100vw"
+            className="pointer-events-none object-cover object-center opacity-[0.18] blur-[1px]"
           />
+          <div className="pointer-events-none absolute inset-0 bg-white/78 sm:bg-white/82" />
+          <div className="pointer-events-none absolute inset-0 bg-[var(--color-bg)]/8" />
           <div className="relative grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
             <div>
               <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-3.5 py-1.5 text-xs font-bold text-[var(--accent-dark)]">

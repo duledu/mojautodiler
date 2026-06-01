@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import { useEffect, useRef } from 'react';
 
 export default function HeroParallaxImage() {
@@ -53,16 +52,12 @@ export default function HeroParallaxImage() {
 
   return (
     <div ref={wrapperRef} className="pointer-events-none absolute inset-0 overflow-hidden">
-      <div ref={imageLayerRef} className="absolute -inset-y-10 inset-x-0 will-change-transform">
-        <Image
-          src="/test_11.jpg"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-center opacity-[0.36]"
-        />
-      </div>
+      <div
+        ref={imageLayerRef}
+        className="absolute -inset-y-10 inset-x-0 bg-cover bg-center opacity-[0.24] will-change-transform"
+        style={{ backgroundImage: "url('/mojautodiler_front.jpg')" }}
+        aria-hidden="true"
+      />
     </div>
   );
 }
