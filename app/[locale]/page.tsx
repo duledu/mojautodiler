@@ -482,7 +482,6 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
                 <div className="mt-6 flex items-center justify-between border-t border-[var(--color-border)] pt-5">
                   <div>
                     <p className="font-bold text-[var(--color-text)]">{name}</p>
-                    <p className="text-xs uppercase tracking-[0.14em] text-[var(--color-text-muted)]">{source}</p>
                   </div>
                   <Award size={22} className="text-[var(--accent)]" />
                 </div>
