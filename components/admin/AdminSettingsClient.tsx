@@ -168,7 +168,7 @@ export default function AdminSettingsClient({ dealer }: Props) {
         <SectionHeader icon={<Globe size={18} />} title="Društvene mreže i linkovi" text="Prazna polja se automatski skrivaju na sajtu." />
         <div className="mt-6 grid gap-5">
           <InputField label="Facebook URL" icon={Globe} value={form.facebook} onChange={update('facebook')} placeholder="https://facebook.com/mojautodiler" />
-          <InputField label="Instagram URL" icon={Globe} value={form.instagram} onChange={update('instagram')} placeholder="https://instagram.com/mojautodiler" />
+          <InputField label="Instagram URL" icon={Globe} value={form.instagram} onChange={update('instagram')} placeholder="https://www.instagram.com/mojautodiler/" />
           <InputField label="Google Maps URL" icon={MapPin} value={form.mapUrl} onChange={update('mapUrl')} placeholder="https://maps.google.com/..." />
         </div>
       </section>

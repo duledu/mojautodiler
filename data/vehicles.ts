@@ -395,6 +395,6 @@ export const getDealerInfo = () => ({
   address: 'Srbija',
   workingHours: 'Pon-Pet: 09:00 - 18:00\nSub: 09:00 - 14:00',
   facebook: 'https://facebook.com/mojautodiler',
-  instagram: 'https://instagram.com/mojautodiler',
+  instagram: 'https://www.instagram.com/mojautodiler/',
   mapUrl: 'https://maps.google.com/?q=Serbia',
 });
