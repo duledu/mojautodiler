@@ -234,50 +234,55 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
     <>
       <DealerJsonLd dealer={dealer} />
 
-      {/* ── HERO ─────────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-white pt-[calc(6.15rem+env(safe-area-inset-top))] min-[390px]:pt-[calc(6.35rem+env(safe-area-inset-top))] sm:pt-24 lg:pt-32">
+      {/* ── HERO + IZDVOJENA PONUDA flex wrapper ─────────────────────────────── */}
+      {/* On mobile the flex order swaps them: featured first, hero second.    */}
+      {/* On sm+ the featured block is sm:hidden so only hero renders (order-1). */}
+      <div className="flex flex-col">
+
+      {/* ── HERO — appears second on mobile (order-2), first on sm+ ─────────── */}
+      <section className="relative order-2 overflow-hidden bg-white pt-[calc(4rem+env(safe-area-inset-top))] pb-9 min-[390px]:pb-10 sm:order-1 sm:pt-24 sm:pb-0 lg:pt-32">
         <HeroParallaxImage />
         {/* Soft white wash keeps the hero image subtle behind glass surfaces. */}
         <div className="absolute inset-0 bg-white/66 sm:bg-white/78" />
         <div className="absolute inset-0 bg-[var(--color-bg)]/14" />
 
-        <div className="relative mx-auto grid max-w-7xl gap-4 px-3 pb-8 min-[390px]:gap-5 min-[390px]:px-4 sm:gap-10 sm:px-6 sm:pb-16 lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:gap-16 lg:pb-24">
+        <div className="relative mx-auto grid max-w-7xl gap-3 px-3 min-[390px]:gap-4 min-[390px]:px-4 sm:gap-10 sm:px-6 sm:pb-16 lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:gap-16 lg:pb-24">
 
           {/* ── Text card ── */}
-          <div className="rounded-2xl border border-white/60 bg-white/82 p-4 shadow-[0_8px_28px_rgba(15,15,20,0.07)] backdrop-blur-md min-[390px]:p-5 sm:rounded-[32px] sm:border-white/70 sm:bg-white/72 sm:p-7 sm:shadow-[0_24px_70px_rgba(15,15,20,0.08)] lg:p-8">
+          <div className="rounded-2xl border border-white/60 bg-white/82 p-3.5 shadow-[0_8px_28px_rgba(15,15,20,0.07)] backdrop-blur-md min-[390px]:p-4 sm:rounded-[32px] sm:border-white/70 sm:bg-white/72 sm:p-7 sm:shadow-[0_24px_70px_rgba(15,15,20,0.08)] lg:p-8">
 
             {/* Eyebrow */}
-            <Reveal delay={80} className="mb-4 inline-flex max-w-full items-center gap-2 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--accent-dark)] min-[390px]:px-3 min-[390px]:text-[11px] sm:mb-6 sm:px-4 sm:py-2">
-              <Car size={13} />
+            <Reveal delay={80} className="mb-2.5 inline-flex max-w-full items-center gap-1.5 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.11em] text-[var(--accent-dark)] min-[390px]:mb-3 min-[390px]:px-3 min-[390px]:text-[10px] sm:mb-6 sm:gap-2 sm:px-4 sm:py-2 sm:text-[11px]">
+              <Car size={12} />
               {copy.eyebrow}
             </Reveal>
 
             {/* H1 — scaled down on mobile to avoid overflow */}
             <Reveal delay={170} className="max-w-[760px]">
-              <h1 className="text-balance text-[1.68rem] font-black leading-[1.1] text-[var(--color-text)] min-[360px]:text-[1.78rem] min-[390px]:text-[1.85rem] sm:text-5xl lg:text-[3.35rem] xl:text-[3.95rem]">
+              <h1 className="text-balance text-[1.48rem] font-black leading-[1.08] text-[var(--color-text)] min-[360px]:text-[1.6rem] min-[390px]:text-[1.72rem] sm:text-5xl lg:text-[3.35rem] xl:text-[3.95rem]">
                 {copy.title}
               </h1>
             </Reveal>
 
             {/* Lead */}
-            <Reveal delay={260}>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-text-muted)] min-[390px]:mt-4 min-[390px]:leading-7 sm:mt-6 sm:text-lg sm:leading-8">
+            <Reveal delay={260} className="hidden sm:block">
+              <p className="mt-2 max-w-2xl text-[13px] leading-5 text-[var(--color-text-muted)] min-[390px]:mt-2.5 min-[390px]:text-sm min-[390px]:leading-6 sm:mt-6 sm:text-lg sm:leading-8">
                 {copy.lead}
               </p>
             </Reveal>
 
             {/* CTAs — full-width on mobile, auto on sm+ */}
-            <Reveal delay={360} className="mt-5 flex flex-col gap-2.5 min-[390px]:gap-3 sm:mt-9 sm:flex-row">
+            <Reveal delay={360} className="mt-4 flex flex-col gap-2 min-[390px]:gap-2.5 sm:mt-9 sm:flex-row">
               <Link
                 href={`/${currentLocale}/inventory`}
-                className="btn-gold inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-5 text-sm min-[390px]:min-h-12 min-[390px]:px-6 sm:min-h-[3.25rem] sm:w-auto sm:px-7"
+                className="btn-gold inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl px-5 text-sm min-[390px]:min-h-11 min-[390px]:px-6 sm:min-h-[3.25rem] sm:w-auto sm:px-7"
               >
                 {copy.primary}
                 <ArrowRight size={16} />
               </Link>
               <Link
                 href={`/${currentLocale}/contact`}
-                className="btn-outline inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-5 text-sm min-[390px]:min-h-12 min-[390px]:px-6 sm:min-h-[3.25rem] sm:w-auto sm:px-7"
+                className="btn-outline inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl px-5 text-sm min-[390px]:min-h-11 min-[390px]:px-6 sm:min-h-[3.25rem] sm:w-auto sm:px-7"
               >
                 {copy.secondary}
                 <ChevronRight size={16} />
@@ -285,14 +290,14 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
             </Reveal>
 
             {/* Stats — 2×2 compact on mobile, 1×4 on sm+ */}
-            <div className="mt-5 grid grid-cols-2 gap-1.5 min-[390px]:gap-2 sm:mt-9 sm:max-w-xl sm:grid-cols-4 sm:gap-3">
+            <div className="mt-4 grid grid-cols-2 gap-1.5 min-[390px]:gap-2 sm:mt-9 sm:max-w-xl sm:grid-cols-4 sm:gap-3">
               {copy.stats.map(([value, label], index) => (
                 <Reveal
                   key={label}
                   delay={430 + index * 80}
-                  className="rounded-xl border border-[var(--color-border)] bg-white/80 p-2.5 shadow-sm min-[390px]:p-3 sm:rounded-2xl sm:p-4"
+                  className="rounded-xl border border-[var(--color-border)] bg-white/80 p-2 shadow-sm min-[390px]:p-2.5 sm:rounded-2xl sm:p-4"
                 >
-                  <div className="text-lg font-black text-[var(--color-text)] min-[390px]:text-xl sm:text-2xl">{value}</div>
+                  <div className="text-base font-black leading-none text-[var(--color-text)] min-[390px]:text-lg sm:text-2xl">{value}</div>
                   {value === '5.0' ? (
                     <>
                       <div className="mt-1 flex items-center gap-[3px]">
@@ -300,10 +305,10 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
                           <Star key={i} size={10} fill="currentColor" className="text-[var(--accent)]" />
                         ))}
                       </div>
-                      <p className="mt-0.5 text-[10px] leading-[1.3] text-[var(--color-text-muted)] sm:text-[11px] sm:leading-4">{label}</p>
+                      <p className="mt-0.5 text-[10px] leading-[1.22] text-[var(--color-text-muted)] sm:text-[11px] sm:leading-4">{label}</p>
                     </>
                   ) : (
-                    <p className="mt-1 text-[10px] leading-[1.3] text-[var(--color-text-muted)] sm:mt-2 sm:text-[11px] sm:leading-4">{label}</p>
+                    <p className="mt-1 text-[10px] leading-[1.22] text-[var(--color-text-muted)] sm:mt-2 sm:text-[11px] sm:leading-4">{label}</p>
                   )}
                 </Reveal>
               ))}
@@ -311,8 +316,9 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
           </div>
 
           {/* ── Featured vehicle card ── */}
+          {/* hidden on mobile — the sm:hidden section below owns that slot with a proper heading */}
           {heroVehicle && (
-            <Reveal delay={260}>
+            <Reveal delay={260} className="hidden sm:block">
               <HeroVehicleCard
                 vehicle={heroVehicle}
                 locale={currentLocale}
@@ -326,10 +332,35 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
         </div>
       </section>
 
+      {/* ── IZDVOJENA PONUDA — appears first on mobile (order-1), hidden on sm+ */}
+      {heroVehicle && (
+        <section className="order-1 bg-[var(--color-bg)] pt-[calc(5.45rem+env(safe-area-inset-top))] min-[390px]:pt-[calc(5.75rem+env(safe-area-inset-top))] pb-4 sm:hidden">
+          <div className="mx-auto max-w-7xl px-4">
+            <div className="mb-7 min-[390px]:mb-8">
+              <Reveal>
+                <SectionHeader title={copy.featuredLabel} subtitle={copy.heroNote} />
+              </Reveal>
+            </div>
+            <Reveal delay={120}>
+              <HeroVehicleCard
+                vehicle={heroVehicle}
+                locale={currentLocale}
+                t={t}
+                featuredLabel={copy.featuredLabel}
+                verifiedLine={copy.verifiedLine}
+                viewLabel={copy.viewDetails}
+              />
+            </Reveal>
+          </div>
+        </section>
+      )}
+
+      </div>{/* end hero + izdvojena ponuda flex wrapper */}
+
       <div className="flex flex-col">
-        <section className="order-1 bg-[var(--color-bg)] py-12 min-[390px]:py-14 sm:order-2 sm:py-20">
+        <section className="order-1 bg-[var(--color-bg)] py-9 min-[390px]:py-10 sm:order-2 sm:py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6">
-            <div className="mb-8 flex flex-col gap-4 min-[390px]:mb-10 min-[390px]:gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div className="mb-5 flex flex-col gap-3 min-[390px]:mb-6 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
               <Reveal>
                 <SectionHeader title={copy.featuredTitle} subtitle={copy.featuredSub} />
               </Reveal>
@@ -339,7 +370,7 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
               </Link>
             </div>
             {featuredVehicles.length > 0 ? (
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 xl:grid-cols-4">
                 {featuredVehicles.map((vehicle, index) => (
                   <Reveal key={vehicle.id} delay={index * 85}>
                     <VehicleCard vehicle={vehicle} locale={currentLocale} t={t} />
@@ -354,19 +385,19 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
           </div>
         </section>
 
-        <section className="order-2 bg-white py-12 min-[390px]:py-14 sm:order-1 sm:py-20">
+        <section className="order-2 bg-white py-9 min-[390px]:py-10 sm:order-1 sm:py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6">
             <Reveal>
               <SectionHeader title={copy.trustTitle} subtitle={copy.trustSub} />
             </Reveal>
-            <div className="mt-8 grid gap-3 min-[390px]:mt-10 min-[390px]:gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-5 grid gap-3 min-[390px]:mt-6 min-[390px]:gap-4 sm:mt-10 sm:grid-cols-2 lg:grid-cols-4">
               {copy.trust.map(([title, text, Icon], index) => (
-              <Reveal key={title} delay={index * 90} className="luxury-trust-card rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-sm min-[390px]:p-6">
-                <div className="trust-card-icon mb-4 flex h-10 w-10 items-center justify-center rounded-2xl border border-[var(--accent-border)] bg-[var(--accent-soft)] text-[var(--accent)] min-[390px]:mb-6 min-[390px]:h-11 min-[390px]:w-11">
+              <Reveal key={title} delay={index * 90} className="luxury-trust-card rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-sm min-[390px]:p-5 sm:rounded-3xl sm:p-6">
+                <div className="trust-card-icon mb-3 flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--accent-border)] bg-[var(--accent-soft)] text-[var(--accent)] min-[390px]:h-10 min-[390px]:w-10 sm:mb-6 sm:h-11 sm:w-11 sm:rounded-2xl">
                     <Icon size={21} />
                   </div>
-                  <h3 className="text-lg font-black text-[var(--color-text)]">{title}</h3>
-                  <p className="mt-3 text-sm leading-7 text-[var(--color-text-muted)]">{text}</p>
+                  <h3 className="text-base font-black text-[var(--color-text)] sm:text-lg">{title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-[var(--color-text-muted)] sm:mt-3 sm:leading-7">{text}</p>
                 </Reveal>
               ))}
             </div>
@@ -374,7 +405,7 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
         </section>
       </div>
 
-      <section className="relative isolate overflow-hidden bg-[#11100E] py-16 text-white min-[390px]:py-20 sm:py-24">
+      <section className="relative isolate overflow-hidden bg-[#11100E] py-11 text-white min-[390px]:py-12 sm:py-24">
         <video
           autoPlay
           muted
@@ -396,36 +427,36 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
           <div className="grid gap-8 lg:min-h-[24rem] lg:grid-cols-[0.78fr_1.22fr] lg:items-center lg:gap-16">
             <Reveal className="max-w-2xl">
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/14 bg-white/[0.08] px-3.5 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-white/76 backdrop-blur-md">
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/14 bg-white/[0.08] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-white/76 backdrop-blur-md sm:mb-5 sm:px-3.5 sm:py-2 sm:text-[11px]">
                 <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)] shadow-[0_0_18px_var(--accent)]" />
                 {copy.darkEyebrow}
               </div>
-              <h2 className="max-w-2xl text-3xl font-black leading-tight !text-white drop-shadow-[0_4px_22px_rgba(0,0,0,0.34)] min-[390px]:text-4xl sm:text-5xl">
+              <h2 className="max-w-2xl text-2xl font-black leading-tight !text-white drop-shadow-[0_4px_22px_rgba(0,0,0,0.34)] min-[390px]:text-3xl sm:text-5xl">
                 {darkTitleParts[0]}
                 <span className="text-[var(--accent)]">{copy.darkAccent}</span>
                 {darkTitleParts[1]}
               </h2>
-              <p className="mt-4 max-w-xl text-sm leading-7 text-white/80 drop-shadow-[0_2px_10px_rgba(0,0,0,0.35)] min-[390px]:mt-6 min-[390px]:text-base min-[390px]:leading-8">{copy.darkSub}</p>
+              <p className="mt-3 max-w-xl text-sm leading-6 text-white/80 drop-shadow-[0_2px_10px_rgba(0,0,0,0.35)] min-[390px]:mt-4 sm:mt-6 sm:text-base sm:leading-8">{copy.darkSub}</p>
             </Reveal>
 
             <div className="hidden min-h-[18rem] rounded-[2rem] border border-white/0 lg:block" aria-hidden="true" />
           </div>
 
-          <div className="mt-5 grid gap-3 min-[390px]:mt-6 md:grid-cols-3 lg:mt-10 lg:gap-4">
+          <div className="mt-5 grid gap-3 md:grid-cols-3 lg:mt-10 lg:gap-4">
             {copy.darkCards.map(([title, text, Icon], index) => (
-              <Reveal key={title} delay={180 + index * 120} className="group relative min-h-[13rem] overflow-hidden rounded-[1.75rem] border border-white/18 bg-[#12110F]/42 p-5 shadow-[0_24px_80px_rgba(0,0,0,0.30)] backdrop-blur-xl transition-all duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] before:absolute before:inset-0 before:bg-[linear-gradient(150deg,rgba(255,255,255,0.18),transparent_42%,rgba(201,168,76,0.12))] before:opacity-75 before:transition-opacity before:duration-1000 before:ease-[cubic-bezier(0.22,1,0.36,1)] min-[390px]:min-h-[14rem] sm:p-6 motion-safe:[@media(hover:hover)_and_(pointer:fine)]:hover:-translate-y-px motion-safe:[@media(hover:hover)_and_(pointer:fine)]:hover:border-white/22 motion-safe:[@media(hover:hover)_and_(pointer:fine)]:hover:bg-[#13110F]/45 motion-safe:[@media(hover:hover)_and_(pointer:fine)]:hover:shadow-[0_25px_82px_rgba(0,0,0,0.32)] motion-safe:[@media(hover:hover)_and_(pointer:fine)]:hover:before:opacity-82">
+              <Reveal key={title} delay={180 + index * 120} className="group relative min-h-[10.75rem] overflow-hidden rounded-3xl border border-white/18 bg-[#12110F]/42 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.30)] backdrop-blur-xl transition-all duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] before:absolute before:inset-0 before:bg-[linear-gradient(150deg,rgba(255,255,255,0.18),transparent_42%,rgba(201,168,76,0.12))] before:opacity-75 before:transition-opacity before:duration-1000 before:ease-[cubic-bezier(0.22,1,0.36,1)] min-[390px]:min-h-[11.5rem] sm:min-h-[14rem] sm:p-6 motion-safe:[@media(hover:hover)_and_(pointer:fine)]:hover:-translate-y-px motion-safe:[@media(hover:hover)_and_(pointer:fine)]:hover:border-white/22 motion-safe:[@media(hover:hover)_and_(pointer:fine)]:hover:bg-[#13110F]/45 motion-safe:[@media(hover:hover)_and_(pointer:fine)]:hover:shadow-[0_25px_82px_rgba(0,0,0,0.32)] motion-safe:[@media(hover:hover)_and_(pointer:fine)]:hover:before:opacity-82">
                 <div className="relative flex h-full flex-col">
-                  <div className="mb-8 flex items-start justify-between gap-4">
-                    <span className="text-4xl font-black leading-none text-white/18 transition-colors duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] sm:text-5xl motion-safe:[@media(hover:hover)_and_(pointer:fine)]:group-hover:text-[var(--accent)]/32">
+                  <div className="mb-5 flex items-start justify-between gap-4 sm:mb-8">
+                    <span className="text-3xl font-black leading-none text-white/18 transition-colors duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] sm:text-5xl motion-safe:[@media(hover:hover)_and_(pointer:fine)]:group-hover:text-[var(--accent)]/32">
                       {String(index + 1).padStart(2, '0')}
                     </span>
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[var(--accent-border)] bg-[var(--accent)]/16 text-[var(--accent)] shadow-[inset_0_1px_0_rgba(255,255,255,0.16),0_10px_28px_rgba(0,0,0,0.22)] backdrop-blur-md transition-all duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] sm:h-14 sm:w-14 motion-safe:[@media(hover:hover)_and_(pointer:fine)]:group-hover:border-[var(--accent)]/35 motion-safe:[@media(hover:hover)_and_(pointer:fine)]:group-hover:bg-[var(--accent)]/19 motion-safe:[@media(hover:hover)_and_(pointer:fine)]:group-hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.17),0_11px_29px_rgba(0,0,0,0.23)]">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--accent-border)] bg-[var(--accent)]/16 text-[var(--accent)] shadow-[inset_0_1px_0_rgba(255,255,255,0.16),0_10px_28px_rgba(0,0,0,0.22)] backdrop-blur-md transition-all duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] sm:h-14 sm:w-14 motion-safe:[@media(hover:hover)_and_(pointer:fine)]:group-hover:border-[var(--accent)]/35 motion-safe:[@media(hover:hover)_and_(pointer:fine)]:group-hover:bg-[var(--accent)]/19 motion-safe:[@media(hover:hover)_and_(pointer:fine)]:group-hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.17),0_11px_29px_rgba(0,0,0,0.23)]">
                       <Icon size={23} />
                     </div>
                   </div>
                   <div className="mt-auto">
-                    <h3 className="text-lg font-black leading-tight !text-white">{title}</h3>
-                    <p className="mt-3 max-w-sm text-sm leading-6 text-white/72">{text}</p>
+                    <h3 className="text-base font-black leading-tight !text-white sm:text-lg">{title}</h3>
+                    <p className="mt-2 max-w-sm text-sm leading-6 text-white/72 sm:mt-3">{text}</p>
                   </div>
                 </div>
               </Reveal>
@@ -445,41 +476,41 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
         </div>
       </section>
 
-      <section className="bg-white py-12 min-[390px]:py-16 sm:py-20">
-        <div className="mx-auto grid max-w-7xl gap-6 px-4 min-[390px]:gap-8 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+      <section className="bg-white py-9 min-[390px]:py-10 sm:py-20">
+        <div className="mx-auto grid max-w-7xl gap-5 px-4 sm:gap-8 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <Reveal>
             <div className="divider-gold mb-5" />
-            <h2 className="max-w-2xl text-2xl font-black leading-tight text-[var(--color-text)] min-[390px]:text-3xl sm:text-4xl">{copy.dealerTitle}</h2>
-            <p className="mt-4 max-w-xl text-sm leading-7 text-[var(--color-text-muted)] min-[390px]:mt-5 sm:text-base sm:leading-8">{copy.dealerSub}</p>
-            <TrustBadges locale={currentLocale} badges={['dealer', 'transparent', 'inspection', 'swiss']} className="mt-6" />
+            <h2 className="max-w-2xl text-2xl font-black leading-tight text-[var(--color-text)] min-[390px]:text-[1.7rem] sm:text-4xl">{copy.dealerTitle}</h2>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-[var(--color-text-muted)] sm:mt-5 sm:text-base sm:leading-8">{copy.dealerSub}</p>
+            <TrustBadges locale={currentLocale} badges={['dealer', 'transparent', 'inspection', 'swiss']} className="mt-4 sm:mt-6" />
           </Reveal>
           <div className="grid gap-3">
             {copy.dealerPillars.map(([title, text], index) => (
-              <Reveal key={title} delay={index * 90} className="rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-sm transition hover:border-[var(--accent-border)] hover:shadow-[0_16px_42px_rgba(15,15,20,0.08)] min-[390px]:p-5">
-                <div className="mb-3 text-xs font-black uppercase tracking-[0.16em] text-[var(--accent-dark)]">0{index + 1}</div>
-                <h3 className="text-lg font-black text-[var(--color-text)]">{title}</h3>
-                <p className="mt-2 text-sm leading-7 text-[var(--color-text-muted)]">{text}</p>
+              <Reveal key={title} delay={index * 90} className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-sm transition hover:border-[var(--accent-border)] hover:shadow-[0_16px_42px_rgba(15,15,20,0.08)] min-[390px]:p-5 sm:rounded-3xl">
+                <div className="mb-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--accent-dark)] sm:mb-3 sm:text-xs">0{index + 1}</div>
+                <h3 className="text-base font-black text-[var(--color-text)] sm:text-lg">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-[var(--color-text-muted)] sm:leading-7">{text}</p>
               </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="bg-white py-12 min-[390px]:py-16 sm:py-20">
+      <section className="bg-white py-9 min-[390px]:py-10 sm:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <Reveal>
             <SectionHeader title={copy.reviewsTitle} subtitle={copy.reviewsSub} centered />
           </Reveal>
-          <div className="mt-8 grid gap-3 min-[390px]:mt-10 min-[390px]:gap-4 lg:grid-cols-3">
+          <div className="mt-5 grid gap-3 min-[390px]:mt-6 min-[390px]:gap-4 sm:mt-10 lg:grid-cols-3">
             {copy.reviews.map(([quote, name, source], index) => (
-              <Reveal key={`${name}-${source}`} delay={index * 90} className="rounded-3xl border border-[var(--color-border)] bg-white p-5 shadow-sm min-[390px]:p-6">
-                <div className="mb-5 flex items-center gap-1 text-[var(--accent)]">
+              <Reveal key={`${name}-${source}`} delay={index * 90} className="rounded-2xl border border-[var(--color-border)] bg-white p-4 shadow-sm min-[390px]:p-5 sm:rounded-3xl sm:p-6">
+                <div className="mb-3 flex items-center gap-1 text-[var(--accent)] sm:mb-5">
                   {Array.from({ length: 5 }, (_, i) => i + 1).map((n) => (
                     <Star key={`star-${n}`} size={15} fill="currentColor" />
                   ))}
                 </div>
-                <p className="text-lg leading-8 text-[var(--color-text)]">&ldquo;{quote}&rdquo;</p>
-                <div className="mt-6 flex items-center justify-between border-t border-[var(--color-border)] pt-5">
+                <p className="text-base leading-7 text-[var(--color-text)] sm:text-lg sm:leading-8">&ldquo;{quote}&rdquo;</p>
+                <div className="mt-4 flex items-center justify-between border-t border-[var(--color-border)] pt-4 sm:mt-6 sm:pt-5">
                   <div>
                     <p className="font-bold text-[var(--color-text)]">{name}</p>
                   </div>
@@ -491,8 +522,8 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
         </div>
       </section>
 
-      <section className="bg-[var(--color-bg)] px-3 py-12 min-[390px]:px-4 min-[390px]:py-16 sm:px-6 sm:py-20">
-        <Reveal className="relative mx-auto max-w-6xl overflow-hidden rounded-3xl border border-[var(--color-border)] bg-white p-5 shadow-[0_24px_70px_rgba(15,15,20,0.1)] min-[390px]:rounded-[34px] min-[390px]:p-7 sm:p-10 lg:p-12">
+      <section className="bg-[var(--color-bg)] px-3 py-9 min-[390px]:px-4 min-[390px]:py-10 sm:px-6 sm:py-20">
+        <Reveal className="relative mx-auto max-w-6xl overflow-hidden rounded-3xl border border-[var(--color-border)] bg-white p-4 shadow-[0_24px_70px_rgba(15,15,20,0.1)] min-[390px]:p-5 sm:rounded-[34px] sm:p-10 lg:p-12">
           <Image
             src="/mojautodiler_front.jpg"
             alt=""
@@ -502,14 +533,14 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
           />
           <div className="pointer-events-none absolute inset-0 bg-white/78 sm:bg-white/82" />
           <div className="pointer-events-none absolute inset-0 bg-[var(--color-bg)]/8" />
-          <div className="relative grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
+          <div className="relative grid gap-5 sm:gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
             <div>
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-3.5 py-1.5 text-xs font-bold text-[var(--accent-dark)]">
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-3 py-1.5 text-[11px] font-bold text-[var(--accent-dark)] sm:mb-5 sm:px-3.5 sm:text-xs">
                 <CalendarCheck size={15} />
                 {copy.ctaBadge}
               </div>
-              <h2 className="max-w-2xl text-3xl font-black leading-tight text-[var(--color-text)] min-[390px]:text-4xl sm:text-5xl">{copy.ctaTitle}</h2>
-              <p className="mt-4 max-w-xl whitespace-pre-line text-sm leading-7 text-[var(--color-text-muted)] min-[390px]:mt-5 min-[390px]:text-base min-[390px]:leading-8">{copy.ctaSub}</p>
+              <h2 className="max-w-2xl text-2xl font-black leading-tight text-[var(--color-text)] min-[390px]:text-3xl sm:text-5xl">{copy.ctaTitle}</h2>
+              <p className="mt-3 max-w-xl whitespace-pre-line text-sm leading-6 text-[var(--color-text-muted)] sm:mt-5 sm:text-base sm:leading-8">{copy.ctaSub}</p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
               <Link href={`/${currentLocale}/contact`} className="btn-gold inline-flex min-h-[3.25rem] items-center justify-center gap-2 rounded-xl px-7 text-sm">

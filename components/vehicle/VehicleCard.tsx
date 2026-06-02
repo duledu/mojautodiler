@@ -25,12 +25,12 @@ export default function VehicleCard({ vehicle, locale, t }: VehicleCardProps) {
     <Link href={`/${locale}/vehicle/${vehicle.slug}`} className="group block h-full">
       <article
         className={cn(
-          'vehicle-card flex h-full flex-col overflow-hidden rounded-3xl border border-[var(--color-border)] bg-white shadow-[0_10px_34px_rgba(15,15,20,0.07)]',
+          'vehicle-card flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white shadow-[0_8px_28px_rgba(15,15,20,0.065)] sm:rounded-3xl sm:shadow-[0_10px_34px_rgba(15,15,20,0.07)]',
           isSold && 'opacity-70'
         )}
       >
         {/* Image */}
-        <div className="relative w-full aspect-[16/10] overflow-hidden bg-[var(--color-surface-2)]">
+        <div className="relative w-full aspect-[16/9] overflow-hidden bg-[var(--color-surface-2)] sm:aspect-[16/10]">
           {mainImage ? (
             <Image
               src={mainImage}
@@ -62,22 +62,22 @@ export default function VehicleCard({ vehicle, locale, t }: VehicleCardProps) {
         </div>
 
         {/* Body */}
-        <div className="flex flex-1 flex-col p-3.5 min-[390px]:p-4">
-          <div className="mb-3 flex min-h-[3.75rem] flex-col gap-2 min-[360px]:flex-row min-[360px]:items-start min-[360px]:justify-between min-[360px]:gap-3">
+        <div className="flex flex-1 flex-col p-3 min-[390px]:p-3.5 sm:p-4">
+          <div className="mb-2.5 flex flex-col gap-1.5 min-[360px]:flex-row min-[360px]:items-start min-[360px]:justify-between min-[360px]:gap-2.5 sm:mb-3 sm:min-h-[3.75rem] sm:gap-3">
             <div className="min-w-0">
               <h3
-                className="line-clamp-2 text-sm font-bold leading-snug text-[var(--color-text)] transition-colors group-hover:text-[var(--accent-dark)]"
+                className="line-clamp-2 text-[13px] font-bold leading-snug text-[var(--color-text)] transition-colors group-hover:text-[var(--accent-dark)] min-[390px]:text-sm"
                 style={{ fontFamily: 'var(--font-display)' }}
               >
                 {vehicle.title}
               </h3>
-              <p className="mt-0.5 truncate text-xs text-[var(--color-text-muted)]">
+              <p className="mt-0.5 truncate text-[11px] text-[var(--color-text-muted)] min-[390px]:text-xs">
                 {vehicle.generation || vehicle.model}
               </p>
             </div>
             <div className="shrink-0 text-left min-[360px]:text-right">
               <div
-                className="whitespace-nowrap text-base font-black leading-tight text-[var(--accent-dark)]"
+                className="whitespace-nowrap text-[15px] font-black leading-tight text-[var(--accent-dark)] min-[390px]:text-base"
                 style={{ fontFamily: 'var(--font-display)' }}
               >
                 {formatPrice(vehicle.price, vehicle.currency)}
@@ -94,15 +94,15 @@ export default function VehicleCard({ vehicle, locale, t }: VehicleCardProps) {
             <Spec icon={<Settings2 size={11} />} value={t.transmission[vehicle.transmission]} />
           </div>
 
-          <TrustBadges locale={locale} badges={trustBadges} compact className="mt-4" />
+          <TrustBadges locale={locale} badges={trustBadges} compact className="mt-3 sm:mt-4" />
 
-          <div className="mt-4 mb-5 flex flex-wrap items-center gap-1.5">
-            <span className="inline-flex items-center gap-1 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-2 py-1 text-[10px] font-black text-[var(--accent-dark)]">
+          <div className="mt-3 mb-4 flex flex-wrap items-center gap-1.5 sm:mt-4 sm:mb-5">
+            <span className="inline-flex items-center gap-1 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-2 py-0.5 text-[10px] font-black text-[var(--accent-dark)] sm:py-1">
               <Building2 size={11} />
               {locale === 'sq' ? 'Auto diler partner' : 'Partnerski auto diler'}
             </span>
             {vehicle.dealer?.isVerified && (
-              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-[10px] font-black text-emerald-700">
+              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-black text-emerald-700 sm:py-1">
                 <ShieldCheck size={11} />
                 {locale === 'sq' ? 'I verifikuar' : 'Verifikovan'}
               </span>
@@ -110,10 +110,10 @@ export default function VehicleCard({ vehicle, locale, t }: VehicleCardProps) {
           </div>
 
           {/* Footer */}
-          <div className="mt-auto flex items-center justify-between border-t border-[var(--color-border)] pt-4">
-            <div className="flex items-center gap-1 text-xs text-[var(--color-text-muted)]">
+          <div className="mt-auto flex items-center justify-between border-t border-[var(--color-border)] pt-3 sm:pt-4">
+            <div className="flex min-w-0 items-center gap-1 text-[11px] text-[var(--color-text-muted)] min-[390px]:text-xs">
               <MapPin size={11} className="shrink-0" />
-              <span>{vehicle.dealer?.location || 'Srbija'}</span>
+              <span className="truncate">{vehicle.dealer?.location || 'Srbija'}</span>
             </div>
             <span
               className="inline-flex items-center gap-1 text-xs font-bold text-[var(--accent-dark)]"
@@ -131,7 +131,7 @@ export default function VehicleCard({ vehicle, locale, t }: VehicleCardProps) {
 
 function Spec({ icon, value }: { readonly icon: React.ReactNode; readonly value: string }) {
   return (
-    <div className="flex min-h-8 items-center gap-1.5 rounded-lg bg-[var(--color-surface-2)] px-2 text-[11px] text-[var(--color-text-2)] min-[390px]:px-2.5 min-[390px]:text-xs">
+    <div className="flex min-h-7 items-center gap-1.5 rounded-lg bg-[var(--color-surface-2)] px-2 text-[10px] text-[var(--color-text-2)] min-[390px]:min-h-8 min-[390px]:px-2.5 min-[390px]:text-[11px] sm:text-xs">
       <span className="shrink-0 text-[var(--accent)]">{icon}</span>
       <span className="truncate">{value}</span>
     </div>

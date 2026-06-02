@@ -27,10 +27,10 @@ export default function HeroVehicleCard({
 
   return (
     <Link href={`/${locale}/vehicle/${vehicle.slug}`} className="group block">
-      <article className="hero-vehicle-card overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white shadow-[0_16px_56px_rgba(15,15,20,0.12)] min-[390px]:rounded-3xl sm:rounded-[34px]">
+      <article className="hero-vehicle-card overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white shadow-[0_12px_42px_rgba(15,15,20,0.11)] min-[390px]:rounded-3xl sm:rounded-[34px] sm:shadow-[0_16px_56px_rgba(15,15,20,0.12)]">
 
         {/* Image */}
-        <div className="relative w-full aspect-[3/2] overflow-hidden bg-[var(--color-surface-2)]">
+        <div className="relative w-full aspect-[16/9] overflow-hidden bg-[var(--color-surface-2)] sm:aspect-[3/2]">
           {mainImage ? (
             <Image
               src={mainImage}
@@ -48,26 +48,26 @@ export default function HeroVehicleCard({
           <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
 
           {/* Featured badge + optional AKCIJA badge, stacked */}
-          <div className="absolute left-3 top-3 flex flex-col items-start gap-1.5 min-[390px]:left-4 min-[390px]:top-4">
+          <div className="absolute left-2.5 top-2.5 flex flex-col items-start gap-1 min-[390px]:left-3 min-[390px]:top-3 sm:left-4 sm:top-4 sm:gap-1.5">
             <VehiclePromoBadge variant="featured" locale={locale} label={featuredLabel} />
             {vehicle.onSale && (
               <VehiclePromoBadge variant="akcija" locale={locale} />
             )}
           </div>
-          <VehicleStatusBadge vehicle={vehicle} compact className="absolute right-3 top-3 min-[390px]:right-4 min-[390px]:top-4" />
+          <VehicleStatusBadge vehicle={vehicle} compact className="absolute right-2.5 top-2.5 min-[390px]:right-3 min-[390px]:top-3 sm:right-4 sm:top-4" />
 
           {/* Photo count */}
           {vehicle.images.length > 1 && (
-            <div className="absolute bottom-4 right-4 flex items-center gap-1 rounded-full bg-black/55 px-2.5 py-1 text-[11px] text-white backdrop-blur-sm">
+            <div className="absolute bottom-3 right-3 flex items-center gap-1 rounded-full bg-black/55 px-2 py-0.5 text-[10px] text-white backdrop-blur-sm sm:bottom-4 sm:right-4 sm:px-2.5 sm:py-1 sm:text-[11px]">
               <Camera size={11} />
               <span>{vehicle.images.length}</span>
             </div>
           )}
 
           {/* Price overlay */}
-          <div className="absolute bottom-3 left-4 min-[390px]:bottom-4 min-[390px]:left-5">
+          <div className="absolute bottom-3 left-3 min-[390px]:left-4 sm:bottom-4 sm:left-5">
             <div
-                className="text-xl font-black leading-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)] min-[390px]:text-2xl sm:text-3xl"
+                className="text-lg font-black leading-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)] min-[390px]:text-xl sm:text-3xl"
               style={{ fontFamily: 'var(--font-display)' }}
             >
               {formatPrice(vehicle.price, vehicle.currency)}
@@ -77,33 +77,33 @@ export default function HeroVehicleCard({
         </div>
 
         {/* Card body */}
-        <div className="p-4 min-[390px]:p-5 sm:p-6">
+        <div className="p-3.5 min-[390px]:p-4 sm:p-6">
 
           {/* Title + generation */}
           <div>
             <h2
-              className="text-lg font-black leading-snug text-[var(--color-text)] transition-colors duration-300 group-hover:text-[var(--accent-dark)] min-[390px]:text-xl sm:text-2xl"
+              className="text-base font-black leading-snug text-[var(--color-text)] transition-colors duration-300 group-hover:text-[var(--accent-dark)] min-[390px]:text-lg sm:text-2xl"
               style={{ fontFamily: 'var(--font-display)' }}
             >
               {vehicle.title}
             </h2>
             {vehicle.generation && (
-              <p className="mt-0.5 text-sm text-[var(--color-text-muted)]">{vehicle.generation}</p>
+              <p className="mt-0.5 truncate text-xs text-[var(--color-text-muted)] sm:text-sm">{vehicle.generation}</p>
             )}
           </div>
 
           {/* Specs grid — 2×2 on mobile, 4 cols on sm+ */}
-          <div className="mt-4 grid grid-cols-2 gap-1.5 min-[390px]:gap-2 sm:grid-cols-4">
+          <div className="mt-3 grid grid-cols-2 gap-1.5 sm:mt-4 sm:grid-cols-4 sm:gap-2">
             <SpecChip icon={<Calendar size={12} />} value={`${vehicle.year}.`} />
             <SpecChip icon={<Gauge size={12} />} value={formatMileage(vehicle.mileage)} />
             <SpecChip icon={<Fuel size={12} />} value={t.fuel[vehicle.fuelType]} />
             <SpecChip icon={<Settings2 size={12} />} value={t.transmission[vehicle.transmission]} />
           </div>
 
-          <TrustBadges locale={locale} badges={trustBadges.slice(0, 3)} compact className="mt-4 min-[390px]:hidden" />
-          <TrustBadges locale={locale} badges={trustBadges} compact className="mt-4 hidden min-[390px]:flex" />
+          <TrustBadges locale={locale} badges={trustBadges.slice(0, 3)} compact className="mt-3 min-[390px]:hidden" />
+          <TrustBadges locale={locale} badges={trustBadges} compact className="mt-3 hidden min-[390px]:flex sm:mt-4" />
 
-          <div className="mt-6 mb-6 flex flex-wrap items-center gap-1.5">
+          <div className="mt-4 mb-4 flex flex-wrap items-center gap-1.5 sm:mt-6 sm:mb-6">
             <span className="inline-flex items-center gap-1 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-2.5 py-1 text-[10px] font-black text-[var(--accent-dark)] min-[390px]:text-[11px]">
               <Building2 size={11} />
               {locale === 'sq' ? 'Auto diler partner' : 'Partnerski auto diler'}
@@ -115,7 +115,7 @@ export default function HeroVehicleCard({
           </div>
 
           {/* Footer — verified line + CTA */}
-          <div className="mt-0 flex flex-col gap-3 border-t border-[var(--color-border)] pt-6 min-[390px]:flex-row min-[390px]:items-center min-[390px]:justify-between min-[390px]:gap-4">
+          <div className="mt-0 flex flex-col gap-2.5 border-t border-[var(--color-border)] pt-4 min-[390px]:flex-row min-[390px]:items-center min-[390px]:justify-between min-[390px]:gap-4 sm:gap-3 sm:pt-6">
             <div className="flex min-w-0 items-center gap-2 text-xs text-[var(--color-text-muted)]">
               <ShieldCheck size={14} className="shrink-0 text-[var(--accent)]" />
               <span className="line-clamp-2 leading-snug min-[390px]:truncate">{verifiedLine}</span>
@@ -136,7 +136,7 @@ export default function HeroVehicleCard({
 
 function SpecChip({ icon, value }: { readonly icon: React.ReactNode; readonly value: string }) {
   return (
-    <div className="flex min-h-9 items-center gap-1.5 rounded-xl bg-[var(--color-surface-2)] px-2.5 py-2 text-xs text-[var(--color-text-2)]">
+    <div className="flex min-h-8 items-center gap-1.5 rounded-lg bg-[var(--color-surface-2)] px-2 py-1.5 text-[11px] text-[var(--color-text-2)] sm:min-h-9 sm:rounded-xl sm:px-2.5 sm:py-2 sm:text-xs">
       <span className="shrink-0 text-[var(--accent)]">{icon}</span>
       <span className="truncate font-medium">{value}</span>
     </div>
