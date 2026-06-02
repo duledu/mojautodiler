@@ -4,6 +4,7 @@ import {
   FileCheck2,
   Gauge,
   History,
+  Images,
   ShieldCheck,
   Sparkles,
   Wrench,
@@ -20,39 +21,43 @@ export type TrustBadgeKey =
   | 'inspection'
   | 'transparent'
   | 'warranty'
-  | 'dealer';
+  | 'dealer'
+  | 'gallery';
 
 const iconMap = {
-  verified: BadgeCheck,
-  swiss: Sparkles,
-  service: History,
-  vin: FileCheck2,
-  inspection: ClipboardCheck,
+  verified:    BadgeCheck,
+  swiss:       Sparkles,
+  service:     History,
+  vin:         FileCheck2,
+  inspection:  ClipboardCheck,
   transparent: ShieldCheck,
-  warranty: Wrench,
-  dealer: Gauge,
+  warranty:    Wrench,
+  dealer:      Gauge,
+  gallery:     Images,
 } satisfies Record<TrustBadgeKey, React.ComponentType<{ size?: number; className?: string }>>;
 
 const copy = {
   sr: {
-    verified: 'Provereno vozilo',
-    swiss: 'Uvoz iz inostranstva',
-    service: 'Servisna istorija',
-    vin: 'VIN proveren',
-    inspection: 'Multi-point provera',
+    verified:    'Provereno vozilo',
+    swiss:       'Uvoz iz inostranstva',
+    service:     'Servisna istorija',
+    vin:         'VIN proveren',
+    inspection:  'Pregled moguć',
     transparent: 'Transparentna kupovina',
-    warranty: 'Garancija dilera',
-    dealer: 'Pouzdan prodavac',
+    warranty:    'Garancija dilera',
+    dealer:      'Pouzdan prodavac',
+    gallery:     'Detaljna galerija',
   },
   sq: {
-    verified: 'Automjet i verifikuar',
-    swiss: 'Import nga jashtë vendit',
-    service: 'Histori servisi',
-    vin: 'VIN i verifikuar',
-    inspection: 'Kontroll profesional',
+    verified:    'Automjet i verifikuar',
+    swiss:       'Import nga jashtë vendit',
+    service:     'Histori servisi',
+    vin:         'VIN i verifikuar',
+    inspection:  'Kontroll i mundshëm',
     transparent: 'Blerje transparente',
-    warranty: 'Garanci dileri',
-    dealer: 'Shites i besuar',
+    warranty:    'Garanci dileri',
+    dealer:      'Shites i besuar',
+    gallery:     'Galeri e detajuar',
   },
 } satisfies Record<Locale, Record<TrustBadgeKey, string>>;
 
@@ -92,13 +97,21 @@ export function TrustBadges({
 
 export function getVehicleTrustBadges(vehicle: Vehicle): TrustBadgeKey[] {
   const badges: TrustBadgeKey[] = ['verified', 'transparent', 'dealer'];
+  const origin = (vehicle.origin ?? '').toLowerCase().trim();
 
-  if ((vehicle.origin || '').toLowerCase().includes('svaj') || (vehicle.origin || '').toLowerCase().includes('swiss')) {
+  // Show import badge for any non-blank, non-Serbia origin
+  if (origin && !origin.includes('srbija') && !origin.includes('serbia')) {
     badges.splice(1, 0, 'swiss');
   }
-  if (vehicle.registration || vehicle.dealerNotes || vehicle.features.length > 0) badges.push('service');
+
+  if (vehicle.registration || vehicle.dealerNotes || vehicle.features.length > 0) {
+    badges.push('service');
+  }
   if (vehicle.vin) badges.push('vin');
-  if (vehicle.condition === 'uvoz' || vehicle.mileage < 160000) badges.push('inspection');
+  if (vehicle.condition === 'uvoz' || vehicle.mileage < 160_000) badges.push('inspection');
+
+  // Rich gallery signal
+  if (vehicle.images.length >= 10) badges.push('gallery');
 
   return Array.from(new Set(badges)).slice(0, 6);
 }

@@ -54,6 +54,40 @@ export interface CreateLeadInput {
   vehicleTitle?: string;
   dealerId?: string;
   dealerName?: string;
+  ipAddress?: string;
+  userAgent?: string;
+}
+
+export interface RecentDuplicateLeadInput {
+  vehicleId?: string;
+  intent: LeadIntent;
+  ipAddress?: string;
+  userAgent?: string;
+  since: Date;
+}
+
+/**
+ * Production duplicate guard for click/contact analytics.
+ *
+ * Later cleanup query for obvious historical spam:
+ * group leads by vehicleId + intent + ipAddress + userAgent in short createdAt
+ * windows, then review groups with many rows before deleting anything.
+ */
+export async function findRecentDuplicateLead(input: RecentDuplicateLeadInput): Promise<AppLead | null> {
+  if (!hasDatabase() || !input.vehicleId) return null;
+
+  const row = await prisma.lead.findFirst({
+    where: {
+      vehicleId: input.vehicleId,
+      intent: input.intent,
+      createdAt: { gte: input.since },
+      ...(input.ipAddress ? { ipAddress: input.ipAddress } : {}),
+      ...(input.userAgent ? { userAgent: input.userAgent } : {}),
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  return row ? toAppLead(row) : null;
 }
 
 export async function createLead(input: CreateLeadInput): Promise<AppLead> {
@@ -71,6 +105,8 @@ export async function createLead(input: CreateLeadInput): Promise<AppLead> {
       vehicleTitle: input.vehicleTitle,
       dealerId:     input.dealerId,
       dealerName:   input.dealerName,
+      ipAddress:    input.ipAddress,
+      userAgent:    input.userAgent,
       status:       'NEW',
     },
   });

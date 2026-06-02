@@ -586,7 +586,7 @@ export default function VehicleFormClient({ mode, vehicle, dealers = [] }: Props
                   </span>
                 </div>
                 <p className="mt-0.5 pl-6 text-xs text-(--color-text-muted)">
-                  Prikazuje zlatni "AKCIJA" badge na kartici vozila. Vidljivo na svim stranicama.
+                  Prikazuje zlatni &quot;AKCIJA&quot; badge na kartici vozila. Vidljivo na svim stranicama.
                 </p>
               </div>
               <span

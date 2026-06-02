@@ -35,6 +35,7 @@ const typeLabels: Record<string, string> = {
 const sourceLabels: Record<string, string> = {
   web: 'Web',
   viber: 'Viber',
+  whatsapp: 'WhatsApp',
   phone: 'Telefon',
   email: 'Email',
 };
@@ -42,6 +43,7 @@ const sourceLabels: Record<string, string> = {
 const intentLabels: Record<string, string> = {
   phone_call: 'Poziv',
   viber_click: 'Viber klik',
+  whatsapp_click: 'WhatsApp klik',
   request_video: 'Video zahtev',
   reservation_request: 'Rezervacija',
   schedule_viewing: 'Zakazivanje',

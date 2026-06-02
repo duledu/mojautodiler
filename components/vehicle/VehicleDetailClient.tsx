@@ -4,7 +4,7 @@ import { useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FacebookIcon, InstagramIcon, ViberIcon } from '@/components/ui/SocialIcons';
+import { FacebookIcon, ViberIcon } from '@/components/ui/SocialIcons';
 import {
   Phone, ChevronLeft, ChevronRight, X, Check,
   ArrowLeft, Send, MapPin, Clock, ShieldCheck, CalendarCheck, Video, LockKeyhole, MessageCircle,
@@ -19,6 +19,7 @@ import VehicleCard from '@/components/vehicle/VehicleCard';
 import VehicleShareSection from '@/components/vehicle/VehicleShareSection';
 import { EmbedPlayer } from '@/components/vehicle/EmbedPlayer';
 import MobileContactFab from '@/components/vehicle/MobileContactFab';
+import VehicleHighlights from '@/components/vehicle/VehicleHighlights';
 import PremiumVehiclePlaceholder from '@/components/vehicle/PremiumVehiclePlaceholder';
 import { getVehicleTrustBadges, TrustBadges } from '@/components/vehicle/TrustBadges';
 import VehicleStatusBadge from '@/components/vehicle/VehicleStatusBadge';
@@ -37,9 +38,34 @@ interface Props {
   readonly dealer: DealerInfo;
 }
 
+function formatDealerPhone(phone: string): string {
+  const trimmed = phone.trim();
+  const digits = trimmed.replace(/\D/g, '');
+
+  if (!digits) return '';
+  if (/\s/.test(trimmed)) return trimmed;
+
+  const withoutInternationalPrefix = digits.startsWith('00') ? digits.slice(2) : digits;
+  const localSerbian = withoutInternationalPrefix.startsWith('381')
+    ? withoutInternationalPrefix.slice(3)
+    : withoutInternationalPrefix.startsWith('0')
+      ? withoutInternationalPrefix.slice(1)
+      : '';
+
+  if (localSerbian.length >= 8 && localSerbian.length <= 9) {
+    return `+381 ${localSerbian.slice(0, 2)} ${localSerbian.slice(2, 5)} ${localSerbian.slice(5)}`;
+  }
+
+  return trimmed;
+}
+
 export default function VehicleDetailClient({ vehicle, similar, locale, t, dealer }: Props) {
-  const formRef = useRef<HTMLDivElement | null>(null);
-  const touchStartX = useRef<number | null>(null);
+  const formRef      = useRef<HTMLDivElement | null>(null);
+  const touchStartX  = useRef<number | null>(null);
+  // Frontend duplicate guard — Map<vehicleId:intent, lastFiredMs>
+  // Prevents rapid double-taps, browser-synthetic click events, and any render-triggered
+  // misfires from reaching the API. 5 s per intent per vehicle per component mount.
+  const leadDebounce = useRef<Map<string, number>>(new Map());
   const [activeImage, setActiveImage] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'specs' | 'equipment' | 'safety' | 'description'>('specs');
@@ -47,6 +73,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
   const [submitted, setSubmitted] = useState(false);
   const trustBadges = getVehicleTrustBadges(vehicle);
   const contact = resolveVehicleContact(vehicle, dealer);
+  const dealerPhoneDisplay = formatDealerPhone(contact.phone);
   const quickActionCopy = locale === 'sq'
     ? {
         book: 'Rezervo shikimin',
@@ -141,7 +168,15 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
     { key: 'description', label: t.vehicle.description },
   ] as const;
 
-  const recordLeadIntent = (intent: string, channel: string, message?: string) => {
+  const recordLeadIntent = (intent: string, channel: string, message: string | undefined, firedAt: number) => {
+    // ── Frontend duplicate guard ────────────────────────────────────────────
+    // Prevents rapid double-taps, browser-synthetic click events, and any
+    // accidental render-level misfires from hitting the API. The server-side
+    // dedup in /api/leads is the authoritative last line of defence.
+    const dedupKey = `${vehicle.id}:${intent}`;
+    if ((leadDebounce.current.get(dedupKey) ?? 0) + 5_000 > firedAt) return;
+    leadDebounce.current.set(dedupKey, firedAt);
+
     fetch('/api/leads', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -161,9 +196,9 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
     }).catch(console.error);
   };
 
-  const applyQuickLead = (message: string, intent: string = 'general_inquiry') => {
+  const applyQuickLead = (message: string, intent: string = 'general_inquiry', firedAt: number) => {
     setForm((current) => ({ ...current, message }));
-    recordLeadIntent(intent, 'web', message);
+    recordLeadIntent(intent, 'web', message, firedAt);
     formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
@@ -231,14 +266,28 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                   </div>
                   {vatText && <p className="mt-0.5 text-xs font-medium tracking-[0.01em] text-(--color-text-muted)">{vatText}</p>}
                 </div>
-                <a
-                  href={`tel:${contact.phone}`}
-                  onClick={() => recordLeadIntent('phone_call', 'phone')}
-                  className="btn-gold touch-target flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm"
-                >
-                  <Phone size={14} />
-                  {t.common.call}
-                </a>
+                {contact.phone && (
+                  <div className="shrink-0 text-center">
+                    <a
+                      href={`tel:${contact.phone}`}
+                      onClick={(event) => recordLeadIntent('phone_call', 'phone', undefined, event.timeStamp)}
+                      className="btn-gold touch-target flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm"
+                    >
+                      <Phone size={14} />
+                      {t.common.call}
+                    </a>
+                    {dealerPhoneDisplay && (
+                      <a
+                        href={`tel:${contact.phone}`}
+                        onClick={(event) => recordLeadIntent('phone_call', 'phone', undefined, event.timeStamp)}
+                        className="mx-auto mt-1.5 block max-w-[9.5rem] truncate text-center text-[11px] font-semibold leading-none tracking-[0.01em] text-[var(--color-text-muted)] opacity-80 transition-colors hover:text-[var(--color-text)] hover:opacity-100 min-[390px]:text-xs"
+                        aria-label={`${t.common.call} ${dealerPhoneDisplay}`}
+                      >
+                        {dealerPhoneDisplay}
+                      </a>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -345,6 +394,22 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
               )}
             </div>
 
+            {/* Vehicle highlights — fast-scan chips between gallery and confidence section */}
+            <VehicleHighlights vehicle={vehicle} locale={locale} />
+
+            {/* Video embed — surfaced early so visitors see it before scrolling to specs */}
+            {vehicle.videoUrl && (
+              <section className="rounded-3xl border border-(--color-border) bg-white p-4 shadow-sm min-[390px]:p-5 sm:p-6">
+                <div className="mb-4 flex items-center gap-2">
+                  <Video size={16} className="text-[var(--accent)]" />
+                  <h3 className="font-black text-(--color-text)" style={{ fontFamily: 'var(--font-display)' }}>
+                    Video
+                  </h3>
+                </div>
+                <EmbedPlayer url={vehicle.videoUrl} />
+              </section>
+            )}
+
             <section className="rounded-3xl border border-[var(--accent-border)] bg-[var(--accent-soft)] p-4 shadow-sm min-[390px]:p-5 sm:p-6">
               <div className="flex flex-col gap-4 min-[390px]:gap-5 lg:flex-row lg:items-start lg:justify-between">
                 <div className="max-w-2xl">
@@ -378,12 +443,12 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                 <MessageCircle size={20} className="shrink-0 text-[var(--accent)]" />
               </div>
               <div className="grid gap-2 min-[430px]:grid-cols-2 lg:grid-cols-5">
-                <QuickLeadButton icon={<CalendarCheck size={15} />} label={quickActionCopy.book} onClick={() => applyQuickLead(`${quickActionCopy.book}: ${vehicle.title}`, 'schedule_viewing')} />
-                <QuickLeadButton icon={<Video size={15} />} label={quickActionCopy.video} onClick={() => applyQuickLead(`${quickActionCopy.video}: ${vehicle.title}`, 'request_video')} />
-                <QuickLeadButton icon={<ShieldCheck size={15} />} label={quickActionCopy.availability} onClick={() => applyQuickLead(`${quickActionCopy.availability}: ${vehicle.title}`, 'general_inquiry')} />
-                <QuickLeadButton icon={<LockKeyhole size={15} />} label={quickActionCopy.reserve} onClick={() => applyQuickLead(`${quickActionCopy.reserve}: ${vehicle.title}`, 'reservation_request')} />
+                <QuickLeadButton icon={<CalendarCheck size={15} />} label={quickActionCopy.book} onClick={(event) => applyQuickLead(`${quickActionCopy.book}: ${vehicle.title}`, 'schedule_viewing', event.timeStamp)} />
+                <QuickLeadButton icon={<Video size={15} />} label={quickActionCopy.video} onClick={(event) => applyQuickLead(`${quickActionCopy.video}: ${vehicle.title}`, 'request_video', event.timeStamp)} />
+                <QuickLeadButton icon={<ShieldCheck size={15} />} label={quickActionCopy.availability} onClick={(event) => applyQuickLead(`${quickActionCopy.availability}: ${vehicle.title}`, 'general_inquiry', event.timeStamp)} />
+                <QuickLeadButton icon={<LockKeyhole size={15} />} label={quickActionCopy.reserve} onClick={(event) => applyQuickLead(`${quickActionCopy.reserve}: ${vehicle.title}`, 'reservation_request', event.timeStamp)} />
                 {contact.viber && (
-                  <a href={`viber://chat?number=%2B${contact.viber.replace(/\D/g, '')}`} onClick={() => recordLeadIntent('viber_click', 'viber')} className="touch-target inline-flex items-center justify-center gap-2 rounded-2xl border border-[#7360F2]/20 bg-[#7360F2]/5 px-3 py-3 text-xs font-black text-[#6B5FDB] transition hover:bg-[#7360F2]/10">
+                  <a href={`viber://chat?number=%2B${contact.viber.replace(/\D/g, '')}`} onClick={(event) => recordLeadIntent('viber_click', 'viber', undefined, event.timeStamp)} className="touch-target inline-flex items-center justify-center gap-2 rounded-2xl border border-[#7360F2]/20 bg-[#7360F2]/5 px-3 py-3 text-xs font-black text-[#6B5FDB] transition hover:bg-[#7360F2]/10">
                     <ViberIcon size={15} />
                     {quickActionCopy.viber}
                   </a>
@@ -421,8 +486,8 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                   )}
                 </div>
                 <div className="grid gap-2 min-[430px]:min-w-40">
-                  {contact.phone && <a href={`tel:${contact.phone}`} onClick={() => recordLeadIntent('phone_call', 'phone')} className="btn-gold inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm"><Phone size={15} />{t.common.call}</a>}
-                  {contact.viber && <a href={`viber://chat?number=%2B${contact.viber.replace(/\D/g, '')}`} onClick={() => recordLeadIntent('viber_click', 'viber')} className="btn-outline inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm"><ViberIcon size={15} />Viber</a>}
+                  {contact.phone && <a href={`tel:${contact.phone}`} onClick={(event) => recordLeadIntent('phone_call', 'phone', undefined, event.timeStamp)} className="btn-gold inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm"><Phone size={15} />{t.common.call}</a>}
+                  {contact.viber && <a href={`viber://chat?number=%2B${contact.viber.replace(/\D/g, '')}`} onClick={(event) => recordLeadIntent('viber_click', 'viber', undefined, event.timeStamp)} className="btn-outline inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm"><ViberIcon size={15} />Viber</a>}
                 </div>
               </div>
               <p className="mt-5 rounded-2xl border border-[var(--accent-border)] bg-[var(--accent-soft)] p-3 text-xs leading-5 text-[var(--color-text-muted)] min-[390px]:p-4">
@@ -504,19 +569,6 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
               </div>
             </div>
 
-            {/* Video / embed — shown when a YouTube or Instagram URL is saved */}
-            {vehicle.videoUrl && (
-              <section className="rounded-3xl border border-(--color-border) bg-white p-4 shadow-sm min-[390px]:p-5 sm:p-6">
-                <div className="mb-4 flex items-center gap-2">
-                  <Video size={16} className="text-[var(--accent)]" />
-                  <h3 className="font-black text-(--color-text)" style={{ fontFamily: 'var(--font-display)' }}>
-                    Video
-                  </h3>
-                </div>
-                <EmbedPlayer url={vehicle.videoUrl} />
-              </section>
-            )}
-
             {/* Share + discount section */}
             <VehicleShareSection vehicle={vehicle} locale={locale} dealer={dealer} />
 
@@ -541,7 +593,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
               ) : (
                 <form onSubmit={(e) => {
                   e.preventDefault();
-                  recordLeadIntent('general_inquiry', form.email ? 'email' : 'phone', form.message || `${t.inquiry.interested}: ${vehicle.title}`);
+                  recordLeadIntent('general_inquiry', form.email ? 'email' : 'phone', form.message || `${t.inquiry.interested}: ${vehicle.title}`, e.timeStamp);
                   setSubmitted(true);
                 }} className="space-y-4">
                   <div className="grid sm:grid-cols-2 gap-4">
@@ -608,31 +660,43 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                   {vatText && <p className="mt-2 text-xs font-semibold tracking-[0.01em] text-[var(--color-text-muted)]">{vatText}</p>}
                 </div>
 
-                <div className="relative mt-5 space-y-3">
-                  <button
-                    type="button"
-                    suppressHydrationWarning
-                    onClick={() => applyQuickLead(`${quickActionCopy.book}: ${vehicle.title}`, 'schedule_viewing')}
-                    className="btn-gold flex min-h-[3.35rem] w-full items-center justify-center gap-2 rounded-2xl px-4 text-sm shadow-[0_16px_34px_rgba(201,168,76,0.24)]"
-                  >
-                    <CalendarCheck size={15} />
-                    {quickActionCopy.book}
-                  </button>
-                  <div className={`grid gap-2.5 ${contact.phone && contact.viber ? 'grid-cols-2' : 'grid-cols-1'}`}>
-                    {contact.phone && (
+                <div className="relative mt-5 space-y-2.5">
+                  {contact.phone && (
+                    <div className="text-center">
                       <a
                         href={`tel:${contact.phone}`}
-                        onClick={() => recordLeadIntent('phone_call', 'phone')}
-                        className="btn-dark flex min-h-12 items-center justify-center gap-2 rounded-2xl px-3 text-sm"
+                        onClick={(event) => recordLeadIntent('phone_call', 'phone', undefined, event.timeStamp)}
+                        className="btn-gold flex min-h-[3.35rem] w-full items-center justify-center gap-2 rounded-2xl px-4 text-sm shadow-[0_16px_34px_rgba(201,168,76,0.24)]"
                       >
                         <Phone size={15} />
                         {t.common.call}
                       </a>
-                    )}
+                      {dealerPhoneDisplay && (
+                        <a
+                          href={`tel:${contact.phone}`}
+                          onClick={(event) => recordLeadIntent('phone_call', 'phone', undefined, event.timeStamp)}
+                          className="mx-auto mt-2 block max-w-full truncate text-center text-xs font-semibold leading-none tracking-[0.01em] text-[var(--color-text-muted)] opacity-80 transition-colors hover:text-[var(--color-text)] hover:opacity-100"
+                          aria-label={`${t.common.call} ${dealerPhoneDisplay}`}
+                        >
+                          {dealerPhoneDisplay}
+                        </a>
+                      )}
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    suppressHydrationWarning
+                    onClick={(event) => applyQuickLead(`${quickActionCopy.book}: ${vehicle.title}`, 'schedule_viewing', event.timeStamp)}
+                    className="btn-outline flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl px-4 text-sm"
+                  >
+                    <CalendarCheck size={15} />
+                    {quickActionCopy.book}
+                  </button>
+                  <div className={`grid gap-2.5 ${contact.viber ? 'grid-cols-1' : 'hidden'}`}>
                     {contact.viber && (
                       <a
                         href={`viber://chat?number=%2B${contact.viber.replace(/\D/g, '')}`}
-                        onClick={() => recordLeadIntent('viber_click', 'viber')}
+                        onClick={(event) => recordLeadIntent('viber_click', 'viber', undefined, event.timeStamp)}
                         className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-[#7360F2]/25 bg-[#7360F2]/5 px-3 text-sm font-semibold text-[#6B5FDB] transition-colors hover:bg-[#7360F2]/10"
                         style={{ fontFamily: 'var(--font-display)' }}
                       >
@@ -692,6 +756,17 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                       <p className="truncate font-black text-(--color-text) text-base" style={{ fontFamily: 'var(--font-display)' }}>
                         {contact.name}
                       </p>
+                      {contact.phone && dealerPhoneDisplay && (
+                        <a
+                          href={`tel:${contact.phone}`}
+                          onClick={(event) => recordLeadIntent('phone_call', 'phone', undefined, event.timeStamp)}
+                          className="mt-1 inline-flex max-w-full items-center gap-1.5 truncate text-xs font-semibold leading-none tracking-[0.01em] text-[var(--color-text-muted)] opacity-80 transition-colors hover:text-[var(--color-text)] hover:opacity-100"
+                          aria-label={`${t.common.call} ${dealerPhoneDisplay}`}
+                        >
+                          <Phone size={12} className="shrink-0 text-[var(--accent)] opacity-80" />
+                          <span className="truncate">{dealerPhoneDisplay}</span>
+                        </a>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -748,57 +823,97 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
         )}
       </div>
 
-      {/* Mobile sticky bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-(--color-border) bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.08)] lg:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      {/* Mobile sticky bar — primary conversion surface for Instagram/Facebook traffic */}
+      <div
+        className="fixed bottom-0 left-0 right-0 z-40 border-t border-(--color-border) bg-white/95 shadow-[0_-4px_24px_rgba(0,0,0,0.10)] backdrop-blur-md lg:hidden"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      >
         <div className="flex items-center gap-1.5 px-2.5 py-2.5 min-[360px]:gap-2 min-[390px]:px-4 min-[390px]:py-3">
+          {/* Price + visible phone number — trust signal for Instagram/Facebook visitors */}
           <div className="min-w-0 flex-1">
             <div
-              className="truncate text-sm font-black leading-tight text-(--color-gold-dark) min-[390px]:text-lg"
+              className="truncate text-sm font-black leading-tight text-(--color-gold-dark) min-[390px]:text-base"
               style={{ fontFamily: 'var(--font-display)' }}
             >
               {formatPrice(vehicle.price, vehicle.currency)}
             </div>
-            <div className="mt-0.5 truncate text-xs text-(--color-text-muted)">{vehicle.title}</div>
+            {contact.phone ? (
+              <a
+                href={`tel:${contact.phone}`}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  recordLeadIntent('phone_call', 'phone', undefined, event.timeStamp);
+                }}
+                className="mt-0.5 block truncate text-[11px] font-semibold text-(--color-text-muted) transition-colors hover:text-(--color-text)"
+              >
+                {contact.phone}
+              </a>
+            ) : (
+              <div className="mt-0.5 truncate text-xs text-(--color-text-muted)">{vehicle.title}</div>
+            )}
           </div>
+
+          {/* WhatsApp — highest-converting mobile channel */}
+          {contact.phone && (
+            <a
+              href={`https://wa.me/${contact.phone.replace(/\D/g, '')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(event) => {
+                event.stopPropagation();
+                recordLeadIntent('whatsapp_click', 'whatsapp', undefined, event.timeStamp);
+              }}
+              className="touch-target flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#25D366] text-white shadow-sm"
+              aria-label="WhatsApp"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+              </svg>
+            </a>
+          )}
+
+          {/* Call — direct phone, gold CTA */}
           {contact.phone && (
             <a
               href={`tel:${contact.phone}`}
-              onClick={() => recordLeadIntent('phone_call', 'phone')}
-              className="btn-gold touch-target flex shrink-0 items-center gap-1.5 rounded-xl px-2.5 py-2.5 text-sm min-[390px]:px-5 min-[390px]:py-3"
+              onClick={(event) => {
+                event.stopPropagation();
+                recordLeadIntent('phone_call', 'phone', undefined, event.timeStamp);
+              }}
+              className="btn-gold touch-target flex shrink-0 items-center gap-1.5 rounded-xl px-2.5 py-2.5 text-sm min-[390px]:px-4"
             >
               <Phone size={15} />
               <span className="hidden min-[360px]:inline">{t.common.call}</span>
             </a>
           )}
+
+          {/* Viber */}
           {contact.viber && (
             <a
               href={`viber://chat?number=%2B${contact.viber.replace(/\D/g, '')}`}
-              onClick={() => recordLeadIntent('viber_click', 'viber')}
+              onClick={(event) => {
+                event.stopPropagation();
+                recordLeadIntent('viber_click', 'viber', undefined, event.timeStamp);
+              }}
               className="touch-target flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#7360F2]/20 bg-[#7360F2]/10 text-[#6B5FDB]"
               aria-label="Viber"
             >
               <ViberIcon size={18} />
             </a>
           )}
-          {contact.instagram && (
-            <a
-              href={contact.instagram}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="touch-target flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#E1306C]/20 bg-[#E1306C]/10 text-[#E1306C]"
-              aria-label="Instagram"
-            >
-              <InstagramIcon size={17} />
-            </a>
-          )}
+
+          {/* Inquiry — scrolls to contact form */}
           <button
             type="button"
             suppressHydrationWarning
-            onClick={() => applyQuickLead(`${quickActionCopy.book}: ${vehicle.title}`, 'schedule_viewing')}
+            onClick={(event) => {
+              event.stopPropagation();
+              applyQuickLead(`${t.vehicle.inquiry}: ${vehicle.title}`, 'general_inquiry', event.timeStamp);
+            }}
             className="btn-dark touch-target hidden shrink-0 items-center gap-1.5 rounded-xl px-3 py-3 text-xs min-[430px]:flex"
           >
-            <CalendarCheck size={14} />
-            {quickActionCopy.book}
+            <MessageCircle size={14} />
+            {t.vehicle.inquiry}
           </button>
         </div>
       </div>
@@ -807,8 +922,9 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
         phone={contact.phone}
         viber={contact.viber}
         instagram={contact.instagram || undefined}
-        onPhoneClick={() => recordLeadIntent('phone_call', 'phone')}
-        onViberClick={() => recordLeadIntent('viber_click', 'viber')}
+        onPhoneClick={(firedAt) => recordLeadIntent('phone_call', 'phone', undefined, firedAt)}
+        onViberClick={(firedAt) => recordLeadIntent('viber_click', 'viber', undefined, firedAt)}
+        onWhatsAppClick={(firedAt) => recordLeadIntent('whatsapp_click', 'whatsapp', undefined, firedAt)}
       />
 
       {/* Lightbox */}
@@ -883,7 +999,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
   );
 }
 
-function QuickLeadButton({ icon, label, onClick }: { readonly icon: React.ReactNode; readonly label: string; readonly onClick: () => void }) {
+function QuickLeadButton({ icon, label, onClick }: { readonly icon: React.ReactNode; readonly label: string; readonly onClick: React.MouseEventHandler<HTMLButtonElement> }) {
   return (
     <button
       type="button"
