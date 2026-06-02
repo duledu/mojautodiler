@@ -292,6 +292,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                       type="button"
                       onClick={prevImg}
                       aria-label="Prethodna slika"
+                      suppressHydrationWarning
                       className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-(--color-text) shadow-md hover:bg-white transition-colors"
                     >
                       <ChevronLeft size={20} />
@@ -300,6 +301,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                       type="button"
                       onClick={nextImg}
                       aria-label="Sledeća slika"
+                      suppressHydrationWarning
                       className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-(--color-text) shadow-md hover:bg-white transition-colors"
                     >
                       <ChevronRight size={20} />
@@ -320,6 +322,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                       key={img.id}
                       type="button"
                       onClick={() => setActiveImage(i)}
+                      suppressHydrationWarning
                       className={cn(
                         'touch-target relative h-14 w-20 shrink-0 overflow-hidden rounded-xl border-2 transition-all min-[390px]:h-16 min-[390px]:w-24',
                         i === activeImage
@@ -434,6 +437,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                   <button
                     key={tab.key}
                     type="button"
+                    suppressHydrationWarning
                     onClick={() => setActiveTab(tab.key)}
                     className={cn(
                       'px-5 py-3.5 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors',
@@ -542,6 +546,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                 }} className="space-y-4">
                   <div className="grid sm:grid-cols-2 gap-4">
                     <input
+                      suppressHydrationWarning
                       required type="text"
                       placeholder={t.inquiry.namePlaceholder}
                       value={form.name}
@@ -549,6 +554,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                       className="input-premium w-full rounded-xl px-4 py-3 text-sm"
                     />
                     <input
+                      suppressHydrationWarning
                       required type="tel"
                       placeholder={t.inquiry.phonePlaceholder}
                       value={form.phone}
@@ -557,6 +563,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                     />
                   </div>
                   <input
+                    suppressHydrationWarning
                     type="email"
                     placeholder={t.inquiry.emailPlaceholder}
                     value={form.email}
@@ -564,13 +571,14 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                     className="input-premium w-full rounded-xl px-4 py-3 text-sm"
                   />
                   <textarea
+                    suppressHydrationWarning
                     placeholder={t.inquiry.messagePlaceholder}
                     rows={4}
                     value={form.message}
                     onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
                     className="input-premium w-full rounded-xl px-4 py-3 text-sm resize-none"
                   />
-                  <button type="submit" className="btn-gold w-full rounded-xl py-3.5 text-sm flex items-center justify-center gap-2">
+                  <button suppressHydrationWarning type="submit" className="btn-gold w-full rounded-xl py-3.5 text-sm flex items-center justify-center gap-2">
                     <Send size={14} />
                     {t.inquiry.send}
                   </button>
@@ -603,6 +611,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                 <div className="relative mt-5 space-y-3">
                   <button
                     type="button"
+                    suppressHydrationWarning
                     onClick={() => applyQuickLead(`${quickActionCopy.book}: ${vehicle.title}`, 'schedule_viewing')}
                     className="btn-gold flex min-h-[3.35rem] w-full items-center justify-center gap-2 rounded-2xl px-4 text-sm shadow-[0_16px_34px_rgba(201,168,76,0.24)]"
                   >
@@ -784,6 +793,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
           )}
           <button
             type="button"
+            suppressHydrationWarning
             onClick={() => applyQuickLead(`${quickActionCopy.book}: ${vehicle.title}`, 'schedule_viewing')}
             className="btn-dark touch-target hidden shrink-0 items-center gap-1.5 rounded-xl px-3 py-3 text-xs min-[430px]:flex"
           >
@@ -829,6 +839,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
           {/* Close — z-20 so it is always above the image div */}
           <button
             type="button"
+            suppressHydrationWarning
             onClick={() => setLightboxOpen(false)}
             aria-label="Zatvori galeriju"
             className="absolute right-3 top-3 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/35 sm:right-4 sm:top-4"
@@ -843,6 +854,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
             <>
               <button
                 type="button"
+                suppressHydrationWarning
                 onClick={prevImg}
                 aria-label="Prethodna slika"
                 className="absolute left-2 top-1/2 z-20 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/35 sm:left-4"
@@ -851,6 +863,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
               </button>
               <button
                 type="button"
+                suppressHydrationWarning
                 onClick={nextImg}
                 aria-label="Sledeća slika"
                 className="absolute right-2 top-1/2 z-20 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/35 sm:right-4"
@@ -874,6 +887,7 @@ function QuickLeadButton({ icon, label, onClick }: { readonly icon: React.ReactN
   return (
     <button
       type="button"
+      suppressHydrationWarning
       onClick={onClick}
       className="touch-target inline-flex items-center justify-center gap-2 rounded-2xl border border-(--color-border) bg-white px-3 py-3 text-xs font-black text-(--color-text-2) transition hover:border-(--accent-border) hover:bg-(--accent-soft) hover:text-(--accent-dark)"
     >

@@ -4,8 +4,21 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import {
-  Camera, Check, ChevronDown, ChevronUp, Download, ExternalLink, Gift, Loader2, Share2,
+  Camera, Check, ChevronDown, ChevronUp, Download, ExternalLink, Gift, Info, Loader2, Share2,
 } from 'lucide-react';
+
+// iOS: iPhone, iPad (including iPadOS pretending to be macOS)
+function detectIOS() {
+  if (typeof navigator === 'undefined') return false;
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
+// Any touch-capable mobile device
+function detectMobile() {
+  if (typeof navigator === 'undefined') return false;
+  return /Mobi|Android/i.test(navigator.userAgent) || detectIOS();
+}
 import type { Vehicle } from '@/types/vehicle';
 import type { Locale } from '@/lib/i18n';
 import type { DealerInfo } from '@/lib/db/mappers';
@@ -26,15 +39,16 @@ interface Props {
 }
 
 export default function VehicleShareSection({ vehicle, locale, dealer }: Props) {
-  const [copied, setCopied]           = useState(false);
+  const [copied, setCopied]             = useState(false);
   const [showDownload, setShowDownload] = useState(false);
-  const [format, setFormat]           = useState<CreativeFormat>('square');
-  const [exporting, setExporting]     = useState(false);
-  const [loadingData, setLoadingData] = useState(false);
+  const [format, setFormat]             = useState<CreativeFormat>('square');
+  const [exporting, setExporting]       = useState(false);
+  const [loadingData, setLoadingData]   = useState(false);
   const [imageDataUrl, setImageDataUrl] = useState('');
-  const [qrDataUrl, setQrDataUrl]     = useState('');
-  const [loadError, setLoadError]     = useState('');
-  const [mounted, setMounted]         = useState(false);
+  const [qrDataUrl, setQrDataUrl]       = useState('');
+  const [loadError, setLoadError]       = useState('');
+  const [saveHint, setSaveHint]         = useState(false);
+  const [mounted, setMounted]           = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
 
   const copy = locale === 'sq'
@@ -65,6 +79,8 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
         exporting: 'Po gjenerohet...',
         loading: 'Duke ngarkuar...',
         downloadImage: 'Shkarko imazhin',
+        saveHintTitle: 'Imazhi u hap në skedë të re',
+        saveHintText: 'Shtypni dhe mbani imazhin, pastaj zgjidhni "Ruaj imazhin" për ta shtuar në Galerinë e telefonit.',
         ctaText: 'E ke tashmë screenshot-in e postimit? Dërgoje tani dhe përfito zbritjen.',
         ctaButton: 'Dërgo screenshot-in',
       }
@@ -95,6 +111,8 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
         exporting: 'Generišem...',
         loading: 'Učitavanje...',
         downloadImage: 'Preuzmi sliku',
+        saveHintTitle: 'Slika otvorena u novoj kartici',
+        saveHintText: 'Pritisnite i držite sliku, zatim odaberite "Sačuvaj sliku" da je dodate u Galeriju telefona.',
         ctaText: 'Već imaš screenshot objave? Pošalji nam ga odmah i ostvari popust.',
         ctaButton: 'Pošalji screenshot',
       };
@@ -145,7 +163,7 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
           const controller = new AbortController();
           const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
           const resp = await fetch(
-            `/api/admin/proxy-image?url=${encodeURIComponent(imgUrl)}`,
+            `/api/proxy-image?url=${encodeURIComponent(imgUrl)}`,
             { signal: controller.signal },
           );
           clearTimeout(timer);
@@ -195,22 +213,20 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
   const handleDownload = async () => {
     if (!canvasRef.current || !canvasReady || exporting) return;
     setExporting(true);
+    setLoadError('');
+    setSaveHint(false);
     try {
-      // FIX: Wait for every <img> in the canvas to finish decoding before
-      // capturing. html-to-image snapshots the DOM immediately — if the vehicle
-      // image hasn't painted yet the export is blank. img.decode() resolves only
-      // once the image is fully decoded and ready to rasterise.
+      // Wait for every <img> in the off-screen canvas to finish decoding before
+      // html-to-image serialises the DOM. img.decode() resolves only once the
+      // bitmap is fully decoded and ready to paint — no macrotask delay needed.
       const imgs = Array.from(canvasRef.current.querySelectorAll('img'));
       await Promise.all(imgs.map(img => img.decode().catch(() => {})));
 
-      // Short settle: lets the browser flush any pending paints to the off-screen
-      // element before html-to-image walks the DOM tree.
-      await new Promise(r => setTimeout(r, 80));
+      // NOTE: we deliberately do NOT await a setTimeout here. A setTimeout
+      // introduces a macrotask boundary that breaks the user-gesture chain on
+      // iOS Safari, which prevents navigator.share() from opening the share sheet.
+      // img.decode() above is sufficient — all resources are pre-loaded data: URLs.
 
-      // FIX: Use toBlob instead of toPng.
-      //   • toBlob skips the data-URL base64 round-trip (saves ~33 % memory).
-      //   • cacheBust: false — all resources are already data: URLs; re-fetching
-      //     them with a cache-busting param wastes time and fails on mobile CORS.
       const { toBlob } = await import('html-to-image');
       const blob = await toBlob(canvasRef.current, {
         width:      dims.w,
@@ -222,17 +238,51 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
 
       if (!blob) throw new Error('toBlob returned null');
 
-      // FIX: Blob-URL anchor is the only reliably cross-platform mobile download
-      // method. data-URL href clicks are blocked on iOS Safari and truncated on
-      // some Android browsers when the URL exceeds ~2 MB.
+      const filename = `${vehicle.slug}-${format}.png`;
+
+      // ── Strategy 1: Web Share API with file (iOS 15.4+, Android Chrome 89+) ──
+      // Opens the native OS share sheet so the user can tap "Save Image" or share
+      // directly to Instagram, Facebook, TikTok etc. — no manual steps needed.
+      // Must be called within the user-gesture chain (all awaits above are
+      // Promise-based microtasks, so the gesture context is preserved).
+      const file = new File([blob], filename, { type: 'image/png' });
+      if (
+        typeof navigator !== 'undefined' &&
+        typeof navigator.canShare === 'function' &&
+        navigator.canShare({ files: [file] })
+      ) {
+        try {
+          await navigator.share({ files: [file], title: vehicle.title });
+          return; // share sheet handled it — done
+        } catch (e) {
+          // AbortError = user cancelled the share sheet intentionally
+          if (e instanceof Error && e.name === 'AbortError') return;
+          // Any other error (permission denied, OS restriction) → fall through
+        }
+      }
+
       const url = URL.createObjectURL(blob);
+
+      // ── Strategy 2: iOS without Web Share API ──────────────────────────────
+      // <a download> is silently ignored on iOS Safari — the browser either
+      // opens the URL in the same tab or does nothing. Opening in a new tab
+      // displays the PNG inline; the user can long-press → "Add to Photos".
+      if (detectIOS()) {
+        window.open(url, '_blank');
+        setSaveHint(true); // show the tap-and-hold instruction banner
+        setTimeout(() => URL.revokeObjectURL(url), 300_000); // 5 min
+        return;
+      }
+
+      // ── Strategy 3: Anchor download ────────────────────────────────────────
+      // Reliable on Android Chrome, Firefox (all platforms), and all desktop
+      // browsers. blob: URLs are fully supported for download on these platforms.
       const a = document.createElement('a');
       a.href     = url;
-      a.download = `${vehicle.slug}-${format}.png`;
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
-      document.body.removeChild(a);
-      // Revoke after a generous delay so the OS download manager can finish reading.
+      a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 60_000);
     } catch {
       setLoadError(copy.downloadError);
@@ -242,10 +292,12 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
   };
 
   const isButtonBusy = exporting || loadingData;
-  const buttonLabel  = exporting   ? copy.exporting
-                     : loadingData ? copy.loading
-                     : !canvasReady ? copy.loading
-                     : copy.downloadImage;
+  function downloadLabel() {
+    if (exporting) return copy.exporting;
+    if (loadingData || !canvasReady) return copy.loading;
+    return copy.downloadImage;
+  }
+  const buttonLabel = downloadLabel();
 
   return (
     <section className="rounded-3xl border border-[var(--accent-border)] bg-gradient-to-br from-[var(--accent-soft)] via-white to-white p-5 shadow-sm sm:p-6">
@@ -278,6 +330,7 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
         {/* Primary — native share / clipboard */}
         <button
           type="button"
+          suppressHydrationWarning
           onClick={handleShare}
           className="btn-gold inline-flex min-h-10 items-center gap-2 rounded-xl px-4 text-sm"
         >
@@ -327,6 +380,7 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
       <div className="border-t border-[var(--accent-border)] pt-4">
         <button
           type="button"
+          suppressHydrationWarning
           onClick={handleToggleDownload}
           className="flex w-full items-center justify-between gap-3 text-left"
         >
@@ -349,6 +403,7 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
                 <button
                   key={f}
                   type="button"
+                  suppressHydrationWarning
                   onClick={() => setFormat(f)}
                   className={cn(
                     'rounded-lg border px-3 py-1.5 text-xs font-bold transition',
@@ -399,6 +454,7 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
             {/* Download button */}
             <button
               type="button"
+              suppressHydrationWarning
               onClick={handleDownload}
               disabled={isButtonBusy || !canvasReady}
               className="btn-gold inline-flex min-h-10 items-center gap-2 rounded-xl px-5 text-sm disabled:opacity-55"
@@ -408,6 +464,17 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
                 : <Download size={15} />}
               {buttonLabel}
             </button>
+
+            {/* iOS long-press hint — shown after window.open fallback on older iOS */}
+            {saveHint && (
+              <div className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 p-3.5">
+                <Info size={15} className="mt-0.5 shrink-0 text-amber-600" />
+                <div>
+                  <p className="text-xs font-bold text-amber-800">{copy.saveHintTitle}</p>
+                  <p className="mt-0.5 text-xs leading-relaxed text-amber-700">{copy.saveHintText}</p>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
