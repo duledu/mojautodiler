@@ -1,11 +1,19 @@
 User-agent: *
 Allow: /
 
-# Disallow admin panel
+# Admin panels
 Disallow: /sr/admin/
 Disallow: /sq/admin/
 
-# Disallow API
+# All API routes
 Disallow: /api/
+
+# Pre-launch lock page
+Disallow: /lock
+
+# Filter/query inventory URLs — canonicals already point to clean URLs;
+# blocking these prevents crawl budget waste on near-duplicate pages.
+Disallow: /sr/inventory?*
+Disallow: /sq/inventory?*
 
 Sitemap: https://mojautodiler.rs/sitemap.xml

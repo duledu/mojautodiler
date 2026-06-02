@@ -134,6 +134,27 @@ export async function getActiveVehicleSlugs(): Promise<{ slug: string }[]> {
   });
 }
 
+/**
+ * Returns slug + updatedAt + primary image for the XML sitemap.
+ * Using actual updatedAt as lastmod signals content freshness to crawlers,
+ * which is an important ranking factor for inventory pages.
+ */
+export async function getVehicleSlugsForSitemap(): Promise<
+  { slug: string; updatedAt: Date; primaryImage?: string }[]
+> {
+  if (!hasDatabase()) { warnNoDB('getVehicleSlugsForSitemap'); return []; }
+  const rows = await prisma.vehicle.findMany({
+    where:   { status: 'AVAILABLE' },
+    select:  { slug: true, updatedAt: true, images: true },
+    orderBy: { updatedAt: 'desc' },
+  });
+  return rows.map((r) => ({
+    slug:         r.slug,
+    updatedAt:    r.updatedAt,
+    primaryImage: (r.images as string[])[0] ?? undefined,
+  }));
+}
+
 export async function getVehicleStats() {
   if (!hasDatabase()) {
     warnNoDB('getVehicleStats');

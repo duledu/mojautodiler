@@ -39,6 +39,13 @@ export async function generateMetadata(
     description: isSq
       ? 'Automjete premium të zgjedhura me kujdes nga importi, me histori transparente dhe blerje të sigurt pa presion në Serbi.'
       : 'Pažljivo odabrana premium vozila iz uvoza sa transparentnom istorijom, dokumentovanim stanjem i sigurnom kupovinom bez pritiska u Srbiji.',
+    // max-image-preview:large is required for Google Discover image eligibility
+    robots: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
     alternates: {
       canonical: `/${locale}`,
       languages: { sr: '/sr', sq: '/sq' },
