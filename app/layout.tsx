@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import MetaPixel from '@/components/analytics/MetaPixel';
+import UtmCapture from '@/components/analytics/UtmCapture';
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mojautodiler.rs';
 
@@ -37,7 +39,13 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { readonly children: React.ReactNode }) {
   return (
     <html lang="sr" suppressHydrationWarning>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        {children}
+        {/* Meta Pixel — loads after hydration, tracks SPA route changes */}
+        <MetaPixel />
+        {/* UTM capture — persists ad campaign params to sessionStorage for lead attribution */}
+        <UtmCapture />
+      </body>
     </html>
   );
 }

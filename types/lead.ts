@@ -25,5 +25,7 @@ export interface Lead {
   email?: string;
   message: string;
   source?: 'web' | 'viber' | 'whatsapp' | 'instagram' | 'facebook' | 'phone' | 'email';
+  /** JSON string: UTM params + referrer + landing page. Parse with parseAttribution() from lib/utm. */
+  attribution?: string;
   createdAt: string;
 }

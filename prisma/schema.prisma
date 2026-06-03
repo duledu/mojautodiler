@@ -196,6 +196,7 @@ model Lead {
   preferredContactChannel String @default("web")
   ipAddress    String?
   userAgent    String?
+  attribution  String?    // JSON: UTM params + referrer + landing page
 
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt

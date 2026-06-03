@@ -56,6 +56,8 @@ export interface CreateLeadInput {
   dealerName?: string;
   ipAddress?: string;
   userAgent?: string;
+  /** JSON string: UTM params + referrer + landing page from the user's session. */
+  attribution?: string;
 }
 
 export interface RecentDuplicateLeadInput {
@@ -107,6 +109,7 @@ export async function createLead(input: CreateLeadInput): Promise<AppLead> {
       dealerName:   input.dealerName,
       ipAddress:    input.ipAddress,
       userAgent:    input.userAgent,
+      attribution:  input.attribution,
       status:       'NEW',
     },
   });

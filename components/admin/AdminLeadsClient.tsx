@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Lead } from '@/types/lead';
+import { parseAttribution } from '@/lib/utm';
 import {
   Car,
   ChevronDown,
@@ -238,6 +239,27 @@ export default function AdminLeadsClient({ leads: initialLeads }: Props) {
               <ContactRow icon={<MessageSquare size={15} />} label={`Kanal: ${sourceLabels[selected.preferredContactChannel] ?? selected.preferredContactChannel}`} />
               <ContactRow icon={<Clock size={15} />} label={new Date(selected.createdAt).toLocaleString('sr-RS')} muted />
             </div>
+
+            {/* Attribution — UTM params captured at the moment of the lead action */}
+            {selected.attribution && (() => {
+              const utm = parseAttribution(selected.attribution);
+              if (!utm) return null;
+              return (
+                <div className="mt-4 rounded-2xl border border-(--color-border) bg-(--color-surface-2) p-4">
+                  <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-(--color-text-placeholder)">
+                    Poreklo posete
+                  </p>
+                  <div className="space-y-1.5 text-xs text-(--color-text-muted)">
+                    {utm.utm_source   && <p><span className="font-semibold text-(--color-text)">Izvor:</span> {utm.utm_source}</p>}
+                    {utm.utm_medium   && <p><span className="font-semibold text-(--color-text)">Medium:</span> {utm.utm_medium}</p>}
+                    {utm.utm_campaign && <p><span className="font-semibold text-(--color-text)">Kampanja:</span> {utm.utm_campaign}</p>}
+                    {utm.utm_content  && <p><span className="font-semibold text-(--color-text)">Sadržaj:</span> {utm.utm_content}</p>}
+                    {utm.referrer     && <p><span className="font-semibold text-(--color-text)">Referrer:</span> {utm.referrer}</p>}
+                    {utm.landingPage  && <p><span className="font-semibold text-(--color-text)">Landing:</span> {utm.landingPage}</p>}
+                  </div>
+                </div>
+              );
+            })()}
 
             <div className="mt-5 rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface-2)] p-4">
               <p className="mb-2 text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-text-placeholder)]">Poruka</p>

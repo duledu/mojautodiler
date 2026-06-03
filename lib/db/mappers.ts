@@ -189,6 +189,9 @@ export function toAppLead(l: PrismaLead): AppLead {
     email:        l.email ?? undefined,
     message:      l.message,
     source:       (l.source ?? 'web') as AppLead['source'],
+    // attribution is cast through unknown — the Prisma type gains this field
+    // after `prisma generate` runs against the updated schema.
+    attribution:  ((l as unknown as Record<string, unknown>).attribution as string | null) ?? undefined,
     createdAt:    l.createdAt.toISOString(),
   };
 }

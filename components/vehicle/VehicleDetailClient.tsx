@@ -1,6 +1,8 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { trackLead, trackViewContent } from '@/lib/meta-pixel';
+import { buildAttribution } from '@/lib/utm';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -73,6 +75,20 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
   const [submitted, setSubmitted] = useState(false);
   const trustBadges = getVehicleTrustBadges(vehicle);
   const contact = resolveVehicleContact(vehicle, dealer);
+
+  // ── Meta Pixel: ViewContent ───────────────────────────────────────────────
+  // Fires once when the vehicle detail page mounts (client side only).
+  // PageView is already handled globally by MetaPixelProvider in the root layout.
+  useEffect(() => {
+    trackViewContent({
+      id:       vehicle.id,
+      name:     vehicle.title,
+      category: 'vehicle',
+      value:    vehicle.price,
+      currency: vehicle.currency,
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vehicle.id]); // vehicle.id is stable — only re-fires if user navigates to a different vehicle
   const dealerPhoneDisplay = formatDealerPhone(contact.phone);
   const quickActionCopy = locale === 'sq'
     ? {
@@ -177,6 +193,12 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
     if ((leadDebounce.current.get(dedupKey) ?? 0) + 5_000 > firedAt) return;
     leadDebounce.current.set(dedupKey, firedAt);
 
+    // ── Meta Pixel: Lead event ──────────────────────────────────────────────
+    // Fires for every confirmed lead intent — phone call, WhatsApp, Viber,
+    // form submit, scheduling, reservation. Uses the same dedup guard as the
+    // API call so it can never fire twice for the same intent within 5 s.
+    trackLead({ contentName: vehicle.title, value: vehicle.price, currency: vehicle.currency });
+
     fetch('/api/leads', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -192,6 +214,8 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
         dealerName: contact.dealerName,
         intent,
         preferredContactChannel: channel,
+        // Attribution: UTM params + referrer + landing page captured at ad click time
+        attribution: buildAttribution(),
       }),
     }).catch(console.error);
   };

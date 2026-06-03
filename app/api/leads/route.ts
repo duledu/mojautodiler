@@ -163,6 +163,16 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Attribution: UTM + referrer JSON sent by the client.
+    // Must be a string (the client sends JSON.stringify output).
+    // Cap at 2 KB to prevent oversized payloads from filling the column.
+    const attributionRaw = typeof fields.attribution === 'string'
+      ? fields.attribution.trim()
+      : undefined;
+    const attribution = attributionRaw && attributionRaw.length <= 2048
+      ? attributionRaw
+      : undefined;
+
     const dbInput = {
       type: leadType,
       name,
@@ -178,6 +188,7 @@ export async function POST(request: NextRequest) {
       source: preferredContactChannel,
       ipAddress,
       userAgent,
+      attribution,
     };
 
     const emailPayload = {
