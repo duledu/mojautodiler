@@ -157,7 +157,6 @@ export default function LockScreen({ from, locale }: Props) {
             style={{ fontFamily: 'var(--font-display)', color: '#ffffff' }}
           >
             {titleLines.map((line, i) => (
-              // eslint-disable-next-line react/no-array-index-key
               <span key={line + i} className={i < titleLines.length - 1 ? 'block' : undefined}>{line}</span>
             ))}
           </h1>

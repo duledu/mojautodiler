@@ -5,7 +5,6 @@ import { useEffect, useRef } from 'react';
 // ─── Global Instagram API ────────────────────────────────────────────────────
 
 declare global {
-  // eslint-disable-next-line no-var
   var instgrm: { Embeds: { process(): void } } | undefined;
 }
 

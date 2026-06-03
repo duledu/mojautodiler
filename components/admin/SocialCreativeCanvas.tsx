@@ -3,6 +3,31 @@ import { Vehicle } from '@/types/vehicle';
 import { formatPrice, formatMileage } from '@/lib/utils';
 import { VehiclePhotoLayer } from '@/components/admin/VehiclePhotoLayer';
 
+// ── Premium inline location pin ───────────────────────────────────────────────
+// Thin-stroke teardrop with inner dot — no emoji, no generic Google Maps pin.
+// Inline SVG so html-to-image captures it perfectly at any canvas resolution.
+function LocationPinIcon({ size, color }: { readonly size: number; readonly color: string }) {
+  const w = Math.round(size * 0.67);
+  return (
+    <svg
+      width={w}
+      height={size}
+      viewBox="0 0 8 12"
+      fill="none"
+      style={{ display: 'block', flexShrink: 0 }}
+    >
+      <path
+        d="M4 0.75C1.93 0.75 0.25 2.43 0.25 4.5C0.25 7.62 4 11.25 4 11.25C4 11.25 7.75 7.62 7.75 4.5C7.75 2.43 6.07 0.75 4 0.75Z"
+        stroke={color}
+        strokeWidth="0.85"
+        strokeLinejoin="round"
+        fill="none"
+      />
+      <circle cx="4" cy="4.5" r="1.25" fill={color} />
+    </svg>
+  );
+}
+
 export type CreativeFormat = 'story' | 'square' | 'portrait';
 
 export const CREATIVE_DIMS: Record<CreativeFormat, { w: number; h: number }> = {
@@ -76,12 +101,16 @@ export interface SocialCreativeCanvasProps {
   qrDataUrl: string;
   dealerName: string;
   dealerPhone: string;
+  dealerLocation?: string;
   listingUrl: string;
+  /** Optional brand logo data URL — renders as circular icon beside "MOJ AUTO DILER" badge.
+   *  Pass as a pre-loaded data URL so html-to-image never needs to fetch it. */
+  brandLogoUrl?: string;
 }
 
 export const SocialCreativeCanvas = forwardRef<HTMLDivElement, SocialCreativeCanvasProps>(
   function SocialCreativeCanvas(
-    { vehicle, format, imageDataUrl, qrDataUrl, dealerName, dealerPhone, listingUrl },
+    { vehicle, format, imageDataUrl, qrDataUrl, dealerName, dealerPhone, dealerLocation, listingUrl, brandLogoUrl },
     ref,
   ) {
     const { w, h } = CREATIVE_DIMS[format];
@@ -188,6 +217,7 @@ export const SocialCreativeCanvas = forwardRef<HTMLDivElement, SocialCreativeCan
             style={{
               display: 'inline-flex',
               alignItems: 'center',
+              gap: brandLogoUrl ? Math.round(s.badgePadH * 0.7) : 0,
               // No backdropFilter — html-to-image cannot render it and produces glitched
               // rasterisation. Higher-opacity solid gradient gives the same frosted look.
               background: 'linear-gradient(135deg, rgba(8,9,13,0.72), rgba(255,255,255,0.08) 42%, rgba(201,168,76,0.10))',
@@ -197,6 +227,21 @@ export const SocialCreativeCanvas = forwardRef<HTMLDivElement, SocialCreativeCan
               boxShadow: '0 14px 44px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.20)',
             }}
           >
+            {brandLogoUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={brandLogoUrl}
+                alt=""
+                style={{
+                  width:        Math.round(s.badge * 2.4),
+                  height:       Math.round(s.badge * 2.4),
+                  borderRadius: '50%',
+                  display:      'block',
+                  flexShrink:   0,
+                  objectFit:    'cover',
+                }}
+              />
+            )}
             <span
               style={{
                 color: GOLD_LIGHT,
@@ -407,6 +452,39 @@ export const SocialCreativeCanvas = forwardRef<HTMLDivElement, SocialCreativeCan
               >
                 {dealerName}
               </div>
+
+              {/* Dealer location — dynamic city, hidden when absent */}
+              {dealerLocation && (
+                <div
+                  style={{
+                    display:     'flex',
+                    alignItems:  'center',
+                    gap:         Math.round(s.url * 0.32),
+                    marginTop:   Math.round(s.gap * -0.1), // tighten gap slightly — location belongs with name
+                  }}
+                >
+                  <LocationPinIcon
+                    size={Math.round(s.url * 0.88)}
+                    color="rgba(242,213,122,0.58)"
+                  />
+                  <span
+                    style={{
+                      fontSize:       Math.round(s.url * 0.86),
+                      fontWeight:     600,
+                      color:          'rgba(242,213,122,0.60)',
+                      fontFamily:     FONT,
+                      letterSpacing:  '0.06em',
+                      textTransform:  'uppercase',
+                      overflow:       'hidden',
+                      textOverflow:   'ellipsis',
+                      whiteSpace:     'nowrap',
+                    }}
+                  >
+                    {dealerLocation}
+                  </span>
+                </div>
+              )}
+
               {dealerPhone && (
                 <div
                   style={{

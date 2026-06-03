@@ -4,135 +4,157 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import {
-  Camera, Check, ChevronDown, ChevronUp, Download, ExternalLink, Gift, Info, Loader2, Share2,
+  Camera, Check, CheckCircle2, ChevronDown, ChevronUp,
+  Download, ExternalLink, Gift, Info, Loader2, Share2,
 } from 'lucide-react';
 
-// iOS: iPhone, iPad (including iPadOS pretending to be macOS)
-function detectIOS() {
+// ── Platform detection ────────────────────────────────────────────────────────
+
+function detectIOS(): boolean {
   if (typeof navigator === 'undefined') return false;
   return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 }
 
-// Any touch-capable mobile device
-function detectMobile() {
+function detectMobile(): boolean {
   if (typeof navigator === 'undefined') return false;
   return /Mobi|Android/i.test(navigator.userAgent) || detectIOS();
 }
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+
 import type { Vehicle } from '@/types/vehicle';
 import type { Locale } from '@/lib/i18n';
 import type { DealerInfo } from '@/lib/db/mappers';
 import { cn } from '@/lib/utils';
 import { SocialCreativeCanvas, CREATIVE_DIMS, CreativeFormat } from '@/components/admin/SocialCreativeCanvas';
+import { waitForExportReady } from '@/components/admin/VehiclePhotoLayer';
 
 const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mojautodiler.com').replace(/\/$/, '');
-
-// Mobile: keep the source image under this byte limit to avoid OOM during export.
-// The proxy already returns the full image; we don't compress it further because
-// html-to-image will rasterise it at canvas resolution anyway.
 const FETCH_TIMEOUT_MS = 10_000;
+
+type ExportMime = 'image/jpeg' | 'image/png';
 
 interface Props {
   readonly vehicle: Vehicle;
-  readonly locale: Locale;
-  readonly dealer: DealerInfo;
+  readonly locale:  Locale;
+  readonly dealer:  DealerInfo;
 }
 
 export default function VehicleShareSection({ vehicle, locale, dealer }: Props) {
-  const [copied, setCopied]             = useState(false);
+  const [copied,       setCopied]       = useState(false);
   const [showDownload, setShowDownload] = useState(false);
-  const [format, setFormat]             = useState<CreativeFormat>('square');
-  const [exporting, setExporting]       = useState(false);
-  const [loadingData, setLoadingData]   = useState(false);
+  const [format,       setFormat]       = useState<CreativeFormat>('story');
+  const [exportMime,   setExportMime]   = useState<ExportMime>('image/jpeg');
+  const [exporting,    setExporting]    = useState(false);
+  const [sharing,      setSharing]      = useState(false);
+  const [loadingData,  setLoadingData]  = useState(false);
   const [imageDataUrl, setImageDataUrl] = useState('');
-  const [qrDataUrl, setQrDataUrl]       = useState('');
-  const [loadError, setLoadError]       = useState('');
-  const [saveHint, setSaveHint]         = useState(false);
-  const [mounted, setMounted]           = useState(false);
+  const [brandLogoUrl, setBrandLogoUrl] = useState('');
+  const [qrDataUrl,    setQrDataUrl]    = useState('');
+  const [loadError,    setLoadError]    = useState('');
+  const [saveHint,     setSaveHint]     = useState(false);
+  const [downloaded,   setDownloaded]   = useState(false);
+  const [mounted,      setMounted]      = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
 
+  // ── i18n copy ─────────────────────────────────────────────────────────────
   const copy = locale === 'sq'
     ? {
         formatLabels: {
-          square: 'Katëror 1:1',
+          square:   'Katëror 1:1',
           portrait: 'Portret 4:5',
-          story: 'Story 9:16',
+          story:    'Story 9:16',
         } satisfies Record<CreativeFormat, string>,
-        shareIntro: 'Shiko këtë automjet në MojAutoDiler:',
-        loadError: 'Ngarkimi nuk pati sukses. Provoni përsëri.',
-        downloadError: 'Shkarkimi nuk pati sukses. Provoni përsëri.',
-        title: 'Shpërndaje dhe përfito 100€ zbritje',
-        descriptionStart: 'Shpërndani një ose më shumë automjete nga oferta jonë në rrjetet sociale, ndiqni ose etiketoni',
-        descriptionMiddle: 'dhe na dërgoni screenshot-in përmes formularit të kontaktit.',
-        descriptionEnd: 'Përfitoni',
-        discount: '100€ zbritje',
+        shareIntro:            'Shiko këtë automjet në MojAutoDiler:',
+        loadError:             'Ngarkimi nuk pati sukses. Provoni përsëri.',
+        downloadError:         'Shkarkimi nuk pati sukses. Provoni përsëri.',
+        title:                 'Shpërndaje dhe përfito 100€ zbritje',
+        descriptionStart:      'Shpërndani një ose më shumë automjete nga oferta jonë në rrjetet sociale, ndiqni ose etiketoni',
+        descriptionMiddle:     'dhe na dërgoni screenshot-in përmes formularit të kontaktit.',
+        descriptionEnd:        'Përfitoni',
+        discount:              '100€ zbritje',
         descriptionAfterDiscount: 'për automjetin që dëshironi të blini.',
-        copied: 'U kopjua!',
-        share: 'Shpërndaje',
-        downloadPost: 'Shkarko postimin për rrjete',
-        stepsTitle: 'Përfito 100€ zbritje - ja si',
-        step1: 'Shkarko imazhin dhe publikoje në Instagram, Facebook ose TikTok',
-        step2Prefix: 'Në postim etiketo ose ndiq',
-        step3: 'Na dërgo screenshot-in e postimit përmes formularit të kontaktit',
-        step4: 'Zbritja prej 100€ aplikohet gjatë blerjes së automjetit',
-        note: 'Shënim: publikimi automatik në Instagram dhe TikTok nuk është i mundur nga shfletuesi. Pas shkarkimit të imazhit, publikimi bëhet manualisht.',
-        exporting: 'Po gjenerohet...',
-        loading: 'Duke ngarkuar...',
-        downloadImage: 'Shkarko imazhin',
-        saveHintTitle: 'Imazhi u hap në skedë të re',
-        saveHintText: 'Shtypni dhe mbani imazhin, pastaj zgjidhni "Ruaj imazhin" për ta shtuar në Galerinë e telefonit.',
-        ctaText: 'E ke tashmë screenshot-in e postimit? Dërgoje tani dhe përfito zbritjen.',
-        ctaButton: 'Dërgo screenshot-in',
+        copied:                'U kopjua!',
+        share:                 'Shpërndaje',
+        downloadPost:          'Shkarko imazhin për rrjete',
+        stepsTitle:            'Përfito 100€ zbritje - ja si',
+        step1:                 'Shkarko imazhin dhe publikoje në Instagram, Facebook ose TikTok',
+        step2Prefix:           'Në postim etiketo ose ndiq',
+        step3:                 'Na dërgo screenshot-in e postimit përmes formularit të kontaktit',
+        step4:                 'Zbritja prej 100€ aplikohet gjatë blerjes së automjetit',
+        note:                  'Shënim: publikimi automatik në Instagram dhe TikTok nuk është i mundur nga shfletuesi. Pas shkarkimit të imazhit, publikimi bëhet manualisht.',
+        exporting:             'Po gjenerohet...',
+        loading:               'Duke ngarkuar...',
+        downloadImage:         'Shkarko imazhin',
+        shareImage:            'Shpërndaj imazhin',
+        downloadSuccess:       'Imazhi u ruajt!',
+        downloadSuccessHint:   'Gati për ngarkimin në Instagram',
+        formatJpg:             'JPG (për rrjete)',
+        formatPng:             'PNG (cilësi e lartë)',
+        saveHintTitle:         'Imazhi u hap në skedë të re',
+        saveHintText:          'Shtypni dhe mbani imazhin, pastaj zgjidhni "Ruaj imazhin" për ta shtuar në Galerinë e telefonit.',
+        ctaText:               'E ke tashmë screenshot-in e postimit? Dërgoje tani dhe përfito zbritjen.',
+        ctaButton:             'Dërgo screenshot-in',
       }
     : {
         formatLabels: {
-          square: 'Kvadrat 1:1',
+          square:   'Kvadrat 1:1',
           portrait: 'Portret 4:5',
-          story: 'Story 9:16',
+          story:    'Story 9:16',
         } satisfies Record<CreativeFormat, string>,
-        shareIntro: 'Pogledaj ovaj automobil na MojAutoDiler:',
-        loadError: 'Učitavanje nije uspelo. Pokušajte ponovo.',
-        downloadError: 'Preuzimanje nije uspelo. Pokušajte ponovo.',
-        title: 'Podeli i ostvari 100€ popusta',
-        descriptionStart: 'Podelite jedno ili više vozila iz naše ponude na društvenim mrežama, zapratite ili tagujte',
-        descriptionMiddle: 'i pošaljite nam screenshot kroz kontakt formu.',
-        descriptionEnd: 'Ostvarujete',
-        discount: '100€ popusta',
+        shareIntro:            'Pogledaj ovaj automobil na MojAutoDiler:',
+        loadError:             'Učitavanje nije uspelo. Pokušajte ponovo.',
+        downloadError:         'Preuzimanje nije uspelo. Pokušajte ponovo.',
+        title:                 'Podeli i ostvari 100€ popusta',
+        descriptionStart:      'Podelite jedno ili više vozila iz naše ponude na društvenim mrežama, zapratite ili tagujte',
+        descriptionMiddle:     'i pošaljite nam screenshot kroz kontakt formu.',
+        descriptionEnd:        'Ostvarujete',
+        discount:              '100€ popusta',
         descriptionAfterDiscount: 'na vozilo koje želite da kupite.',
-        copied: 'Kopirano!',
-        share: 'Podeli',
-        downloadPost: 'Preuzmi objavu za mreže',
-        stepsTitle: 'Ostvari 100€ popusta — evo kako',
-        step1: 'Preuzmi sliku i objavi je na Instagram, Facebook ili TikTok',
-        step2Prefix: 'U objavi označi ili zaprati',
-        step3: 'Pošalji nam screenshot objave kroz kontakt formu',
-        step4: 'Popust od 100€ se pripisuje pri kupovini vozila',
-        note: 'Napomena: automatsko objavljivanje na Instagram i TikTok nije moguće putem pregledača — potrebno je ručno objavljivanje nakon preuzimanja slike.',
-        exporting: 'Generišem...',
-        loading: 'Učitavanje...',
-        downloadImage: 'Preuzmi sliku',
-        saveHintTitle: 'Slika otvorena u novoj kartici',
-        saveHintText: 'Pritisnite i držite sliku, zatim odaberite "Sačuvaj sliku" da je dodate u Galeriju telefona.',
-        ctaText: 'Već imaš screenshot objave? Pošalji nam ga odmah i ostvari popust.',
-        ctaButton: 'Pošalji screenshot',
+        copied:                'Kopirano!',
+        share:                 'Podeli',
+        downloadPost:          'Preuzmi sliku za objavu',
+        stepsTitle:            'Ostvari 100€ popusta — evo kako',
+        step1:                 'Preuzmi sliku i objavi je na Instagram, Facebook ili TikTok',
+        step2Prefix:           'U objavi označi ili zaprati',
+        step3:                 'Pošalji nam screenshot objave kroz kontakt formu',
+        step4:                 'Popust od 100€ se pripisuje pri kupovini vozila',
+        note:                  'Napomena: automatsko objavljivanje na Instagram i TikTok nije moguće putem pregledača — potrebno je ručno objavljivanje nakon preuzimanja slike.',
+        exporting:             'Generišem...',
+        loading:               'Učitavanje...',
+        downloadImage:         'Preuzmi sliku',
+        shareImage:            'Podeli sliku',
+        downloadSuccess:       'Slika preuzeta!',
+        downloadSuccessHint:   'Spreman za upload na Instagram',
+        formatJpg:             'JPG (za objavu)',
+        formatPng:             'PNG (visok kvalitet)',
+        saveHintTitle:         'Slika otvorena u novoj kartici',
+        saveHintText:          'Pritisnite i držite sliku, zatim odaberite "Sačuvaj sliku" da je dodate u Galeriju telefona.',
+        ctaText:               'Već imaš screenshot objave? Pošalji nam ga odmah i ostvari popust.',
+        ctaButton:             'Pošalji screenshot',
       };
 
-  // Needed to avoid createPortal calling document.body during SSR
+  // ── Init ──────────────────────────────────────────────────────────────────
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setMounted(true); }, []);
 
+  // ── Derived values ────────────────────────────────────────────────────────
   const vehicleUrl  = `${SITE}/${locale}/vehicle/${vehicle.slug}`;
   const shareText   = `${copy.shareIntro}\n${vehicle.title}\n${vehicleUrl}`;
   const contactHref = `/${locale}/contact?vehicle=${encodeURIComponent(vehicle.slug)}&discount=share&vehicleTitle=${encodeURIComponent(vehicle.title)}`;
   const dims        = CREATIVE_DIMS[format];
-
-  // FIX: canvasReady only requires the QR code. Vehicle image is optional —
-  // SocialCreativeCanvas renders gracefully without it (dark background).
-  // Previously: Boolean(imageDataUrl && qrDataUrl) → if image fetch failed,
-  // imageDataUrl='' and '' && qrDataUrl === '' → canvasReady=false forever.
   const canvasReady = Boolean(qrDataUrl);
 
-  // ── Share / copy ─────────────────────────────────────────────────────────────
+  // Dynamic dealer contact — vehicle-specific overrides take priority
+  const resolvedDealerName     = vehicle.contactName  || dealer.name  || 'Moj Auto Diler';
+  const resolvedDealerPhone    = vehicle.contactPhone || dealer.phone;
+  // Location: prefer vehicle.dealer.location (city), fallback to dealer settings address.
+  // dealer.address has Preševo stripped by normalizeDealerAddress so vehicle.dealer.location
+  // is the reliable primary source.
+  const resolvedDealerLocation = vehicle.dealer?.location?.trim() || dealer.address?.trim() || '';
+
+  // ── Quick share (URL only, no image) ─────────────────────────────────────
   const copyToClipboard = async (text: string) => {
     try { await navigator.clipboard.writeText(text); } catch { /* ignore */ }
     setCopied(true);
@@ -149,13 +171,12 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
     await copyToClipboard(vehicleUrl);
   };
 
-  // ── Canvas data ───────────────────────────────────────────────────────────────
+  // ── Canvas data loader ────────────────────────────────────────────────────
   const loadCanvasData = async () => {
     setLoadingData(true);
     setLoadError('');
     try {
-      // 1. Vehicle image → base64 via proxy (no auth needed).
-      //    Wrapped in its own try/catch so a failed image never blocks the QR step.
+      // 1. Vehicle image via proxy
       let imgDataUrl = '';
       const imgUrl = vehicle.images[0]?.url;
       if (imgUrl) {
@@ -169,30 +190,42 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
           clearTimeout(timer);
           if (resp.ok) {
             const blob = await resp.blob();
-            // FIX: FileReader now has an onerror handler so the Promise never hangs.
             imgDataUrl = await new Promise<string>((resolve) => {
               const r = new FileReader();
               r.onload  = () => resolve(r.result as string);
-              r.onerror = () => resolve(''); // graceful fallback — canvas renders without image
+              r.onerror = () => resolve('');
               r.readAsDataURL(blob);
             });
           }
-        } catch {
-          // Network timeout, CORS, or abort — proceed without image.
-          // Canvas will render with a dark background; QR + text still usable.
-        }
+        } catch { /* proceed without vehicle image */ }
       }
 
-      // 2. QR code (client-side).
+      // 2. Brand logo — pre-load as data URL so html-to-image doesn't need to fetch it
+      let logoDataUrl = '';
+      try {
+        const logoResp = await fetch('/brand-logo.png');
+        if (logoResp.ok) {
+          const logoBlob = await logoResp.blob();
+          logoDataUrl = await new Promise<string>((resolve) => {
+            const r = new FileReader();
+            r.onload  = () => resolve(r.result as string);
+            r.onerror = () => resolve('');
+            r.readAsDataURL(logoBlob);
+          });
+        }
+      } catch { /* fallback — canvas renders without logo */ }
+
+      // 3. QR code (client-side)
       const QRCode = (await import('qrcode')).default;
       const qr = await QRCode.toDataURL(vehicleUrl, {
-        width: 360,
-        margin: 2,
+        width:                360,
+        margin:               2,
         errorCorrectionLevel: 'M',
         color: { dark: '#0A0A0E', light: '#FFFFFF' },
       });
 
       setImageDataUrl(imgDataUrl);
+      setBrandLogoUrl(logoDataUrl);
       setQrDataUrl(qr);
     } catch {
       setLoadError(copy.loadError);
@@ -209,74 +242,57 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
     }
   };
 
-  // ── Export ────────────────────────────────────────────────────────────────────
-  const handleDownload = async () => {
+  // ── Generate blob from off-screen canvas ──────────────────────────────────
+  const generateBlob = async (): Promise<Blob | null> => {
+    if (!canvasRef.current || !canvasReady) return null;
+
+    // Wait for VehiclePhotoLayer canvases and any <img> elements to decode
+    await waitForExportReady(canvasRef.current);
+
+    const { toBlob } = await import('html-to-image');
+    const blob = await toBlob(canvasRef.current, {
+      width:      dims.w,
+      height:     dims.h,
+      pixelRatio: 1,
+      cacheBust:  false,
+      type:       exportMime,
+      ...(exportMime === 'image/jpeg' && { quality: 0.92 }),
+    });
+    return blob;
+  };
+
+  const fileExtension = exportMime === 'image/jpeg' ? 'jpg' : 'png';
+  const filename      = `${vehicle.slug}-${format}.${fileExtension}`;
+
+  // ── DOWNLOAD — saves directly to device, NO share sheet ──────────────────
+  //
+  // Deliberate choice: this button must NEVER open the native share sheet.
+  // iOS:              blob URL opened in new tab → long-press → "Add to Photos"
+  // Android / Desktop: <a download> → saves to Downloads folder
+  //
+  // The share sheet is handled by a separate "Share" button below.
+  const handleDirectDownload = async () => {
     if (!canvasRef.current || !canvasReady || exporting) return;
     setExporting(true);
     setLoadError('');
     setSaveHint(false);
+    setDownloaded(false);
+
     try {
-      // Wait for every <img> in the off-screen canvas to finish decoding before
-      // html-to-image serialises the DOM. img.decode() resolves only once the
-      // bitmap is fully decoded and ready to paint — no macrotask delay needed.
-      const imgs = Array.from(canvasRef.current.querySelectorAll('img'));
-      await Promise.all(imgs.map(img => img.decode().catch(() => {})));
-
-      // NOTE: we deliberately do NOT await a setTimeout here. A setTimeout
-      // introduces a macrotask boundary that breaks the user-gesture chain on
-      // iOS Safari, which prevents navigator.share() from opening the share sheet.
-      // img.decode() above is sufficient — all resources are pre-loaded data: URLs.
-
-      const { toBlob } = await import('html-to-image');
-      const blob = await toBlob(canvasRef.current, {
-        width:      dims.w,
-        height:     dims.h,
-        pixelRatio: 1,
-        cacheBust:  false,
-        type:       'image/png',
-      });
-
-      if (!blob) throw new Error('toBlob returned null');
-
-      const filename = `${vehicle.slug}-${format}.png`;
-
-      // ── Strategy 1: Web Share API with file (iOS 15.4+, Android Chrome 89+) ──
-      // Opens the native OS share sheet so the user can tap "Save Image" or share
-      // directly to Instagram, Facebook, TikTok etc. — no manual steps needed.
-      // Must be called within the user-gesture chain (all awaits above are
-      // Promise-based microtasks, so the gesture context is preserved).
-      const file = new File([blob], filename, { type: 'image/png' });
-      if (
-        typeof navigator !== 'undefined' &&
-        typeof navigator.canShare === 'function' &&
-        navigator.canShare({ files: [file] })
-      ) {
-        try {
-          await navigator.share({ files: [file], title: vehicle.title });
-          return; // share sheet handled it — done
-        } catch (e) {
-          // AbortError = user cancelled the share sheet intentionally
-          if (e instanceof Error && e.name === 'AbortError') return;
-          // Any other error (permission denied, OS restriction) → fall through
-        }
-      }
+      const blob = await generateBlob();
+      if (!blob) throw new Error('Canvas export returned null');
 
       const url = URL.createObjectURL(blob);
 
-      // ── Strategy 2: iOS without Web Share API ──────────────────────────────
-      // <a download> is silently ignored on iOS Safari — the browser either
-      // opens the URL in the same tab or does nothing. Opening in a new tab
-      // displays the PNG inline; the user can long-press → "Add to Photos".
+      // iOS Safari: <a download> is silently ignored; open in new tab
       if (detectIOS()) {
         window.open(url, '_blank');
-        setSaveHint(true); // show the tap-and-hold instruction banner
-        setTimeout(() => URL.revokeObjectURL(url), 300_000); // 5 min
+        setSaveHint(true);
+        setTimeout(() => URL.revokeObjectURL(url), 300_000);
         return;
       }
 
-      // ── Strategy 3: Anchor download ────────────────────────────────────────
-      // Reliable on Android Chrome, Firefox (all platforms), and all desktop
-      // browsers. blob: URLs are fully supported for download on these platforms.
+      // Android / Desktop: anchor download
       const a = document.createElement('a');
       a.href     = url;
       a.download = filename;
@@ -284,6 +300,10 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 60_000);
+
+      // Show success feedback
+      setDownloaded(true);
+      setTimeout(() => setDownloaded(false), 4000);
     } catch {
       setLoadError(copy.downloadError);
     } finally {
@@ -291,18 +311,66 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
     }
   };
 
-  const isButtonBusy = exporting || loadingData;
-  function downloadLabel() {
-    if (exporting) return copy.exporting;
-    if (loadingData || !canvasReady) return copy.loading;
-    return copy.downloadImage;
-  }
-  const buttonLabel = downloadLabel();
+  // ── SHARE IMAGE — Web Share API with file (opens share sheet) ─────────────
+  //
+  // This lets users share directly to Instagram, WhatsApp, TikTok etc.
+  // Falls back to handleDirectDownload if Web Share API with files is unavailable.
+  const handleShareImage = async () => {
+    if (!canvasRef.current || !canvasReady || sharing) return;
+    setSharing(true);
+    setLoadError('');
+
+    try {
+      const blob = await generateBlob();
+      if (!blob) throw new Error('Canvas export returned null');
+
+      const file = new File([blob], filename, { type: exportMime });
+
+      if (
+        typeof navigator !== 'undefined' &&
+        typeof navigator.canShare === 'function' &&
+        navigator.canShare({ files: [file] })
+      ) {
+        try {
+          await navigator.share({ files: [file], title: vehicle.title, text: shareText });
+          return;
+        } catch (e) {
+          if (e instanceof Error && e.name === 'AbortError') return; // user cancelled
+          // Fall through to direct download on other errors
+        }
+      }
+
+      // Fallback: direct download
+      const url = URL.createObjectURL(blob);
+      if (detectIOS()) {
+        window.open(url, '_blank');
+        setSaveHint(true);
+        setTimeout(() => URL.revokeObjectURL(url), 300_000);
+      } else {
+        const a = document.createElement('a');
+        a.href = url; a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 60_000);
+        setDownloaded(true);
+        setTimeout(() => setDownloaded(false), 4000);
+      }
+    } catch {
+      setLoadError(copy.downloadError);
+    } finally {
+      setSharing(false);
+    }
+  };
+
+  const isButtonBusy = exporting || sharing || loadingData;
+  const downloadLabel = exporting ? copy.exporting : loadingData || !canvasReady ? copy.loading : copy.downloadImage;
+  const shareLabel    = sharing   ? copy.exporting : loadingData || !canvasReady ? copy.loading : copy.shareImage;
 
   return (
     <section className="rounded-3xl border border-[var(--accent-border)] bg-gradient-to-br from-[var(--accent-soft)] via-white to-white p-5 shadow-sm sm:p-6">
 
-      {/* ── Header ─────────────────────────────────────────────────────────────── */}
+      {/* ── Header ──────────────────────────────────────────────────────────── */}
       <div className="mb-5 flex items-start gap-3">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--accent)] text-white shadow-[0_4px_14px_rgba(201,168,76,0.4)]">
           <Gift size={18} />
@@ -325,9 +393,8 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
         </div>
       </div>
 
-      {/* ── Quick share buttons ────────────────────────────────────────────────── */}
+      {/* ── Quick share buttons (URL only) ──────────────────────────────────── */}
       <div className="mb-5 flex flex-wrap gap-2">
-        {/* Primary — native share / clipboard */}
         <button
           type="button"
           suppressHydrationWarning
@@ -338,7 +405,6 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
           {copied ? copy.copied : copy.share}
         </button>
 
-        {/* Viber */}
         <a
           href={`viber://forward?text=${encodeURIComponent(shareText)}`}
           className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[#7360F2]/20 bg-[#7360F2]/6 px-3.5 text-sm font-semibold text-[#6B5FDB] transition hover:bg-[#7360F2]/12"
@@ -349,7 +415,6 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
           Viber
         </a>
 
-        {/* WhatsApp */}
         <a
           href={`https://wa.me/?text=${encodeURIComponent(shareText)}`}
           target="_blank"
@@ -362,7 +427,6 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
           WhatsApp
         </a>
 
-        {/* Facebook */}
         <a
           href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(vehicleUrl)}`}
           target="_blank"
@@ -376,7 +440,7 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
         </a>
       </div>
 
-      {/* ── Social image download ─────────────────────────────────────────────── */}
+      {/* ── Social image download ────────────────────────────────────────────── */}
       <div className="border-t border-[var(--accent-border)] pt-4">
         <button
           type="button"
@@ -397,24 +461,58 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
 
         {showDownload && (
           <div className="mt-4 space-y-4">
-            {/* Format selector */}
-            <div className="flex flex-wrap gap-2">
-              {(Object.keys(copy.formatLabels) as CreativeFormat[]).map((f) => (
-                <button
-                  key={f}
-                  type="button"
-                  suppressHydrationWarning
-                  onClick={() => setFormat(f)}
-                  className={cn(
-                    'rounded-lg border px-3 py-1.5 text-xs font-bold transition',
-                    format === f
-                      ? 'border-[var(--accent)] bg-[var(--accent)] text-white shadow-sm'
-                      : 'border-[var(--color-border)] bg-white text-[var(--color-text-muted)] hover:border-[var(--accent-border)]'
-                  )}
-                >
-                  {copy.formatLabels[f]}
-                </button>
-              ))}
+
+            {/* Format (shape) selector */}
+            <div>
+              <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--color-text-muted)]">
+                {locale === 'sq' ? 'Formati' : 'Format'}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {(Object.keys(copy.formatLabels) as CreativeFormat[]).map((f) => (
+                  <button
+                    key={f}
+                    type="button"
+                    suppressHydrationWarning
+                    onClick={() => setFormat(f)}
+                    className={cn(
+                      'rounded-lg border px-3 py-1.5 text-xs font-bold transition',
+                      format === f
+                        ? 'border-[var(--accent)] bg-[var(--accent)] text-white shadow-sm'
+                        : 'border-[var(--color-border)] bg-white text-[var(--color-text-muted)] hover:border-[var(--accent-border)]'
+                    )}
+                  >
+                    {copy.formatLabels[f]}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Export type (JPG / PNG) selector */}
+            <div>
+              <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--color-text-muted)]">
+                {locale === 'sq' ? 'Lloji i skedarit' : 'Tip fajla'}
+              </p>
+              <div className="flex gap-2">
+                {(['image/jpeg', 'image/png'] as ExportMime[]).map((mime) => {
+                  const label = mime === 'image/jpeg' ? copy.formatJpg : copy.formatPng;
+                  return (
+                    <button
+                      key={mime}
+                      type="button"
+                      suppressHydrationWarning
+                      onClick={() => setExportMime(mime)}
+                      className={cn(
+                        'rounded-lg border px-3 py-1.5 text-xs font-bold transition',
+                        exportMime === mime
+                          ? 'border-[var(--accent)] bg-[var(--accent)] text-white shadow-sm'
+                          : 'border-[var(--color-border)] bg-white text-[var(--color-text-muted)] hover:border-[var(--accent-border)]'
+                      )}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Steps */}
@@ -451,21 +549,53 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
               <p className="text-xs font-medium text-red-500">{loadError}</p>
             )}
 
-            {/* Download button */}
-            <button
-              type="button"
-              suppressHydrationWarning
-              onClick={handleDownload}
-              disabled={isButtonBusy || !canvasReady}
-              className="btn-gold inline-flex min-h-10 items-center gap-2 rounded-xl px-5 text-sm disabled:opacity-55"
-            >
-              {isButtonBusy
-                ? <Loader2 size={15} className="animate-spin" />
-                : <Download size={15} />}
-              {buttonLabel}
-            </button>
+            {/* ── Action buttons ─────────────────────────────────────────────── */}
+            <div className="flex flex-wrap gap-2">
+              {/* PRIMARY: Download directly to device — NO share sheet */}
+              <button
+                type="button"
+                suppressHydrationWarning
+                onClick={handleDirectDownload}
+                disabled={isButtonBusy || !canvasReady}
+                className="btn-gold inline-flex min-h-10 items-center gap-2 rounded-xl px-5 text-sm disabled:opacity-55"
+              >
+                {exporting
+                  ? <Loader2 size={15} className="animate-spin" />
+                  : <Download size={15} />}
+                {downloadLabel}
+              </button>
 
-            {/* iOS long-press hint — shown after window.open fallback on older iOS */}
+              {/* SECONDARY: Share via native share sheet (Instagram, WhatsApp, etc.)
+                  `mounted &&` guard prevents hydration mismatch — detectMobile()
+                  returns false during SSR but true on mobile client. */}
+              {mounted && detectMobile() && (
+                <button
+                  type="button"
+                  suppressHydrationWarning
+                  onClick={handleShareImage}
+                  disabled={isButtonBusy || !canvasReady}
+                  className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[var(--color-border)] bg-white px-4 text-sm font-bold text-[var(--color-text)] transition hover:border-[var(--accent-border)] hover:text-[var(--accent-dark)] disabled:opacity-55"
+                >
+                  {sharing
+                    ? <Loader2 size={15} className="animate-spin" />
+                    : <Share2 size={15} />}
+                  {shareLabel}
+                </button>
+              )}
+            </div>
+
+            {/* Success feedback */}
+            {downloaded && (
+              <div className="flex items-center gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-3">
+                <CheckCircle2 size={16} className="shrink-0 text-emerald-600" />
+                <div>
+                  <p className="text-sm font-bold text-emerald-800">{copy.downloadSuccess}</p>
+                  <p className="mt-0.5 text-xs text-emerald-700">{copy.downloadSuccessHint}</p>
+                </div>
+              </div>
+            )}
+
+            {/* iOS long-press hint */}
             {saveHint && (
               <div className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 p-3.5">
                 <Info size={15} className="mt-0.5 shrink-0 text-amber-600" />
@@ -479,7 +609,7 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
         )}
       </div>
 
-      {/* ── CTA to contact form ───────────────────────────────────────────────── */}
+      {/* ── CTA to contact form ──────────────────────────────────────────────── */}
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--accent-border)] pt-4">
         <p className="text-xs text-[var(--color-text-muted)]">
           {copy.ctaText}
@@ -493,20 +623,19 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
         </Link>
       </div>
 
-      {/* ── Off-screen canvas portal (capture target for html-to-image) ───────────
-          Rendered only once QR is ready (canvasReady = Boolean(qrDataUrl)).
-          Vehicle image is optional — canvas renders gracefully without it.
-          Positioned far off-screen so it never interferes with visible layout. */}
+      {/* ── Off-screen canvas portal ─────────────────────────────────────────────
+          Positioned far off-screen so it never interferes with visible layout.
+          Rendered only after QR code is ready (canvasReady = true).                */}
       {mounted && canvasReady && createPortal(
         <div
           style={{
-            position: 'fixed',
-            left:   '-9999px',
-            top:    0,
-            width:  `${dims.w}px`,
-            height: `${dims.h}px`,
+            position:      'fixed',
+            left:          '-9999px',
+            top:           0,
+            width:         `${dims.w}px`,
+            height:        `${dims.h}px`,
             pointerEvents: 'none',
-            zIndex: -1,
+            zIndex:        -1,
           }}
         >
           <div ref={canvasRef} style={{ width: dims.w, height: dims.h }}>
@@ -515,9 +644,11 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
               format={format}
               imageDataUrl={imageDataUrl}
               qrDataUrl={qrDataUrl}
-              dealerName={dealer.name || 'Moj Auto Diler'}
-              dealerPhone={dealer.phone}
+              dealerName={resolvedDealerName}
+              dealerPhone={resolvedDealerPhone}
+              dealerLocation={resolvedDealerLocation || undefined}
               listingUrl={vehicleUrl}
+              brandLogoUrl={brandLogoUrl}
             />
           </div>
         </div>,
