@@ -193,12 +193,17 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
     if ((leadDebounce.current.get(dedupKey) ?? 0) + 5_000 > firedAt) return;
     leadDebounce.current.set(dedupKey, firedAt);
 
-    // ── Meta Pixel: Lead event ──────────────────────────────────────────────
-    // Fires for every confirmed lead intent — phone call, WhatsApp, Viber,
-    // form submit, scheduling, reservation. Uses the same dedup guard as the
-    // API call so it can never fire twice for the same intent within 5 s.
-    trackLead({ contentName: vehicle.title, value: vehicle.price, currency: vehicle.currency });
-
+    // ── CRM record + conditional Meta Pixel ────────────────────────────────
+    //
+    // trackLead() fires ONLY when the server returns 201 (new CRM record was
+    // actually created). If the server returns 200 + deduplicated:true, the
+    // CRM entry was intentionally blocked by the 30-/60-s server dedup guard —
+    // in that case the Pixel must also be suppressed to keep Meta Lead count in
+    // sync with CRM inquiry count.
+    //
+    // On network failure the Pixel fires anyway: the real user action happened
+    // and Meta should not be left blind. The CRM record may be missing, which
+    // is logged so it can be investigated.
     fetch('/api/leads', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -214,10 +219,33 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
         dealerName: contact.dealerName,
         intent,
         preferredContactChannel: channel,
-        // Attribution: UTM params + referrer + landing page captured at ad click time
         attribution: buildAttribution(),
       }),
-    }).catch(console.error);
+    })
+      .then(async (res) => {
+        const data = await res.json() as { deduplicated?: boolean; error?: string };
+        if (res.status === 201) {
+          // CRM record created — fire Pixel in sync
+          trackLead({ contentName: vehicle.title, value: vehicle.price, currency: vehicle.currency });
+        } else if (data.deduplicated) {
+          // Server dedup blocked the CRM write — suppress Pixel so counts stay equal
+          console.debug('[lead] server dedup — pixel suppressed:', intent, vehicle.id);
+        } else {
+          // Unexpected server response (400 validation, 500 crash) — no CRM record,
+          // no Pixel. Log clearly so it can be diagnosed from browser console.
+          console.warn(
+            '[lead] unexpected server response — no CRM record, no pixel:',
+            res.status, data.error ?? '(no error detail)', intent, vehicle.id,
+          );
+        }
+      })
+      .catch((err: unknown) => {
+        // Network failure (fetch threw) — server unreachable.
+        // Fire Pixel anyway so Meta is not blind to a real user action.
+        // The missing CRM record is logged for later diagnosis.
+        console.error('[lead] API unreachable — pixel fired without CRM record:', err, intent, vehicle.id);
+        trackLead({ contentName: vehicle.title, value: vehicle.price, currency: vehicle.currency });
+      });
   };
 
   const applyQuickLead = (message: string, intent: string = 'general_inquiry', firedAt: number) => {
@@ -827,6 +855,39 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
             </div>
           </div>
         </div>
+
+        {/* Brand silo back-link — FIX #2: bi-directional internal linking.
+            Only renders for brands that have a Phase 2 silo page.
+            Improves crawl depth and PageRank flow: Vehicle → Brand → Homepage. */}
+        {(() => {
+          // Map vehicle.brand display names to their brand silo slugs.
+          // Only brands with actual silo pages are listed here.
+          const BRAND_SLUG_MAP: Record<string, string> = {
+            'BMW':            'bmw',
+            'Audi':           'audi',
+            'Volkswagen':     'volkswagen',
+            'Mercedes-Benz':  'mercedes-benz',
+            'Škoda':          'skoda',
+          };
+          const brandSlug = BRAND_SLUG_MAP[vehicle.brand];
+          if (!brandSlug) return null;
+          const isSq = locale === 'sq';
+          return (
+            <div className="mt-12 flex items-center gap-3">
+              <div className="h-px flex-1 bg-(--color-border)" />
+              <Link
+                href={`/${locale}/cars/${brandSlug}`}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-(--accent-border) bg-(--accent-soft) px-4 py-2 text-xs font-bold text-(--accent-dark) transition hover:bg-(--accent) hover:text-white"
+              >
+                {isSq
+                  ? `Shiko të gjitha ${vehicle.brand}`
+                  : `Sva ${vehicle.brand} vozila`}
+                <ArrowLeft size={12} className="rotate-180" />
+              </Link>
+              <div className="h-px flex-1 bg-(--color-border)" />
+            </div>
+          );
+        })()}
 
         {/* Similar vehicles */}
         {similar.length > 0 && (

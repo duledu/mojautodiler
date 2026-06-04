@@ -46,6 +46,8 @@ export function shouldBypassLock(pathname: string): boolean {
     '/brand-logo.png',
     '/og-image.jpg',
     '/manifest.json',
+    '/icons',
+    '/og',
     '/videos',
   ];
   return BYPASS.some(p => pathname === p || pathname.startsWith(`${p}/`));
