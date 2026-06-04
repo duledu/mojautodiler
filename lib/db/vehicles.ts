@@ -126,6 +126,25 @@ export async function getSimilarVehicles(vehicleId: string, brand: string, limit
   return rows.map(toAppVehicle);
 }
 
+/**
+ * Returns all active vehicles for a given brand (case-insensitive match).
+ * Used exclusively by the brand silo pages (/sr/cars/bmw etc.).
+ * Does NOT affect existing inventory, vehicle detail, or admin queries.
+ */
+export async function getVehiclesByBrand(brand: string): Promise<Vehicle[]> {
+  if (!hasDatabase()) { warnNoDB('getVehiclesByBrand'); return []; }
+  const rows = await prisma.vehicle.findMany({
+    where: {
+      status: 'AVAILABLE',
+      brand:  { equals: brand, mode: 'insensitive' },
+    },
+    orderBy: { createdAt: 'desc' },
+    include: { dealer: true },
+  });
+  logFetch('getVehiclesByBrand', rows.length, rows[0]);
+  return rows.map(toAppVehicle);
+}
+
 export async function getActiveVehicleSlugs(): Promise<{ slug: string }[]> {
   if (!hasDatabase()) { warnNoDB('getActiveVehicleSlugs'); return []; }
   return prisma.vehicle.findMany({

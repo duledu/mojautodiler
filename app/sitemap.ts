@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { getVehicleSlugsForSitemap } from '@/lib/db/vehicles';
+import { BRAND_SLUGS } from '@/app/[locale]/cars/[brand]/page';
 
 const BASE_URL = 'https://mojautodiler.rs';
 const locales  = ['sr', 'sq'] as const;
@@ -40,5 +41,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
   );
 
-  return [...staticRoutes, ...vehicleRoutes];
+  // ── Brand silo pages ──────────────────────────────────────────────────────
+  // New in Phase 2. Purely additive — no existing URLs removed or changed.
+  const brandRoutes = BRAND_SLUGS.flatMap((brand) =>
+    locales.map((locale) => ({
+      url:             `${BASE_URL}/${locale}/cars/${brand}`,
+      lastModified:    new Date(),
+      changeFrequency: 'weekly' as const,
+      priority:        0.7,
+    })),
+  );
+
+  return [...staticRoutes, ...brandRoutes, ...vehicleRoutes];
 }

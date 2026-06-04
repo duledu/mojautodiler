@@ -376,6 +376,27 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
                 <ArrowRight size={16} />
               </Link>
             </div>
+
+            {/* ── Brand silo quick-links (Phase 2 internal linking) ── */}
+            <Reveal>
+              <div className="scrollbar-none -mx-4 mb-6 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0">
+                {([
+                  { slug: 'bmw',           label: 'BMW' },
+                  { slug: 'audi',          label: 'Audi' },
+                  { slug: 'volkswagen',    label: 'Volkswagen' },
+                  { slug: 'mercedes-benz', label: 'Mercedes-Benz' },
+                  { slug: 'skoda',         label: 'Škoda' },
+                ] as const).map(({ slug, label }) => (
+                  <Link
+                    key={slug}
+                    href={`/${currentLocale}/cars/${slug}`}
+                    className="inline-flex shrink-0 items-center rounded-full border border-(--color-border) bg-white px-4 py-2 text-xs font-bold text-(--color-text-2) shadow-sm transition hover:border-(--accent-border) hover:bg-(--accent-soft) hover:text-(--accent-dark)"
+                  >
+                    {label}
+                  </Link>
+                ))}
+              </div>
+            </Reveal>
             {featuredVehicles.length > 0 ? (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 xl:grid-cols-4">
                 {featuredVehicles.map((vehicle, index) => (
