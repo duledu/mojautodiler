@@ -46,6 +46,7 @@ export function shouldBypassLock(pathname: string): boolean {
     '/brand-logo.png',
     '/og-image.jpg',
     '/manifest.json',
+    '/sw.js',
     '/icons',
     '/og',
     '/videos',

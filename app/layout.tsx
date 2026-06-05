@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import MetaPixel from '@/components/analytics/MetaPixel';
 import UtmCapture from '@/components/analytics/UtmCapture';
+import ServiceWorkerRegister from '@/components/pwa/ServiceWorkerRegister';
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mojautodiler.rs';
 
@@ -45,6 +46,7 @@ export default function RootLayout({ children }: { readonly children: React.Reac
         <MetaPixel />
         {/* UTM capture — persists ad campaign params to sessionStorage for lead attribution */}
         <UtmCapture />
+        <ServiceWorkerRegister />
       </body>
     </html>
   );
