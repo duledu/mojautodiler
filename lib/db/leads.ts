@@ -17,13 +17,17 @@ function warnNoDB(fn: string) {
 
 export async function getAllLeads(): Promise<AppLead[]> {
   if (!hasDatabase()) { warnNoDB('getAllLeads'); return []; }
-  const rows = await prisma.lead.findMany({ orderBy: { createdAt: 'desc' } });
+  const rows = await prisma.lead.findMany({
+    where: { deletedAt: null },
+    orderBy: { createdAt: 'desc' },
+  });
   return rows.map(toAppLead);
 }
 
 export async function getRecentLeads(limit = 5): Promise<AppLead[]> {
   if (!hasDatabase()) { warnNoDB('getRecentLeads'); return []; }
   const rows = await prisma.lead.findMany({
+    where: { deletedAt: null },
     orderBy: { createdAt: 'desc' },
     take: limit,
   });
@@ -33,8 +37,8 @@ export async function getRecentLeads(limit = 5): Promise<AppLead[]> {
 export async function getLeadStats() {
   if (!hasDatabase()) { warnNoDB('getLeadStats'); return { totalLeads: 0, newLeads: 0 }; }
   const [total, newCount] = await Promise.all([
-    prisma.lead.count(),
-    prisma.lead.count({ where: { status: 'NEW' } }),
+    prisma.lead.count({ where: { deletedAt: null } }),
+    prisma.lead.count({ where: { deletedAt: null, status: 'NEW' } }),
   ]);
   return { totalLeads: total, newLeads: newCount };
 }
@@ -80,6 +84,7 @@ export async function findRecentDuplicateLead(input: RecentDuplicateLeadInput): 
 
   const row = await prisma.lead.findFirst({
     where: {
+      deletedAt: null,
       vehicleId: input.vehicleId,
       intent: input.intent,
       createdAt: { gte: input.since },
@@ -122,4 +127,11 @@ export async function updateLeadStatus(id: string, status: AppLeadStatus): Promi
     data: { status: toDbLeadStatus(status) },
   });
   return toAppLead(row);
+}
+
+export async function softDeleteLead(id: string): Promise<void> {
+  await prisma.lead.update({
+    where: { id },
+    data: { deletedAt: new Date() },
+  });
 }

@@ -63,6 +63,7 @@ function formatDealerPhone(phone: string): string {
 
 export default function VehicleDetailClient({ vehicle, similar, locale, t, dealer }: Props) {
   const formRef      = useRef<HTMLDivElement | null>(null);
+  const messageRef   = useRef<HTMLTextAreaElement | null>(null);
   const touchStartX  = useRef<number | null>(null);
   // Frontend duplicate guard — Map<vehicleId:intent, lastFiredMs>
   // Prevents rapid double-taps, browser-synthetic click events, and any render-triggered
@@ -250,7 +251,19 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
       });
   };
 
+  const scheduleViewingMessage = locale === 'sq'
+    ? `Përshëndetje,\njam i interesuar për automjetin ${vehicle.title}.\n\nJu lutem kontaktomëni për të caktuar një takim për ta parë automjetin.`
+    : `Poštovanje,\nzainteresovan sam za vozilo ${vehicle.title}.\n\nMolim vas da me kontaktirate radi dogovora termina za gledanje vozila.`;
+
   const applyQuickLead = (message: string, intent: string = 'general_inquiry', firedAt: number) => {
+    if (intent === 'schedule_viewing') {
+      // Scroll to form + prefill message + focus textarea — NO lead creation, NO Meta Pixel.
+      // The lead is only created when the user explicitly submits the form.
+      setForm((current) => ({ ...current, message: scheduleViewingMessage }));
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setTimeout(() => messageRef.current?.focus(), 400);
+      return;
+    }
     setForm((current) => ({ ...current, message }));
     recordLeadIntent(intent, 'web', message, firedAt);
     formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -658,7 +671,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                           type: 'inquiry',
                           name: form.name,
                           phone: form.phone,
-                          email: form.email || undefined,
+                          email: form.email,
                           message: form.message || `${t.inquiry.interested}: ${vehicle.title}`,
                           vehicleId: vehicle.id,
                           vehicleTitle: vehicle.title,
@@ -666,7 +679,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                           dealerName: contact.dealerName,
                           dealerPhone: contact.phone,
                           intent: 'general_inquiry',
-                          preferredContactChannel: form.email ? 'email' : 'phone',
+                          preferredContactChannel: 'email',
                           attribution: buildAttribution(),
                         }),
                       });
@@ -705,6 +718,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                   </div>
                   <input
                     suppressHydrationWarning
+                    required
                     type="email"
                     placeholder={t.inquiry.emailPlaceholder}
                     value={form.email}
@@ -712,6 +726,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                     className="input-premium w-full rounded-xl px-4 py-3 text-sm"
                   />
                   <textarea
+                    ref={messageRef}
                     suppressHydrationWarning
                     placeholder={t.inquiry.messagePlaceholder}
                     rows={4}

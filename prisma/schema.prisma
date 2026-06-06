@@ -198,6 +198,8 @@ model Lead {
   userAgent    String?
   attribution  String?    // JSON: UTM params + referrer + landing page
 
+  deletedAt    DateTime?  // soft-delete; NULL = active, non-NULL = deleted
+
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
@@ -205,6 +207,7 @@ model Lead {
   @@index([dealerId])
   @@index([intent])
   @@index([createdAt])
+  @@index([deletedAt])
   @@index([vehicleId, intent, createdAt])
   @@index([vehicleId, intent, ipAddress, createdAt])
 }

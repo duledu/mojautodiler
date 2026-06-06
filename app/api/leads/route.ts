@@ -120,6 +120,8 @@ export async function POST(request: NextRequest) {
     const message = String(fields.message ?? intentMessage(intent, fields.vehicleTitle)).trim();
     const type = String(fields.type ?? 'contact').trim();
 
+    const email = typeof fields.email === 'string' ? fields.email.trim() : '';
+
     if (!name || !phone || !message || !type) {
       return NextResponse.json(
         { success: false, error: 'Nedostaju obavezna polja (name, phone, message, type)' },
@@ -131,6 +133,24 @@ export async function POST(request: NextRequest) {
         { success: false, error: 'Poruka je prekratka' },
         { status: 400 },
       );
+    }
+
+    // Email is required for form submissions (preferredContactChannel === 'email').
+    // Quick-action intents (phone_call, viber_click, etc.) use channel 'web'/'phone'/'viber'
+    // and are not affected by this guard.
+    if (preferredContactChannel === 'email') {
+      if (!email) {
+        return NextResponse.json(
+          { success: false, error: 'Email adresa je obavezna.' },
+          { status: 400 },
+        );
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return NextResponse.json(
+          { success: false, error: 'Email adresa nije ispravna.' },
+          { status: 400 },
+        );
+      }
     }
 
     const leadType: LeadType = VALID_TYPES.has(type as LeadType) ? type as LeadType : 'contact';
@@ -177,7 +197,7 @@ export async function POST(request: NextRequest) {
       type: leadType,
       name,
       phone,
-      email: String(fields.email ?? '').trim() || undefined,
+      email: email || undefined,
       message,
       intent,
       preferredContactChannel,

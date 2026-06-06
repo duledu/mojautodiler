@@ -69,6 +69,8 @@ export default function ContactClient({ locale, t, dealer, heroVehicle, discount
     : '';
   const [form, setForm]             = useState({ name: '', phone: '', email: '', message: defaultMessage });
   const [submitted, setSubmitted]   = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError]   = useState<string | null>(null);
   const [imageFile, setImageFile]   = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState('');
   const [imageError, setImageError] = useState('');
@@ -106,21 +108,33 @@ export default function ContactClient({ locale, t, dealer, heroVehicle, discount
   };
 
   // ── Form submit — sends multipart/form-data so the image travels with the lead
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const fd = new FormData();
-    fd.append('type', 'contact');
-    fd.append('name', form.name);
-    fd.append('phone', form.phone);
-    if (form.email)  fd.append('email', form.email);
-    fd.append('message', form.message);
-    fd.append('intent', 'general_inquiry');
-    fd.append('preferredContactChannel', form.email ? 'email' : 'phone');
-    if (imageFile) fd.append('image', imageFile);
+    setSubmitting(true);
+    setFormError(null);
+    try {
+      const fd = new FormData();
+      fd.append('type', 'contact');
+      fd.append('name', form.name);
+      fd.append('phone', form.phone);
+      fd.append('email', form.email);
+      fd.append('message', form.message);
+      fd.append('intent', 'general_inquiry');
+      fd.append('preferredContactChannel', 'email');
+      if (imageFile) fd.append('image', imageFile);
 
-    // Fire-and-forget — mirrors existing behaviour; form never waits on network
-    fetch('/api/leads', { method: 'POST', body: fd }).catch(console.error);
-    setSubmitted(true);
+      const res = await fetch('/api/leads', { method: 'POST', body: fd });
+      const data = await res.json() as { success?: boolean; error?: string };
+      if (!res.ok || !data.success) {
+        setFormError(data.error ?? 'Greška pri slanju. Pokušajte ponovo.');
+        return;
+      }
+      setSubmitted(true);
+    } catch {
+      setFormError('Greška pri slanju. Proverite internet vezu i pokušajte ponovo.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   /*
@@ -215,8 +229,9 @@ export default function ContactClient({ locale, t, dealer, heroVehicle, discount
                   />
                 </Field>
 
-                <Field label={t.contact.email}>
+                <Field label={`${t.contact.email} *`}>
                   <input
+                    required
                     type="email"
                     value={form.email}
                     onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
@@ -295,12 +310,16 @@ export default function ContactClient({ locale, t, dealer, heroVehicle, discount
                 </div>
                 {/* ─────────────────────────────────────────────────────────────── */}
 
+                {formError && (
+                  <p className="text-sm font-medium text-red-600">{formError}</p>
+                )}
                 <button
                   type="submit"
-                  className="btn-gold flex w-full items-center justify-center gap-2 rounded-xl py-4 text-sm"
+                  disabled={submitting}
+                  className="btn-gold flex w-full items-center justify-center gap-2 rounded-xl py-4 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   <Send size={16} />
-                  {t.contact.sendMessage}
+                  {submitting ? 'Slanje…' : t.contact.sendMessage}
                 </button>
               </form>
             )}

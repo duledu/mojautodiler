@@ -11,6 +11,7 @@ import {
   MessageSquare,
   Phone,
   Search,
+  Trash2,
   User,
   X,
 } from 'lucide-react';
@@ -61,12 +62,14 @@ function timeAgo(date: string): string {
   return new Date(date).toLocaleDateString('sr-RS');
 }
 
-function persistLeadStatus(id: string, status: Lead['status']) {
-  fetch(`/api/admin/leads/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ status }),
-  }).catch(console.error);
+
+async function callDeleteLead(id: string): Promise<boolean> {
+  try {
+    const res = await fetch(`/api/admin/leads/${id}`, { method: 'DELETE' });
+    return res.ok;
+  } catch {
+    return false;
+  }
 }
 
 export default function AdminLeadsClient({ leads: initialLeads }: Props) {
@@ -74,6 +77,9 @@ export default function AdminLeadsClient({ leads: initialLeads }: Props) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selected, setSelected] = useState<Lead | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState(false);
 
   const filtered = leads
     .filter((lead) => {
@@ -84,10 +90,40 @@ export default function AdminLeadsClient({ leads: initialLeads }: Props) {
     })
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-  const updateStatus = (id: string, status: Lead['status']) => {
+  const updateStatus = async (id: string, status: Lead['status']) => {
+    const prevStatus = leads.find((l) => l.id === id)?.status;
     setLeads((items) => items.map((lead) => (lead.id === id ? { ...lead, status } : lead)));
     if (selected?.id === id) setSelected((prev) => (prev ? { ...prev, status } : null));
-    persistLeadStatus(id, status);
+    try {
+      const res = await fetch(`/api/admin/leads/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
+      if (!res.ok && prevStatus !== undefined) {
+        setLeads((items) => items.map((lead) => (lead.id === id ? { ...lead, status: prevStatus } : lead)));
+        setSelected((prev) => (prev?.id === id ? { ...prev, status: prevStatus } : prev));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const confirmDelete = (id: string) => setDeleteConfirmId(id);
+
+  const handleDelete = async () => {
+    if (!deleteConfirmId) return;
+    setDeleting(true);
+    setDeleteError(false);
+    const ok = await callDeleteLead(deleteConfirmId);
+    setDeleting(false);
+    if (ok) {
+      setLeads((items) => items.filter((l) => l.id !== deleteConfirmId));
+      if (selected?.id === deleteConfirmId) setSelected(null);
+      setDeleteConfirmId(null);
+    } else {
+      setDeleteError(true);
+    }
   };
 
   const counts = {
@@ -102,6 +138,44 @@ export default function AdminLeadsClient({ leads: initialLeads }: Props) {
 
   return (
     <div className="space-y-5 p-3 min-[390px]:space-y-6 min-[390px]:p-4 sm:p-6 lg:p-8">
+      {/* ── Delete confirmation modal ───────────────────────────────────────── */}
+      {deleteConfirmId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-3xl border border-[var(--color-border)] bg-white p-6 shadow-[0_24px_64px_rgba(0,0,0,0.18)]">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-red-600">
+              <Trash2 size={20} />
+            </div>
+            <h2 className="text-lg font-black text-[var(--color-text)]" style={{ fontFamily: 'var(--font-display)' }}>
+              Brisanje upita
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-[var(--color-text-muted)]">
+              Da li ste sigurni da želite da obrišete ovaj lead?
+            </p>
+            {deleteError && (
+              <p className="mt-3 text-sm font-semibold text-red-600">Greška pri brisanju. Pokušajte ponovo.</p>
+            )}
+            <div className="mt-6 flex gap-3">
+              <button
+                type="button"
+                onClick={() => { setDeleteConfirmId(null); setDeleteError(false); }}
+                disabled={deleting}
+                className="flex-1 rounded-xl border border-[var(--color-border)] bg-white py-2.5 text-sm font-semibold text-[var(--color-text-muted)] transition hover:border-[var(--accent-border)] hover:text-[var(--color-text)] disabled:opacity-50"
+              >
+                Odustani
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleting}
+                className="flex-1 rounded-xl bg-red-600 py-2.5 text-sm font-bold text-white transition hover:bg-red-700 disabled:opacity-50"
+              >
+                {deleting ? 'Brisanje…' : 'Obriši'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-dark)]">Prodajni CRM</p>
@@ -116,18 +190,27 @@ export default function AdminLeadsClient({ leads: initialLeads }: Props) {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-        {[
-          ['Novo', counts.novo],
-          ['Kontaktiran', counts.kontaktiran],
-          ['Zakazano', counts.zakazano],
-          ['Rezervisano', counts.rezervisano],
-          ['Prodato', counts.prodato],
-          ['Izgubljeno', counts.izgubljeno],
-        ].map(([label, value]) => (
-          <article key={label} className="rounded-3xl border border-[var(--color-border)] bg-white p-4 shadow-sm min-[390px]:p-5">
+        {([
+          { label: 'Novo', key: 'novo' },
+          { label: 'Kontaktiran', key: 'kontaktiran' },
+          { label: 'Zakazano', key: 'zakazano' },
+          { label: 'Rezervisano', key: 'rezervisano' },
+          { label: 'Prodato', key: 'prodato' },
+          { label: 'Izgubljeno', key: 'izgubljeno' },
+        ] as const).map(({ label, key }) => (
+          <button
+            type="button"
+            key={key}
+            onClick={() => setStatusFilter(statusFilter === key ? 'all' : key)}
+            className={`rounded-3xl border p-4 text-left shadow-sm transition hover:-translate-y-0.5 min-[390px]:p-5 ${
+              statusFilter === key
+                ? 'border-(--accent-border) bg-(--accent-soft)'
+                : 'border-(--color-border) bg-white hover:border-(--accent-border)'
+            }`}
+          >
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-text-placeholder)]">{label}</p>
-            <p className="mt-3 text-3xl font-black text-[var(--color-text)]" style={{ fontFamily: 'var(--font-display)' }}>{value}</p>
-          </article>
+            <p className="mt-3 text-3xl font-black text-[var(--color-text)]" style={{ fontFamily: 'var(--font-display)' }}>{counts[key]}</p>
+          </button>
         ))}
       </div>
 
@@ -175,38 +258,50 @@ export default function AdminLeadsClient({ leads: initialLeads }: Props) {
               {filtered.map((lead) => {
                 const active = selected?.id === lead.id;
                 return (
-                  <button
+                  <div
                     key={lead.id}
-                    type="button"
-                    onClick={() => setSelected(lead)}
-                    className={`w-full px-4 py-4 text-left transition hover:bg-[var(--color-surface-2)] min-[390px]:px-5 ${active ? 'bg-[var(--accent-soft)] shadow-[inset_3px_0_0_var(--accent)]' : ''}`}
+                    className={`flex items-start gap-2 px-4 py-4 transition min-[390px]:px-5 ${active ? 'bg-[var(--accent-soft)] shadow-[inset_3px_0_0_var(--accent)]' : 'hover:bg-[var(--color-surface-2)]'}`}
                   >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex min-w-0 items-start gap-3">
-                        <span className={`mt-2 h-2.5 w-2.5 shrink-0 rounded-full ${lead.status === 'novo' ? 'bg-[var(--accent)]' : 'bg-[var(--color-border-strong)]'}`} />
-                        <div className="min-w-0">
-                          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                            <p className="font-bold text-[var(--color-text)]">{lead.name}</p>
-                            <span className="text-xs font-semibold text-[var(--color-text-placeholder)]">{lead.source ? (sourceLabels[lead.source] ?? lead.source) : ''}</span>
+                    <button
+                      type="button"
+                      onClick={() => setSelected(lead)}
+                      className="min-w-0 flex-1 text-left"
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex min-w-0 items-start gap-3">
+                          <span className={`mt-2 h-2.5 w-2.5 shrink-0 rounded-full ${lead.status === 'novo' ? 'bg-[var(--accent)]' : 'bg-[var(--color-border-strong)]'}`} />
+                          <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                              <p className="font-bold text-[var(--color-text)]">{lead.name}</p>
+                              <span className="text-xs font-semibold text-[var(--color-text-placeholder)]">{lead.source ? (sourceLabels[lead.source] ?? lead.source) : ''}</span>
+                            </div>
+                            {lead.vehicleTitle && (
+                              <p className="mt-1 truncate text-xs font-bold text-[var(--accent-dark)]">{lead.vehicleTitle}</p>
+                            )}
+                            <div className="mt-1 flex flex-wrap gap-1.5">
+                              <span className="rounded-full bg-[var(--color-surface-2)] px-2 py-0.5 text-[10px] font-bold text-[var(--color-text-muted)]">{intentLabels[lead.intent] ?? lead.intent}</span>
+                              {lead.dealerName && <span className="rounded-full bg-[var(--accent-soft)] px-2 py-0.5 text-[10px] font-bold text-[var(--accent-dark)]">{lead.dealerName}</span>}
+                            </div>
+                            <p className="mt-1 line-clamp-1 text-sm text-[var(--color-text-muted)]">{lead.message}</p>
                           </div>
-                          {lead.vehicleTitle && (
-                            <p className="mt-1 truncate text-xs font-bold text-[var(--accent-dark)]">{lead.vehicleTitle}</p>
-                          )}
-                          <div className="mt-1 flex flex-wrap gap-1.5">
-                            <span className="rounded-full bg-[var(--color-surface-2)] px-2 py-0.5 text-[10px] font-bold text-[var(--color-text-muted)]">{intentLabels[lead.intent] ?? lead.intent}</span>
-                            {lead.dealerName && <span className="rounded-full bg-[var(--accent-soft)] px-2 py-0.5 text-[10px] font-bold text-[var(--accent-dark)]">{lead.dealerName}</span>}
-                          </div>
-                          <p className="mt-1 line-clamp-1 text-sm text-[var(--color-text-muted)]">{lead.message}</p>
+                        </div>
+                        <div className="flex shrink-0 flex-col items-end gap-2">
+                          <span className={`rounded-full border px-2.5 py-1 text-xs font-bold ${statusConfig[lead.status]?.classes}`}>
+                            {statusConfig[lead.status]?.label}
+                          </span>
+                          <span className="text-xs text-[var(--color-text-placeholder)]">{timeAgo(lead.createdAt)}</span>
                         </div>
                       </div>
-                      <div className="flex shrink-0 flex-col items-end gap-2">
-                        <span className={`rounded-full border px-2.5 py-1 text-xs font-bold ${statusConfig[lead.status]?.classes}`}>
-                          {statusConfig[lead.status]?.label}
-                        </span>
-                        <span className="text-xs text-[var(--color-text-placeholder)]">{timeAgo(lead.createdAt)}</span>
-                      </div>
-                    </div>
-                  </button>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => confirmDelete(lead.id)}
+                      aria-label="Obriši upit"
+                      className="mt-1 shrink-0 rounded-xl p-2 text-[var(--color-text-muted)] transition hover:bg-red-50 hover:text-red-600"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
                 );
               })}
             </div>
@@ -302,6 +397,14 @@ export default function AdminLeadsClient({ leads: initialLeads }: Props) {
                   Posalji Viber
                 </a>
               )}
+              <button
+                type="button"
+                onClick={() => confirmDelete(selected.id)}
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 text-sm font-semibold text-red-600 transition hover:bg-red-100"
+              >
+                <Trash2 size={15} />
+                Obriši upit
+              </button>
             </div>
           </aside>
         ) : (
@@ -318,7 +421,7 @@ export default function AdminLeadsClient({ leads: initialLeads }: Props) {
   );
 }
 
-function ContactRow({ icon, label, href, muted = false }: { icon: React.ReactNode; label: string; href?: string; muted?: boolean }) {
+function ContactRow({ icon, label, href, muted = false }: { readonly icon: React.ReactNode; readonly label: string; readonly href?: string; readonly muted?: boolean }) {
   const className = 'flex items-center gap-3 rounded-2xl border border-[var(--color-border)] bg-white px-3 py-2.5 text-sm font-semibold transition hover:border-[var(--accent-border)]';
   const content = (
     <>
