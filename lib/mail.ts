@@ -115,19 +115,33 @@ export async function sendLeadNotification(data: LeadEmailData): Promise<void> {
   const maskedTo = maskEmail(CONTACT_EMAIL);
   console.log(`[mail] sending to=${maskedTo} subject="${subject}"`);
 
-  await getTransporter().sendMail({
-    from:    `"Moj Auto Diler" <${ZOHO_SMTP_USER}>`,
-    to:      CONTACT_EMAIL,
-    ...(email ? { replyTo: email } : {}),
-    subject,
-    html,
-    text,
-    ...(data.attachment ? {
-      attachments: [{
-        filename: data.attachment.filename,
-        content:  data.attachment.buffer,
-        contentType: data.attachment.contentType,
-      }],
-    } : {}),
+  let info: Awaited<ReturnType<ReturnType<typeof getTransporter>['sendMail']>>;
+  try {
+    console.log('[mail] sendMail_start');
+    info = await getTransporter().sendMail({
+      from:    `"Moj Auto Diler" <${ZOHO_SMTP_USER}>`,
+      to:      CONTACT_EMAIL,
+      ...(email ? { replyTo: email } : {}),
+      subject,
+      html,
+      text,
+      ...(data.attachment ? {
+        attachments: [{
+          filename: data.attachment.filename,
+          content:  data.attachment.buffer,
+          contentType: data.attachment.contentType,
+        }],
+      } : {}),
+    });
+  } catch (sendErr) {
+    console.error(`[mail] sendMail_threw to=${maskedTo}`, sendErr);
+    throw sendErr;
+  }
+
+  console.log('[mail] result', {
+    messageId: info.messageId,
+    accepted:  info.accepted,
+    rejected:  info.rejected,
+    response:  info.response,
   });
 }

@@ -212,9 +212,12 @@ export async function POST(request: NextRequest) {
       if (vehicleId) recordMemoryDedup(vehicleId, intent, ipAddress, userAgent);
       console.log(`[leads] lead_saved id=${lead.id} vehicleId=${vehicleId ?? 'none'} intent=${intent}`);
       console.log(`[leads] email_attempted leadId=${lead.id} hasAttachment=${!!attachment}`);
-      sendLeadNotification(emailPayload)
-        .then(() => console.log(`[leads] email_success leadId=${lead.id}`))
-        .catch((err) => console.error(`[leads] email_failed leadId=${lead.id}`, err));
+      try {
+        await sendLeadNotification(emailPayload);
+        console.log(`[leads] email_success leadId=${lead.id}`);
+      } catch (emailErr) {
+        console.error(`[leads] email_failed leadId=${lead.id}`, emailErr);
+      }
       return NextResponse.json({ success: true, lead }, { status: 201 });
     } catch (dbErr) {
       console.error('[leads] db_failed — falling back to in-memory store', dbErr);
@@ -222,9 +225,12 @@ export async function POST(request: NextRequest) {
       if (vehicleId) recordMemoryDedup(vehicleId, intent, ipAddress, userAgent);
       console.log(`[leads] lead_saved_fallback id=${lead.id} vehicleId=${vehicleId ?? 'none'} intent=${intent}`);
       console.log(`[leads] email_attempted leadId=${lead.id} hasAttachment=${!!attachment}`);
-      sendLeadNotification(emailPayload)
-        .then(() => console.log(`[leads] email_success leadId=${lead.id}`))
-        .catch((err) => console.error(`[leads] email_failed leadId=${lead.id}`, err));
+      try {
+        await sendLeadNotification(emailPayload);
+        console.log(`[leads] email_success leadId=${lead.id}`);
+      } catch (emailErr) {
+        console.error(`[leads] email_failed leadId=${lead.id}`, emailErr);
+      }
       return NextResponse.json({ success: true, lead }, { status: 201 });
     }
   } catch {
