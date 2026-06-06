@@ -191,6 +191,8 @@ export async function POST(request: NextRequest) {
       attribution,
     };
 
+    const dealerPhone = String(fields.dealerPhone ?? '').trim() || undefined;
+
     const emailPayload = {
       name: dbInput.name,
       phone: dbInput.phone,
@@ -198,6 +200,8 @@ export async function POST(request: NextRequest) {
       message: dbInput.message,
       intent: dbInput.intent,
       vehicleTitle: dbInput.vehicleTitle,
+      dealerName: dbInput.dealerName,
+      dealerPhone,
       attachment,
     };
 

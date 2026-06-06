@@ -37,11 +37,19 @@ export interface LeadEmailData {
   message: string;
   intent?: string;
   vehicleTitle?: string;
+  dealerName?: string;
+  dealerPhone?: string;
   attachment?: {
     filename: string;
     buffer: Buffer;
     contentType: string;
   };
+}
+
+function maskEmail(addr: string): string {
+  const at = addr.indexOf('@');
+  if (at <= 0) return '***';
+  return `${addr[0]}***${addr.slice(at)}`;
 }
 
 /**
@@ -57,7 +65,7 @@ export async function sendLeadNotification(data: LeadEmailData): Promise<void> {
     return;
   }
 
-  const { name, phone, email, message, intent, vehicleTitle } = data;
+  const { name, phone, email, message, intent, vehicleTitle, dealerName, dealerPhone } = data;
 
   const subject = vehicleTitle
     ? `Nova upita za vozilo: ${vehicleTitle}`
@@ -70,6 +78,8 @@ export async function sendLeadNotification(data: LeadEmailData): Promise<void> {
     ['Poruka', message],
     ...(vehicleTitle ? [['Vozilo', vehicleTitle] as [string, string]]        : []),
     ...(intent       ? [['Tip upita', intent] as [string, string]]           : []),
+    ...(dealerName   ? [['Diler', dealerName] as [string, string]]           : []),
+    ...(dealerPhone  ? [['Telefon dilera', dealerPhone] as [string, string]] : []),
   ];
 
   const htmlRows = rows
@@ -101,6 +111,9 @@ export async function sendLeadNotification(data: LeadEmailData): Promise<void> {
 </html>`;
 
   const text = rows.map(([label, value]) => `${label}: ${value}`).join('\n');
+
+  const maskedTo = maskEmail(CONTACT_EMAIL);
+  console.log(`[mail] sending to=${maskedTo} subject="${subject}"`);
 
   await getTransporter().sendMail({
     from:    `"Moj Auto Diler" <${ZOHO_SMTP_USER}>`,

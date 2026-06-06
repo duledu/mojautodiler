@@ -664,6 +664,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                           vehicleTitle: vehicle.title,
                           dealerId: contact.dealerId,
                           dealerName: contact.dealerName,
+                          dealerPhone: contact.phone,
                           intent: 'general_inquiry',
                           preferredContactChannel: form.email ? 'email' : 'phone',
                           attribution: buildAttribution(),
