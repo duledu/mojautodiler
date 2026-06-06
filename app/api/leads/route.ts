@@ -201,15 +201,26 @@ export async function POST(request: NextRequest) {
       attachment,
     };
 
+    console.log(`[leads] inquiry_received name="${name}" phone="${phone}" intent=${intent} vehicleId=${vehicleId ?? 'none'} ip=${ipAddress ?? 'unknown'}`);
+
     try {
       const lead = await createLead(dbInput);
       if (vehicleId) recordMemoryDedup(vehicleId, intent, ipAddress, userAgent);
-      sendLeadNotification(emailPayload).catch((err) => console.error('[mail] send error:', err));
+      console.log(`[leads] lead_saved id=${lead.id} vehicleId=${vehicleId ?? 'none'} intent=${intent}`);
+      console.log(`[leads] email_attempted leadId=${lead.id} hasAttachment=${!!attachment}`);
+      sendLeadNotification(emailPayload)
+        .then(() => console.log(`[leads] email_success leadId=${lead.id}`))
+        .catch((err) => console.error(`[leads] email_failed leadId=${lead.id}`, err));
       return NextResponse.json({ success: true, lead }, { status: 201 });
-    } catch {
+    } catch (dbErr) {
+      console.error('[leads] db_failed — falling back to in-memory store', dbErr);
       const lead = addLead({ ...dbInput, source: 'web' as const });
       if (vehicleId) recordMemoryDedup(vehicleId, intent, ipAddress, userAgent);
-      sendLeadNotification(emailPayload).catch((err) => console.error('[mail] send error:', err));
+      console.log(`[leads] lead_saved_fallback id=${lead.id} vehicleId=${vehicleId ?? 'none'} intent=${intent}`);
+      console.log(`[leads] email_attempted leadId=${lead.id} hasAttachment=${!!attachment}`);
+      sendLeadNotification(emailPayload)
+        .then(() => console.log(`[leads] email_success leadId=${lead.id}`))
+        .catch((err) => console.error(`[leads] email_failed leadId=${lead.id}`, err));
       return NextResponse.json({ success: true, lead }, { status: 201 });
     }
   } catch {

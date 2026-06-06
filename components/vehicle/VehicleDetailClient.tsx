@@ -72,7 +72,9 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'specs' | 'equipment' | 'safety' | 'description'>('specs');
   const [form, setForm] = useState({ name: '', phone: '', email: '', message: '' });
-  const [submitted, setSubmitted] = useState(false);
+  const [submitted, setSubmitted]   = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError]   = useState<string | null>(null);
   const trustBadges = getVehicleTrustBadges(vehicle);
   const contact = resolveVehicleContact(vehicle, dealer);
 
@@ -643,11 +645,45 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                   <span className="text-green-700 text-sm font-medium">{t.contact.success}</span>
                 </div>
               ) : (
-                <form onSubmit={(e) => {
-                  e.preventDefault();
-                  recordLeadIntent('general_inquiry', form.email ? 'email' : 'phone', form.message || `${t.inquiry.interested}: ${vehicle.title}`, e.timeStamp);
-                  setSubmitted(true);
-                }} className="space-y-4">
+                <form
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    setSubmitting(true);
+                    setFormError(null);
+                    try {
+                      const res = await fetch('/api/leads', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          type: 'inquiry',
+                          name: form.name,
+                          phone: form.phone,
+                          email: form.email || undefined,
+                          message: form.message || `${t.inquiry.interested}: ${vehicle.title}`,
+                          vehicleId: vehicle.id,
+                          vehicleTitle: vehicle.title,
+                          dealerId: contact.dealerId,
+                          dealerName: contact.dealerName,
+                          intent: 'general_inquiry',
+                          preferredContactChannel: form.email ? 'email' : 'phone',
+                          attribution: buildAttribution(),
+                        }),
+                      });
+                      const data = await res.json() as { success?: boolean; error?: string };
+                      if (!res.ok || !data.success) {
+                        setFormError(data.error ?? 'Greška pri slanju. Pokušajte ponovo.');
+                        return;
+                      }
+                      trackLead({ contentName: vehicle.title, value: vehicle.price, currency: vehicle.currency });
+                      setSubmitted(true);
+                    } catch {
+                      setFormError('Greška pri slanju. Proverite internet vezu i pokušajte ponovo.');
+                    } finally {
+                      setSubmitting(false);
+                    }
+                  }}
+                  className="space-y-4"
+                >
                   <div className="grid sm:grid-cols-2 gap-4">
                     <input
                       suppressHydrationWarning
@@ -682,9 +718,17 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                     onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
                     className="input-premium w-full rounded-xl px-4 py-3 text-sm resize-none"
                   />
-                  <button suppressHydrationWarning type="submit" className="btn-gold w-full rounded-xl py-3.5 text-sm flex items-center justify-center gap-2">
+                  {formError && (
+                    <p className="text-red-600 text-sm font-medium">{formError}</p>
+                  )}
+                  <button
+                    suppressHydrationWarning
+                    type="submit"
+                    disabled={submitting}
+                    className="btn-gold w-full rounded-xl py-3.5 text-sm flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
                     <Send size={14} />
-                    {t.inquiry.send}
+                    {submitting ? 'Slanje…' : t.inquiry.send}
                   </button>
                 </form>
               )}
