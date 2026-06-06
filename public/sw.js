@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mad-app-shell-v1';
+const CACHE_NAME = 'mad-app-shell-v2';
 const APP_SHELL = [
   '/',
   '/sr',
@@ -10,8 +10,12 @@ const APP_SHELL = [
 ];
 
 self.addEventListener('install', (event) => {
+  // Use allSettled so a single 404 (e.g. an icon not yet deployed) does not
+  // abort the install and leave the SW in a broken/deleted state.
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL))
+    caches.open(CACHE_NAME).then((cache) =>
+      Promise.allSettled(APP_SHELL.map((url) => cache.add(url)))
+    )
   );
   self.skipWaiting();
 });

@@ -3,6 +3,7 @@ import './globals.css';
 import MetaPixel from '@/components/analytics/MetaPixel';
 import UtmCapture from '@/components/analytics/UtmCapture';
 import ServiceWorkerRegister from '@/components/pwa/ServiceWorkerRegister';
+import PwaInstallBanner from '@/components/pwa/PwaInstallBanner';
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mojautodiler.rs';
 
@@ -47,6 +48,7 @@ export default function RootLayout({ children }: { readonly children: React.Reac
         {/* UTM capture — persists ad campaign params to sessionStorage for lead attribution */}
         <UtmCapture />
         <ServiceWorkerRegister />
+        <PwaInstallBanner />
       </body>
     </html>
   );
