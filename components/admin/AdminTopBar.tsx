@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Bell, ChevronRight, ExternalLink, LogOut, ShieldCheck } from 'lucide-react';
+import Image from 'next/image';
+import { Bell, ChevronRight, ExternalLink, LogOut } from 'lucide-react';
 import { mockLeads } from '@/data/leads';
 
 const breadcrumbMap: Record<string, string> = {
@@ -62,8 +63,14 @@ export default function AdminTopBar() {
 
           {/* Mobile: logo + current page name */}
           <div className="flex items-center gap-2.5 lg:hidden">
-            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-(--accent)">
-              <ShieldCheck size={14} className="text-white" />
+            <div className="h-7 w-7 shrink-0 rounded-lg overflow-hidden">
+              <Image
+                src="/brand-logo.png"
+                alt="Moj Auto Diler"
+                width={28}
+                height={28}
+                className="h-full w-full object-contain"
+              />
             </div>
             <span className="font-black text-(--color-text)" style={{ fontFamily: 'var(--font-display)' }}>
               {currentPageLabel}

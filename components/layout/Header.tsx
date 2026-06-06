@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { Menu, X, ShieldCheck } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { Locale, localeNames, locales, TranslationKeys } from '@/lib/i18n';
 import type { DealerInfo } from '@/lib/db/mappers';
 import { cn } from '@/lib/utils';
@@ -49,8 +50,15 @@ export default function Header({ locale, t, dealer }: HeaderProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
         {/* Logo */}
         <Link href={`/${locale}`} className="flex items-center gap-3 group">
-          <div className="w-9 h-9 rounded-xl bg-[var(--accent)] flex items-center justify-center shadow-[0_2px_10px_rgba(0,0,0,0.12)]">
-            <ShieldCheck size={18} className="text-white" />
+          <div className="w-9 h-9 rounded-xl overflow-hidden shadow-[0_2px_10px_rgba(0,0,0,0.12)] shrink-0">
+            <Image
+              src="/brand-logo.png"
+              alt="Moj Auto Diler"
+              width={36}
+              height={36}
+              priority
+              className="h-full w-full object-contain"
+            />
           </div>
           <div>
             <div className="text-[var(--color-text)] font-bold text-[15px] leading-none" style={{ fontFamily: 'var(--font-display)' }}>

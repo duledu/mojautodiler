@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { Clock, Mail, MapPin, ShieldCheck } from 'lucide-react';
+import Image from 'next/image';
+import { Clock, Mail, MapPin } from 'lucide-react';
 import { FacebookIcon, InstagramIcon, ViberIcon } from '@/components/ui/SocialIcons';
 import { Locale, TranslationKeys } from '@/lib/i18n';
 import type { DealerInfo } from '@/lib/db/mappers';
@@ -27,8 +28,14 @@ export default function Footer({ locale, t, dealer }: FooterProps) {
           {/* Brand */}
           <div>
             <Link href={`/${locale}`} className="mb-5 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--accent)] text-white shadow-[0_2px_10px_rgba(0,0,0,0.12)]">
-                <ShieldCheck size={20} />
+              <div className="h-10 w-10 shrink-0 rounded-xl overflow-hidden shadow-[0_2px_10px_rgba(0,0,0,0.12)]">
+                <Image
+                  src="/brand-logo.png"
+                  alt="Moj Auto Diler"
+                  width={40}
+                  height={40}
+                  className="h-full w-full object-contain"
+                />
               </div>
               <div>
                 <div className="font-bold leading-none text-[var(--color-text)]" style={{ fontFamily: 'var(--font-display)' }}>

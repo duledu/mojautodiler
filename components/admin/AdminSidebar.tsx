@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Building2, Car, ExternalLink, LayoutDashboard, MessageSquare, Settings, ShieldCheck } from 'lucide-react';
+import Image from 'next/image';
+import { Building2, Car, ExternalLink, LayoutDashboard, MessageSquare, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function AdminSidebar() {
@@ -20,8 +21,14 @@ export default function AdminSidebar() {
   return (
     <aside className="sticky top-0 hidden h-screen w-[17rem] shrink-0 border-r border-black/10 bg-[#11100E] p-4 text-white lg:flex lg:flex-col">
       <Link href={`/${locale}/admin`} className="mb-8 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--accent)] text-white">
-          <ShieldCheck size={20} />
+        <div className="h-10 w-10 shrink-0 rounded-xl overflow-hidden">
+          <Image
+            src="/brand-logo.png"
+            alt="Moj Auto Diler"
+            width={40}
+            height={40}
+            className="h-full w-full object-contain"
+          />
         </div>
         <div>
           <div className="font-bold leading-none text-white" style={{ fontFamily: 'var(--font-display)' }}>Moj Auto Diler</div>
