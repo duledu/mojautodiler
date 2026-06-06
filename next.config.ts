@@ -19,7 +19,7 @@ const customR2Host = r2CustomHostname();
 
 const nextConfig: NextConfig = {
   // Prisma client must run in Node.js runtime, not Edge
-  serverExternalPackages: ['@prisma/client', 'prisma'],
+  serverExternalPackages: ['@prisma/client', 'prisma', 'nodemailer'],
 
   images: {
     // Prefer AVIF then WebP — both are served with quality fallback to the
