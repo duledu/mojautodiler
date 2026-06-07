@@ -10,7 +10,7 @@ declare global {
 
 // ─── URL / embed-code parsing ─────────────────────────────────────────────────
 
-type EmbedKind = 'youtube' | 'instagram';
+type EmbedKind = 'youtube' | 'instagram' | 'tiktok' | 'facebook';
 
 interface Parsed {
   kind: EmbedKind;
@@ -23,6 +23,8 @@ interface Parsed {
  *  - YouTube watch / share / shorts / live URL
  *  - Instagram post / reel / tv URL
  *  - Full copy-pasted Instagram <blockquote> embed code (with or without <script>)
+ *  - TikTok video share URL (tiktok.com/@user/video/{id})
+ *  - Facebook video URL (page videos / watch / reel / share link / fb.watch)
  *
  * For Instagram embed codes the permalink is extracted; the raw HTML is never
  * rendered. Returns null for unrecognised input.
@@ -52,6 +54,31 @@ export function parseEmbed(raw: string): Parsed | null {
   const ig = /instagram\.com\/(p|reel|tv)\/([A-Za-z0-9_-]+)/.exec(s);
   if (ig) {
     return { kind: 'instagram', url: `https://www.instagram.com/${ig[1]}/${ig[2]}/` };
+  }
+
+  // ── TikTok ────────────────────────────────────────────────────────────────
+  // Canonical share URL: tiktok.com/@username/video/7123456789012345678
+  // (the numeric video ID is required to build the embed iframe URL)
+  const tt = /tiktok\.com\/@[\w.-]+\/video\/(\d+)/.exec(s);
+  if (tt) {
+    return { kind: 'tiktok', url: `https://www.tiktok.com/embed/v2/${tt[1]}` };
+  }
+
+  // ── Facebook video (page videos / watch / reel / fb.watch short links) ───
+  // The video plugin resolves any canonical or short link server-side, so the
+  // original URL is passed through as the `href` query param unchanged.
+  // Split into small per-pattern checks to keep each regex's complexity low.
+  const isFacebookVideo =
+    /facebook\.com\/[\w.-]+\/videos\/\d+/i.test(s) ||
+    /facebook\.com\/watch\/?\?v=\d+/i.test(s) ||
+    /facebook\.com\/reel\/\d+/i.test(s) ||
+    /facebook\.com\/share\/[rv]\/[\w-]+/i.test(s) ||
+    /fb\.watch\/[\w-]+/i.test(s);
+  if (isFacebookVideo) {
+    return {
+      kind: 'facebook',
+      url: `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(s)}&show_text=false`,
+    };
   }
 
   return null;
@@ -153,8 +180,9 @@ interface Props {
 }
 
 /**
- * Renders a YouTube or Instagram embed from a URL or full Instagram embed code.
- * Returns null for unrecognised input so no empty space is shown.
+ * Renders a YouTube, Instagram, TikTok or Facebook embed from a URL (or a full
+ * Instagram embed code). Returns null for unrecognised input so no empty space
+ * is shown.
  */
 export function EmbedPlayer({ url }: Props) {
   const parsed = parseEmbed(url);
@@ -185,6 +213,57 @@ export function EmbedPlayer({ url }: Props) {
             height: '100%',
             border: 0,
           }}
+        />
+      </div>
+    );
+  }
+
+  // ── TikTok (portrait 9:16) ─────────────────────────────────────────────────
+  if (parsed.kind === 'tiktok') {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <div
+          style={{
+            position: 'relative',
+            width: '100%',
+            maxWidth: 325,
+            aspectRatio: '9 / 16',
+            overflow: 'hidden',
+            borderRadius: 12,
+          }}
+        >
+          <iframe
+            src={parsed.url}
+            title="TikTok video"
+            allow="encrypted-media; picture-in-picture; web-share"
+            allowFullScreen
+            loading="lazy"
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 0 }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // ── Facebook video (16:9 plugin frame; portrait clips letterbox) ─────────
+  if (parsed.kind === 'facebook') {
+    return (
+      <div
+        style={{
+          position: 'relative',
+          paddingBottom: '56.25%', // 16:9
+          height: 0,
+          overflow: 'hidden',
+          borderRadius: 12,
+        }}
+      >
+        <iframe
+          src={parsed.url}
+          title="Facebook video"
+          allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+          allowFullScreen
+          loading="lazy"
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 0 }}
         />
       </div>
     );

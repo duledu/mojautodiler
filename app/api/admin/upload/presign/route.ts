@@ -1,22 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import {
   validateUpload,
+  validateVideoUpload,
   buildObjectKey,
   createPresignedPut,
   buildPublicUrl,
   r2EnvDiagnostics,
 } from '@/lib/r2';
+import { getVehicleVideoUsage } from '@/lib/db/vehicles';
 
 /**
  * POST /api/admin/upload/presign
  *
  * Protected by proxy (all /api/admin/* routes require an admin session cookie).
  *
- * Body:   { filename, contentType, size, vehicleId? }
+ * Body:   { filename, contentType, size, vehicleId?, kind? }
+ *         kind: 'image' (default) | 'video' — selects validation rules
  * Returns { uploadUrl, publicUrl, key }
  *
  * The client then PUTs the file directly to `uploadUrl` (browser → R2).
- * On 200/204 it stores `publicUrl` in the vehicle's images array.
+ * On 200/204 it stores `publicUrl` in the vehicle's images/videos array.
  */
 export async function POST(request: NextRequest) {
   // ── Env var preflight check ───────────────────────────────────────────────
@@ -45,6 +48,7 @@ export async function POST(request: NextRequest) {
   let contentType: string;
   let size: number;
   let vehicleId: string | undefined;
+  let kind: 'image' | 'video';
 
   try {
     const body = await request.json();
@@ -52,6 +56,7 @@ export async function POST(request: NextRequest) {
     contentType = String(body.contentType ?? '').trim();
     size        = Number(body.size);
     vehicleId   = body.vehicleId ?? undefined;
+    kind        = body.kind === 'video' ? 'video' : 'image';
   } catch {
     return NextResponse.json({ error: 'Invalid JSON body.' }, { status: 400 });
   }
@@ -65,14 +70,27 @@ export async function POST(request: NextRequest) {
 
   console.info(
     `[R2 PRESIGN] request — file="${filename}" type=${contentType} ` +
-    `size=${size} vehicleId=${vehicleId ?? 'new'}`,
+    `size=${size} kind=${kind} vehicleId=${vehicleId ?? 'new'}`,
   );
 
   // ── Validate ──────────────────────────────────────────────────────────────
-  const validationError = validateUpload(contentType, size);
-  if (validationError) {
-    console.warn('[R2 PRESIGN] validation failed:', validationError);
-    return NextResponse.json({ error: validationError }, { status: 422 });
+  if (kind === 'video') {
+    // Authoritative cap check requires existing VehicleMedia rows, which only
+    // exist once the vehicle has been saved at least once. For brand-new
+    // vehicles (no id yet) the client enforces the running total locally —
+    // the same trust model already used for the image flow.
+    const currentTotal = vehicleId ? await getVehicleVideoUsage(vehicleId) : 0;
+    const validationError = validateVideoUpload(contentType, size, currentTotal);
+    if (validationError) {
+      console.warn('[R2 PRESIGN] video validation failed:', validationError);
+      return NextResponse.json({ error: validationError }, { status: 422 });
+    }
+  } else {
+    const validationError = validateUpload(contentType, size);
+    if (validationError) {
+      console.warn('[R2 PRESIGN] validation failed:', validationError);
+      return NextResponse.json({ error: validationError }, { status: 422 });
+    }
   }
 
   // ── Generate presigned URL ────────────────────────────────────────────────

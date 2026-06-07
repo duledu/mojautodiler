@@ -67,6 +67,10 @@ function getClient(): S3Client {
 export const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
 export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 
+export const ALLOWED_VIDEO_MIME_TYPES = ['video/mp4'] as const;
+/** Total uploaded-video storage allowed per vehicle (sum of all clips). */
+export const MAX_VIDEO_TOTAL_BYTES = 30 * 1024 * 1024; // 30 MB
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /** Returns an error string if the upload is invalid, or null if it's OK. */
@@ -76,6 +80,27 @@ export function validateUpload(contentType: string, sizeBytes: number): string |
   }
   if (sizeBytes > MAX_FILE_SIZE) {
     return `File is ${(sizeBytes / 1024 / 1024).toFixed(1)} MB — the limit is 10 MB.`;
+  }
+  return null;
+}
+
+/**
+ * Returns an error string if a video upload is invalid, or null if it's OK.
+ * Unlike images (per-file cap), videos share one TOTAL budget per vehicle —
+ * `currentTotalBytes` is the sum of sizes already stored for this vehicle.
+ */
+export function validateVideoUpload(
+  contentType: string,
+  sizeBytes: number,
+  currentTotalBytes: number,
+): string | null {
+  if (!(ALLOWED_VIDEO_MIME_TYPES as readonly string[]).includes(contentType)) {
+    return 'Only MP4 video files are accepted.';
+  }
+  const remaining = MAX_VIDEO_TOTAL_BYTES - currentTotalBytes;
+  if (sizeBytes > remaining) {
+    return `Not enough space — ${(remaining / 1024 / 1024).toFixed(1)} MB left of the 30 MB video limit ` +
+           `for this vehicle (file is ${(sizeBytes / 1024 / 1024).toFixed(1)} MB).`;
   }
   return null;
 }

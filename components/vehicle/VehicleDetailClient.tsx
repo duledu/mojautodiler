@@ -413,8 +413,8 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
             {/* Vehicle highlights — fast-scan chips between gallery and confidence section */}
             <VehicleHighlights vehicle={vehicle} locale={locale} />
 
-            {/* Video embed — surfaced early so visitors see it before scrolling to specs */}
-            {vehicle.videoUrl && (
+            {/* Videos — uploaded clips + embedded video, surfaced early so visitors see them before scrolling to specs */}
+            {((vehicle.videos && vehicle.videos.length > 0) || vehicle.videoUrl) && (
               <section className="rounded-3xl border border-(--color-border) bg-white p-4 shadow-sm min-[390px]:p-5 sm:p-6">
                 <div className="mb-4 flex items-center gap-2">
                   <Video size={16} className="text-[var(--accent)]" />
@@ -422,7 +422,21 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                     Video
                   </h3>
                 </div>
-                <EmbedPlayer url={vehicle.videoUrl} />
+                <div className="space-y-4">
+                  {vehicle.videos?.map((v) => (
+                    <video
+                      key={v.id}
+                      controls
+                      playsInline
+                      preload="metadata"
+                      className="w-full rounded-2xl bg-black"
+                      style={{ aspectRatio: '16 / 9' }}
+                    >
+                      <source src={v.url} type={v.mimeType || 'video/mp4'} />
+                    </video>
+                  ))}
+                  {vehicle.videoUrl && <EmbedPlayer url={vehicle.videoUrl} />}
+                </div>
               </section>
             )}
 

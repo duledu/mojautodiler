@@ -1,11 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { updateVehicle, deleteVehicle, syncVehicleMedia } from '@/lib/db/vehicles';
+import { updateVehicle, deleteVehicle, syncVehicleMedia, syncVehicleVideos, type VideoSyncInput } from '@/lib/db/vehicles';
 import type { VehicleStatus } from '@/types/vehicle';
 
 /** Prisma error code lives on the error as `.code`. */
 function prismaCode(err: unknown): string {
   return (err as { code?: string }).code ?? '';
+}
+
+/** Normalises the admin form's `videos` payload into VideoSyncInput[]; drops malformed entries. */
+function parseVideosPayload(raw: unknown): VideoSyncInput[] {
+  if (!Array.isArray(raw)) return [];
+  return (raw as { url?: unknown; r2Key?: unknown; mimeType?: unknown; sizeBytes?: unknown }[])
+    .filter((v) => typeof v.url === 'string' && v.url.startsWith('http'))
+    .map((v) => ({
+      url:       v.url as string,
+      r2Key:     typeof v.r2Key === 'string' ? v.r2Key : null,
+      mimeType:  typeof v.mimeType === 'string' ? v.mimeType : null,
+      sizeBytes: typeof v.sizeBytes === 'number' ? v.sizeBytes : null,
+    }));
 }
 
 // PUT /api/admin/vehicles/[id] — full update (all editable fields)
@@ -104,6 +117,9 @@ export async function PUT(
         ? (body.imageKeys as Record<string, string>)
         : {};
       void syncVehicleMedia(id, images, imageKeys);
+    }
+    if (body.videos !== undefined) {
+      void syncVehicleVideos(id, parseVideosPayload(body.videos));
     }
 
     // Flush SSG cache for vehicle detail pages (both locales)

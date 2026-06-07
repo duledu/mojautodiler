@@ -5,14 +5,19 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  AlertCircle, ArrowLeft, CheckCircle, Image as ImageIcon,
+  AlertCircle, ArrowLeft, CheckCircle, Film, Image as ImageIcon,
   Info, LayoutGrid, Plus, Save, Settings2, Share2, Shield, Sparkles, Star, Tag, Upload, Video, X,
 } from 'lucide-react';
 import { Dealer, Vehicle, FuelType, TransmissionType, DrivetrainType, BodyType, VehicleStatus, VehicleCondition, Currency, VatMode } from '@/types/vehicle';
 import EquipmentPicker from '@/components/admin/EquipmentPicker';
 import { EQUIPMENT_PRESETS, SAFETY_PRESETS, CONDITION_PRESETS } from '@/data/equipment-presets';
 import SortableImageGrid from '@/components/admin/SortableImageGrid';
-import type { ImageSlot } from '@/components/admin/media-types';
+import VideoUploadList from '@/components/admin/VideoUploadList';
+import type { ImageSlot, VideoSlot } from '@/components/admin/media-types';
+
+// Mirrors lib/r2.ts MAX_VIDEO_TOTAL_BYTES — kept local so this client component
+// never imports lib/r2 (which pulls in server-only AWS SDK packages).
+const MAX_VIDEO_TOTAL_BYTES = 30 * 1024 * 1024;
 
 // Dynamically imported — html-to-image and qrcode are browser-only
 const SocialCreativeGenerator = dynamic(
@@ -130,6 +135,19 @@ export default function VehicleFormClient({ mode, vehicle, dealers = [] }: Props
       uploading: false,
     }))
   );
+  // Existing uploaded videos initialised the same way — no blob, no spinner
+  const [videoSlots, setVideoSlots] = useState<VideoSlot[]>(() =>
+    (vehicle?.videos ?? []).map((v, i) => ({
+      id: `existing-video-${i}`,
+      filename: v.url.split('/').pop() || `video-${i + 1}.mp4`,
+      sizeBytes: v.sizeBytes ?? 0,
+      previewUrl: v.url,
+      uploadedUrl: v.url,
+      r2Key: v.r2Key,
+      mimeType: v.mimeType,
+      uploading: false,
+    }))
+  );
   const [videoEmbedInput, setVideoEmbedInput] = useState<string>(vehicle?.videoUrl ?? '');
   const [form, setForm] = useState<FormData>({
     title: '',
@@ -192,6 +210,15 @@ export default function VehicleFormClient({ mode, vehicle, dealers = [] }: Props
         if (s.r2Key && s.uploadedUrl) imageKeys[s.uploadedUrl] = s.r2Key;
       }
 
+      // Build the list of persisted uploaded-video slots (mirrors images above)
+      const uploadedVideoSlots = videoSlots.filter((s) => s.uploadedUrl && !s.uploading && !s.error);
+      const videos = uploadedVideoSlots.map((s) => ({
+        url:        s.uploadedUrl as string,
+        r2Key:      s.r2Key,
+        mimeType:   s.mimeType,
+        sizeBytes:  s.sizeBytes,
+      }));
+
       console.log('[SAVE] final imageUrls before PUT:', imageUrls);
 
       const { dealer: _dealer, ...formPayload } = form;
@@ -200,6 +227,7 @@ export default function VehicleFormClient({ mode, vehicle, dealers = [] }: Props
         ...formPayload,
         images: imageUrls,
         imageKeys,          // consumed by the API to upsert VehicleMedia records
+        videos,             // uploaded MP4s — consumed by the API to sync VehicleMedia (type='video')
         videoUrl: videoEmbedInput.trim() || null,
         slug: form.seoSlug?.trim() || undefined,
       };
@@ -372,6 +400,190 @@ export default function VehicleFormClient({ mode, vehicle, dealers = [] }: Props
       }
     }
   };
+
+  /**
+   * Removes an uploaded-video slot. Mirrors handleDeleteSlot — same generic
+   * media-delete endpoint handles both images and videos.
+   */
+  const handleDeleteVideoSlot = async (slot: VideoSlot) => {
+    if (slot.previewUrl.startsWith('blob:')) URL.revokeObjectURL(slot.previewUrl);
+
+    if (slot.r2Key && vehicle?.id && slot.uploadedUrl) {
+      try {
+        const res = await fetch(`/api/admin/vehicles/${vehicle.id}/media`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: slot.uploadedUrl, r2Key: slot.r2Key }),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({})) as { error?: string };
+          console.error('[DELETE MEDIA] server error:', data.error ?? res.status);
+        }
+      } catch (err) {
+        console.error('[DELETE MEDIA] network error:', err);
+      }
+    }
+
+    setVideoSlots(prev => prev.filter(s => s.id !== slot.id));
+  };
+
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    e.target.value = '';
+    if (files.length === 0) return;
+
+    // Running total of bytes already committed (existing + accepted-this-batch),
+    // so a multi-file selection can't slip past the cap via stale closure state.
+    let committedBytes = videoSlots
+      .filter(s => !s.error)
+      .reduce((sum, s) => sum + s.sizeBytes, 0);
+
+    for (const file of files) {
+      // ── Client-side guardrails (server re-validates authoritatively) ──────
+      if (file.type !== 'video/mp4') {
+        setVideoSlots(prev => [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            filename: file.name,
+            sizeBytes: file.size,
+            previewUrl: '',
+            uploading: false,
+            error: 'Dozvoljen je samo MP4 format za video.',
+          },
+        ]);
+        continue;
+      }
+
+      if (committedBytes + file.size > MAX_VIDEO_TOTAL_BYTES) {
+        const remainingMb = Math.max(0, (MAX_VIDEO_TOTAL_BYTES - committedBytes) / 1024 / 1024).toFixed(1);
+        setVideoSlots(prev => [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            filename: file.name,
+            sizeBytes: file.size,
+            previewUrl: '',
+            uploading: false,
+            error: `Prelazi preostali prostor za video (${remainingMb} MB od ukupno 30 MB po vozilu).`,
+          },
+        ]);
+        continue;
+      }
+      committedBytes += file.size;
+
+      const slotId = crypto.randomUUID();
+      const blobUrl = URL.createObjectURL(file);
+
+      setVideoSlots(prev => [
+        ...prev,
+        { id: slotId, filename: file.name, sizeBytes: file.size, previewUrl: blobUrl, uploading: true },
+      ]);
+
+      try {
+        // ── Step 1: get presigned PUT URL ──────────────────────────────────
+        console.log(`[VIDEO UPLOAD] presign start — file="${file.name}" type=${file.type} size=${file.size}`);
+
+        const presignRes = await fetch('/api/admin/upload/presign', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            filename:    file.name,
+            contentType: file.type,
+            size:        file.size,
+            vehicleId:   vehicle?.id ?? null,
+            kind:        'video',
+          }),
+        });
+
+        if (!presignRes.ok) {
+          const data = await presignRes.json().catch(() => ({})) as { error?: string };
+          const msg = data.error ?? `Presign HTTP ${presignRes.status}`;
+          console.error('[VIDEO UPLOAD] presign failed —', msg, data);
+          throw new Error(msg);
+        }
+
+        const { uploadUrl, publicUrl, key } = (await presignRes.json()) as {
+          uploadUrl: string;
+          publicUrl: string;
+          key: string;
+        };
+
+        console.log(`[VIDEO UPLOAD] presign OK — publicUrl=${publicUrl}`);
+
+        // ── Step 2: PUT file directly to R2 ───────────────────────────────
+        let putRes: Response;
+        try {
+          putRes = await fetch(uploadUrl, {
+            method: 'PUT',
+            body: file,
+            headers: { 'Content-Type': file.type },
+          });
+        } catch (fetchErr) {
+          const raw = fetchErr instanceof Error ? fetchErr.message : String(fetchErr);
+          const isCors =
+            raw.toLowerCase().includes('failed to fetch') ||
+            raw.toLowerCase().includes('networkerror');
+          console.error('[VIDEO UPLOAD] R2 PUT threw —', raw);
+          throw new Error(
+            isCors
+              ? 'R2 CORS error: go to Cloudflare R2 → bucket → Settings → CORS and add ' +
+                'AllowedOrigins: ["http://localhost:3000"], AllowedMethods: ["PUT"], ' +
+                'AllowedHeaders: ["content-type"]'
+              : `R2 network error: ${raw}`,
+          );
+        }
+
+        if (!putRes.ok) {
+          let detail = '';
+          try {
+            const text = await putRes.text();
+            const codeMatch = text.match(/<Code>(.+?)<\/Code>/);
+            const msgMatch  = text.match(/<Message>(.+?)<\/Message>/);
+            detail = codeMatch
+              ? ` — ${codeMatch[1]}${msgMatch ? ': ' + msgMatch[1] : ''}`
+              : text.slice(0, 200);
+            console.error('[VIDEO UPLOAD] R2 PUT error body —', text.slice(0, 400));
+          } catch { /* ignore body read error */ }
+          throw new Error(`R2 upload failed (HTTP ${putRes.status}${detail})`);
+        }
+
+        console.log('[VIDEO UPLOAD] R2 PUT success');
+
+        // ── Step 3: persist the public URL + R2 key ───────────────────────
+        URL.revokeObjectURL(blobUrl);
+        setVideoSlots(prev =>
+          prev.map(s =>
+            s.id === slotId
+              ? {
+                  ...s,
+                  previewUrl: publicUrl,
+                  uploadedUrl: publicUrl,
+                  r2Key: key,
+                  mimeType: file.type,
+                  uploading: false,
+                }
+              : s,
+          ),
+        );
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Upload failed';
+        console.error('[VIDEO UPLOAD] slot error —', msg);
+        setVideoSlots(prev =>
+          prev.map(s =>
+            s.id === slotId ? { ...s, uploading: false, error: msg } : s,
+          ),
+        );
+      }
+    }
+  };
+
+  // Remaining-space readout shown next to the "Upload MP4" button
+  const usedVideoBytes = videoSlots
+    .filter(s => s.uploadedUrl && !s.uploading && !s.error)
+    .reduce((sum, s) => sum + s.sizeBytes, 0);
+  const remainingVideoMb = Math.max(0, (MAX_VIDEO_TOTAL_BYTES - usedVideoBytes) / 1024 / 1024);
+  const usedVideoMb = usedVideoBytes / 1024 / 1024;
 
   return (
     <div className="max-w-5xl space-y-5 p-3 min-[390px]:space-y-6 min-[390px]:p-4 sm:p-6 lg:p-8">
@@ -860,6 +1072,41 @@ export default function VehicleFormClient({ mode, vehicle, dealers = [] }: Props
                   onDelete={handleDeleteSlot}
                 />
               )}
+            </div>
+
+            {/* Video upload (uploaded MP4 clips, stored in R2 like images) */}
+            <div>
+              <p className="mb-1 flex items-center gap-2 text-sm font-bold text-[var(--color-text)]">
+                <Film className="h-4 w-4 text-[var(--accent)]" /> Video upload
+              </p>
+              <p className="mb-3 text-[11px] text-[var(--color-text-muted)]">
+                Samo MP4 format · Iskorišćeno {usedVideoMb.toFixed(1)} MB / 30 MB · Preostalo {remainingVideoMb.toFixed(1)} MB
+              </p>
+              <label className={`group flex flex-col items-center justify-center gap-3 rounded-3xl border-2 border-dashed p-8 transition-all ${
+                remainingVideoMb <= 0
+                  ? 'cursor-not-allowed border-[var(--color-border)] bg-[var(--color-surface-2)] opacity-50'
+                  : 'cursor-pointer border-[var(--color-border-strong)] bg-[var(--color-surface-2)] hover:border-[var(--accent-border)] hover:bg-[var(--accent-soft)]'
+              }`}>
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[var(--accent-border)] bg-white text-[var(--accent)] transition-colors">
+                  <Upload className="h-5 w-5" />
+                </div>
+                <div className="text-center">
+                  <p className="text-sm font-bold text-[var(--color-text)]">
+                    {remainingVideoMb <= 0 ? 'Dostignut je limit od 30 MB' : 'Otpremi MP4 video'}
+                  </p>
+                  <p className="mt-1 text-xs text-[var(--color-text-muted)]">MP4 · Max 30 MB ukupno po vozilu</p>
+                </div>
+                <Input
+                  type="file"
+                  multiple
+                  accept="video/mp4"
+                  className="hidden"
+                  disabled={remainingVideoMb <= 0}
+                  onChange={handleVideoUpload}
+                />
+              </label>
+
+              <VideoUploadList slots={videoSlots} onDelete={handleDeleteVideoSlot} />
             </div>
 
             {/* Video / Embed */}

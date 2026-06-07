@@ -34,11 +34,13 @@ export interface VehicleImage {
   order: number;
 }
 
+/** An uploaded MP4 clip stored in R2 (VehicleMedia row with type='video'). */
 export interface VehicleVideo {
   id: string;
   url: string;
-  type: 'youtube' | 'vimeo' | 'direct';
-  thumbnail?: string;
+  r2Key?: string;
+  mimeType?: string;
+  sizeBytes?: number;
 }
 
 export interface Vehicle {

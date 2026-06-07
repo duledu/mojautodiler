@@ -96,9 +96,14 @@ export async function getAllVehicles(): Promise<Vehicle[]> {
   return rows.map(toAppVehicle);
 }
 
+// Detail-page reads include ordered media so the gallery can render uploaded
+// videos (VehicleMedia rows with type='video'). List/grid queries intentionally
+// don't include this — they only ever need Vehicle.images.
+const detailInclude = { dealer: true, media: { orderBy: { sortOrder: 'asc' as const } } };
+
 export async function getVehicleBySlug(slug: string): Promise<Vehicle | null> {
   if (!hasDatabase()) { warnNoDB('getVehicleBySlug'); return null; }
-  const row = await prisma.vehicle.findUnique({ where: { slug }, include: { dealer: true } });
+  const row = await prisma.vehicle.findUnique({ where: { slug }, include: detailInclude });
   if (process.env.NODE_ENV !== 'production') {
     console.log(`[DB] getVehicleBySlug("${slug}"): ${row ? row.title : 'not found'}`);
   }
@@ -107,7 +112,7 @@ export async function getVehicleBySlug(slug: string): Promise<Vehicle | null> {
 
 export async function getVehicleById(id: string): Promise<Vehicle | null> {
   if (!hasDatabase()) { warnNoDB('getVehicleById'); return null; }
-  const row = await prisma.vehicle.findUnique({ where: { id }, include: { dealer: true } });
+  const row = await prisma.vehicle.findUnique({ where: { id }, include: detailInclude });
   return row ? toAppVehicle(row) : null;
 }
 
@@ -333,11 +338,14 @@ export async function syncVehicleMedia(
       });
     }
 
-    // Remove records for images that have been removed from the list
+    // Remove image records that have been removed from the list.
+    // Scoped to type='image' — VehicleMedia also stores video rows (type='video'),
+    // and an unscoped delete here would wipe those out on every save.
     if (imageUrls.length > 0) {
       await prisma.vehicleMedia.deleteMany({
         where: {
           vehicleId,
+          type: 'image',
           url: { notIn: imageUrls },
         },
       });
@@ -345,5 +353,77 @@ export async function syncVehicleMedia(
   } catch (err) {
     // Non-fatal: VehicleMedia is a metadata layer; Vehicle.images is the source of truth
     console.error('[DB] syncVehicleMedia failed (non-fatal):', err instanceof Error ? err.message : err);
+  }
+}
+
+// ─── Video sync ────────────────────────────────────────────────────────────────
+
+export interface VideoSyncInput {
+  url: string;
+  r2Key: string | null;
+  mimeType: string | null;
+  sizeBytes: number | null;
+}
+
+/**
+ * Returns the total size (bytes) of all uploaded videos (type='video')
+ * currently stored for a vehicle. Used to enforce the 30 MB-per-vehicle cap
+ * before issuing a new presigned upload URL.
+ */
+export async function getVehicleVideoUsage(vehicleId: string): Promise<number> {
+  if (!process.env.DATABASE_URL) return 0;
+  const rows = await prisma.vehicleMedia.findMany({
+    where: { vehicleId, type: 'video' },
+    select: { sizeBytes: true },
+  });
+  return rows.reduce((sum, r) => sum + (r.sizeBytes ?? 0), 0);
+}
+
+/**
+ * Keeps uploaded-video VehicleMedia rows (type='video') consistent with the
+ * ordered list submitted from the admin form. Mirrors syncVehicleMedia but is
+ * fully independent — image and video rows never interfere with each other.
+ *
+ * Embedded videos are NOT stored here; they continue to live in the existing
+ * Vehicle.videoUrl field (unchanged, backward compatible).
+ */
+export async function syncVehicleVideos(vehicleId: string, videos: VideoSyncInput[]): Promise<void> {
+  if (!process.env.DATABASE_URL) return;
+
+  try {
+    const urls = videos.map((v) => v.url);
+
+    for (let i = 0; i < videos.length; i++) {
+      const v = videos[i];
+      await prisma.vehicleMedia.upsert({
+        where:  { vehicleId_url: { vehicleId, url: v.url } },
+        create: {
+          vehicleId,
+          url:       v.url,
+          r2Key:     v.r2Key,
+          type:      'video',
+          mimeType:  v.mimeType,
+          sizeBytes: v.sizeBytes,
+          sortOrder: i,
+          isPrimary: false,
+        },
+        update: {
+          ...(v.r2Key ? { r2Key: v.r2Key } : {}),
+          mimeType:  v.mimeType,
+          sizeBytes: v.sizeBytes,
+          sortOrder: i,
+        },
+      });
+    }
+
+    if (urls.length > 0) {
+      await prisma.vehicleMedia.deleteMany({
+        where: { vehicleId, type: 'video', url: { notIn: urls } },
+      });
+    } else {
+      await prisma.vehicleMedia.deleteMany({ where: { vehicleId, type: 'video' } });
+    }
+  } catch (err) {
+    console.error('[DB] syncVehicleVideos failed (non-fatal):', err instanceof Error ? err.message : err);
   }
 }

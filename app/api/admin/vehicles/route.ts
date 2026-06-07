@@ -1,6 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAllVehicles, createVehicle, syncVehicleMedia } from '@/lib/db/vehicles';
+import { getAllVehicles, createVehicle, syncVehicleMedia, syncVehicleVideos, type VideoSyncInput } from '@/lib/db/vehicles';
 import { slugify } from '@/lib/utils';
+
+/** Normalises the admin form's `videos` payload into VideoSyncInput[]; drops malformed entries. */
+function parseVideosPayload(raw: unknown): VideoSyncInput[] {
+  if (!Array.isArray(raw)) return [];
+  return (raw as { url?: unknown; r2Key?: unknown; mimeType?: unknown; sizeBytes?: unknown }[])
+    .filter((v) => typeof v.url === 'string' && v.url.startsWith('http'))
+    .map((v) => ({
+      url:       v.url as string,
+      r2Key:     typeof v.r2Key === 'string' ? v.r2Key : null,
+      mimeType:  typeof v.mimeType === 'string' ? v.mimeType : null,
+      sizeBytes: typeof v.sizeBytes === 'number' ? v.sizeBytes : null,
+    }));
+}
 
 // GET /api/admin/vehicles — list all vehicles (all statuses)
 export async function GET() {
@@ -79,6 +92,7 @@ export async function POST(request: NextRequest) {
       ? (body.imageKeys as Record<string, string>)
       : {};
     void syncVehicleMedia(vehicle.id, images, imageKeys);
+    void syncVehicleVideos(vehicle.id, parseVideosPayload(body.videos));
 
     return NextResponse.json({ success: true, vehicle }, { status: 201 });
   } catch (err) {

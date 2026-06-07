@@ -9,6 +9,7 @@
 
 import type {
   Vehicle as PrismaVehicle,
+  VehicleMedia   as PrismaVehicleMedia,
   Lead    as PrismaLead,
   Dealer  as PrismaDealer,
   DealerSettings as PrismaSettings,
@@ -113,7 +114,20 @@ export function toAppDealer(d: PrismaDealer): Dealer {
 
 // ─── Vehicle ───────────────────────────────────────────────────────────────────
 
-export function toAppVehicle(v: PrismaVehicle & { dealer?: PrismaDealer | null }): Vehicle {
+export function toAppVehicle(
+  v: PrismaVehicle & { dealer?: PrismaDealer | null; media?: PrismaVehicleMedia[] },
+): Vehicle {
+  // Uploaded videos live in VehicleMedia (type='video'); embeds stay in videoUrl.
+  const videos = (v.media ?? [])
+    .filter((m) => m.type === 'video')
+    .map((m) => ({
+      id:        m.id,
+      url:       m.url,
+      r2Key:     m.r2Key ?? undefined,
+      mimeType:  m.mimeType ?? undefined,
+      sizeBytes: m.sizeBytes ?? undefined,
+    }));
+
   return {
     id:            v.id,
     slug:          v.slug,
@@ -154,6 +168,7 @@ export function toAppVehicle(v: PrismaVehicle & { dealer?: PrismaDealer | null }
       order: i + 1,
     })),
     videoUrl:      v.videoUrl ?? undefined,
+    videos:        videos.length > 0 ? videos : undefined,
     status:        toAppVehicleStatus(v.status),
     featured:      v.featured,
     showcase:      v.showcase,
