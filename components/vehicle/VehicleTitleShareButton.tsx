@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Check, Share2 } from 'lucide-react';
-import type { Locale } from '@/lib/i18n';
+import { getTranslations, type Locale } from '@/lib/i18n';
 
 const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mojautodiler.com').replace(/\/$/, '');
 
@@ -16,26 +16,15 @@ export default function VehicleTitleShareButton({ vehicleSlug, vehicleTitle, loc
   const [copied, setCopied] = useState(false);
 
   const vehicleUrl = `${SITE}/${locale}/vehicle/${vehicleSlug}`;
-  const copy = locale === 'sq'
-    ? {
-        shareText: `Shiko këtë automjet në MojAutoDiler:\n${vehicleTitle}`,
-        ariaLabel: 'Shpërndaje shpalljen',
-        copied: 'U kopjua',
-        share: 'Shpërndaje',
-      }
-    : {
-        shareText: `Pogledaj ovaj automobil na MojAutoDiler:\n${vehicleTitle}`,
-        ariaLabel: 'Podeli oglas',
-        copied: 'Kopirano',
-        share: 'Podeli',
-      };
+  const copy = getTranslations(locale).vehicleTitleShare;
+  const shareText = `${copy.shareIntro}\n${vehicleTitle}`;
 
   const handleShare = async () => {
     if ('share' in navigator) {
       try {
         await navigator.share({
           title: vehicleTitle,
-          text: copy.shareText,
+          text: shareText,
           url: vehicleUrl,
         });
         return;

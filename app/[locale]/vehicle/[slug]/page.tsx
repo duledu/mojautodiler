@@ -150,13 +150,12 @@ export default async function VehiclePage(
 
   if (!vehicle) notFound();
 
-  const t    = getTranslations(locale);
-  const isSq = locale === 'sq';
+  const t = getTranslations(locale);
 
   const breadcrumbs = [
-    { name: isSq ? 'Kryefaqja'  : 'Početna', url: `${SITE}/${locale}` },
-    { name: isSq ? 'Automjetet' : 'Vozila',  url: `${SITE}/${locale}/inventory` },
-    { name: vehicle.title,                    url: `${SITE}/${locale}/vehicle/${slug}` },
+    { name: t.vehicleDetail.home, url: `${SITE}/${locale}` },
+    { name: t.nav.inventory,      url: `${SITE}/${locale}/inventory` },
+    { name: vehicle.title,        url: `${SITE}/${locale}/vehicle/${slug}` },
   ];
 
   return (

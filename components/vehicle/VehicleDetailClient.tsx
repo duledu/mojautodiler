@@ -93,61 +93,12 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vehicle.id]); // vehicle.id is stable — only re-fires if user navigates to a different vehicle
   const dealerPhoneDisplay = formatDealerPhone(contact.phone);
-  const quickActionCopy = locale === 'sq'
-    ? {
-        book: 'Rezervo shikimin',
-        video: 'Kërko video',
-        availability: 'Kontrollo disponueshmërinë',
-        reserve: 'Rezervo automjetin',
-        viber: 'Pyet në Viber',
-        confidenceTitle: 'Pse dallohet ky automjet',
-        confidenceSub: 'Përzgjedhje e kujdesshme, kontroll profesional dhe prezantim transparent para vendimit.',
-        bullets: ['Kilometrazha dhe dokumentet kontrollohen para publikimit.', 'Automjeti vlerësohet vizualisht dhe teknikisht para rekomandimit.', 'Import i zgjedhur me kujdes për blerës seriozë.', 'Proces blerjeje i qartë, pa presion dhe pa kosto të fshehura.'],
-      }
-    : {
-        book: 'Zakazi gledanje',
-        video: 'Zatrazi video',
-        availability: 'Proveri dostupnost',
-        reserve: 'Rezervisi vozilo',
-        viber: 'Pitaj na Viber',
-        confidenceTitle: 'Zasto se ovo vozilo izdvaja',
-        confidenceSub: 'Pazljivo odabrano vozilo, profesionalno provereno i predstavljeno transparentno pre odluke.',
-        bullets: ['Kilometraza i dokumentacija proveravaju se pre objave.', 'Vozilo se vizuelno i tehnicki pregleda pre preporuke.', 'Pazljivo selektovan uvoz za kupce koji traze sigurnost.', 'Kupovina je jasna, bez pritiska i bez skrivenih stavki.'],
-      };
-  const vehicleDetailCopy = locale === 'sq'
-    ? {
-        home: 'Kryefaqja',
-        backToInventory: 'Kthehu te lista e automjeteve',
-        dealerConfidence: 'Besueshmëria e dilerit',
-        quickActionsTitle: 'Veprime të shpejta për blerësit',
-        quickActionsSub: 'Zgjidhni hapin e radhës për këtë automjet.',
-        priceLabel: 'Çmimi i automjetit',
-        promoEyebrow: 'Aksion special',
-        promoTitle: 'Përfito 100€ zbritje',
-        promoText: 'Shpërndaj një automjet nga oferta jonë, ndiq dhe etiketo MojAutoDiler, pastaj na dërgo screenshot-in.',
-        promoRule: 'Zbritja është fikse 100€ dhe nuk rritet duke shpërndarë më shumë automjete.',
-        promoButton: 'Dërgo screenshot-in',
-      }
-    : {
-        home: 'Početna',
-        backToInventory: 'Nazad na listu vozila',
-        dealerConfidence: 'Dealer confidence',
-        quickActionsTitle: 'Brze akcije za kupce',
-        quickActionsSub: 'Izaberite najbrzi sledeci korak za ovo vozilo.',
-        priceLabel: 'Cena vozila',
-        promoEyebrow: 'Posebna akcija',
-        promoTitle: 'Ostvari 100€ popusta',
-        promoText: 'Podeli jedno drugo vozilo iz naše ponude, zaprati i taguj MojAutoDiler, pa nam pošalji screenshot.',
-        promoRule: 'Popust je fiksno 100€ i ne uvećava se deljenjem više vozila.',
-        promoButton: 'Pošalji screenshot',
-      };
-  const platformDisclaimer = locale === 'sq'
-    ? 'Automjetet ne platforme vijne nga oferta e auto dilereve partnere te perzgjedhur. MojAutoDiler nuk i posedon domosdoshmerisht te gjitha automjetet direkt, por i kuron dhe i prezanton ne nje vend per nje pregled me te lehte dhe me te sigurt.'
-    : 'Vozila prikazana na platformi dolaze iz ponude odabranih partnerskih auto dilera. MojAutoDiler ne poseduje nuzno sva vozila direktno, vec ih pazljivo bira i predstavlja na jednom mestu radi lakseg i sigurnijeg pregleda ponude.';
+  const vehicleDetailCopy = t.vehicleDetail;
+  const quickActionCopy = t.vehicleDetail;
   const activeVehicleImage = vehicle.images[activeImage] || vehicle.images[0];
   const activeImageUrl = activeVehicleImage?.url || '';
   const imageCount = Math.max(vehicle.images.length, 1);
-  const vatText = formatVatMode(vehicle.vatMode);
+  const vatText = formatVatMode(vehicle.vatMode, t);
 
   const nextImg = () => setActiveImage((i) => (i + 1) % imageCount);
   const prevImg = () => setActiveImage((i) => (i - 1 + imageCount) % imageCount);
@@ -251,9 +202,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
       });
   };
 
-  const scheduleViewingMessage = locale === 'sq'
-    ? `Përshëndetje,\njam i interesuar për automjetin ${vehicle.title}.\n\nJu lutem kontaktomëni për të caktuar një takim për ta parë automjetin.`
-    : `Poštovanje,\nzainteresovan sam za vozilo ${vehicle.title}.\n\nMolim vas da me kontaktirate radi dogovora termina za gledanje vozila.`;
+  const scheduleViewingMessage = vehicleDetailCopy.scheduleViewingMessage.replace('{title}', vehicle.title);
 
   const applyQuickLead = (message: string, intent: string = 'general_inquiry', firedAt: number) => {
     if (intent === 'schedule_viewing') {
@@ -318,7 +267,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                 {vehicle.year}. godište · {t.condition[vehicle.condition]}
               </p>
               <div className="mt-3 flex flex-wrap gap-1.5 min-[390px]:gap-2">
-                <VehicleStatusBadge vehicle={vehicle} />
+                <VehicleStatusBadge vehicle={vehicle} locale={locale} />
                 <TrustBadges locale={locale} badges={trustBadges.slice(0, 3)} compact />
               </div>
 
@@ -397,7 +346,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                   type="button"
                   className="absolute inset-0 cursor-zoom-in"
                   onClick={() => setLightboxOpen(true)}
-                  aria-label="Otvori galeriju"
+                  aria-label={vehicleDetailCopy.galleryOpen}
                   suppressHydrationWarning
                 />
 
@@ -407,7 +356,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                     <button
                       type="button"
                       onClick={prevImg}
-                      aria-label="Prethodna slika"
+                      aria-label={vehicleDetailCopy.previousImage}
                       suppressHydrationWarning
                       className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-(--color-text) shadow-md hover:bg-white transition-colors"
                     >
@@ -416,7 +365,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                     <button
                       type="button"
                       onClick={nextImg}
-                      aria-label="Sledeća slika"
+                      aria-label={vehicleDetailCopy.nextImage}
                       suppressHydrationWarning
                       className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-(--color-text) shadow-md hover:bg-white transition-colors"
                     >
@@ -492,7 +441,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                 <TrustBadges locale={locale} badges={trustBadges} className="lg:max-w-sm lg:justify-end" />
               </div>
               <div className="mt-5 grid gap-2 sm:grid-cols-2">
-                {quickActionCopy.bullets.map((bullet) => (
+                {quickActionCopy.confidenceBullets.map((bullet) => (
                   <div key={bullet} className="flex gap-2 rounded-2xl bg-white/80 p-3 text-[13px] leading-6 text-[var(--color-text-2)] min-[390px]:text-sm">
                     <Check size={16} className="mt-1 shrink-0 text-[var(--accent)]" />
                     {bullet}
@@ -528,7 +477,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                 <div className="min-w-0">
                   <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] text-(--color-gold-dark)">
                     <Building2 size={12} />
-                    {locale === 'sq' ? 'Partner i Rrjetit' : 'Partnerska Mreža'}
+                    {vehicleDetailCopy.networkPartner}
                   </div>
                   <h2 className="text-2xl font-black text-(--color-text) sm:text-3xl" style={{ fontFamily: 'var(--font-display)' }}>
                     {contact.name}
@@ -541,7 +490,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                     {contact.isVerified && (
                       <div className="flex items-center gap-1.5 text-sm font-bold text-emerald-700">
                         <ShieldCheck size={14} />
-                        {locale === 'sq' ? 'Verifikuar' : 'Verifikovan diler'}
+                        {vehicleDetailCopy.verifiedDealer}
                       </div>
                     )}
                   </div>
@@ -558,7 +507,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                 </div>
               </div>
               <p className="mt-5 rounded-2xl border border-[var(--accent-border)] bg-[var(--accent-soft)] p-3 text-xs leading-5 text-[var(--color-text-muted)] min-[390px]:p-4">
-                {platformDisclaimer}
+                {vehicleDetailCopy.platformDisclaimer}
               </p>
             </section>
 
@@ -602,15 +551,15 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                 {activeTab === 'equipment' && (
                   <EquipmentGroups
                     groups={[
-                      { label: 'Oprema', items: vehicle.equipment },
-                      { label: 'Stanje vozila', items: vehicle.features },
+                      { label: vehicleDetailCopy.equipmentGroup, items: vehicle.equipment },
+                      { label: vehicleDetailCopy.conditionGroup, items: vehicle.features },
                     ]}
                   />
                 )}
 
                 {activeTab === 'safety' && (
                   <EquipmentGroups
-                    groups={[{ label: 'Sigurnost', items: vehicle.safetyFeatures }]}
+                    groups={[{ label: vehicleDetailCopy.safetyGroup, items: vehicle.safetyFeatures }]}
                     accent="green"
                   />
                 )}
@@ -685,13 +634,13 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                       });
                       const data = await res.json() as { success?: boolean; error?: string };
                       if (!res.ok || !data.success) {
-                        setFormError(data.error ?? 'Greška pri slanju. Pokušajte ponovo.');
+                        setFormError(data.error ?? vehicleDetailCopy.submitError);
                         return;
                       }
                       trackLead({ contentName: vehicle.title, value: vehicle.price, currency: vehicle.currency });
                       setSubmitted(true);
                     } catch {
-                      setFormError('Greška pri slanju. Proverite internet vezu i pokušajte ponovo.');
+                      setFormError(vehicleDetailCopy.networkError);
                     } finally {
                       setSubmitting(false);
                     }
@@ -744,7 +693,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                     className="btn-gold w-full rounded-xl py-3.5 text-sm flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     <Send size={14} />
-                    {submitting ? 'Slanje…' : t.inquiry.send}
+                    {submitting ? t.common.sending : t.inquiry.send}
                   </button>
                 </form>
               )}
@@ -862,8 +811,8 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                     <div className="min-w-0">
                       <p className="text-[10px] font-bold uppercase tracking-widest text-(--color-gold-dark)">
                         {contact.hasPartnerDealer
-                          ? (locale === 'sq' ? 'Verifikuar' : 'Verifikovan auto diler')
-                          : 'Platforma'}
+                          ? vehicleDetailCopy.verifiedAutoDealer
+                          : vehicleDetailCopy.platform}
                       </p>
                       <p className="truncate font-black text-(--color-text) text-base" style={{ fontFamily: 'var(--font-display)' }}>
                         {contact.name}
@@ -931,7 +880,6 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
           };
           const brandSlug = BRAND_SLUG_MAP[vehicle.brand];
           if (!brandSlug) return null;
-          const isSq = locale === 'sq';
           return (
             <div className="mt-12 flex items-center gap-3">
               <div className="h-px flex-1 bg-(--color-border)" />
@@ -939,9 +887,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                 href={`/${locale}/cars/${brandSlug}`}
                 className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-(--accent-border) bg-(--accent-soft) px-4 py-2 text-xs font-bold text-(--accent-dark) transition hover:bg-(--accent) hover:text-white"
               >
-                {isSq
-                  ? `Shiko të gjitha ${vehicle.brand}`
-                  : `Sva ${vehicle.brand} vozila`}
+                {vehicleDetailCopy.allBrandVehicles.replace('{brand}', vehicle.brand)}
                 <ArrowLeft size={12} className="rotate-180" />
               </Link>
               <div className="h-px flex-1 bg-(--color-border)" />
@@ -1064,6 +1010,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
       </div>
       <div className="h-20 lg:hidden" />
       <MobileContactFab
+        locale={locale}
         phone={contact.phone}
         viber={contact.viber}
         instagram={contact.instagram || undefined}
@@ -1102,7 +1049,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
             type="button"
             suppressHydrationWarning
             onClick={() => setLightboxOpen(false)}
-            aria-label="Zatvori galeriju"
+            aria-label={vehicleDetailCopy.galleryClose}
             className="absolute right-3 top-3 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/35 sm:right-4 sm:top-4"
           >
             <X size={20} />
@@ -1117,7 +1064,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                 type="button"
                 suppressHydrationWarning
                 onClick={prevImg}
-                aria-label="Prethodna slika"
+                aria-label={vehicleDetailCopy.previousImage}
                 className="absolute left-2 top-1/2 z-20 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/35 sm:left-4"
               >
                 <ChevronLeft size={26} />
@@ -1126,7 +1073,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                 type="button"
                 suppressHydrationWarning
                 onClick={nextImg}
-                aria-label="Sledeća slika"
+                aria-label={vehicleDetailCopy.nextImage}
                 className="absolute right-2 top-1/2 z-20 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/35 sm:right-4"
               >
                 <ChevronRight size={26} />

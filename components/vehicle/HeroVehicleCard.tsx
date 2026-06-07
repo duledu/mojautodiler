@@ -23,7 +23,7 @@ export default function HeroVehicleCard({
 }: HeroVehicleCardProps) {
   const mainImage = vehicle.images[0]?.url || '';
   const trustBadges = getVehicleTrustBadges(vehicle).slice(0, 4);
-  const vatText = formatVatMode(vehicle.vatMode);
+  const vatText = formatVatMode(vehicle.vatMode, t);
 
   return (
     <Link href={`/${locale}/vehicle/${vehicle.slug}`} className="group block">
@@ -54,7 +54,7 @@ export default function HeroVehicleCard({
               <VehiclePromoBadge variant="akcija" locale={locale} />
             )}
           </div>
-          <VehicleStatusBadge vehicle={vehicle} compact className="absolute right-2.5 top-2.5 min-[390px]:right-3 min-[390px]:top-3 sm:right-4 sm:top-4" />
+          <VehicleStatusBadge vehicle={vehicle} locale={locale} compact className="absolute right-2.5 top-2.5 min-[390px]:right-3 min-[390px]:top-3 sm:right-4 sm:top-4" />
 
           {/* Photo count */}
           {vehicle.images.length > 1 && (
@@ -106,11 +106,11 @@ export default function HeroVehicleCard({
           <div className="mt-4 mb-4 flex flex-wrap items-center gap-1.5 sm:mt-6 sm:mb-6">
             <span className="inline-flex items-center gap-1 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-2.5 py-1 text-[10px] font-black text-[var(--accent-dark)] min-[390px]:text-[11px]">
               <Building2 size={11} />
-              {locale === 'sq' ? 'Auto diler partner' : 'Partnerski auto diler'}
+              {t.vehicleCard.partnerDealer}
             </span>
             <span className="inline-flex items-center gap-1 rounded-full border border-[var(--color-border)] bg-white px-2.5 py-1 text-[10px] font-bold text-[var(--color-text-muted)] min-[390px]:text-[11px]">
               <MapPin size={11} />
-              {vehicle.dealer?.location || 'Srbija'}
+              {vehicle.dealer?.location || t.vehicleCard.defaultLocation}
             </span>
           </div>
 

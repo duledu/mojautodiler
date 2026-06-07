@@ -1,9 +1,11 @@
 import { Clock3, Flame, LockKeyhole, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getTranslations, type Locale } from '@/lib/i18n';
 import type { Vehicle } from '@/types/vehicle';
 
 interface VehicleStatusBadgeProps {
   readonly vehicle: Vehicle;
+  readonly locale: Locale;
   readonly compact?: boolean;
   readonly className?: string;
 }
@@ -14,15 +16,16 @@ function isRecentlyAdded(date: string) {
   return Date.now() - created < 1000 * 60 * 60 * 24 * 21;
 }
 
-export default function VehicleStatusBadge({ vehicle, compact = false, className }: VehicleStatusBadgeProps) {
+export default function VehicleStatusBadge({ vehicle, locale, compact = false, className }: VehicleStatusBadgeProps) {
+  const copy = getTranslations(locale).vehicleStatus;
   const state =
     vehicle.status === 'sold'
-      ? { label: 'Prodato', icon: ShieldCheck, cls: 'border-red-200 bg-red-50 text-red-700' }
+      ? { label: copy.sold, icon: ShieldCheck, cls: 'border-red-200 bg-red-50 text-red-700' }
       : vehicle.status === 'draft'
-        ? { label: 'Rezervisano', icon: LockKeyhole, cls: 'border-amber-200 bg-amber-50 text-amber-800' }
+        ? { label: copy.reserved, icon: LockKeyhole, cls: 'border-amber-200 bg-amber-50 text-amber-800' }
         : isRecentlyAdded(vehicle.createdAt)
-          ? { label: 'Novo u ponudi', icon: Flame, cls: 'border-[var(--accent-border)] bg-[var(--accent-soft)] text-[var(--accent-dark)]' }
-          : { label: 'Dostupno', icon: Clock3, cls: 'border-emerald-200 bg-emerald-50 text-emerald-700' };
+          ? { label: copy.new, icon: Flame, cls: 'border-[var(--accent-border)] bg-[var(--accent-soft)] text-[var(--accent-dark)]' }
+          : { label: copy.available, icon: Clock3, cls: 'border-emerald-200 bg-emerald-50 text-emerald-700' };
 
   const Icon = state.icon;
 

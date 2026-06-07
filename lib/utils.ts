@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { Vehicle, VehicleFilters, SortOption, VatMode } from '@/types/vehicle';
+import type { TranslationKeys } from '@/lib/i18n';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -17,9 +18,9 @@ export function formatMileage(km: number): string {
   return new Intl.NumberFormat('de-DE').format(km) + ' km';
 }
 
-export function formatVatMode(vatMode: VatMode | null | undefined): string {
-  if (vatMode === 'INCLUDED') return 'Cena uključuje PDV';
-  if (vatMode === 'EXCLUDED') return '+ PDV';
+export function formatVatMode(vatMode: VatMode | null | undefined, t?: TranslationKeys): string {
+  if (vatMode === 'INCLUDED') return t?.vehicle.vatIncluded ?? 'Cena uključuje PDV';
+  if (vatMode === 'EXCLUDED') return t?.vehicle.vatExcluded ?? '+ PDV';
   return '';
 }
 

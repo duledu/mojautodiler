@@ -24,7 +24,7 @@ function detectMobile(): boolean {
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 import type { Vehicle } from '@/types/vehicle';
-import type { Locale } from '@/lib/i18n';
+import { getTranslations, type Locale } from '@/lib/i18n';
 import type { DealerInfo } from '@/lib/db/mappers';
 import { cn } from '@/lib/utils';
 import { SocialCreativeCanvas, CREATIVE_DIMS, CreativeFormat } from '@/components/admin/SocialCreativeCanvas';
@@ -58,82 +58,7 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
   const [mounted,      setMounted]      = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
 
-  // ── i18n copy ─────────────────────────────────────────────────────────────
-  const copy = locale === 'sq'
-    ? {
-        formatLabels: {
-          square:   'Katëror 1:1',
-          portrait: 'Portret 4:5',
-          story:    'Story 9:16',
-        } satisfies Record<CreativeFormat, string>,
-        shareIntro:            'Shiko këtë automjet në MojAutoDiler:',
-        loadError:             'Ngarkimi nuk pati sukses. Provoni përsëri.',
-        downloadError:         'Shkarkimi nuk pati sukses. Provoni përsëri.',
-        title:                 'Shpërndaje dhe përfito 100€ zbritje',
-        descriptionStart:      'Shpërndani një ose më shumë automjete nga oferta jonë në rrjetet sociale, ndiqni ose etiketoni',
-        descriptionMiddle:     'dhe na dërgoni screenshot-in përmes formularit të kontaktit.',
-        descriptionEnd:        'Përfitoni',
-        discount:              '100€ zbritje',
-        descriptionAfterDiscount: 'për automjetin që dëshironi të blini.',
-        copied:                'U kopjua!',
-        share:                 'Shpërndaje',
-        downloadPost:          'Shkarko imazhin për rrjete',
-        stepsTitle:            'Përfito 100€ zbritje - ja si',
-        step1:                 'Shkarko imazhin dhe publikoje në Instagram, Facebook ose TikTok',
-        step2Prefix:           'Në postim etiketo ose ndiq',
-        step3:                 'Na dërgo screenshot-in e postimit përmes formularit të kontaktit',
-        step4:                 'Zbritja prej 100€ aplikohet gjatë blerjes së automjetit',
-        note:                  'Shënim: publikimi automatik në Instagram dhe TikTok nuk është i mundur nga shfletuesi. Pas shkarkimit të imazhit, publikimi bëhet manualisht.',
-        exporting:             'Po gjenerohet...',
-        loading:               'Duke ngarkuar...',
-        downloadImage:         'Shkarko imazhin',
-        shareImage:            'Shpërndaj imazhin',
-        downloadSuccess:       'Imazhi u ruajt!',
-        downloadSuccessHint:   'Gati për ngarkimin në Instagram',
-        formatJpg:             'JPG (për rrjete)',
-        formatPng:             'PNG (cilësi e lartë)',
-        saveHintTitle:         'Imazhi u hap në skedë të re',
-        saveHintText:          'Shtypni dhe mbani imazhin, pastaj zgjidhni "Ruaj imazhin" për ta shtuar në Galerinë e telefonit.',
-        ctaText:               'E ke tashmë screenshot-in e postimit? Dërgoje tani dhe përfito zbritjen.',
-        ctaButton:             'Dërgo screenshot-in',
-      }
-    : {
-        formatLabels: {
-          square:   'Kvadrat 1:1',
-          portrait: 'Portret 4:5',
-          story:    'Story 9:16',
-        } satisfies Record<CreativeFormat, string>,
-        shareIntro:            'Pogledaj ovaj automobil na MojAutoDiler:',
-        loadError:             'Učitavanje nije uspelo. Pokušajte ponovo.',
-        downloadError:         'Preuzimanje nije uspelo. Pokušajte ponovo.',
-        title:                 'Podeli i ostvari 100€ popusta',
-        descriptionStart:      'Podelite jedno ili više vozila iz naše ponude na društvenim mrežama, zapratite ili tagujte',
-        descriptionMiddle:     'i pošaljite nam screenshot kroz kontakt formu.',
-        descriptionEnd:        'Ostvarujete',
-        discount:              '100€ popusta',
-        descriptionAfterDiscount: 'na vozilo koje želite da kupite.',
-        copied:                'Kopirano!',
-        share:                 'Podeli',
-        downloadPost:          'Preuzmi sliku za objavu',
-        stepsTitle:            'Ostvari 100€ popusta — evo kako',
-        step1:                 'Preuzmi sliku i objavi je na Instagram, Facebook ili TikTok',
-        step2Prefix:           'U objavi označi ili zaprati',
-        step3:                 'Pošalji nam screenshot objave kroz kontakt formu',
-        step4:                 'Popust od 100€ se pripisuje pri kupovini vozila',
-        note:                  'Napomena: automatsko objavljivanje na Instagram i TikTok nije moguće putem pregledača — potrebno je ručno objavljivanje nakon preuzimanja slike.',
-        exporting:             'Generišem...',
-        loading:               'Učitavanje...',
-        downloadImage:         'Preuzmi sliku',
-        shareImage:            'Podeli sliku',
-        downloadSuccess:       'Slika preuzeta!',
-        downloadSuccessHint:   'Spreman za upload na Instagram',
-        formatJpg:             'JPG (za objavu)',
-        formatPng:             'PNG (visok kvalitet)',
-        saveHintTitle:         'Slika otvorena u novoj kartici',
-        saveHintText:          'Pritisnite i držite sliku, zatim odaberite "Sačuvaj sliku" da je dodate u Galeriju telefona.',
-        ctaText:               'Već imaš screenshot objave? Pošalji nam ga odmah i ostvari popust.',
-        ctaButton:             'Pošalji screenshot',
-      };
+  const copy = getTranslations(locale).vehicleShare;
 
   // ── Init ──────────────────────────────────────────────────────────────────
   // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -465,7 +390,7 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
             {/* Format (shape) selector */}
             <div>
               <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--color-text-muted)]">
-                {locale === 'sq' ? 'Formati' : 'Format'}
+                {copy.format}
               </p>
               <div className="flex flex-wrap gap-2">
                 {(Object.keys(copy.formatLabels) as CreativeFormat[]).map((f) => (
@@ -490,7 +415,7 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
             {/* Export type (JPG / PNG) selector */}
             <div>
               <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--color-text-muted)]">
-                {locale === 'sq' ? 'Lloji i skedarit' : 'Tip fajla'}
+                {copy.fileType}
               </p>
               <div className="flex gap-2">
                 {(['image/jpeg', 'image/png'] as ExportMime[]).map((mime) => {

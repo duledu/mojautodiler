@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { MessageCircle, Phone, X } from 'lucide-react';
 import { InstagramIcon, ViberIcon } from '@/components/ui/SocialIcons';
 import { cn } from '@/lib/utils';
+import { getTranslations, type Locale } from '@/lib/i18n';
 
 // Minimal inline WhatsApp icon — avoids adding a new icon dependency.
 function WhatsAppIcon({ size = 20 }: { readonly size?: number }) {
@@ -15,6 +16,7 @@ function WhatsAppIcon({ size = 20 }: { readonly size?: number }) {
 }
 
 interface MobileContactFabProps {
+  readonly locale: Locale;
   readonly phone: string;
   readonly viber?: string;
   readonly instagram?: string;
@@ -23,10 +25,11 @@ interface MobileContactFabProps {
   readonly onWhatsAppClick?: (firedAt: number) => void;
 }
 
-export default function MobileContactFab({ phone, viber, instagram, onPhoneClick, onViberClick, onWhatsAppClick }: MobileContactFabProps) {
+export default function MobileContactFab({ locale, phone, viber, instagram, onPhoneClick, onViberClick, onWhatsAppClick }: MobileContactFabProps) {
   const [open, setOpen] = useState(false);
   const cleanPhone = phone.replace(/\D/g, '');
   const cleanViber  = viber ? viber.replace(/\D/g, '') : '';
+  const t = getTranslations(locale);
 
   return (
     <div className="fixed bottom-[5.65rem] right-3 z-40 min-[390px]:right-4 lg:hidden">
@@ -52,7 +55,7 @@ export default function MobileContactFab({ phone, viber, instagram, onPhoneClick
             <ViberIcon size={20} />
           </a>
         )}
-        <a href={`tel:${phone}`} onClick={(event) => { event.stopPropagation(); onPhoneClick?.(event.timeStamp); }} className="touch-target flex h-11 w-11 items-center justify-center rounded-2xl bg-(--color-text) text-white shadow-[0_12px_28px_rgba(15,15,20,0.2)] min-[390px]:h-12 min-[390px]:w-12" aria-label="Pozovi">
+        <a href={`tel:${phone}`} onClick={(event) => { event.stopPropagation(); onPhoneClick?.(event.timeStamp); }} className="touch-target flex h-11 w-11 items-center justify-center rounded-2xl bg-(--color-text) text-white shadow-[0_12px_28px_rgba(15,15,20,0.2)] min-[390px]:h-12 min-[390px]:w-12" aria-label={t.common.call}>
           <Phone size={19} />
         </a>
         {instagram && (
@@ -65,7 +68,7 @@ export default function MobileContactFab({ phone, viber, instagram, onPhoneClick
         type="button"
         onClick={() => setOpen((value) => !value)}
         className="touch-target flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--accent)] text-white shadow-[0_16px_36px_rgba(15,15,20,0.22)] transition hover:bg-[var(--accent-dark)] min-[390px]:h-14 min-[390px]:w-14"
-        aria-label={open ? 'Zatvori brzi kontakt' : 'Otvori brzi kontakt'}
+        aria-label={open ? t.common.close : t.common.contact}
         aria-expanded={open}
       >
         {open ? <X size={21} /> : <MessageCircle size={22} />}

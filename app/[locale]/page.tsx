@@ -74,7 +74,7 @@ export async function generateMetadata(
 
 const homeCopy = {
   sr: {
-    eyebrow: 'Premium ponuda • Preševo',
+    eyebrow: 'Premium ponuda',
     title: 'Premium automobili sa transparentnom istorijom.',
     lead: 'Pažljivo odabrana premium vozila iz uvoza iz inostranstva, uz provereno stanje i sigurnu kupovinu bez pritiska.',
     primary: 'Pregledaj vozila',
@@ -119,7 +119,7 @@ const homeCopy = {
     ],
     ctaTitle: 'Spremni za razgledanje?',
     ctaSub: 'Tu smo za sva pitanja oko vozila, kupovine i rezervacije.\nPošaljite poruku i javićemo se u najkraćem roku.',
-    ctaBadge: 'Premium ponuda • Preševo',
+    ctaBadge: 'Premium ponuda',
     ctaPrimary: 'Kontaktirajte nas',
     ctaCall: 'Pozovi direktno',
     dealerTitle: 'Kupujete i vozilo i poverenje placa.',
@@ -131,7 +131,7 @@ const homeCopy = {
     ],
   },
   sq: {
-    eyebrow: 'Ofertë premium • Preševo',
+    eyebrow: 'Ofertë premium',
     title: 'Automjete premium, te verifikuara.',
     lead: 'Automjete premium të përzgjedhura me kujdes nga importi jashtë vendit, me gjendje të verifikuar dhe blerje të sigurt pa presion.',
     primary: 'Shiko automjetet',
@@ -176,7 +176,7 @@ const homeCopy = {
     ],
     ctaTitle: 'Gati per shikim?',
     ctaSub: 'Jemi këtu për çdo pyetje rreth automjeteve, blerjes dhe rezervimit.\nDërgoni mesazh dhe do t\'ju përgjigjemi sa më shpejt.',
-    ctaBadge: 'Ofertë premium • Preševo',
+    ctaBadge: 'Ofertë premium',
     ctaPrimary: 'Kontakto placin',
     ctaCall: 'Telefono direkt',
     dealerTitle: 'Bleni edhe automjetin, edhe besimin e placit.',
@@ -390,7 +390,7 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
                   <Link
                     key={slug}
                     href={`/${currentLocale}/cars/${slug}`}
-                    className="inline-flex shrink-0 items-center rounded-full border border-(--color-border) bg-white px-4 py-2 text-xs font-bold text-(--color-text-2) shadow-sm transition hover:border-(--accent-border) hover:bg-(--accent-soft) hover:text-(--accent-dark)"
+                    className="inline-flex shrink-0 touch-manipulation items-center rounded-full border border-(--color-border) bg-white px-4 py-2 text-xs font-bold text-(--color-text-2) shadow-sm transition hover:border-(--accent-border) hover:bg-(--accent-soft) hover:text-(--accent-dark)"
                   >
                     {label}
                   </Link>

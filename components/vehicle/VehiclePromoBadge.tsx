@@ -1,6 +1,6 @@
 import { Flame, Star, Tag } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { Locale } from '@/lib/i18n';
+import { getTranslations, type Locale } from '@/lib/i18n';
 
 export type PromoBadgeVariant = 'featured' | 'new' | 'akcija';
 
@@ -12,19 +12,6 @@ interface Props {
   readonly className?: string;
 }
 
-const LABELS: Record<PromoBadgeVariant, Record<Locale, string>> = {
-  featured: { sr: 'IZDVOJENA PONUDA', sq: 'OFERTË E ZGJEDHUR' },
-  new:      { sr: 'NOVO U PONUDI',    sq: 'E RE NË OFERTË' },
-  akcija:   { sr: 'AKCIJA',           sq: 'OFERTË' },
-};
-
-// Shorter text for compact cards where full labels overflow
-const COMPACT_LABELS: Record<PromoBadgeVariant, Record<Locale, string>> = {
-  featured: { sr: 'Izdvojeno',  sq: 'Zgjedhur' },
-  new:      { sr: 'Novo',       sq: 'E re' },
-  akcija:   { sr: 'AKCIJA',     sq: 'OFERTË' },
-};
-
 const ICONS: Record<PromoBadgeVariant, React.ElementType> = {
   featured: Star,
   new:      Flame,
@@ -33,7 +20,10 @@ const ICONS: Record<PromoBadgeVariant, React.ElementType> = {
 
 export function VehiclePromoBadge({ variant, locale = 'sr', compact = false, label, className }: Props) {
   const Icon = ICONS[variant];
-  const text = label ?? (compact ? COMPACT_LABELS[variant][locale] : LABELS[variant][locale]);
+  const badges = getTranslations(locale).badges;
+  const text = label ?? (compact
+    ? (variant === 'featured' ? badges.featuredShort : variant === 'new' ? badges.newShort : badges.akcija)
+    : badges[variant]);
 
   const baseSize = compact
     ? 'px-2.5 py-1 text-[10px] gap-1'

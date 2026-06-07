@@ -19,7 +19,8 @@ export default function VehicleCard({ vehicle, locale, t }: VehicleCardProps) {
   const mainImage = vehicle.images[0]?.url || '';
   const isSold = vehicle.status === 'sold';
   const trustBadges = getVehicleTrustBadges(vehicle).slice(0, 2);
-  const vatText = formatVatMode(vehicle.vatMode);
+  const vatText = formatVatMode(vehicle.vatMode, t);
+  const cardCopy = t.vehicleCard;
 
   return (
     <Link href={`/${locale}/vehicle/${vehicle.slug}`} className="group block h-full">
@@ -45,7 +46,7 @@ export default function VehicleCard({ vehicle, locale, t }: VehicleCardProps) {
           )}
           <div className="absolute inset-0 bg-black/10" />
 
-          {isSold && <VehicleStatusBadge vehicle={vehicle} compact className="absolute left-3 top-3" />}
+          {isSold && <VehicleStatusBadge vehicle={vehicle} locale={locale} compact className="absolute left-3 top-3" />}
           {!isSold && vehicle.onSale && (
             <VehiclePromoBadge variant="akcija" locale={locale} compact className="absolute left-3 top-3" />
           )}
@@ -88,7 +89,7 @@ export default function VehicleCard({ vehicle, locale, t }: VehicleCardProps) {
 
           {/* Specs grid */}
           <div className="grid grid-cols-2 gap-1.5">
-            <Spec icon={<Calendar size={11} />} value={`${vehicle.year}. god.`} />
+            <Spec icon={<Calendar size={11} />} value={`${vehicle.year}. ${t.vehicle.yearShort}`} />
             <Spec icon={<Gauge size={11} />} value={formatMileage(vehicle.mileage)} />
             <Spec icon={<Fuel size={11} />} value={t.fuel[vehicle.fuelType]} />
             <Spec icon={<Settings2 size={11} />} value={t.transmission[vehicle.transmission]} />
@@ -99,12 +100,12 @@ export default function VehicleCard({ vehicle, locale, t }: VehicleCardProps) {
           <div className="mt-3 mb-4 flex flex-wrap items-center gap-1.5 sm:mt-4 sm:mb-5">
             <span className="inline-flex items-center gap-1 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-2 py-0.5 text-[10px] font-black text-[var(--accent-dark)] sm:py-1">
               <Building2 size={11} />
-              {locale === 'sq' ? 'Auto diler partner' : 'Partnerski auto diler'}
+              {cardCopy.partnerDealer}
             </span>
             {vehicle.dealer?.isVerified && (
               <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-black text-emerald-700 sm:py-1">
                 <ShieldCheck size={11} />
-                {locale === 'sq' ? 'I verifikuar' : 'Verifikovan'}
+                {cardCopy.verified}
               </span>
             )}
           </div>
@@ -113,13 +114,13 @@ export default function VehicleCard({ vehicle, locale, t }: VehicleCardProps) {
           <div className="mt-auto flex items-center justify-between border-t border-[var(--color-border)] pt-3 sm:pt-4">
             <div className="flex min-w-0 items-center gap-1 text-[11px] text-[var(--color-text-muted)] min-[390px]:text-xs">
               <MapPin size={11} className="shrink-0" />
-              <span className="truncate">{vehicle.dealer?.location || 'Srbija'}</span>
+              <span className="truncate">{vehicle.dealer?.location || cardCopy.defaultLocation}</span>
             </div>
             <span
               className="inline-flex items-center gap-1 text-xs font-bold text-[var(--accent-dark)]"
               style={{ fontFamily: 'var(--font-display)' }}
             >
-              Pogledaj
+              {cardCopy.view}
               <ArrowRight size={12} className="transition-transform group-hover:translate-x-0.5" />
             </span>
           </div>

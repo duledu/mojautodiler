@@ -1,27 +1,25 @@
 import type { Vehicle } from '@/types/vehicle';
-import type { Locale } from '@/lib/i18n';
+import { getTranslations, type Locale } from '@/lib/i18n';
 
 // ─── keyword → chip detection ────────────────────────────────────────────────
 
 interface ChipDef {
-  key: string;
-  sr: string;
-  sq: string;
+  key: keyof ReturnType<typeof getTranslations>['vehicleHighlights']['equipmentChips'];
   keywords: string[];
 }
 
 const EQUIPMENT_CHIPS: ChipDef[] = [
-  { key: 'nav',     sr: 'Navigacija',       sq: 'Navigacion',        keywords: ['navigaci', 'gps', 'navi'] },
-  { key: 'panorama',sr: 'Panorama',         sq: 'Panoramë',          keywords: ['panorama', 'moonroof', 'sunroof', 'krovni'] },
-  { key: 'leather', sr: 'Kožna sedišta',    sq: 'Ulëse lëkure',      keywords: ['koža', 'kožna', 'kožne', 'leather', 'koze'] },
-  { key: 'service', sr: 'Servisna knjiga',  sq: 'Libër service',     keywords: ['servisna', 'service knjiga', 'service book'] },
-  { key: 'camera',  sr: 'Parking kamera',   sq: 'Kamerë parkimi',    keywords: ['kamera', 'camera', 'parking kam'] },
-  { key: 'sensors', sr: 'Parking senzori',  sq: 'Sensorë park.',     keywords: ['senzori', 'park senz', 'parking senz', 'ultrasonic'] },
-  { key: 'led',     sr: 'LED/Xenon',        sq: 'LED/Xenon',         keywords: ['xenon', 'led svetla', 'full led', 'bi-xenon', 'led faro'] },
-  { key: 'heated',  sr: 'Grejanje sedišta', sq: 'Ngrohje ulësesh',   keywords: ['grejanje', 'grejana', 'heated seat', 'zagrev'] },
-  { key: 'ac',      sr: 'Klima',            sq: 'Klimë',             keywords: ['klima', 'klimatiz', 'aircondition', 'climate control'] },
-  { key: 'alloy',   sr: 'Alu felge',        sq: 'Rrota aliazh',      keywords: ['alu felge', 'aluminijum', 'alloy wheel', '17"', '18"', '19"'] },
-  { key: 'cruise',  sr: 'Tempomat',         sq: 'Tempomat',          keywords: ['tempomat', 'cruise control'] },
+  { key: 'nav',      keywords: ['navigaci', 'gps', 'navi'] },
+  { key: 'panorama', keywords: ['panorama', 'moonroof', 'sunroof', 'krovni'] },
+  { key: 'leather',  keywords: ['koža', 'kožna', 'kožne', 'leather', 'koze'] },
+  { key: 'service',  keywords: ['servisna', 'service knjiga', 'service book'] },
+  { key: 'camera',   keywords: ['kamera', 'camera', 'parking kam'] },
+  { key: 'sensors',  keywords: ['senzori', 'park senz', 'parking senz', 'ultrasonic'] },
+  { key: 'led',      keywords: ['xenon', 'led svetla', 'full led', 'bi-xenon', 'led faro'] },
+  { key: 'heated',   keywords: ['grejanje', 'grejana', 'heated seat', 'zagrev'] },
+  { key: 'ac',       keywords: ['klima', 'klimatiz', 'aircondition', 'climate control'] },
+  { key: 'alloy',    keywords: ['alu felge', 'aluminijum', 'alloy wheel', '17"', '18"', '19"'] },
+  { key: 'cruise',   keywords: ['tempomat', 'cruise control'] },
 ];
 
 function matchesKeyword(text: string, keywords: string[]): boolean {
@@ -31,11 +29,12 @@ function matchesKeyword(text: string, keywords: string[]): boolean {
 
 function detectEquipmentChips(vehicle: Vehicle, locale: Locale, max: number): string[] {
   const all = [...vehicle.equipment, ...vehicle.features, ...vehicle.safetyFeatures];
+  const labels = getTranslations(locale).vehicleHighlights.equipmentChips;
   const found: string[] = [];
   for (const chip of EQUIPMENT_CHIPS) {
     if (found.length >= max) break;
     if (all.some((item) => matchesKeyword(item, chip.keywords))) {
-      found.push(locale === 'sq' ? chip.sq : chip.sr);
+      found.push(labels[chip.key]);
     }
   }
   return found;
@@ -43,16 +42,8 @@ function detectEquipmentChips(vehicle: Vehicle, locale: Locale, max: number): st
 
 // ─── Fuel abbreviation ───────────────────────────────────────────────────────
 
-function fuelAbbrev(fuelType: Vehicle['fuelType']): string {
-  const map: Record<Vehicle['fuelType'], string> = {
-    benzin:     'Benzin',
-    dizel:      'Dizel',
-    hibrid:     'Hibrid',
-    elektricni: 'Elektro',
-    lpg:        'LPG',
-    cng:        'CNG',
-  };
-  return map[fuelType] ?? fuelType;
+function fuelAbbrev(fuelType: Vehicle['fuelType'], locale: Locale): string {
+  return getTranslations(locale).vehicleHighlights.fuel[fuelType] ?? fuelType;
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -69,13 +60,14 @@ interface Props {
  */
 export default function VehicleHighlights({ vehicle, locale }: Props) {
   const chips: string[] = [];
+  const copy = getTranslations(locale).vehicleHighlights;
 
   // Engine + fuel
   if (vehicle.engineSize) {
     const litres = (vehicle.engineSize / 1000).toFixed(1);
-    chips.push(`${litres}L ${fuelAbbrev(vehicle.fuelType)}`);
+    chips.push(`${litres}L ${fuelAbbrev(vehicle.fuelType, locale)}`);
   } else {
-    chips.push(fuelAbbrev(vehicle.fuelType));
+    chips.push(fuelAbbrev(vehicle.fuelType, locale));
   }
 
   // Power
@@ -84,12 +76,7 @@ export default function VehicleHighlights({ vehicle, locale }: Props) {
   }
 
   // Transmission
-  const transCopy: Record<Vehicle['transmission'], { sr: string; sq: string }> = {
-    manuelni:       { sr: 'Manuelni',  sq: 'Manuale'  },
-    automatski:     { sr: 'Automatik', sq: 'Automatik' },
-    poluautomatski: { sr: 'Poluauto',  sq: 'Gjysmëauto' },
-  };
-  chips.push(locale === 'sq' ? transCopy[vehicle.transmission].sq : transCopy[vehicle.transmission].sr);
+  chips.push(copy.transmission[vehicle.transmission]);
 
   // Import origin
   if (vehicle.origin && vehicle.origin.trim()) {
@@ -98,15 +85,12 @@ export default function VehicleHighlights({ vehicle, locale }: Props) {
 
   // Low mileage signal
   if (vehicle.mileage < 100000) {
-    chips.push(locale === 'sq' ? 'Km të ulëta' : 'Niska km');
+    chips.push(copy.lowMileage);
   }
 
   // Gallery richness
   if (vehicle.images.length >= 10) {
-    const label = locale === 'sq'
-      ? `${vehicle.images.length} foto`
-      : `${vehicle.images.length} fotografija`;
-    chips.push(label);
+    chips.push(copy.photoCount.replace('{count}', String(vehicle.images.length)));
   }
 
   // Top equipment (up to 4 detected from keywords)

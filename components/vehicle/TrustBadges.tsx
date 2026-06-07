@@ -10,7 +10,7 @@ import {
   Wrench,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { Locale } from '@/lib/i18n';
+import { getTranslations, type Locale } from '@/lib/i18n';
 import type { Vehicle } from '@/types/vehicle';
 
 export type TrustBadgeKey =
@@ -36,31 +36,6 @@ const iconMap = {
   gallery:     Images,
 } satisfies Record<TrustBadgeKey, React.ComponentType<{ size?: number; className?: string }>>;
 
-const copy = {
-  sr: {
-    verified:    'Provereno vozilo',
-    swiss:       'Uvoz iz inostranstva',
-    service:     'Servisna istorija',
-    vin:         'VIN proveren',
-    inspection:  'Pregled moguć',
-    transparent: 'Transparentna kupovina',
-    warranty:    'Garancija dilera',
-    dealer:      'Pouzdan prodavac',
-    gallery:     'Detaljna galerija',
-  },
-  sq: {
-    verified:    'Automjet i verifikuar',
-    swiss:       'Import nga jashtë vendit',
-    service:     'Histori servisi',
-    vin:         'VIN i verifikuar',
-    inspection:  'Kontroll i mundshëm',
-    transparent: 'Blerje transparente',
-    warranty:    'Garanci dileri',
-    dealer:      'Shites i besuar',
-    gallery:     'Galeri e detajuar',
-  },
-} satisfies Record<Locale, Record<TrustBadgeKey, string>>;
-
 interface TrustBadgesProps {
   readonly locale: Locale;
   readonly badges?: TrustBadgeKey[];
@@ -74,6 +49,8 @@ export function TrustBadges({
   compact = false,
   className,
 }: TrustBadgesProps) {
+  const copy = getTranslations(locale).vehicleTrustBadges;
+
   return (
     <div className={cn('flex flex-wrap gap-1.5 min-[390px]:gap-2', className)}>
       {badges.map((badge) => {
@@ -87,7 +64,7 @@ export function TrustBadges({
             )}
           >
             <Icon size={compact ? 12 : 14} className="shrink-0 text-[var(--accent)]" />
-            {copy[locale][badge]}
+            {copy[badge]}
           </span>
         );
       })}
