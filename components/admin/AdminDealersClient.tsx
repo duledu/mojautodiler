@@ -19,6 +19,9 @@ const emptyForm: DealerForm = {
   facebook: '',
   location: '',
   address: '',
+  locationName: '',
+  googleMapsEmbedUrl: '',
+  googleMapsUrl: '',
   description: '',
   workingHours: '',
   isVerified: true,
@@ -136,6 +139,9 @@ export default function AdminDealersClient({ dealers: initialDealers }: Props) {
             </div>
             <Field label="Lokacija"><Input value={form.location ?? ''} onChange={(v) => update('location', v)} placeholder="Presevo, Srbija" /></Field>
             <Field label="Adresa"><Input value={form.address ?? ''} onChange={(v) => update('address', v)} /></Field>
+            <Field label="Naziv lokacije na mapi"><Input value={form.locationName ?? ''} onChange={(v) => update('locationName', v)} placeholder="Naziv koji se prikazuje uz mapu" /></Field>
+            <Field label="Google Maps embed URL"><Input value={form.googleMapsEmbedUrl ?? ''} onChange={(v) => update('googleMapsEmbedUrl', v)} placeholder="https://www.google.com/maps/embed?pb=..." /></Field>
+            <Field label="Google Maps URL (otvaranje)"><Input value={form.googleMapsUrl ?? ''} onChange={(v) => update('googleMapsUrl', v)} placeholder="https://maps.google.com/?q=..." /></Field>
             <div className="grid gap-3 min-[390px]:grid-cols-2">
               <Field label="Instagram"><Input value={form.instagram ?? ''} onChange={(v) => update('instagram', v)} /></Field>
               <Field label="Facebook"><Input value={form.facebook ?? ''} onChange={(v) => update('facebook', v)} /></Field>

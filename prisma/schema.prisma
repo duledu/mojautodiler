@@ -132,6 +132,14 @@ model Dealer {
   facebook     String?
   location     String
   address      String?
+
+  // Optional Google Maps location display on vehicle detail pages.
+  // googleMapsEmbedUrl must start with https://www.google.com/maps/embed —
+  // enforced in the UI layer so only Google's own embed iframe is ever rendered.
+  locationName       String?
+  googleMapsEmbedUrl String?
+  googleMapsUrl      String?
+
   description  String?
   workingHours String?
   isVerified   Boolean      @default(true)

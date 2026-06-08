@@ -145,6 +145,8 @@ const sq = {
     ],
     platformDisclaimer: 'Automjetet në platformë vijnë nga oferta e shitësve partnerë të përzgjedhur. MojAutoDiler nuk i posedon domosdoshmërisht të gjitha automjetet direkt, por i zgjedh me kujdes dhe i prezanton në një vend për një pasqyrë më të lehtë dhe më të sigurt.',
     networkPartner: 'Partner i rrjetit',
+    locationSection: 'Vendndodhja e automjetit',
+    openInGoogleMaps: 'Hap në Google Maps',
     verifiedDealer: 'Shitës i verifikuar',
     verifiedAutoDealer: 'Shitës i verifikuar',
     platform: 'Platforma',

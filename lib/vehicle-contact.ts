@@ -9,6 +9,9 @@ export interface VehicleContact {
   facebook: string;
   location: string;
   address: string;
+  locationName?: string;
+  googleMapsEmbedUrl?: string;
+  googleMapsUrl?: string;
   workingHours: string;
   isVerified: boolean;
   dealerId?: string;
@@ -30,6 +33,9 @@ export function resolveVehicleContact(vehicle: Vehicle, fallback: DealerInfo): V
     facebook: dealer?.facebook || fallback.facebook,
     location: dealer?.location || fallback.address || 'Srbija',
     address: dealer?.address || fallback.address,
+    locationName: dealer?.locationName,
+    googleMapsEmbedUrl: dealer?.googleMapsEmbedUrl,
+    googleMapsUrl: dealer?.googleMapsUrl,
     workingHours: dealer?.workingHours || fallback.workingHours,
     isVerified: dealer?.isVerified ?? true,
     dealerId: dealer?.id,

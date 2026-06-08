@@ -145,6 +145,8 @@ const sr = {
     ],
     platformDisclaimer: 'Vozila prikazana na platformi dolaze iz ponude odabranih partnerskih auto dilera. MojAutoDiler ne poseduje nužno sva vozila direktno, već ih pažljivo bira i predstavlja na jednom mestu radi lakšeg i sigurnijeg pregleda ponude.',
     networkPartner: 'Partnerska mreža',
+    locationSection: 'Lokacija vozila',
+    openInGoogleMaps: 'Otvori u Google Maps',
     verifiedDealer: 'Verifikovan diler',
     verifiedAutoDealer: 'Verifikovan auto diler',
     platform: 'Platforma',

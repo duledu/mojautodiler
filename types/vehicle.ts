@@ -19,6 +19,9 @@ export interface Dealer {
   facebook?: string;
   location: string;
   address?: string;
+  locationName?: string;
+  googleMapsEmbedUrl?: string;
+  googleMapsUrl?: string;
   description?: string;
   workingHours?: string;
   isVerified: boolean;

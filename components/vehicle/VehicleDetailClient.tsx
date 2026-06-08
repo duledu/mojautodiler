@@ -10,7 +10,7 @@ import { FacebookIcon, ViberIcon } from '@/components/ui/SocialIcons';
 import {
   Phone, ChevronLeft, ChevronRight, X, Check,
   ArrowLeft, Send, MapPin, Clock, ShieldCheck, CalendarCheck, Video, LockKeyhole, MessageCircle,
-  Building2,
+  Building2, Map as MapIcon, ExternalLink,
 } from 'lucide-react';
 import { Vehicle } from '@/types/vehicle';
 import { Locale, TranslationKeys } from '@/lib/i18n';
@@ -38,6 +38,14 @@ interface Props {
   readonly locale: Locale;
   readonly t: TranslationKeys;
   readonly dealer: DealerInfo;
+}
+
+// Only Google's own Maps embed iframe may ever be rendered — never arbitrary
+// third-party src values (no Maps API/geocoding involved, just a static embed URL).
+const GOOGLE_MAPS_EMBED_PREFIX = 'https://www.google.com/maps/embed';
+
+function isAllowedGoogleMapsEmbedUrl(url: string | undefined): url is string {
+  return Boolean(url && url.startsWith(GOOGLE_MAPS_EMBED_PREFIX));
 }
 
 function formatDealerPhone(phone: string): string {
@@ -524,6 +532,50 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                 {vehicleDetailCopy.platformDisclaimer}
               </p>
             </section>
+
+            {(contact.locationName || isAllowedGoogleMapsEmbedUrl(contact.googleMapsEmbedUrl) || contact.googleMapsUrl) && (
+              <section className="rounded-3xl border border-(--color-border) bg-white p-4 shadow-sm min-[390px]:p-5 sm:p-6">
+                <div className="mb-4 flex items-center gap-2">
+                  <MapIcon size={16} className="text-[var(--accent)]" />
+                  <h3 className="font-black text-(--color-text)" style={{ fontFamily: 'var(--font-display)' }}>
+                    {vehicleDetailCopy.locationSection}
+                  </h3>
+                </div>
+                {contact.locationName && (
+                  <div className="mb-4 flex items-center gap-1.5 text-sm font-medium text-(--color-text-muted)">
+                    <MapPin size={14} className="text-(--color-gold)" />
+                    {contact.locationName}
+                  </div>
+                )}
+                {isAllowedGoogleMapsEmbedUrl(contact.googleMapsEmbedUrl) && (
+                  <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl sm:aspect-[16/9]">
+                    <iframe
+                      src={contact.googleMapsEmbedUrl}
+                      title={vehicleDetailCopy.locationSection}
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      allowFullScreen
+                      className="absolute inset-0 h-full w-full border-0"
+                      suppressHydrationWarning
+                    />
+                  </div>
+                )}
+                {contact.googleMapsUrl && (
+                  <a
+                    href={contact.googleMapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={cn(
+                      'btn-outline inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm',
+                      isAllowedGoogleMapsEmbedUrl(contact.googleMapsEmbedUrl) && 'mt-4',
+                    )}
+                  >
+                    <ExternalLink size={15} />
+                    {vehicleDetailCopy.openInGoogleMaps}
+                  </a>
+                )}
+              </section>
+            )}
 
             {/* Tabs */}
             <div className="rounded-2xl border border-(--color-border) bg-white overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.05)]">

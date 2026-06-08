@@ -18,6 +18,9 @@ export interface DealerInput {
   facebook?: string;
   location: string;
   address?: string;
+  locationName?: string;
+  googleMapsEmbedUrl?: string;
+  googleMapsUrl?: string;
   description?: string;
   workingHours?: string;
   isVerified?: boolean;
@@ -59,6 +62,9 @@ export async function createDealer(input: DealerInput): Promise<Dealer> {
       facebook:     input.facebook,
       location:     input.location,
       address:      input.address,
+      locationName:       input.locationName,
+      googleMapsEmbedUrl: input.googleMapsEmbedUrl,
+      googleMapsUrl:      input.googleMapsUrl,
       description:  input.description,
       workingHours: input.workingHours,
       isVerified:   input.isVerified ?? true,
@@ -81,6 +87,9 @@ export async function updateDealer(id: string, input: Partial<DealerInput>): Pro
       ...(input.facebook !== undefined && { facebook: input.facebook || null }),
       ...(input.location !== undefined && { location: input.location }),
       ...(input.address !== undefined && { address: input.address || null }),
+      ...(input.locationName !== undefined && { locationName: input.locationName || null }),
+      ...(input.googleMapsEmbedUrl !== undefined && { googleMapsEmbedUrl: input.googleMapsEmbedUrl || null }),
+      ...(input.googleMapsUrl !== undefined && { googleMapsUrl: input.googleMapsUrl || null }),
       ...(input.description !== undefined && { description: input.description || null }),
       ...(input.workingHours !== undefined && { workingHours: input.workingHours || null }),
       ...(input.isVerified !== undefined && { isVerified: input.isVerified }),
