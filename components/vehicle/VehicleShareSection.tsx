@@ -26,6 +26,7 @@ function detectMobile(): boolean {
 import type { Vehicle } from '@/types/vehicle';
 import { getTranslations, type Locale } from '@/lib/i18n';
 import type { DealerInfo } from '@/lib/db/mappers';
+import { trackGA4Event } from '@/lib/ga4';
 import { cn } from '@/lib/utils';
 import { SocialCreativeCanvas, CREATIVE_DIMS, CreativeFormat } from '@/components/admin/SocialCreativeCanvas';
 import { waitForExportReady } from '@/components/admin/VehiclePhotoLayer';
@@ -60,6 +61,16 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
 
   const copy = getTranslations(locale).vehicleShare;
 
+  const trackShare = (method: string) => {
+    trackGA4Event('vehicle_share', {
+      vehicle_id:   vehicle.id,
+      vehicle_slug: vehicle.slug,
+      make:         vehicle.brand,
+      model:        vehicle.model,
+      method,
+    });
+  };
+
   // ── Init ──────────────────────────────────────────────────────────────────
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setMounted(true); }, []);
@@ -90,10 +101,12 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
     if (typeof navigator !== 'undefined' && 'share' in navigator) {
       try {
         await navigator.share({ title: vehicle.title, text: shareText, url: vehicleUrl });
+        trackShare('native_share');
         return;
       } catch { /* user cancelled or unsupported */ }
     }
     await copyToClipboard(vehicleUrl);
+    trackShare('clipboard_copy');
   };
 
   // ── Canvas data loader ────────────────────────────────────────────────────
@@ -228,6 +241,7 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
 
       // Show success feedback
       setDownloaded(true);
+      trackShare('download');
       setTimeout(() => setDownloaded(false), 4000);
     } catch {
       setLoadError(copy.downloadError);
@@ -258,6 +272,7 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
       ) {
         try {
           await navigator.share({ files: [file], title: vehicle.title, text: shareText });
+          trackShare('share_image');
           return;
         } catch (e) {
           if (e instanceof Error && e.name === 'AbortError') return; // user cancelled
@@ -332,6 +347,7 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
 
         <a
           href={`viber://forward?text=${encodeURIComponent(shareText)}`}
+          onClick={() => trackShare('viber')}
           className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[#7360F2]/20 bg-[#7360F2]/6 px-3.5 text-sm font-semibold text-[#6B5FDB] transition hover:bg-[#7360F2]/12"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -344,6 +360,7 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
           href={`https://wa.me/?text=${encodeURIComponent(shareText)}`}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => trackShare('whatsapp')}
           className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[#25D366]/20 bg-[#25D366]/6 px-3.5 text-sm font-semibold text-[#128C7E] transition hover:bg-[#25D366]/12"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -356,6 +373,7 @@ export default function VehicleShareSection({ vehicle, locale, dealer }: Props) 
           href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(vehicleUrl)}`}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => trackShare('facebook')}
           className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[#1877F2]/20 bg-[#1877F2]/6 px-3.5 text-sm font-semibold text-[#1877F2] transition hover:bg-[#1877F2]/12"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

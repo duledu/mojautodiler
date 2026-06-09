@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { trackLead, trackViewContent } from '@/lib/meta-pixel';
+import { trackGA4Event } from '@/lib/ga4';
 import { buildAttribution } from '@/lib/utm';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
@@ -87,9 +88,9 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
   const trustBadges = getVehicleTrustBadges(vehicle);
   const contact = resolveVehicleContact(vehicle, dealer);
 
-  // ── Meta Pixel: ViewContent ───────────────────────────────────────────────
+  // ── Analytics: ViewContent (Meta Pixel) + vehicle_view (GA4) ────────────
   // Fires once when the vehicle detail page mounts (client side only).
-  // PageView is already handled globally by MetaPixelProvider in the root layout.
+  // PageView is already handled globally by MetaPixelProvider / GoogleAnalytics.
   useEffect(() => {
     trackViewContent({
       id:       vehicle.id,
@@ -97,6 +98,17 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
       category: 'vehicle',
       value:    vehicle.price,
       currency: vehicle.currency,
+    });
+    trackGA4Event('vehicle_view', {
+      vehicle_id:   vehicle.id,
+      vehicle_slug: vehicle.slug,
+      make:         vehicle.brand,
+      model:        vehicle.model,
+      year:         vehicle.year,
+      price:        vehicle.price,
+      currency:     vehicle.currency,
+      dealer_id:    contact.dealerId ?? undefined,
+      dealer_name:  contact.dealerName ?? undefined,
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vehicle.id]); // vehicle.id is stable — only re-fires if user navigates to a different vehicle
@@ -154,6 +166,22 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
     const dedupKey = `${vehicle.id}:${intent}`;
     if ((leadDebounce.current.get(dedupKey) ?? 0) + 5_000 > firedAt) return;
     leadDebounce.current.set(dedupKey, firedAt);
+
+    // ── GA4: fire immediately on user action (before async CRM fetch) ──────
+    // Unlike Meta Pixel (which waits for CRM 201), GA4 click events fire on
+    // intent — the debounce above already guards against rapid double-fires.
+    const ga4VehicleParams = {
+      vehicle_id:   vehicle.id,
+      vehicle_slug: vehicle.slug,
+      make:         vehicle.brand,
+      model:        vehicle.model,
+      year:         vehicle.year,
+      dealer_id:    contact.dealerId ?? undefined,
+      dealer_name:  contact.dealerName ?? undefined,
+    };
+    if (intent === 'phone_call')     trackGA4Event('phone_click',    { ...ga4VehicleParams, contact_type: channel });
+    if (intent === 'whatsapp_click') trackGA4Event('whatsapp_click', { ...ga4VehicleParams, contact_type: channel });
+    if (intent === 'viber_click')    trackGA4Event('viber_click',    { ...ga4VehicleParams, contact_type: channel });
 
     // ── CRM record + conditional Meta Pixel ────────────────────────────────
     //
@@ -704,6 +732,15 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                         return;
                       }
                       trackLead({ contentName: vehicle.title, value: vehicle.price, currency: vehicle.currency });
+                      trackGA4Event('contact_form_submit', {
+                        vehicle_id:   vehicle.id,
+                        vehicle_slug: vehicle.slug,
+                        make:         vehicle.brand,
+                        model:        vehicle.model,
+                        year:         vehicle.year,
+                        dealer_id:    contact.dealerId ?? undefined,
+                        dealer_name:  contact.dealerName ?? undefined,
+                      });
                       setSubmitted(true);
                     } catch {
                       setFormError(vehicleDetailCopy.networkError);
