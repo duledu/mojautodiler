@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import MetaPixel from '@/components/analytics/MetaPixel';
+import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
 import UtmCapture from '@/components/analytics/UtmCapture';
 import ServiceWorkerRegister from '@/components/pwa/ServiceWorkerRegister';
 import PwaInstallBanner from '@/components/pwa/PwaInstallBanner';
@@ -45,6 +46,8 @@ export default function RootLayout({ children }: { readonly children: React.Reac
         {children}
         {/* Meta Pixel — loads after hydration, tracks SPA route changes */}
         <MetaPixel />
+        {/* Google Analytics 4 — loads after hydration, tracks SPA route changes */}
+        <GoogleAnalytics />
         {/* UTM capture — persists ad campaign params to sessionStorage for lead attribution */}
         <UtmCapture />
         <ServiceWorkerRegister />
