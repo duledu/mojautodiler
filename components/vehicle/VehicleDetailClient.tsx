@@ -158,7 +158,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
     { key: 'description', label: t.vehicle.description },
   ] as const;
 
-  const recordLeadIntent = (intent: string, channel: string, message: string | undefined, firedAt: number) => {
+  const recordLeadIntent = (intent: string, channel: string, message: string | undefined, firedAt: number, createCrmLead: boolean = true) => {
     // ── Frontend duplicate guard ────────────────────────────────────────────
     // Prevents rapid double-taps, browser-synthetic click events, and any
     // accidental render-level misfires from hitting the API. The server-side
@@ -182,6 +182,14 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
     if (intent === 'phone_call')     trackGA4Event('phone_click',    { ...ga4VehicleParams, contact_type: channel });
     if (intent === 'whatsapp_click') trackGA4Event('whatsapp_click', { ...ga4VehicleParams, contact_type: channel });
     if (intent === 'viber_click')    trackGA4Event('viber_click',    { ...ga4VehicleParams, contact_type: channel });
+
+    // ── "Proveri dostupnost" and similar dial-only actions ──────────────────
+    // No CRM lead, no email notification — this is a direct phone call, not
+    // an inquiry. The Pixel fires immediately since the call is a real action.
+    if (!createCrmLead) {
+      trackLead({ contentName: vehicle.title, value: vehicle.price, currency: vehicle.currency });
+      return;
+    }
 
     // ── CRM record + conditional Meta Pixel ────────────────────────────────
     //
@@ -511,7 +519,10 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
               <div className="grid gap-2 min-[430px]:grid-cols-2 lg:grid-cols-5">
                 <QuickLeadButton icon={<CalendarCheck size={15} />} label={quickActionCopy.book} onClick={(event) => applyQuickLead(`${quickActionCopy.book}: ${vehicle.title}`, 'schedule_viewing', event.timeStamp)} />
                 <QuickLeadButton icon={<Video size={15} />} label={quickActionCopy.video} onClick={(event) => applyQuickLead(`${quickActionCopy.video}: ${vehicle.title}`, 'request_video', event.timeStamp)} />
-                <QuickLeadButton icon={<ShieldCheck size={15} />} label={quickActionCopy.availability} onClick={(event) => applyQuickLead(`${quickActionCopy.availability}: ${vehicle.title}`, 'general_inquiry', event.timeStamp)} />
+                <QuickLeadButton icon={<ShieldCheck size={15} />} label={quickActionCopy.availability} onClick={(event) => {
+                  recordLeadIntent('phone_call', 'phone', undefined, event.timeStamp, false);
+                  if (contact.phone) window.location.href = `tel:${contact.phone}`;
+                }} />
                 <QuickLeadButton icon={<LockKeyhole size={15} />} label={quickActionCopy.reserve} onClick={(event) => applyQuickLead(`${quickActionCopy.reserve}: ${vehicle.title}`, 'reservation_request', event.timeStamp)} />
                 {contact.viber && (
                   <a href={`viber://chat?number=%2B${contact.viber.replace(/\D/g, '')}`} onClick={(event) => recordLeadIntent('viber_click', 'viber', undefined, event.timeStamp)} className="touch-target inline-flex items-center justify-center gap-2 rounded-2xl border border-[#7360F2]/20 bg-[#7360F2]/5 px-3 py-3 text-xs font-black text-[#6B5FDB] transition hover:bg-[#7360F2]/10">
@@ -560,50 +571,6 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                 {vehicleDetailCopy.platformDisclaimer}
               </p>
             </section>
-
-            {(contact.locationName || isAllowedGoogleMapsEmbedUrl(contact.googleMapsEmbedUrl) || contact.googleMapsUrl) && (
-              <section className="rounded-3xl border border-(--color-border) bg-white p-4 shadow-sm min-[390px]:p-5 sm:p-6">
-                <div className="mb-4 flex items-center gap-2">
-                  <MapIcon size={16} className="text-[var(--accent)]" />
-                  <h3 className="font-black text-(--color-text)" style={{ fontFamily: 'var(--font-display)' }}>
-                    {vehicleDetailCopy.locationSection}
-                  </h3>
-                </div>
-                {contact.locationName && (
-                  <div className="mb-4 flex items-center gap-1.5 text-sm font-medium text-(--color-text-muted)">
-                    <MapPin size={14} className="text-(--color-gold)" />
-                    {contact.locationName}
-                  </div>
-                )}
-                {isAllowedGoogleMapsEmbedUrl(contact.googleMapsEmbedUrl) && (
-                  <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl sm:aspect-[16/9]">
-                    <iframe
-                      src={contact.googleMapsEmbedUrl}
-                      title={vehicleDetailCopy.locationSection}
-                      loading="lazy"
-                      referrerPolicy="no-referrer-when-downgrade"
-                      allowFullScreen
-                      className="absolute inset-0 h-full w-full border-0"
-                      suppressHydrationWarning
-                    />
-                  </div>
-                )}
-                {contact.googleMapsUrl && (
-                  <a
-                    href={contact.googleMapsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={cn(
-                      'btn-outline inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm',
-                      isAllowedGoogleMapsEmbedUrl(contact.googleMapsEmbedUrl) && 'mt-4',
-                    )}
-                  >
-                    <ExternalLink size={15} />
-                    {vehicleDetailCopy.openInGoogleMaps}
-                  </a>
-                )}
-              </section>
-            )}
 
             {/* Tabs */}
             <div className="rounded-2xl border border-(--color-border) bg-white overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.05)]">
@@ -690,9 +657,12 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
               >
                 {t.inquiry.title}
               </h3>
-              <p className="text-(--color-text-muted) text-sm mb-6">
+              <p className="text-(--color-text-muted) text-sm mb-1">
                 {t.inquiry.interested}:{' '}
                 <span className="font-semibold text-(--color-text)">{vehicle.title}</span>
+              </p>
+              <p className="text-(--color-text-muted) text-xs mb-6">
+                {t.inquiry.requiredHint}
               </p>
 
               {submitted ? (
@@ -704,8 +674,14 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                 <form
                   onSubmit={async (e) => {
                     e.preventDefault();
-                    setSubmitting(true);
                     setFormError(null);
+
+                    if (!form.name.trim() || !form.phone.trim() || !form.email.trim() || form.message.trim().length < 5) {
+                      setFormError(t.inquiry.validationError);
+                      return;
+                    }
+
+                    setSubmitting(true);
                     try {
                       const res = await fetch('/api/leads', {
                         method: 'POST',
@@ -715,7 +691,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                           name: form.name,
                           phone: form.phone,
                           email: form.email,
-                          message: form.message || `${t.inquiry.interested}: ${vehicle.title}`,
+                          message: form.message,
                           vehicleId: vehicle.id,
                           vehicleTitle: vehicle.title,
                           dealerId: contact.dealerId,
@@ -780,6 +756,8 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                   <textarea
                     ref={messageRef}
                     suppressHydrationWarning
+                    required
+                    minLength={5}
                     placeholder={t.inquiry.messagePlaceholder}
                     rows={4}
                     value={form.message}
@@ -801,6 +779,50 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                 </form>
               )}
             </div>
+
+            {(contact.locationName || isAllowedGoogleMapsEmbedUrl(contact.googleMapsEmbedUrl) || contact.googleMapsUrl) && (
+              <section className="rounded-3xl border border-(--color-border) bg-white p-4 shadow-sm min-[390px]:p-5 sm:p-6">
+                <div className="mb-4 flex items-center gap-2">
+                  <MapIcon size={16} className="text-[var(--accent)]" />
+                  <h3 className="font-black text-(--color-text)" style={{ fontFamily: 'var(--font-display)' }}>
+                    {vehicleDetailCopy.locationSection}
+                  </h3>
+                </div>
+                {contact.locationName && (
+                  <div className="mb-4 flex items-center gap-1.5 text-sm font-medium text-(--color-text-muted)">
+                    <MapPin size={14} className="text-(--color-gold)" />
+                    {contact.locationName}
+                  </div>
+                )}
+                {isAllowedGoogleMapsEmbedUrl(contact.googleMapsEmbedUrl) && (
+                  <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl sm:aspect-[16/9]">
+                    <iframe
+                      src={contact.googleMapsEmbedUrl}
+                      title={vehicleDetailCopy.locationSection}
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      allowFullScreen
+                      className="absolute inset-0 h-full w-full border-0"
+                      suppressHydrationWarning
+                    />
+                  </div>
+                )}
+                {contact.googleMapsUrl && (
+                  <a
+                    href={contact.googleMapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={cn(
+                      'btn-outline inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm',
+                      isAllowedGoogleMapsEmbedUrl(contact.googleMapsEmbedUrl) && 'mt-4',
+                    )}
+                  >
+                    <ExternalLink size={15} />
+                    {vehicleDetailCopy.openInGoogleMaps}
+                  </a>
+                )}
+              </section>
+            )}
           </div>
 
           {/* Right sticky column */}

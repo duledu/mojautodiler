@@ -280,8 +280,10 @@ const sq = {
     interested: 'Jam i interesuar për',
     namePlaceholder: 'Emri juaj',
     phonePlaceholder: 'Numri juaj i telefonit',
-    emailPlaceholder: 'Email juaj (opsional)',
+    emailPlaceholder: 'Email juaj',
     messagePlaceholder: 'Mesazhi juaj...',
+    requiredHint: 'Të gjitha fushat janë të detyrueshme.',
+    validationError: 'Ju lutem plotësoni të gjitha fushat e kërkuara: emrin, telefonin, email-in dhe mesazhin.',
     send: 'Dërgo Kërkesën',
   },
   fuel: {

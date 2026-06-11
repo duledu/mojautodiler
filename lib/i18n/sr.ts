@@ -280,8 +280,10 @@ const sr = {
     interested: 'Zainteresovan sam za',
     namePlaceholder: 'Vaše ime',
     phonePlaceholder: 'Vaš broj telefona',
-    emailPlaceholder: 'Vaš email (opciono)',
+    emailPlaceholder: 'Vaš email',
     messagePlaceholder: 'Vaša poruka...',
+    requiredHint: 'Sva polja su obavezna.',
+    validationError: 'Molimo popunite sva obavezna polja: ime, telefon, email i poruku.',
     send: 'Pošalji Upit',
   },
   fuel: {
