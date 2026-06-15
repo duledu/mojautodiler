@@ -518,7 +518,10 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
               </div>
               <div className="grid gap-2 min-[430px]:grid-cols-2 lg:grid-cols-5">
                 <QuickLeadButton icon={<CalendarCheck size={15} />} label={quickActionCopy.book} onClick={(event) => applyQuickLead(`${quickActionCopy.book}: ${vehicle.title}`, 'schedule_viewing', event.timeStamp)} />
-                <QuickLeadButton icon={<Video size={15} />} label={quickActionCopy.video} onClick={(event) => applyQuickLead(`${quickActionCopy.video}: ${vehicle.title}`, 'request_video', event.timeStamp)} />
+                <QuickLeadButton icon={<Video size={15} />} label={quickActionCopy.video} onClick={(event) => {
+                  recordLeadIntent('phone_call', 'phone', undefined, event.timeStamp, false);
+                  if (contact.phone) window.location.href = `tel:${contact.phone}`;
+                }} />
                 <QuickLeadButton icon={<ShieldCheck size={15} />} label={quickActionCopy.availability} onClick={(event) => {
                   recordLeadIntent('phone_call', 'phone', undefined, event.timeStamp, false);
                   if (contact.phone) window.location.href = `tel:${contact.phone}`;
