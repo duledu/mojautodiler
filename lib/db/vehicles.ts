@@ -179,6 +179,36 @@ export async function getVehiclesByBrand(brand: string): Promise<Vehicle[]> {
   }
 }
 
+/**
+ * Returns all AVAILABLE vehicles matching a given brand + any of the provided
+ * model aliases (exact, case-insensitive OR match).
+ * Used exclusively by the model silo pages (/sr/model/golf-7 etc.).
+ */
+export async function getVehiclesByModel(
+  brand: string,
+  modelAliases: string[],
+): Promise<Vehicle[]> {
+  if (!hasDatabase()) { warnNoDB('getVehiclesByModel'); return []; }
+  try {
+    const rows = await prisma.vehicle.findMany({
+      where: {
+        status: 'AVAILABLE',
+        brand:  { equals: brand, mode: 'insensitive' },
+        OR:     modelAliases.map((alias) => ({
+          model: { equals: alias, mode: 'insensitive' },
+        })),
+      },
+      orderBy: { createdAt: 'desc' },
+      include: { dealer: true },
+    });
+    logFetch('getVehiclesByModel', rows.length, rows[0]);
+    return rows.map(toAppVehicle);
+  } catch (err) {
+    console.warn('[DB] getVehiclesByModel failed:', err instanceof Error ? err.message : String(err));
+    return [];
+  }
+}
+
 export async function getActiveVehicleSlugs(): Promise<{ slug: string }[]> {
   if (!hasDatabase()) { warnNoDB('getActiveVehicleSlugs'); return []; }
   try {
