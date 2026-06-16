@@ -23,18 +23,23 @@ function logFetch(fn: string, count: number, first?: { title?: string; id?: stri
  */
 export async function getHeroVehicle(): Promise<Vehicle | null> {
   if (!hasDatabase()) { warnNoDB('getHeroVehicle'); return null; }
-  const hero = await prisma.vehicle.findFirst({
-    where: { status: 'AVAILABLE', featured: true },
-    include: { dealer: true },
-  });
-  if (hero) return toAppVehicle(hero);
-  // Fallback: newest active vehicle so the homepage is never blank
-  const fallback = await prisma.vehicle.findFirst({
-    where: { status: 'AVAILABLE' },
-    orderBy: { createdAt: 'desc' },
-    include: { dealer: true },
-  });
-  return fallback ? toAppVehicle(fallback) : null;
+  try {
+    const hero = await prisma.vehicle.findFirst({
+      where: { status: 'AVAILABLE', featured: true },
+      include: { dealer: true },
+    });
+    if (hero) return toAppVehicle(hero);
+    // Fallback: newest active vehicle so the homepage is never blank
+    const fallback = await prisma.vehicle.findFirst({
+      where: { status: 'AVAILABLE' },
+      orderBy: { createdAt: 'desc' },
+      include: { dealer: true },
+    });
+    return fallback ? toAppVehicle(fallback) : null;
+  } catch (err) {
+    console.warn('[DB] getHeroVehicle failed:', err instanceof Error ? err.message : String(err));
+    return null;
+  }
 }
 
 /**
@@ -45,25 +50,30 @@ export async function getHeroVehicle(): Promise<Vehicle | null> {
  */
 export async function getShowcaseVehicles(limit = 4): Promise<Vehicle[]> {
   if (!hasDatabase()) { warnNoDB('getShowcaseVehicles'); return []; }
-  const showcased = await prisma.vehicle.findMany({
-    where: { status: 'AVAILABLE', showcase: true },
-    orderBy: { createdAt: 'desc' },
-    take: limit,
-    include: { dealer: true },
-  });
-  if (showcased.length > 0) {
-    logFetch('getShowcaseVehicles (showcased)', showcased.length, showcased[0]);
-    return showcased.map(toAppVehicle);
+  try {
+    const showcased = await prisma.vehicle.findMany({
+      where: { status: 'AVAILABLE', showcase: true },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      include: { dealer: true },
+    });
+    if (showcased.length > 0) {
+      logFetch('getShowcaseVehicles (showcased)', showcased.length, showcased[0]);
+      return showcased.map(toAppVehicle);
+    }
+    // Fallback: no vehicles explicitly showcased yet — show newest active
+    const rows = await prisma.vehicle.findMany({
+      where: { status: 'AVAILABLE' },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      include: { dealer: true },
+    });
+    logFetch('getShowcaseVehicles (fallback)', rows.length, rows[0]);
+    return rows.map(toAppVehicle);
+  } catch (err) {
+    console.warn('[DB] getShowcaseVehicles failed:', err instanceof Error ? err.message : String(err));
+    return [];
   }
-  // Fallback: no vehicles explicitly showcased yet — show newest active
-  const rows = await prisma.vehicle.findMany({
-    where: { status: 'AVAILABLE' },
-    orderBy: { createdAt: 'desc' },
-    take: limit,
-    include: { dealer: true },
-  });
-  logFetch('getShowcaseVehicles (fallback)', rows.length, rows[0]);
-  return rows.map(toAppVehicle);
 }
 
 export async function getFeaturedVehicles(limit = 4): Promise<Vehicle[]> {
@@ -80,13 +90,18 @@ export async function getFeaturedVehicles(limit = 4): Promise<Vehicle[]> {
 
 export async function getActiveVehicles(): Promise<Vehicle[]> {
   if (!hasDatabase()) { warnNoDB('getActiveVehicles'); return []; }
-  const rows = await prisma.vehicle.findMany({
-    where: { status: 'AVAILABLE' },
-    orderBy: { createdAt: 'desc' },
-    include: { dealer: true },
-  });
-  logFetch('getActiveVehicles', rows.length, rows[0]);
-  return rows.map(toAppVehicle);
+  try {
+    const rows = await prisma.vehicle.findMany({
+      where: { status: 'AVAILABLE' },
+      orderBy: { createdAt: 'desc' },
+      include: { dealer: true },
+    });
+    logFetch('getActiveVehicles', rows.length, rows[0]);
+    return rows.map(toAppVehicle);
+  } catch (err) {
+    console.warn('[DB] getActiveVehicles failed:', err instanceof Error ? err.message : String(err));
+    return [];
+  }
 }
 
 export async function getAllVehicles(): Promise<Vehicle[]> {
@@ -103,32 +118,47 @@ const detailInclude = { dealer: true, media: { orderBy: { sortOrder: 'asc' as co
 
 export async function getVehicleBySlug(slug: string): Promise<Vehicle | null> {
   if (!hasDatabase()) { warnNoDB('getVehicleBySlug'); return null; }
-  const row = await prisma.vehicle.findUnique({ where: { slug }, include: detailInclude });
-  if (process.env.NODE_ENV !== 'production') {
-    console.log(`[DB] getVehicleBySlug("${slug}"): ${row ? row.title : 'not found'}`);
+  try {
+    const row = await prisma.vehicle.findUnique({ where: { slug }, include: detailInclude });
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`[DB] getVehicleBySlug("${slug}"): ${row ? row.title : 'not found'}`);
+    }
+    return row ? toAppVehicle(row) : null;
+  } catch (err) {
+    console.warn('[DB] getVehicleBySlug failed:', err instanceof Error ? err.message : String(err));
+    return null;
   }
-  return row ? toAppVehicle(row) : null;
 }
 
 export async function getVehicleById(id: string): Promise<Vehicle | null> {
   if (!hasDatabase()) { warnNoDB('getVehicleById'); return null; }
-  const row = await prisma.vehicle.findUnique({ where: { id }, include: detailInclude });
-  return row ? toAppVehicle(row) : null;
+  try {
+    const row = await prisma.vehicle.findUnique({ where: { id }, include: detailInclude });
+    return row ? toAppVehicle(row) : null;
+  } catch (err) {
+    console.warn('[DB] getVehicleById failed:', err instanceof Error ? err.message : String(err));
+    return null;
+  }
 }
 
 export async function getSimilarVehicles(vehicleId: string, brand: string, limit = 4): Promise<Vehicle[]> {
   if (!hasDatabase()) { warnNoDB('getSimilarVehicles'); return []; }
-  const rows = await prisma.vehicle.findMany({
-    where: {
-      brand,
-      status: 'AVAILABLE',
-      NOT: { id: vehicleId },
-    },
-    orderBy: { createdAt: 'desc' },
-    take: limit,
-    include: { dealer: true },
-  });
-  return rows.map(toAppVehicle);
+  try {
+    const rows = await prisma.vehicle.findMany({
+      where: {
+        brand,
+        status: 'AVAILABLE',
+        NOT: { id: vehicleId },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      include: { dealer: true },
+    });
+    return rows.map(toAppVehicle);
+  } catch (err) {
+    console.warn('[DB] getSimilarVehicles failed:', err instanceof Error ? err.message : String(err));
+    return [];
+  }
 }
 
 /**
@@ -138,24 +168,34 @@ export async function getSimilarVehicles(vehicleId: string, brand: string, limit
  */
 export async function getVehiclesByBrand(brand: string): Promise<Vehicle[]> {
   if (!hasDatabase()) { warnNoDB('getVehiclesByBrand'); return []; }
-  const rows = await prisma.vehicle.findMany({
-    where: {
-      status: 'AVAILABLE',
-      brand:  { equals: brand, mode: 'insensitive' },
-    },
-    orderBy: { createdAt: 'desc' },
-    include: { dealer: true },
-  });
-  logFetch('getVehiclesByBrand', rows.length, rows[0]);
-  return rows.map(toAppVehicle);
+  try {
+    const rows = await prisma.vehicle.findMany({
+      where: {
+        status: 'AVAILABLE',
+        brand:  { equals: brand, mode: 'insensitive' },
+      },
+      orderBy: { createdAt: 'desc' },
+      include: { dealer: true },
+    });
+    logFetch('getVehiclesByBrand', rows.length, rows[0]);
+    return rows.map(toAppVehicle);
+  } catch (err) {
+    console.warn('[DB] getVehiclesByBrand failed:', err instanceof Error ? err.message : String(err));
+    return [];
+  }
 }
 
 export async function getActiveVehicleSlugs(): Promise<{ slug: string }[]> {
   if (!hasDatabase()) { warnNoDB('getActiveVehicleSlugs'); return []; }
-  return prisma.vehicle.findMany({
-    where: { status: 'AVAILABLE' },
-    select: { slug: true },
-  });
+  try {
+    return await prisma.vehicle.findMany({
+      where: { status: 'AVAILABLE' },
+      select: { slug: true },
+    });
+  } catch (err) {
+    console.warn('[DB] getActiveVehicleSlugs failed:', err instanceof Error ? err.message : String(err));
+    return [];
+  }
 }
 
 /**
@@ -167,16 +207,21 @@ export async function getVehicleSlugsForSitemap(): Promise<
   { slug: string; updatedAt: Date; primaryImage?: string }[]
 > {
   if (!hasDatabase()) { warnNoDB('getVehicleSlugsForSitemap'); return []; }
-  const rows = await prisma.vehicle.findMany({
-    where:   { status: 'AVAILABLE' },
-    select:  { slug: true, updatedAt: true, images: true },
-    orderBy: { updatedAt: 'desc' },
-  });
-  return rows.map((r) => ({
-    slug:         r.slug,
-    updatedAt:    r.updatedAt,
-    primaryImage: (r.images as string[])[0] ?? undefined,
-  }));
+  try {
+    const rows = await prisma.vehicle.findMany({
+      where:   { status: 'AVAILABLE' },
+      select:  { slug: true, updatedAt: true, images: true },
+      orderBy: { updatedAt: 'desc' },
+    });
+    return rows.map((r) => ({
+      slug:         r.slug,
+      updatedAt:    r.updatedAt,
+      primaryImage: (r.images as string[])[0] ?? undefined,
+    }));
+  } catch (err) {
+    console.warn('[DB] getVehicleSlugsForSitemap failed:', err instanceof Error ? err.message : String(err));
+    return [];
+  }
 }
 
 export async function getVehicleStats() {
@@ -184,13 +229,18 @@ export async function getVehicleStats() {
     warnNoDB('getVehicleStats');
     return { total: 0, active: 0, sold: 0, hidden: 0 };
   }
-  const [total, active, sold, hidden] = await Promise.all([
-    prisma.vehicle.count(),
-    prisma.vehicle.count({ where: { status: 'AVAILABLE' } }),
-    prisma.vehicle.count({ where: { status: 'SOLD' } }),
-    prisma.vehicle.count({ where: { status: 'HIDDEN' } }),
-  ]);
-  return { total, active, sold, hidden };
+  try {
+    const [total, active, sold, hidden] = await Promise.all([
+      prisma.vehicle.count(),
+      prisma.vehicle.count({ where: { status: 'AVAILABLE' } }),
+      prisma.vehicle.count({ where: { status: 'SOLD' } }),
+      prisma.vehicle.count({ where: { status: 'HIDDEN' } }),
+    ]);
+    return { total, active, sold, hidden };
+  } catch (err) {
+    console.warn('[DB] getVehicleStats failed:', err instanceof Error ? err.message : String(err));
+    return { total: 0, active: 0, sold: 0, hidden: 0 };
+  }
 }
 
 // ─── Writes ────────────────────────────────────────────────────────────────────
