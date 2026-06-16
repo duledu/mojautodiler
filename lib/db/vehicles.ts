@@ -118,27 +118,21 @@ const detailInclude = { dealer: true, media: { orderBy: { sortOrder: 'asc' as co
 
 export async function getVehicleBySlug(slug: string): Promise<Vehicle | null> {
   if (!hasDatabase()) { warnNoDB('getVehicleBySlug'); return null; }
-  try {
-    const row = await prisma.vehicle.findUnique({ where: { slug }, include: detailInclude });
-    if (process.env.NODE_ENV !== 'production') {
-      console.log(`[DB] getVehicleBySlug("${slug}"): ${row ? row.title : 'not found'}`);
-    }
-    return row ? toAppVehicle(row) : null;
-  } catch (err) {
-    console.warn('[DB] getVehicleBySlug failed:', err instanceof Error ? err.message : String(err));
-    return null;
+  // No try/catch here — callers use `if (!vehicle) notFound()`, so swallowing DB
+  // errors would turn a transient outage into a false 404. Let the error propagate
+  // to the route-level error.tsx boundary instead.
+  const row = await prisma.vehicle.findUnique({ where: { slug }, include: detailInclude });
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`[DB] getVehicleBySlug("${slug}"): ${row ? row.title : 'not found'}`);
   }
+  return row ? toAppVehicle(row) : null;
 }
 
 export async function getVehicleById(id: string): Promise<Vehicle | null> {
   if (!hasDatabase()) { warnNoDB('getVehicleById'); return null; }
-  try {
-    const row = await prisma.vehicle.findUnique({ where: { id }, include: detailInclude });
-    return row ? toAppVehicle(row) : null;
-  } catch (err) {
-    console.warn('[DB] getVehicleById failed:', err instanceof Error ? err.message : String(err));
-    return null;
-  }
+  // No try/catch — same false-404 risk as getVehicleBySlug; let error.tsx handle it.
+  const row = await prisma.vehicle.findUnique({ where: { id }, include: detailInclude });
+  return row ? toAppVehicle(row) : null;
 }
 
 export async function getSimilarVehicles(vehicleId: string, brand: string, limit = 4): Promise<Vehicle[]> {
