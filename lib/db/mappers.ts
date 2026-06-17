@@ -19,6 +19,7 @@ import type {
   DealerStatus   as PrismaDealerStatus,
 } from '@prisma/client';
 import type { Dealer, DealerStatus, Vehicle, VehicleStatus, VatMode } from '@/types/vehicle';
+import { sanitizeImageUrl } from '@/lib/utils';
 import type { Lead as AppLead, LeadStatus as AppLeadStatus, LeadIntent, PreferredContactChannel } from '@/types/lead';
 
 // ─── Vehicle status ────────────────────────────────────────────────────────────
@@ -163,13 +164,15 @@ export function toAppVehicle(
     equipment:     v.equipment,
     safetyFeatures: v.safetyFeatures,
     features:      v.features,
-    // Convert URL strings → VehicleImage objects
-    images:        v.images.map((url, i) => ({
-      id:    `img-${v.id}-${i}`,
-      url,
-      alt:   v.title,
-      order: i + 1,
-    })),
+    images:        v.images
+      .map(sanitizeImageUrl)
+      .filter((url): url is string => url !== null)
+      .map((url, i) => ({
+        id:    `img-${v.id}-${i}`,
+        url,
+        alt:   v.title,
+        order: i + 1,
+      })),
     videoUrl:      v.videoUrl ?? undefined,
     videos:        videos.length > 0 ? videos : undefined,
     status:        toAppVehicleStatus(v.status),

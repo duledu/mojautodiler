@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { ArrowRight, Building2, Calendar, Camera, Fuel, Gauge, MapPin, Settings2, ShieldCheck } from 'lucide-react';
 import { Vehicle } from '@/types/vehicle';
 import { Locale, TranslationKeys } from '@/lib/i18n';
-import { cn, formatMileage, formatPrice, formatVatMode } from '@/lib/utils';
+import { cn, formatMileage, formatPrice, formatVatMode, isR2Image } from '@/lib/utils';
 import PremiumVehiclePlaceholder from '@/components/vehicle/PremiumVehiclePlaceholder';
 import { getVehicleTrustBadges, TrustBadges } from '@/components/vehicle/TrustBadges';
 import VehicleStatusBadge from '@/components/vehicle/VehicleStatusBadge';
@@ -38,6 +38,7 @@ export default function VehicleCard({ vehicle, locale, t }: VehicleCardProps) {
               alt={`${vehicle.title} ${vehicle.year}`}
               width={800}
               height={500}
+              unoptimized={isR2Image(mainImage)}
               sizes="(min-width: 1280px) 25vw, (min-width: 640px) 50vw, 100vw"
               className="card-image absolute inset-0 h-full w-full object-cover object-center"
             />

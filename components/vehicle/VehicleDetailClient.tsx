@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { Vehicle } from '@/types/vehicle';
 import { Locale, TranslationKeys } from '@/lib/i18n';
-import { formatPrice, formatMileage, cn, formatVatMode } from '@/lib/utils';
+import { formatPrice, formatMileage, cn, formatVatMode, isR2Image } from '@/lib/utils';
 import type { DealerInfo } from '@/lib/db/mappers';
 import { resolveVehicleContact } from '@/lib/vehicle-contact';
 import VehicleCard from '@/components/vehicle/VehicleCard';
@@ -371,6 +371,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                     width={1600}
                     height={900}
                     priority
+                    unoptimized={isR2Image(activeImageUrl)}
                     sizes="(min-width: 1024px) 58vw, 100vw"
                     className="absolute inset-0 h-full w-full object-cover object-center"
                   />
@@ -444,6 +445,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                         alt={img.alt}
                         width={192}
                         height={128}
+                        unoptimized={isR2Image(img.url)}
                         sizes="96px"
                         className="absolute inset-0 h-full w-full object-cover object-center"
                       />

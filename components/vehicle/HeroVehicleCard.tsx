@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { ArrowRight, Building2, Calendar, Camera, Fuel, Gauge, MapPin, Settings2, ShieldCheck } from 'lucide-react';
 import { Vehicle } from '@/types/vehicle';
 import { Locale, TranslationKeys } from '@/lib/i18n';
-import { formatMileage, formatPrice, formatVatMode } from '@/lib/utils';
+import { formatMileage, formatPrice, formatVatMode, isR2Image } from '@/lib/utils';
 import PremiumVehiclePlaceholder from '@/components/vehicle/PremiumVehiclePlaceholder';
 import { getVehicleTrustBadges, TrustBadges } from '@/components/vehicle/TrustBadges';
 import VehicleStatusBadge from '@/components/vehicle/VehicleStatusBadge';
@@ -38,6 +38,7 @@ export default function HeroVehicleCard({
               width={1200}
               height={800}
               priority
+              unoptimized={isR2Image(mainImage)}
               sizes="(min-width: 1024px) 52vw, 100vw"
               className="hero-card-image absolute inset-0 h-full w-full object-cover object-center"
             />
