@@ -9,9 +9,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { FacebookIcon, ViberIcon } from '@/components/ui/SocialIcons';
 import {
-  Phone, ChevronLeft, ChevronRight, X, Check,
+  Phone, ChevronLeft, ChevronRight, X, Check, CheckCircle2, ChevronDown,
   ArrowLeft, Send, MapPin, Clock, ShieldCheck, CalendarCheck, Video, LockKeyhole, MessageCircle,
-  Building2, Map as MapIcon, ExternalLink,
+  Building2, Map as MapIcon, ExternalLink, User, HelpCircle,
 } from 'lucide-react';
 import { Vehicle } from '@/types/vehicle';
 import { Locale, TranslationKeys } from '@/lib/i18n';
@@ -33,12 +33,20 @@ const VehicleTitleShareButton = dynamic(
   { ssr: false },
 );
 
+interface SeoContent {
+  readonly description: string;
+  readonly benefits:    string[];
+  readonly buyerProfile: string[];
+  readonly faq:         Array<{ readonly q: string; readonly a: string }>;
+}
+
 interface Props {
   readonly vehicle: Vehicle;
   readonly similar: Vehicle[];
   readonly locale: Locale;
   readonly t: TranslationKeys;
   readonly dealer: DealerInfo;
+  readonly seoContent?: SeoContent;
 }
 
 // Only Google's own Maps embed iframe may ever be rendered — never arbitrary
@@ -70,7 +78,7 @@ function formatDealerPhone(phone: string): string {
   return trimmed;
 }
 
-export default function VehicleDetailClient({ vehicle, similar, locale, t, dealer }: Props) {
+export default function VehicleDetailClient({ vehicle, similar, locale, t, dealer, seoContent }: Props) {
   const formRef      = useRef<HTMLDivElement | null>(null);
   const messageRef   = useRef<HTMLTextAreaElement | null>(null);
   const touchStartX  = useRef<number | null>(null);
@@ -1025,6 +1033,17 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
           );
         })()}
 
+        {/* SEO content — server-generated, rendered in HTML for indexing */}
+        {seoContent && (
+          <VehicleSeoSection
+            content={seoContent}
+            brand={vehicle.brand}
+            model={vehicle.model}
+            generation={vehicle.generation}
+            locale={locale}
+          />
+        )}
+
         {/* Similar vehicles */}
         {similar.length > 0 && (
           <div className="mt-16">
@@ -1282,6 +1301,122 @@ function EquipmentGroups({
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+// ── SEO content section ──────────────────────────────────────────────────────
+
+function VehicleSeoSection({
+  content,
+  brand,
+  model,
+  generation,
+  locale,
+}: {
+  readonly content: SeoContent;
+  readonly brand: string;
+  readonly model: string;
+  readonly generation?: string;
+  readonly locale: Locale;
+}) {
+  const isSq = locale === 'sq';
+  const gen = generation ? ` ${generation}` : '';
+  const label = `${brand} ${model}${gen}`;
+
+  return (
+    <div className="mt-16 space-y-10">
+      {/* SEO description */}
+      <section className="rounded-3xl border border-(--color-border) bg-white p-6 sm:p-8">
+        <div className="divider-gold mb-5" />
+        <h2
+          className="mb-4 text-xl font-black text-(--color-text) sm:text-2xl"
+          style={{ fontFamily: 'var(--font-display)' }}
+        >
+          {isSq ? `Rreth ${label}` : `O vozilu ${label}`}
+        </h2>
+        <p className="text-sm leading-7 text-(--color-text-muted) sm:text-base sm:leading-8">
+          {content.description}
+        </p>
+      </section>
+
+      {/* Benefits */}
+      {content.benefits.length > 0 && (
+        <section>
+          <div className="divider-gold mb-5" />
+          <h2
+            className="mb-6 text-xl font-black text-(--color-text) sm:text-2xl"
+            style={{ fontFamily: 'var(--font-display)' }}
+          >
+            {isSq ? `Avantazhet kryesore` : `Ključne prednosti`}
+          </h2>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {content.benefits.map((point) => (
+              <div key={point} className="flex items-start gap-3 rounded-2xl border border-(--color-border) bg-white p-4">
+                <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-(--accent)" />
+                <p className="text-sm leading-6 text-(--color-text-2)">{point}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Buyer profile */}
+      {content.buyerProfile.length > 0 && (
+        <section className="rounded-3xl border border-(--color-border) bg-white p-6 sm:p-8">
+          <div className="flex items-center gap-2.5 mb-4">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-(--accent-soft)">
+              <User size={16} className="text-(--accent-dark)" />
+            </div>
+            <h2
+              className="text-sm font-black text-(--color-text) uppercase tracking-wide"
+              style={{ fontFamily: 'var(--font-display)' }}
+            >
+              {isSq ? 'Kush e zgjedh këtë automjet' : 'Kome je namenjeno ovo vozilo'}
+            </h2>
+          </div>
+          <ul className="space-y-2.5">
+            {content.buyerProfile.map((item) => (
+              <li key={item} className="flex items-start gap-2.5">
+                <CheckCircle2 size={15} className="mt-0.5 shrink-0 text-(--accent)" />
+                <span className="text-sm leading-6 text-(--color-text-muted)">{item}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* FAQ */}
+      {content.faq.length > 0 && (
+        <section>
+          <div className="divider-gold mb-5" />
+          <div className="flex items-center gap-2.5 mb-6">
+            <HelpCircle size={18} className="text-(--accent)" />
+            <h2
+              className="text-xl font-black text-(--color-text) sm:text-2xl"
+              style={{ fontFamily: 'var(--font-display)' }}
+            >
+              {isSq ? `Pyetjet e shpeshta — ${label}` : `Česta pitanja — ${label}`}
+            </h2>
+          </div>
+          <div className="space-y-3">
+            {content.faq.map((item) => (
+              <details key={item.q} className="group rounded-2xl border border-(--color-border) bg-white">
+                <summary className="flex cursor-pointer select-none items-center justify-between gap-4 px-5 py-4 text-sm font-bold text-(--color-text) marker:hidden list-none">
+                  <span>{item.q}</span>
+                  <ChevronDown
+                    size={16}
+                    className="shrink-0 text-(--color-text-muted) transition-transform duration-200 group-open:rotate-180"
+                  />
+                </summary>
+                <div className="border-t border-(--color-border) px-5 py-4">
+                  <p className="text-sm leading-7 text-(--color-text-muted)">{item.a}</p>
+                </div>
+              </details>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

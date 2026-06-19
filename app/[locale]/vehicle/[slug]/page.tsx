@@ -5,64 +5,13 @@ import { getDealerSettings } from '@/lib/db/settings';
 import VehicleDetailClient from '@/components/vehicle/VehicleDetailClient';
 import VehicleJsonLd from '@/components/seo/VehicleJsonLd';
 import BreadcrumbJsonLd from '@/components/seo/BreadcrumbJsonLd';
+import VehicleFaqJsonLd from '@/components/seo/VehicleFaqJsonLd';
+import { generateVehicleSeo } from '@/lib/seo/vehicle-seo';
 import type { Metadata } from 'next';
-import type { Vehicle } from '@/types/vehicle';
 
 export const dynamic = 'force-dynamic';
 
 const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mojautodiler.rs').replace(/\/$/, '');
-
-// ── SEO helpers ───────────────────────────────────────────────────────────────
-
-/**
- * Builds the SEO title for a vehicle page.
- *
- * Target format: "{Year} {Title} — {Price} EUR | Moj Auto Diler"
- * Falls back to shorter variants when the full title exceeds 65 characters
- * to stay within the ~60-char visible limit in Google search results.
- *
- * Uses `title: { absolute }` in Metadata so the root layout template
- * (which appends "| Moj Auto Diler") is bypassed — preventing duplication.
- */
-function buildVehicleTitle(vehicle: Vehicle): string {
-  const price  = vehicle.price.toLocaleString('sr-RS');
-  const suffix = ` — ${price} EUR | Moj Auto Diler`;
-
-  // Tier 1: year + full listing title (most descriptive)
-  const full = `${vehicle.year} ${vehicle.title}${suffix}`;
-  if (full.length <= 65) return full;
-
-  // Tier 2: year + brand + model + generation
-  const gen = vehicle.generation ? ` ${vehicle.generation}` : '';
-  const mid  = `${vehicle.year} ${vehicle.brand} ${vehicle.model}${gen}${suffix}`;
-  if (mid.length <= 65) return mid;
-
-  // Tier 3: year + brand + model only
-  return `${vehicle.year} ${vehicle.brand} ${vehicle.model}${suffix}`;
-}
-
-/**
- * Builds the meta description for a vehicle page.
- * Uses a structured formula (not the raw description text) for SEO quality.
- * Output is clamped to 155 characters to stay within the SERP snippet window.
- */
-function buildVehicleDescription(vehicle: Vehicle, locale: string): string {
-  const t       = getTranslations(locale as 'sr' | 'sq');
-  const mileage = vehicle.mileage.toLocaleString('sr-RS');
-  const fuel    = t.fuel[vehicle.fuelType]          ?? vehicle.fuelType;
-  const trans   = t.transmission[vehicle.transmission] ?? vehicle.transmission;
-  const origin  = vehicle.origin?.trim();
-
-  if (locale === 'sq') {
-    const base = `Automjet premium ${vehicle.brand} ${vehicle.model} ${vehicle.year}, ${mileage} km, ${fuel}, ${trans}.`;
-    const org  = origin ? ` Origjinë e verifikuar nga ${origin}.` : '';
-    return `${base}${org} Blerje transparente dhe e sigurt në Serbi.`.slice(0, 155);
-  }
-
-  const base = `Premium uvozni ${vehicle.brand} ${vehicle.model} ${vehicle.year}. godište, ${mileage} km, ${fuel}, ${trans}.`;
-  const org  = origin ? ` Provereno poreklo iz ${origin}.` : '';
-  return `${base}${org} Transparentna kupovina.`.slice(0, 155);
-}
 
 // ── Metadata ──────────────────────────────────────────────────────────────────
 
@@ -82,8 +31,9 @@ export async function generateMetadata(
   if (!vehicle) return {};
 
   const isSold      = vehicle.status === 'sold';
-  const title       = buildVehicleTitle(vehicle);
-  const description = buildVehicleDescription(vehicle, locale);
+  const seo         = generateVehicleSeo(vehicle, (locale === 'sq' ? 'sq' : 'sr'));
+  const title       = seo.seoTitle;
+  const description = seo.metaDescription;
   const image       = vehicle.images[0]?.url;
   const imageAlt    = `${vehicle.year} ${vehicle.title}`;
   const canonicalPath = `/${locale}/vehicle/${slug}`;
@@ -150,7 +100,8 @@ export default async function VehiclePage(
 
   if (!vehicle) notFound();
 
-  const t = getTranslations(locale);
+  const t   = getTranslations(locale);
+  const seo = generateVehicleSeo(vehicle, locale);
 
   const breadcrumbs = [
     { name: t.vehicleDetail.home, url: `${SITE}/${locale}` },
@@ -162,7 +113,20 @@ export default async function VehiclePage(
     <>
       <VehicleJsonLd vehicle={vehicle} dealerName={dealer.name} dealerUrl={SITE} />
       <BreadcrumbJsonLd items={breadcrumbs} />
-      <VehicleDetailClient vehicle={vehicle} similar={similar} locale={locale} t={t} dealer={dealer} />
+      <VehicleFaqJsonLd faq={seo.faq} />
+      <VehicleDetailClient
+        vehicle={vehicle}
+        similar={similar}
+        locale={locale}
+        t={t}
+        dealer={dealer}
+        seoContent={{
+          description: seo.seoDescription,
+          benefits:    seo.benefits,
+          buyerProfile: seo.buyerProfile,
+          faq:         seo.faq,
+        }}
+      />
     </>
   );
 }
