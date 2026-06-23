@@ -74,9 +74,11 @@ export async function generateMetadata(
 
 const homeCopy = {
   sr: {
-    eyebrow: 'Premium ponuda',
-    title: 'Premium automobili sa transparentnom istorijom.',
-    lead: 'Pažljivo odabrana premium vozila iz uvoza iz inostranstva, uz provereno stanje i sigurnu kupovinu bez pritiska.',
+    eyebrow: 'Kupujte sigurnije',
+    titleLine1: 'Manje rizika.',
+    titleBadge: 'VIŠE',
+    titleLine2: 'poverenja.',
+    lead: 'Poznato poreklo, transparentna istorija i pažljivo odabrana vozila bez neprijatnih iznenađenja. Svaka provera je dobrodošla.',
     primary: 'Pregledaj vozila',
     secondary: 'Zakazi razgledanje',
     heroNote: 'Diskretna selekcija premium vozila u Srbiji, sa dokumentovanom istorijom i pregledom pre prodaje.',
@@ -131,9 +133,11 @@ const homeCopy = {
     ],
   },
   sq: {
-    eyebrow: 'Ofertë premium',
-    title: 'Automjete premium, te verifikuara.',
-    lead: 'Automjete premium të përzgjedhura me kujdes nga importi jashtë vendit, me gjendje të verifikuar dhe blerje të sigurt pa presion.',
+    eyebrow: 'Blini me siguri',
+    titleLine1: 'Më pak rrezik.',
+    titleBadge: 'MË SHUMË',
+    titleLine2: 'besim.',
+    lead: 'Origjinë e njohur, histori transparente dhe automjete të përzgjedhura me kujdes pa surpriza të pakëndshme. Çdo kontroll është i mirëpritur.',
     primary: 'Shiko automjetet',
     secondary: 'Rezervo shikim',
     heroNote: 'Seleksion diskret automjetesh premium ne Serbi, me histori te dokumentuar dhe kontroll para shitjes.',
@@ -189,7 +193,9 @@ const homeCopy = {
   },
 } satisfies Record<Locale, {
   eyebrow: string;
-  title: string;
+  titleLine1: string;
+  titleBadge: string;
+  titleLine2: string;
   lead: string;
   primary: string;
   secondary: string;
@@ -253,32 +259,54 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
         <div className="absolute inset-0 bg-white/66 sm:bg-white/78" />
         <div className="absolute inset-0 bg-[var(--color-bg)]/14" />
 
-        <div className="relative mx-auto grid max-w-7xl gap-3 px-3 min-[390px]:gap-4 min-[390px]:px-4 sm:gap-10 sm:px-6 sm:pb-16 lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:gap-16 lg:pb-24">
+        <div className="relative mx-auto grid max-w-7xl gap-3 px-3 min-[390px]:gap-4 min-[390px]:px-4 sm:gap-10 sm:px-6 sm:pb-16 lg:grid-cols-[0.92fr_1.08fr] lg:items-stretch lg:gap-16 lg:pb-24">
 
           {/* ── Text card ── */}
-          <div className="rounded-2xl border border-white/60 bg-white/82 p-3.5 shadow-[0_8px_28px_rgba(15,15,20,0.07)] backdrop-blur-md min-[390px]:p-4 sm:rounded-[32px] sm:border-white/70 sm:bg-white/72 sm:p-7 sm:shadow-[0_24px_70px_rgba(15,15,20,0.08)] lg:p-8">
+          <div className="flex flex-col justify-center rounded-2xl border border-white/60 bg-white/82 p-3.5 shadow-[0_8px_28px_rgba(15,15,20,0.07)] backdrop-blur-md min-[390px]:p-4 sm:rounded-[32px] sm:border-white/70 sm:bg-white/72 sm:p-7 sm:shadow-[0_24px_70px_rgba(15,15,20,0.08)] lg:p-8">
 
-            {/* Eyebrow */}
-            <Reveal delay={80} className="mb-2.5 inline-flex max-w-full items-center gap-1.5 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.11em] text-[var(--accent-dark)] min-[390px]:mb-3 min-[390px]:px-3 min-[390px]:text-[10px] sm:mb-6 sm:gap-2 sm:px-4 sm:py-2 sm:text-[11px]">
-              <Car size={12} />
+            {/* Eyebrow — 32px gap to headline on desktop */}
+            <Reveal delay={80} className="mb-4 inline-flex max-w-full items-center gap-1.5 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.11em] text-[var(--accent-dark)] min-[390px]:px-3 min-[390px]:text-[10px] sm:mb-8 sm:gap-2 sm:px-4 sm:py-2 sm:text-[11px]">
+              <ShieldCheck size={12} />
               {copy.eyebrow}
             </Reveal>
 
-            {/* H1 — scaled down on mobile to avoid overflow */}
+            {/* H1 — "Manje rizika." then "VIŠE poverenja." on one baseline */}
             <Reveal delay={170} className="max-w-[760px]">
-              <h1 className="text-balance text-[1.48rem] font-black leading-[1.08] text-[var(--color-text)] min-[360px]:text-[1.6rem] min-[390px]:text-[1.72rem] sm:text-5xl lg:text-[3.35rem] xl:text-[3.95rem]">
-                {copy.title}
+              <h1 style={{ fontFamily: 'var(--font-display)' }}>
+                <span
+                  className="block font-[800] text-[var(--color-text)] text-[1.25rem] min-[360px]:text-[1.35rem] min-[390px]:text-[1.5rem] sm:text-[clamp(2rem,3.6vw,2.8rem)] lg:text-[clamp(2.6rem,3.6vw,3.4rem)] xl:text-[clamp(3rem,3.6vw,4.5rem)]"
+                  style={{ letterSpacing: '-0.03em', lineHeight: '1.05' }}
+                >
+                  {copy.titleLine1}
+                </span>
+                <span
+                  className="hero-headline mt-0.5 flex items-baseline whitespace-nowrap sm:mt-1"
+                  style={{ lineHeight: '0.9' }}
+                >
+                  <span
+                    className="hero-vise font-[900] text-[var(--accent)] text-[2.1rem] min-[360px]:text-[2.4rem] min-[390px]:text-[2.75rem] sm:text-[4.5rem] lg:text-[5.75rem]"
+                    style={{ letterSpacing: '-0.05em' }}
+                  >
+                    {copy.titleBadge}
+                  </span>
+                  <span
+                    className="ml-[0.18em] font-[900] text-[var(--color-text)] text-[1.3rem] min-[360px]:text-[1.5rem] min-[390px]:text-[1.7rem] sm:text-[2.5rem] lg:text-[2.875rem]"
+                    style={{ letterSpacing: '-0.03em' }}
+                  >
+                    {copy.titleLine2}
+                  </span>
+                </span>
               </h1>
             </Reveal>
 
-            {/* Lead */}
+            {/* Lead — 28px gap from headline, larger readable type */}
             <Reveal delay={260} className="hidden sm:block">
-              <p className="mt-2 max-w-2xl text-[13px] leading-5 text-[var(--color-text-muted)] min-[390px]:mt-2.5 min-[390px]:text-sm min-[390px]:leading-6 sm:mt-6 sm:text-lg sm:leading-8">
+              <p className="mt-5 max-w-[85%] text-[1.125rem] leading-[1.6] text-[var(--color-text-muted)] sm:mt-7 sm:text-[1.25rem] lg:text-[1.375rem]">
                 {copy.lead}
               </p>
             </Reveal>
 
-            {/* CTAs — full-width on mobile, auto on sm+ */}
+            {/* CTAs — 36px gap from description */}
             <Reveal delay={360} className="mt-4 flex flex-col gap-2 min-[390px]:gap-2.5 sm:mt-9 sm:flex-row">
               <Link
                 href={`/${currentLocale}/inventory`}
@@ -296,8 +324,8 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
               </Link>
             </Reveal>
 
-            {/* Stats — 2×2 compact on mobile, 1×4 on sm+ */}
-            <div className="mt-4 grid grid-cols-2 gap-1.5 min-[390px]:gap-2 sm:mt-9 sm:max-w-xl sm:grid-cols-4 sm:gap-3">
+            {/* Stats — 36px gap from CTAs */}
+            <div className="mt-4 grid grid-cols-2 gap-1.5 min-[390px]:gap-2 sm:mt-9 sm:max-w-2xl sm:grid-cols-4 sm:gap-3">
               {copy.stats.map(([value, label], index) => (
                 <Reveal
                   key={label}
