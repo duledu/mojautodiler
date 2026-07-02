@@ -257,10 +257,11 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
   const scheduleViewingMessage = vehicleDetailCopy.scheduleViewingMessage.replace('{title}', vehicle.title);
 
   const applyQuickLead = (message: string, intent: string = 'general_inquiry', firedAt: number) => {
-    if (intent === 'schedule_viewing') {
-      // Scroll to form + prefill message + focus textarea — NO lead creation, NO Meta Pixel.
-      // The lead is only created when the user explicitly submits the form.
-      setForm((current) => ({ ...current, message: scheduleViewingMessage }));
+    if (intent === 'schedule_viewing' || intent === 'reservation_request') {
+      // Scroll-to-form only — NO lead creation, NO email, NO Meta Pixel, NO GA4 Lead event.
+      // The lead is created only when the user explicitly submits the form.
+      const prefill = intent === 'schedule_viewing' ? scheduleViewingMessage : message;
+      setForm((current) => ({ ...current, message: prefill }));
       formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       setTimeout(() => messageRef.current?.focus(), 400);
       return;
