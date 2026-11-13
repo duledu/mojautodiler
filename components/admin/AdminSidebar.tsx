@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
-import { Building2, Car, ExternalLink, LayoutDashboard, MessageSquare, Settings } from 'lucide-react';
+import { Building2, Car, ExternalLink, FileText, LayoutDashboard, MessageSquare, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function AdminSidebar() {
@@ -13,6 +13,7 @@ export default function AdminSidebar() {
   const links = [
     { href: `/${locale}/admin`, icon: LayoutDashboard, label: 'Dashboard', exact: true },
     { href: `/${locale}/admin/vehicles`, icon: Car, label: 'Vozila' },
+    { href: `/${locale}/admin/blog`, icon: FileText, label: 'Blog' },
     { href: `/${locale}/admin/dealers`, icon: Building2, label: 'Partneri' },
     { href: `/${locale}/admin/leads`, icon: MessageSquare, label: 'Upiti' },
     { href: `/${locale}/admin/settings`, icon: Settings, label: 'Podešavanja' },

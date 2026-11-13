@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { cleanupTempObjects, r2EnvDiagnostics } from '@/lib/r2';
 import { ADMIN_COOKIE, verifySessionToken } from '@/lib/admin-auth';
+import { extractBlogContentImageUrls } from '@/lib/blog-content';
 
 /**
  * POST /api/admin/media/cleanup-temp
@@ -72,9 +73,8 @@ async function isAuthenticated(request: NextRequest): Promise<boolean> {
 }
 
 /**
- * Returns a Set of every public URL currently stored in VehicleMedia.
- * Also includes URLs from Vehicle.images (denormalised cache) as a safety net
- * in case VehicleMedia is out of sync.
+ * Returns a Set of every public URL currently stored in VehicleMedia,
+ * Vehicle.images (denormalised cache), and BlogPost media fields as a safety net.
  */
 async function loadSavedUrls(): Promise<Set<string>> {
   const [mediaRows, vehicleRows] = await Promise.all([
@@ -87,5 +87,28 @@ async function loadSavedUrls(): Promise<Set<string>> {
   for (const { images } of vehicleRows) {
     for (const url of images) urls.add(url);
   }
+
+  // Also protect saved blog post image URLs (featured, OG, and inline images).
+  // Wrapped in try/catch so cleanup continues to work even before the blog
+  // database migration is applied in an environment.
+  try {
+    const blogRows = await prisma.blogPost.findMany({
+      select: {
+        featuredImage: true,
+        ogImage: true,
+        content: true,
+      },
+    });
+    for (const row of blogRows) {
+      if (row.featuredImage) urls.add(row.featuredImage);
+      if (row.ogImage) urls.add(row.ogImage);
+      for (const inlineUrl of extractBlogContentImageUrls(row.content)) {
+        urls.add(inlineUrl);
+      }
+    }
+  } catch {
+    // BlogPost table may not exist yet prior to migration deployment; ignore safely.
+  }
+
   return urls;
 }

@@ -27,6 +27,7 @@ const sr = {
   nav: {
     home: 'Početna',
     inventory: 'Vozila',
+    blog: 'Blog',
     about: 'O nama',
     contact: 'Kontakt',
     admin: 'Admin',

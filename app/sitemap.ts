@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { getVehicleSlugsForSitemap } from '@/lib/db/vehicles';
+import { buildBlogSitemapEntries } from '@/lib/seo/blog-seo';
 import { BRAND_SLUGS } from '@/app/[locale]/cars/[brand]/page';
 import { MODEL_SLUGS } from '@/app/[locale]/model/[slug]/page';
 
@@ -64,5 +65,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
   );
 
-  return [...staticRoutes, ...brandRoutes, ...modelRoutes, ...vehicleRoutes];
+  // ── Blog pages (Serbian Latin only — published & indexable) ────────────────
+  const blogRoutes = await buildBlogSitemapEntries();
+
+  return [...staticRoutes, ...brandRoutes, ...modelRoutes, ...vehicleRoutes, ...blogRoutes];
 }

@@ -128,6 +128,35 @@ export async function getVehicleBySlug(slug: string): Promise<Vehicle | null> {
   return row ? toAppVehicle(row) : null;
 }
 
+/**
+ * Determines whether a vehicle may be exposed on public routes.
+ *
+ * Confirmed public visibility policy:
+ *   - AVAILABLE ('active') -> Allowed
+ *   - SOLD      ('sold')   -> Allowed (existing public/SEO behavior preserved)
+ *   - RESERVED  ('draft')  -> Restricted (not publicly accessible)
+ *   - HIDDEN    ('hidden') -> Restricted (not publicly accessible)
+ */
+export function isPubliclyVisibleVehicle(
+  vehicle: Pick<Vehicle, 'status'> | null | undefined,
+): boolean {
+  if (!vehicle) return false;
+  return vehicle.status === 'active' || vehicle.status === 'sold';
+}
+
+/**
+ * Public-boundary vehicle lookup by slug.
+ * Preserves unrestricted `getVehicleBySlug()` for internal/admin callers while
+ * ensuring public pages and metadata never expose RESERVED ('draft') or HIDDEN ('hidden') vehicles.
+ */
+export async function getPublicVehicleBySlug(
+  slug: string,
+  fetcher: (slug: string) => Promise<Vehicle | null> = getVehicleBySlug,
+): Promise<Vehicle | null> {
+  const vehicle = await fetcher(slug);
+  return isPubliclyVisibleVehicle(vehicle) ? vehicle : null;
+}
+
 export async function getVehicleById(id: string): Promise<Vehicle | null> {
   if (!hasDatabase()) { warnNoDB('getVehicleById'); return null; }
   // No try/catch — same false-404 risk as getVehicleBySlug; let error.tsx handle it.

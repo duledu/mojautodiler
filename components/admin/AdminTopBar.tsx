@@ -9,10 +9,13 @@ import { mockLeads } from '@/data/leads';
 const breadcrumbMap: Record<string, string> = {
   admin: 'Dashboard',
   vehicles: 'Vozila',
+  blog: 'Blog',
+  dealers: 'Partneri',
   leads: 'Upiti',
   settings: 'Podešavanja',
-  new: 'Novo vozilo',
-  edit: 'Uredi vozilo',
+  new: 'Novo',
+  edit: 'Uredi',
+  preview: 'Pregled',
 };
 
 async function handleLogout(locale: string) {

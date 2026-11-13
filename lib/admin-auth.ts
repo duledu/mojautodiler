@@ -100,3 +100,27 @@ export function validateCredentials(email: string, password: string): boolean {
   if (!expectedEmail || !expectedPassword) return false;
   return email === expectedEmail && password === expectedPassword;
 }
+
+/**
+ * Verifies the `admin_token` cookie on a NextRequest / Request-like object.
+ * Used by admin API route handlers for defense-in-depth server-side auth
+ * verification independent of `proxy.ts`.
+ */
+export async function isAdminRequestAuthenticated(request: {
+  cookies?: { get(name: string): { value: string } | undefined };
+  headers?: { get(name: string): string | null };
+}): Promise<boolean> {
+  let token = request.cookies?.get(ADMIN_COOKIE)?.value;
+  if (!token && request.headers) {
+    const cookieHeader = request.headers.get('cookie') ?? '';
+    const match = cookieHeader
+      .split(';')
+      .map((part) => part.trim())
+      .find((part) => part.startsWith(`${ADMIN_COOKIE}=`));
+    if (match) {
+      token = decodeURIComponent(match.slice(ADMIN_COOKIE.length + 1));
+    }
+  }
+  if (!token) return false;
+  return verifySessionToken(token);
+}

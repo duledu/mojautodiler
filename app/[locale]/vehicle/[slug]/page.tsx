@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { isValidLocale, getTranslations } from '@/lib/i18n';
-import { getVehicleBySlug, getSimilarVehicles, getActiveVehicleSlugs } from '@/lib/db/vehicles';
+import { getPublicVehicleBySlug, getSimilarVehicles, getActiveVehicleSlugs } from '@/lib/db/vehicles';
 import { getDealerSettings } from '@/lib/db/settings';
 import VehicleDetailClient from '@/components/vehicle/VehicleDetailClient';
 import VehicleJsonLd from '@/components/seo/VehicleJsonLd';
@@ -27,7 +27,7 @@ export async function generateMetadata(
   { params }: { readonly params: Promise<{ locale: string; slug: string }> },
 ): Promise<Metadata> {
   const { slug, locale } = await params;
-  const [vehicle, dealer] = await Promise.all([getVehicleBySlug(slug), getDealerSettings()]);
+  const [vehicle, dealer] = await Promise.all([getPublicVehicleBySlug(slug), getDealerSettings()]);
   if (!vehicle) return {};
 
   const isSold      = vehicle.status === 'sold';
@@ -90,15 +90,14 @@ export default async function VehiclePage(
   const { locale, slug } = await params;
   if (!isValidLocale(locale)) notFound();
 
-  const [vehicle, dealer, similar] = await Promise.all([
-    getVehicleBySlug(slug),
+  const [vehicle, dealer] = await Promise.all([
+    getPublicVehicleBySlug(slug),
     getDealerSettings(),
-    getVehicleBySlug(slug).then((v) =>
-      v ? getSimilarVehicles(v.id, v.brand, 4) : Promise.resolve([]),
-    ),
   ]);
 
   if (!vehicle) notFound();
+
+  const similar = await getSimilarVehicles(vehicle.id, vehicle.brand, 4);
 
   const t   = getTranslations(locale);
   const seo = generateVehicleSeo(vehicle, locale);

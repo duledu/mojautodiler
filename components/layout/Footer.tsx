@@ -15,6 +15,7 @@ export default function Footer({ locale, t, dealer }: FooterProps) {
   const links = [
     { href: `/${locale}`, label: t.nav.home },
     { href: `/${locale}/inventory`, label: t.nav.inventory },
+    { href: '/sr/blog', label: t.nav.blog },
     { href: `/${locale}/contact`, label: t.nav.contact },
     { href: `/${locale}/admin`, label: t.nav.admin },
   ];

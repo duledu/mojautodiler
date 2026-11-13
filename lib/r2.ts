@@ -105,19 +105,45 @@ export function validateVideoUpload(
   return null;
 }
 
+function sanitizeFilename(filename: string): string {
+  const cleaned = filename
+    .toLowerCase()
+    .replace(/[^a-z0-9.-]/g, '-')
+    .replace(/\.{2,}/g, '-')
+    .replace(/-{2,}/g, '-')
+    .replace(/^[.-]+|[.-]+$/g, '')
+    .slice(0, 80);
+  return cleaned || 'file';
+}
+
+function sanitizeScopeId(rawId: string | null | undefined): string {
+  const cleaned = (rawId ?? '')
+    .trim()
+    .replace(/[^a-zA-Z0-9_-]/g, '-')
+    .replace(/-{2,}/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 64);
+  return cleaned || `tmp-${crypto.randomUUID().slice(0, 8)}`;
+}
+
 /**
- * Builds a deterministic, URL-safe storage key.
+ * Builds a deterministic, URL-safe storage key for vehicle media.
  * Format: vehicles/{vehicleId|tmp-xxx}/{timestamp}-{safeFilename}
  */
 export function buildObjectKey(vehicleId: string | null | undefined, filename: string): string {
-  const safeName = filename
-    .toLowerCase()
-    .replace(/[^a-z0-9.-]/g, '-')
-    .replace(/-{2,}/g, '-')
-    .slice(0, 80);
-
-  const scope = vehicleId?.trim() || `tmp-${crypto.randomUUID().slice(0, 8)}`;
+  const safeName = sanitizeFilename(filename);
+  const scope = sanitizeScopeId(vehicleId);
   return `vehicles/${scope}/${Date.now()}-${safeName}`;
+}
+
+/**
+ * Builds a deterministic, URL-safe storage key for blog media in the isolated `blog/` namespace.
+ * Format: blog/{postId|tmp-xxx}/{timestamp}-{safeFilename}
+ */
+export function buildBlogObjectKey(postId: string | null | undefined, filename: string): string {
+  const safeName = sanitizeFilename(filename);
+  const scope = sanitizeScopeId(postId);
+  return `blog/${scope}/${Date.now()}-${safeName}`;
 }
 
 /**
@@ -177,6 +203,9 @@ export function r2EnvDiagnostics(): Record<string, string> {
 /** Prefix for images uploaded before a vehicle is saved. */
 export const TEMP_OBJECT_PREFIX = 'vehicles/tmp-';
 
+/** Prefix for blog images uploaded before a blog post draft is saved. */
+export const BLOG_TEMP_OBJECT_PREFIX = 'blog/tmp-';
+
 const DEFAULT_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 h
 
 export interface TempObjectInfo {
@@ -195,11 +224,11 @@ export interface CleanupResult {
 /**
  * Returns a human-readable skip reason, or null when the object is safe to delete.
  * Three guards must all pass:
- *   1. Key is under TEMP_OBJECT_PREFIX
+ *   1. Key is under TEMP_OBJECT_PREFIX (`vehicles/tmp-` — never `blog/*`)
  *   2. LastModified is older than the cutoff
  *   3. Derived public URL is not in savedUrls
  */
-function skipReasonFor(
+export function skipReasonFor(
   obj: TempObjectInfo,
   cutoff: Date,
   publicBase: string,

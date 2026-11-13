@@ -61,6 +61,42 @@ export function slugify(text: string): string {
   return text.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 }
 
+const SERBIAN_DIACRITIC_MAP: Record<string, string> = {
+  đ: 'dj',
+  Đ: 'dj',
+  č: 'c',
+  Č: 'c',
+  ć: 'c',
+  Ć: 'c',
+  š: 's',
+  Š: 's',
+  ž: 'z',
+  Ž: 'z',
+};
+
+/**
+ * Generates a deterministic, URL-safe Serbian Latin slug.
+ *
+ * Preserves existing `slugify()` for legacy vehicle/dealer callers while
+ * properly transliterating Serbian Latin diacritics (č, ć, š, ž, đ -> c, c, s, z, dj),
+ * normalizing punctuation/dashes, collapsing duplicate hyphens, and stripping
+ * unsafe characters.
+ */
+export function slugifySr(text: string): string {
+  if (!text || typeof text !== 'string') return '';
+
+  const transliterated = text
+    .replace(/[đĐčČćĆšŠžŽ]/g, (ch) => SERBIAN_DIACRITIC_MAP[ch] ?? ch)
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '');
+
+  return transliterated
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/-{2,}/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 /**
  * Returns true when the URL points to a Cloudflare R2 public bucket.
  * R2 public endpoints sometimes serve `application/octet-stream` instead

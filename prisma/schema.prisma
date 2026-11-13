@@ -47,6 +47,12 @@ enum DealerStatus {
   HIDDEN
 }
 
+enum BlogPostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
 // ─── Models ───────────────────────────────────────────────────────────────────
 
 model Vehicle {
@@ -111,6 +117,7 @@ model Vehicle {
 
   leads          Lead[]
   media          VehicleMedia[]
+  blogPosts      BlogPostVehicle[]
 
   @@index([status])
   @@index([brand])
@@ -252,3 +259,102 @@ model DealerSettings {
 
   updatedAt    DateTime @updatedAt
 }
+
+// ─── Blog system (Phase 1 foundation) ─────────────────────────────────────────
+
+model BlogCategory {
+  id          String     @id @default(cuid())
+  slug        String     @unique
+  name        String
+  description String?
+
+  posts       BlogPost[]
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([slug])
+}
+
+model BlogPost {
+  id                  String            @id @default(cuid())
+  slug                String            @unique
+  locale              String            @default("sr")
+
+  title               String
+  excerpt             String
+  content             String
+
+  featuredImage       String?
+  featuredImageAlt    String?
+  featuredImageR2Key  String?
+
+  seoTitle            String?
+  metaDescription     String?
+  ogImage             String?
+  canonicalUrl        String?
+  noindex             Boolean           @default(false)
+
+  authorName          String            @default("Moj Auto Diler")
+
+  categoryId          String?
+  category            BlogCategory?     @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  status              BlogPostStatus    @default(DRAFT)
+  publishedAt         DateTime?
+
+  // Optional vehicle matching rules (supplement manual BlogPostVehicle links)
+  relatedBrand        String?
+  relatedModel        String?
+
+  // Optional carVertical affiliate CTA config — defaults to disabled
+  affiliateCtaEnabled Boolean           @default(false)
+  affiliatePlacement  String            @default("none")
+  affiliateLabel      String?
+
+  relatedVehicles     BlogPostVehicle[]
+  relatedFrom         BlogPostRelation[] @relation("BlogPostRelatedFrom")
+  relatedTo           BlogPostRelation[] @relation("BlogPostRelatedTo")
+
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  @@unique([locale, slug])
+  @@index([status, locale, publishedAt])
+  @@index([categoryId, status])
+  @@index([slug])
+  @@index([publishedAt])
+}
+
+model BlogPostVehicle {
+  id        String   @id @default(cuid())
+  postId    String
+  post      BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  vehicleId String
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@unique([postId, vehicleId])
+  @@index([postId, sortOrder])
+  @@index([vehicleId])
+}
+
+model BlogPostRelation {
+  id            String   @id @default(cuid())
+  sourcePostId  String
+  sourcePost    BlogPost @relation("BlogPostRelatedFrom", fields: [sourcePostId], references: [id], onDelete: Cascade)
+
+  relatedPostId String
+  relatedPost   BlogPost @relation("BlogPostRelatedTo", fields: [relatedPostId], references: [id], onDelete: Cascade)
+
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  @@unique([sourcePostId, relatedPostId])
+  @@index([sourcePostId, sortOrder])
+  @@index([relatedPostId])
+}
+
