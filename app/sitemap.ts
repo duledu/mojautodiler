@@ -27,6 +27,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
   );
 
+  // ── Legal pages (Serbian primary route) ────────────────────────────────────
+  const legalRoutes: MetadataRoute.Sitemap = [
+    {
+      url:             `${BASE_URL}/sr/podela-odgovornosti`,
+      lastModified:    new Date(),
+      changeFrequency: 'monthly' as const,
+      priority:        0.5,
+    },
+  ];
+
   // ── Vehicle detail pages ───────────────────────────────────────────────────
   const vehicles = await getVehicleSlugsForSitemap();
 
@@ -68,5 +78,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // ── Blog pages (Serbian Latin only — published & indexable) ────────────────
   const blogRoutes = await buildBlogSitemapEntries();
 
-  return [...staticRoutes, ...brandRoutes, ...modelRoutes, ...vehicleRoutes, ...blogRoutes];
+  return [...staticRoutes, ...legalRoutes, ...brandRoutes, ...modelRoutes, ...vehicleRoutes, ...blogRoutes];
 }

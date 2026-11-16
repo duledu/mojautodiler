@@ -15,6 +15,7 @@ import {
   Wrench,
 } from 'lucide-react';
 import DealerJsonLd from '@/components/seo/DealerJsonLd';
+import CarVerticalHomepageSection from '@/components/affiliate/CarVerticalHomepageSection';
 import HeroParallaxImage from '@/components/ui/HeroParallaxImage';
 import Reveal from '@/components/ui/Reveal';
 import HeroVehicleCard from '@/components/vehicle/HeroVehicleCard';
@@ -78,58 +79,58 @@ const homeCopy = {
     titleLine1: 'Manje rizika.',
     titleBadge: 'VIŠE',
     titleLine2: 'poverenja.',
-    lead: 'Poznato poreklo, transparentna istorija i pažljivo odabrana vozila bez neprijatnih iznenađenja. Svaka provera je dobrodošla.',
+    lead: 'Pažljivo odabrani polovni automobili, transparentne informacije i korisni saveti za sigurniji izbor. Pronađite vozilo koje vam odgovara.',
     primary: 'Pregledaj vozila',
     secondary: 'Zakazi razgledanje',
-    heroNote: 'Diskretna selekcija premium vozila u Srbiji, sa dokumentovanom istorijom i pregledom pre prodaje.',
+    heroNote: 'Pažljivo odabrana ponuda polovnih automobila na jednom mestu, uz informacije koje vam pomažu da donesete bolju odluku.',
     featuredLabel: 'Izdvojena ponuda',
-    verifiedLine: 'Provereno poreklo, servis i stanje',
+    verifiedLine: 'Informacije za lakši izbor vozila',
     viewDetails: 'Pogledaj detalje',
     stats: [
-      ['100+', 'vozila prodato u poslednje 2 godine'],
-      ['5.0', 'ocena kupaca'],
-      ['100%', 'zadovoljnih kupaca nakon isporuke'],
-      ['24h', 'brz odgovor za pregled vozila'],
+      ['Odabrana ponuda', 'Partnerski auto-placevi'],
+      ['Transparentno', 'Dostupne informacije'],
+      ['Direktan kontakt', 'Sa prodavcem vozila'],
+      ['24/7 dostupno', 'Pregledajte ponudu'],
     ],
-    trustTitle: 'Kupovina sa vise sigurnosti',
+    trustTitle: 'Kupovina sa više sigurnosti',
     trustSub: 'Svaki detalj je postavljen da kupac dobije jasnu sliku pre odluke.',
     trust: [
-      ['Pouzdan premium auto market', 'Reputacija potvrdjena kroz kupce i javne recenzije.', ShieldCheck],
-      ['Transparentna istorija', 'Poreklo, servis i stanje komuniciramo bez skrivenih stavki.', ClipboardCheck],
-      ['Profesionalna provera', 'Vozila se pregledaju pre prodaje i pre preporuke kupcu.', Wrench],
-      ['Podrska do isporuke', 'Razgledanje, probna voznja, dokumentacija i tehnicki pregled.', KeyRound],
+      ['Partnerski auto-placevi', 'Na jednom mestu predstavljamo ponudu odabranih partnerskih auto-placeva.', ShieldCheck],
+      ['Transparentne informacije', 'Pregledajte dostupne podatke, karakteristike i fotografije pre nego što kontaktirate prodavca.', ClipboardCheck],
+      ['Preporuka za proveru', 'Proverite istoriju i tehničko stanje vozila pre donošenja konačne odluke.', Wrench],
+      ['Podrška do preporuke', 'Olakšavamo pronalaženje odgovarajućeg vozila i povezivanje sa prodavcem.', KeyRound],
     ],
     featuredTitle: 'Aktuelna premium selekcija',
-    featuredSub: 'Premium vozila dostupna u Srbiji. Svaki oglas vodi ka detaljima i direktnom kontaktu.',
+    featuredSub: 'Istražite izdvojene automobile iz ponude naših partnerskih auto-placeva i pronađite model koji odgovara vašim potrebama i budžetu.',
     viewAll: 'Pogledaj celu ponudu',
     darkTitle: 'Mirna odluka pre kupovine.',
     darkAccent: 'pre kupovine',
     darkEyebrow: 'Proces poverenja',
-    darkSub: 'Razgovaramo o stanju vozila, realnim troskovima i istoriji pre nego sto dodjete do potpisa. To je razlika izmedju obicne prodaje i pouzdanog partnera.',
+    darkSub: 'Kupovina polovnog automobila počinje dobrim informacijama. Uporedite ponudu, upoznajte detalje vozila i proverite ono što vam je važno pre konačne odluke.',
     darkCards: [
-      ['Provera dokumentacije', 'Detaljno proveravamo dokumentaciju, servisnu istoriju i poreklo vozila.', ClipboardCheck],
-      ['Pregled karoserije i enterijera', 'Pregledamo spoljasnjost i unutrasnjost kako bismo uocili vazne detalje pre kupovine.', Car],
-      ['Procena stanja i preporuka', 'Dajemo realnu procenu i iskrenu preporuku - bez pritiska i neprijatnih iznenadjenja.', ShieldCheck],
+      ['Pronađite odgovarajuće vozilo', 'Istražite pažljivo odabranu ponudu i izdvojite automobile koji odgovaraju vašim potrebama.', Car],
+      ['Pregledajte informacije', 'Uporedite karakteristike, fotografije, cenu i dostupne podatke o vozilu.', ClipboardCheck],
+      ['Proverite pre kupovine', 'Kontaktirajte prodavca i organizujte nezavisnu proveru vozila pre donošenja odluke.', ShieldCheck],
     ],
     darkTrustStrip: ['Transparentno i iskreno', 'Iskustvo koje stedi vreme i novac', 'Bez neprijatnih iznenadjenja', 'Vas pouzdan partner'],
     reviewsTitle: 'Utisci kupaca',
-    reviewsSub: 'Kratke recenzije kupaca koji su prosli kroz ceo proces od prvog poziva do isporuke.',
+    reviewsSub: 'Iskustva posetilaca i kupaca koji su pronašli automobil i ostvarili kontakt sa prodavcem preko platforme.',
     reviews: [
-      ['Excellent experience from first contact to delivery.', 'Milan P.', 'Verified buyer'],
-      ['Sve je bilo transparentno, bez pritiska i bez skrivenih troskova.', 'Jelena M.', 'PolovniAutomobili review'],
-      ['Auto je bio tacno kao u opisu. Dogovor i preuzimanje su prosli profesionalno.', 'Arben K.', 'Verified buyer'],
+      ['Odlično iskustvo pregleda ponude, sve informacije su bile jasne od prvog kontakta.', 'Milan P.', 'Korisnik platforme'],
+      ['Sve je bilo transparentno, bez pritiska i sa jasnim podacima o vozilu.', 'Jelena M.', 'Korisnik platforme'],
+      ['Pronašao sam odgovarajući auto, dogovor i gledanje sa placem su prošli profesionalno.', 'Arben K.', 'Korisnik platforme'],
     ],
     ctaTitle: 'Spremni za razgledanje?',
-    ctaSub: 'Tu smo za sva pitanja oko vozila, kupovine i rezervacije.\nPošaljite poruku i javićemo se u najkraćem roku.',
+    ctaSub: 'Pronađite automobil koji vam odgovara, pregledajte dostupne informacije i kontaktirajte prodavca za više detalja.',
     ctaBadge: 'Premium ponuda',
     ctaPrimary: 'Kontaktirajte nas',
     ctaCall: 'Pozovi direktno',
-    dealerTitle: 'Kupujete i vozilo i poverenje placa.',
-    dealerSub: 'Moj Auto Diler selektuje vozila za kupce koji zele jasnu istoriju, realno stanje i mirnu odluku pre kupovine.',
+    dealerTitle: 'Kupujete vozilo. Birate i prodavca.',
+    dealerSub: 'Dobar izbor automobila počinje kvalitetnim informacijama i jasnom komunikacijom. MojAutoDiler povezuje ponudu partnerskih auto-placeva sa kupcima koji žele da istraže svoje mogućnosti pre kupovine.',
     dealerPillars: [
-      ['Kako biramo vozila', 'Prednost imaju primerci sa jasnim poreklom, urednom dokumentacijom i stanjem koje mozemo da preporucimo.'],
-      ['Profesionalno sourcing iskustvo', 'Pratimo uvozna trzista i biramo vozila koja imaju smisla za nase kupce, ne samo za oglas.'],
-      ['Transparentan proces', 'Pre gledanja razgovaramo o stanju, troskovima, dokumentaciji i svemu sto utice na odluku.'],
+      ['Kako biramo ponudu', 'Predstavljamo vozila iz ponude partnerskih auto-placeva kako biste lakše pronašli opcije koje vam odgovaraju.'],
+      ['Profesionalno iskustvo', 'Upoznajte ponudu prodavaca i kontaktirajte ih direktno za dodatne informacije o vozilu.'],
+      ['Transparentan proces', 'Pregledajte dostupne informacije, postavite pitanja i dogovorite pregled vozila direktno sa prodavcem.'],
     ],
   },
   sq: {
@@ -137,58 +138,58 @@ const homeCopy = {
     titleLine1: 'Më pak rrezik.',
     titleBadge: 'MË SHUMË',
     titleLine2: 'besim.',
-    lead: 'Origjinë e njohur, histori transparente dhe automjete të përzgjedhura me kujdes pa surpriza të pakëndshme. Çdo kontroll është i mirëpritur.',
+    lead: 'Automjete të përdorura të zgjedhura me kujdes, informacione transparente dhe këshilla të dobishme për zgjedhje më të sigurt. Gjeni automjetin që ju përshtatet.',
     primary: 'Shiko automjetet',
     secondary: 'Rezervo shikim',
-    heroNote: 'Seleksion diskret automjetesh premium ne Serbi, me histori te dokumentuar dhe kontroll para shitjes.',
+    heroNote: 'Ofertë e zgjedhur e automjeteve në një vend, me informacione që ju ndihmojnë të merrni vendim më të mirë.',
     featuredLabel: 'Ofertë e zgjedhur',
-    verifiedLine: 'Origjine, servis dhe gjendje e verifikuar',
+    verifiedLine: 'Informacione për zgjedhje më të lehtë',
     viewDetails: 'Shiko detajet',
     stats: [
-      ['100+', 'automjete te shitura ne 2 vitet e fundit'],
-      ['5.0', 'vleresim nga bleresit'],
-      ['100%', 'bleres te kenaqur pas dorezimit'],
-      ['24h', 'pergjigje e shpejte per shikim'],
+      ['Ofertë e zgjedhur', 'Auto-place partnerë'],
+      ['Transparente', 'Informacione të qasshme'],
+      ['Kontakt direkt', 'Me shitësin e automjetit'],
+      ['24/7 e qasshme', 'Shikoni ofertën'],
     ],
-    trustTitle: 'Blerje me me shume siguri',
-    trustSub: 'Cdo detaj eshte vendosur qe bleresi te kete pamje te qarte para vendimit.',
+    trustTitle: 'Blerje me më shumë siguri',
+    trustSub: 'Çdo detaj është vendosur që blerësi të ketë pamje të qartë para vendimit.',
     trust: [
-      ['Auto plac i besuar ne Serbi', 'Reputacion i konfirmuar nga bleresit dhe recenzionet publike.', ShieldCheck],
-      ['Histori transparente', 'Origjina, servisi dhe gjendja komunikohen pa kosto te fshehura.', ClipboardCheck],
-      ['Kontroll profesional', 'Automjetet kontrollohen para shitjes dhe para rekomandimit.', Wrench],
-      ['Mbeshtetje deri ne dorezim', 'Shikim i automjetit, test vozitje, dokumentacion dhe kontroll teknik.', KeyRound],
+      ['Auto-place partnerë', 'Në një vend prezantojmë ofertën e auto-placeve partnere të përzgjedhura.', ShieldCheck],
+      ['Informacion transparent', 'Shikoni të dhënat, karakteristikat dhe fotot para se të kontaktoni shitësin.', ClipboardCheck],
+      ['Rekomandim për kontroll', 'Kontrolloni historinë dhe gjendjen teknike të automjetit para marrjes së vendimit.', Wrench],
+      ['Mbështetje deri te rekomandimi', 'Lehtësojmë gjetjen e automjetit të duhur dhe lidhjen me shitësin.', KeyRound],
     ],
     featuredTitle: 'Seleksioni aktual premium',
-    featuredSub: 'Automjete premium te disponueshme ne Serbi. Cdo shpallje hap detajet dhe kontaktin direkt.',
-    viewAll: 'Shiko gjithe oferten',
-    darkTitle: 'Vendim i qete para blerjes.',
+    featuredSub: 'Eksploroni automjetet e veçuara nga oferta e auto-placeve tona partnere dhe gjeni modelin e duhur për ju.',
+    viewAll: 'Shiko gjithë ofertën',
+    darkTitle: 'Vendim i qetë para blerjes.',
     darkAccent: 'para blerjes',
     darkEyebrow: 'Proces besimi',
-    darkSub: 'Flasim per gjendjen, kostot reale dhe historine e automjetit para nenshkrimit. Kjo eshte diferenca mes shitjes se zakonshme dhe partnerit te besueshem.',
+    darkSub: 'Blerja e një automjeti të përdorur fillon me informacion të mirë. Krahasoni ofertën, njihuni me detajet dhe kontrolloni atë që është e rëndësishme për ju.',
     darkCards: [
-      ['Kontroll dokumentacioni', 'Kontrollojme dokumentacionin, historine e servisit dhe origjinen e automjetit.', ClipboardCheck],
-      ['Kontroll i karrocerise dhe interierit', 'Shikojme pjesen e jashtme dhe te brendshme per detaje te rendesishme para blerjes.', Car],
-      ['Vleresim gjendjeje dhe rekomandim', 'Japim vleresim real dhe rekomandim te sinqerte - pa presion dhe pa surpriza.', ShieldCheck],
+      ['Gjeni automjetin e duhur', 'Eksploroni ofertën e përzgjedhur me kujdes dhe veçoni automjetet sipas nevojave tuaja.', Car],
+      ['Shikoni informacionet', 'Krahasoni karakteristikat, fotot, çmimin dhe të dhënat e disponueshme të automjetit.', ClipboardCheck],
+      ['Kontrolloni para blerjes', 'Kontaktoni shitësin dhe organizoni një kontroll të pavarur para marrjes së vendimit.', ShieldCheck],
     ],
-    darkTrustStrip: ['Transparente dhe sinqerte', 'Eksperience qe kursen kohe dhe para', 'Pa surpriza te pakendshme', 'Partneri juaj i besuar'],
-    reviewsTitle: 'Pershtypjet e bleresve',
-    reviewsSub: 'Recensione te shkurtra nga bleres qe kaluan procesin nga thirrja e pare deri te dorezimi.',
+    darkTrustStrip: ['Transparente dhe e sinqertë', 'Përvojë që kursen kohë dhe para', 'Pa surpriza të pakëndshme', 'Partneri juaj i besuar'],
+    reviewsTitle: 'Përshtypjet e blerësve',
+    reviewsSub: 'Përvoja të vizitorëve dhe blerësve që gjetën automjetin dhe vendosën kontakt me shitësin përmes platformës.',
     reviews: [
-      ['Excellent experience from first contact to delivery.', 'Milan P.', 'Verified buyer'],
-      ['Gjithcka ishte transparente, pa presion dhe pa kosto te fshehura.', 'Jelena M.', 'PolovniAutomobili review'],
-      ['Automjeti ishte sakte si ne pershkrim. Marrveshja dhe dorezimi ishin profesionale.', 'Arben K.', 'Verified buyer'],
+      ['Përvojë e shkëlqyer me shfletimin e ofertës, të gjitha informacionet ishin të qarta që nga kontakti i parë.', 'Milan P.', 'Përdorues i platformës'],
+      ['Gjithçka ishte transparente, pa presion dhe me të dhëna të qarta për automjetin.', 'Jelena M.', 'Përdorues i platformës'],
+      ['Gjeta makinën e duhur, marrëveshja dhe shikimi me autoplacin shkuan shumë profesionalisht.', 'Arben K.', 'Përdorues i platformës'],
     ],
-    ctaTitle: 'Gati per shikim?',
-    ctaSub: 'Jemi këtu për çdo pyetje rreth automjeteve, blerjes dhe rezervimit.\nDërgoni mesazh dhe do t\'ju përgjigjemi sa më shpejt.',
+    ctaTitle: 'Gati për shikim?',
+    ctaSub: 'Gjeni automjetin që ju përshtatet, shikoni të dhënat e disponueshme dhe kontaktoni shitësin për më shumë detaje.',
     ctaBadge: 'Ofertë premium',
-    ctaPrimary: 'Kontakto placin',
+    ctaPrimary: 'Kontaktoni placin',
     ctaCall: 'Telefono direkt',
-    dealerTitle: 'Bleni edhe automjetin, edhe besimin e placit.',
-    dealerSub: 'Moj Auto Diler zgjedh automjete per bleres qe duan histori te qarte, gjendje reale dhe vendim te qete para blerjes.',
+    dealerTitle: 'Bleni automjet. Zgjidhni edhe shitësin.',
+    dealerSub: 'Zgjedhja e mirë e makinës fillon me informacion cilësor dhe komunikim të qartë. MojAutoDiler lidh ofertën e auto-placeve partnere me blerësit.',
     dealerPillars: [
-      ['Si i zgjedhim automjetet', 'Prioritet kane automjetet me origjine te qarte, dokumentacion dhe gjendje qe mund ta rekomandojme.'],
-      ['Sourcing profesional', 'Ndjekim tregjet e importit dhe zgjedhim automjete qe kane vlere per bleresin, jo vetem per shpalljen.'],
-      ['Proces transparent', 'Para shikimit flasim per gjendjen, kostot, dokumentet dhe cdo gje qe ndikon ne vendim.'],
+      ['Si e zgjedhim ofertën', 'Prezantojmë automjete nga oferta e auto-placeve partnere që të gjeni më lehtë opsionet e përshtatshme.'],
+      ['Përvojë profesionale', 'Njehuni me ofertën e shitësve dhe kontaktojini ata direkt për informata shtesë.'],
+      ['Proces transparent', 'Shikoni të dhënat e disponueshme, bëni pyetje dhe lini takim për shikim direkt me shitësin.'],
     ],
   },
 } satisfies Record<Locale, {
@@ -259,7 +260,7 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
         <div className="absolute inset-0 bg-white/66 sm:bg-white/78" />
         <div className="absolute inset-0 bg-[var(--color-bg)]/14" />
 
-        <div className="relative mx-auto grid max-w-7xl gap-3 px-3 min-[390px]:gap-4 min-[390px]:px-4 sm:gap-10 sm:px-6 sm:pb-16 lg:grid-cols-[0.92fr_1.08fr] lg:items-stretch lg:gap-16 lg:pb-24">
+        <div className="relative mx-auto grid max-w-7xl gap-3 px-3 min-[390px]:gap-4 min-[390px]:px-4 sm:gap-10 sm:px-6 sm:pb-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-stretch lg:gap-10 xl:gap-14 lg:pb-24">
 
           {/* ── Text card ── */}
           <div className="flex flex-col justify-center rounded-2xl border border-white/60 bg-white/82 p-3.5 shadow-[0_8px_28px_rgba(15,15,20,0.07)] backdrop-blur-md min-[390px]:p-4 sm:rounded-[32px] sm:border-white/70 sm:bg-white/72 sm:p-7 sm:shadow-[0_24px_70px_rgba(15,15,20,0.08)] lg:p-8">
@@ -301,7 +302,7 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
 
             {/* Lead — 28px gap from headline, larger readable type */}
             <Reveal delay={260} className="hidden sm:block">
-              <p className="mt-5 max-w-[85%] text-[1.125rem] leading-[1.6] text-[var(--color-text-muted)] sm:mt-7 sm:text-[1.25rem] lg:text-[1.375rem]">
+              <p className="mt-5 max-w-2xl text-[1.125rem] leading-[1.6] text-[var(--color-text-muted)] sm:mt-7 sm:text-[1.25rem] lg:text-[1.35rem] [text-wrap:pretty]">
                 {copy.lead}
               </p>
             </Reveal>
@@ -324,27 +325,22 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
               </Link>
             </Reveal>
 
-            {/* Stats — 36px gap from CTAs */}
-            <div className="mt-4 grid grid-cols-2 gap-1.5 min-[390px]:gap-2 sm:mt-9 sm:max-w-2xl sm:grid-cols-4 sm:gap-3">
-              {copy.stats.map(([value, label], index) => (
+            {/* Informational value cards */}
+            <div className="mt-5 grid grid-cols-1 min-[360px]:grid-cols-2 gap-2 min-[390px]:gap-2.5 sm:mt-8 sm:gap-3 lg:grid-cols-2 xl:grid-cols-4">
+              {copy.stats.map(([title, subtitle], index) => (
                 <Reveal
-                  key={label}
+                  key={title}
                   delay={430 + index * 80}
-                  className="rounded-xl border border-[var(--color-border)] bg-white/80 p-2 shadow-sm min-[390px]:p-2.5 sm:rounded-2xl sm:p-4"
+                  className="h-full min-w-0"
                 >
-                  <div className="text-base font-black leading-none text-[var(--color-text)] min-[390px]:text-lg sm:text-2xl">{value}</div>
-                  {value === '5.0' ? (
-                    <>
-                      <div className="mt-1 flex items-center gap-[3px]">
-                        {[1, 2, 3, 4, 5].map((i) => (
-                          <Star key={i} size={10} fill="currentColor" className="text-[var(--accent)]" />
-                        ))}
-                      </div>
-                      <p className="mt-0.5 text-[10px] leading-[1.22] text-[var(--color-text-muted)] sm:text-[11px] sm:leading-4">{label}</p>
-                    </>
-                  ) : (
-                    <p className="mt-1 text-[10px] leading-[1.22] text-[var(--color-text-muted)] sm:mt-2 sm:text-[11px] sm:leading-4">{label}</p>
-                  )}
+                  <div className="flex h-full min-w-0 flex-col justify-start rounded-xl border border-[var(--color-border)] bg-white/80 p-2.5 shadow-sm min-[390px]:p-3 sm:rounded-2xl sm:p-3.5">
+                    <div className="font-bold tracking-tight text-[var(--color-text)] text-xs min-[390px]:text-sm sm:text-[14px] xl:text-[13px] 2xl:text-[14px] leading-snug break-words">
+                      {title}
+                    </div>
+                    <p className="mt-1 text-[11px] leading-snug text-[var(--color-text-muted)] sm:mt-1.5 sm:text-xs sm:leading-relaxed break-words">
+                      {subtitle}
+                    </p>
+                  </div>
                 </Reveal>
               ))}
             </div>
@@ -392,8 +388,10 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
 
       </div>{/* end hero + izdvojena ponuda flex wrapper */}
 
-      <div className="flex flex-col">
-        <section className="order-1 bg-[var(--color-bg)] py-9 min-[390px]:py-10 sm:order-2 sm:py-20">
+      <CarVerticalHomepageSection locale={currentLocale} />
+
+      {/* ── Aktuelna premium selekcija — rendered directly after the carVertical hero banner ── */}
+      <section className="bg-[var(--color-bg)] py-9 min-[390px]:py-10 sm:py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6">
             <div className="mb-5 flex flex-col gap-3 min-[390px]:mb-6 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
               <Reveal>
@@ -441,7 +439,8 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
           </div>
         </section>
 
-        <section className="order-2 bg-white py-9 min-[390px]:py-10 sm:order-1 sm:py-20">
+        {/* ── Kupovina sa više sigurnosti — rendered immediately after Aktuelna premium selekcija ── */}
+        <section className="bg-white py-9 min-[390px]:py-10 sm:py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6">
             <Reveal>
               <SectionHeader title={copy.trustTitle} subtitle={copy.trustSub} />
@@ -459,7 +458,6 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
             </div>
           </div>
         </section>
-      </div>
 
       <section className="relative isolate overflow-hidden bg-[#11100E] py-11 text-white min-[390px]:py-12 sm:py-24">
         <video
@@ -532,7 +530,7 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
         </div>
       </section>
 
-      <section className="bg-white py-9 min-[390px]:py-10 sm:py-20">
+      <section className="bg-[#F7F7F9] py-9 min-[390px]:py-10 sm:py-20">
         <div className="mx-auto grid max-w-7xl gap-5 px-4 sm:gap-8 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <Reveal>
             <div className="divider-gold mb-5" />
@@ -578,34 +576,36 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
         </div>
       </section>
 
-      <section className="bg-[var(--color-bg)] px-3 py-9 min-[390px]:px-4 min-[390px]:py-10 sm:px-6 sm:py-20">
-        <Reveal className="relative mx-auto max-w-6xl overflow-hidden rounded-3xl border border-[var(--color-border)] bg-white p-4 shadow-[0_24px_70px_rgba(15,15,20,0.1)] min-[390px]:p-5 sm:rounded-[34px] sm:p-10 lg:p-12">
-          <Image
-            src="/mojautodiler_front.jpg"
-            alt=""
-            fill
-            sizes="(min-width: 1024px) 72rem, 100vw"
-            className="pointer-events-none object-cover object-center opacity-[0.18] blur-[1px]"
-          />
-          <div className="pointer-events-none absolute inset-0 bg-white/78 sm:bg-white/82" />
-          <div className="pointer-events-none absolute inset-0 bg-[var(--color-bg)]/8" />
-          <div className="relative grid gap-5 sm:gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
-            <div>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-3 py-1.5 text-[11px] font-bold text-[var(--accent-dark)] sm:mb-5 sm:px-3.5 sm:text-xs">
-                <CalendarCheck size={15} />
-                {copy.ctaBadge}
+      <section className="bg-[var(--color-bg)] py-9 min-[390px]:py-10 sm:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <Reveal className="relative overflow-hidden rounded-3xl border border-[var(--color-border)] bg-white p-4 shadow-[0_24px_70px_rgba(15,15,20,0.1)] min-[390px]:p-5 sm:rounded-[34px] sm:p-10 lg:p-12">
+            <Image
+              src="/mojautodiler_front.jpg"
+              alt=""
+              fill
+              sizes="(min-width: 1024px) 72rem, 100vw"
+              className="pointer-events-none object-cover object-center opacity-[0.18] blur-[1px]"
+            />
+            <div className="pointer-events-none absolute inset-0 bg-white/78 sm:bg-white/82" />
+            <div className="pointer-events-none absolute inset-0 bg-[var(--color-bg)]/8" />
+            <div className="relative grid gap-5 sm:gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
+              <div>
+                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-3 py-1.5 text-[11px] font-bold text-[var(--accent-dark)] sm:mb-5 sm:px-3.5 sm:text-xs">
+                  <CalendarCheck size={15} />
+                  {copy.ctaBadge}
+                </div>
+                <h2 className="max-w-2xl text-2xl font-black leading-tight text-[var(--color-text)] min-[390px]:text-3xl sm:text-5xl">{copy.ctaTitle}</h2>
+                <p className="mt-3 max-w-xl whitespace-pre-line text-sm leading-6 text-[var(--color-text-muted)] sm:mt-5 sm:text-base sm:leading-8">{copy.ctaSub}</p>
               </div>
-              <h2 className="max-w-2xl text-2xl font-black leading-tight text-[var(--color-text)] min-[390px]:text-3xl sm:text-5xl">{copy.ctaTitle}</h2>
-              <p className="mt-3 max-w-xl whitespace-pre-line text-sm leading-6 text-[var(--color-text-muted)] sm:mt-5 sm:text-base sm:leading-8">{copy.ctaSub}</p>
+              <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
+                <Link href={`/${currentLocale}/contact`} className="btn-gold inline-flex min-h-[3.25rem] items-center justify-center gap-2 rounded-xl px-7 text-sm">
+                  {copy.ctaPrimary}
+                  <ArrowRight size={17} />
+                </Link>
+              </div>
             </div>
-            <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
-              <Link href={`/${currentLocale}/contact`} className="btn-gold inline-flex min-h-[3.25rem] items-center justify-center gap-2 rounded-xl px-7 text-sm">
-                {copy.ctaPrimary}
-                <ArrowRight size={17} />
-              </Link>
-            </div>
-          </div>
-        </Reveal>
+          </Reveal>
+        </div>
       </section>
     </>
   );

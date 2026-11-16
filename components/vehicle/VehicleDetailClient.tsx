@@ -19,6 +19,8 @@ import { formatPrice, formatMileage, cn, formatVatMode, isR2Image } from '@/lib/
 import type { DealerInfo } from '@/lib/db/mappers';
 import { resolveVehicleContact } from '@/lib/vehicle-contact';
 import VehicleCard from '@/components/vehicle/VehicleCard';
+import CarVerticalVehicleCta from '@/components/affiliate/CarVerticalVehicleCta';
+import VehicleLegalDisclaimer from '@/components/vehicle/VehicleLegalDisclaimer';
 import VehicleShareSection from '@/components/vehicle/VehicleShareSection';
 import { EmbedPlayer } from '@/components/vehicle/EmbedPlayer';
 import MobileContactFab from '@/components/vehicle/MobileContactFab';
@@ -581,9 +583,6 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                   {contact.viber && <a href={`viber://chat?number=%2B${contact.viber.replace(/\D/g, '')}`} onClick={(event) => recordLeadIntent('viber_click', 'viber', undefined, event.timeStamp)} className="btn-outline inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm"><ViberIcon size={15} />Viber</a>}
                 </div>
               </div>
-              <p className="mt-5 rounded-2xl border border-[var(--accent-border)] bg-[var(--accent-soft)] p-3 text-xs leading-5 text-[var(--color-text-muted)] min-[390px]:p-4">
-                {vehicleDetailCopy.platformDisclaimer}
-              </p>
             </section>
 
             {/* Tabs */}
@@ -659,6 +658,17 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                 )}
               </div>
             </div>
+
+            {/* carVertical vehicle history check CTA */}
+            <CarVerticalVehicleCta
+              vin={vehicle.vin}
+              carVerticalVinMode={vehicle.carVerticalVinMode}
+              status={vehicle.status}
+              locale={locale}
+            />
+
+            {/* Legal responsibility disclaimer — below primary vehicle info & carVertical CTA */}
+            <VehicleLegalDisclaimer />
 
             {/* Share + discount section */}
             <VehicleShareSection vehicle={vehicle} locale={locale} dealer={dealer} />

@@ -157,6 +157,10 @@ export function toAppVehicle(
     color:         v.color,
     interiorColor: v.interiorColor ?? undefined,
     vin:           v.vin ?? undefined,
+    carVerticalVinMode: ((v as { carVerticalVinMode?: string | null }).carVerticalVinMode === 'WITH_VIN' ||
+      (Array.isArray(v.tags) && v.tags.includes('cv:with_vin'))
+        ? 'WITH_VIN'
+        : 'NO_VIN') as Vehicle['carVerticalVinMode'],
     registration:  v.registration ?? undefined,
     origin:        v.origin ?? undefined,
     description:   v.description,

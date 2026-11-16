@@ -42,9 +42,9 @@ const BRANDS: Record<BrandSlug, BrandDef> = {
     dbName:      'BMW',
     sr: {
       metaTitle:  'BMW automobili iz uvoza u Srbiji | Moj Auto Diler',
-      metaDesc:   'Pažljivo odabrani uvozni BMW automobili u Srbiji. Serije 3, 5, X3, X5 i više sa proverenim poreklom i transparentnom istorijom servisa.',
+      metaDesc:   'Pažljivo odabrani uvozni BMW automobili u Srbiji. Serije 3, 5, X3, X5 i više iz ponude partnerskih auto-placeva sa transparentnom istorijom servisa.',
       h1:         'BMW automobili iz uvoza',
-      intro:      'Pronađite pažljivo odabrane uvozne BMW automobile sa proverenim poreklom na MojAutoDiler platformi. Svako vozilo dolazi sa dokumentovanom istorijom i transparentnom kupovinom bez pritiska.',
+      intro:      'Pronađite pažljivo odabrane uvozne BMW automobile iz ponude partnerskih auto-placeva na MojAutoDiler platformi. Svako vozilo dolazi sa dokumentovanom istorijom i transparentnim informacijama pre kupovine.',
       overview:   'BMW (Bavarian Motor Works) je jedan od vodećih proizvođača premium automobila na svetu. Modeli kao što su Serija 3, Serija 5, X3 i X5 poznati su po izuzetnim voznim karakteristikama, naprednoj tehnologiji i luksuznom enterijeru. BMW vozila iz uvoza — posebno iz Nemačke i Švajcarske — često imaju uredniju servisnu istoriju i nižu kilometražu od onih koji su ceo vek proveli na Balkanu.',
       whyBuy:     [
         'Izvanredna vozna dinamika i sportski karakter',
@@ -73,9 +73,9 @@ const BRANDS: Record<BrandSlug, BrandDef> = {
     },
     sq: {
       metaTitle:  'Automjete BMW nga importi në Serbi | Moj Auto Diler',
-      metaDesc:   'Automjete BMW të zgjedhura me kujdes nga importi në Serbi. Seria 3, 5, X3, X5 dhe më shumë, me origjinë të verifikuar dhe histori transparente servisi.',
+      metaDesc:   'Automjete BMW të zgjedhura me kujdes nga importi në Serbi. Seria 3, 5, X3, X5 dhe më shumë, nga auto-place partnerë me histori transparente servisi.',
       h1:         'Automjete BMW nga importi',
-      intro:      'Gjeni automjete BMW nga importi me origjinë të verifikuar në platformën MojAutoDiler. Çdo automjet vjen me histori të dokumentuar dhe blerje transparente pa presion.',
+      intro:      'Gjeni automjete BMW nga importi nga oferta e auto-placeve partnere në platformën MojAutoDiler. Çdo automjet vjen me histori të dokumentuar dhe informacione transparente para blerjes.',
       overview:   'BMW (Bavarian Motor Works) është një nga prodhuesit kryesorë të automjeteve premium në botë. Modelet si Seria 3, Seria 5, X3 dhe X5 njihen për karakteristikat e jashtëzakonshme të ngasjes, teknologjinë e avancuar dhe interiorin luksoz.',
       whyBuy:     [
         'Dinamikë e shkëlqyer e drejtimit',
@@ -105,9 +105,9 @@ const BRANDS: Record<BrandSlug, BrandDef> = {
     dbName:      'Audi',
     sr: {
       metaTitle:  'Audi automobili iz uvoza u Srbiji | Moj Auto Diler',
-      metaDesc:   'Pažljivo odabrani uvozni Audi automobili u Srbiji. A4, A6, Q5, Q7 i više sa proverenim poreklom i quattro pogonom. Transparentna kupovina.',
+      metaDesc:   'Pažljivo odabrani uvozni Audi automobili u Srbiji. A4, A6, Q5, Q7 i više iz ponude partnerskih auto-placeva i quattro pogonom. Transparentan pregled ponude.',
       h1:         'Audi automobili iz uvoza',
-      intro:      'Audi vozila kombinuju eleganciju, visoke performanse i inovativnu tehnologiju. Na MojAutoDiler platformi pronađite uvozne Audi automobile sa proverenim poreklom i kompletnom dokumentacijom.',
+      intro:      'Audi vozila kombinuju eleganciju, visoke performanse i inovativnu tehnologiju. Na MojAutoDiler platformi pronađite uvozne Audi automobile iz ponude partnerskih auto-placeva sa dostupnom dokumentacijom.',
       overview:   'Audi AG, deo Volkswagen Grupe, važi za jednog od premijum proizvođača u segmentu luksuznih automobila. Modeli A4, A6 i SUV Q5 i Q7 su među najpopularnijima. Audi quattro pogon na sva četiri točka postao je sinonim za vrhunsku kontrolu i sigurnost. Uvozna Audi vozila, posebno iz Nemačke i Austrije, često dolaze sa bogatom opremom i niskom kilometražom.',
       whyBuy:     [
         'Quattro pogon za maksimalnu sigurnost i kontrolu',

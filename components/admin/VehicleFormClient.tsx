@@ -191,6 +191,7 @@ export default function VehicleFormClient({ mode, vehicle, dealers = [] }: Props
     contactViber: '',
     contactName: '',
     ...vehicle,
+    carVerticalVinMode: vehicle?.carVerticalVinMode ?? 'NO_VIN',
   });
   const selectedDealer = dealers.find((dealer) => dealer.id === form.dealerId) ?? vehicle?.dealer;
 
@@ -199,6 +200,22 @@ export default function VehicleFormClient({ mode, vehicle, dealers = [] }: Props
   const handleSave = async () => {
     setSaving(true);
     setSaveError('');
+
+    // carVertical VIN check validation: if "Ima VIN" is selected, require exactly 17 valid characters
+    if (form.carVerticalVinMode === 'WITH_VIN') {
+      const normalized = (form.vin || '').trim().toUpperCase();
+      const isoPattern = /^[A-HJ-NPR-Z0-9]{17}$/;
+      const repeatedPattern = /^([A-HJ-NPR-Z0-9])\1{16}$/;
+      const placeholders = ['XXXXXXXX', 'PLACEHOLDER', 'TESTVIN', 'SAMPLEVIN'];
+      const hasPlaceholder = placeholders.some((p) => normalized.includes(p));
+
+      if (!normalized || normalized.length !== 17 || !isoPattern.test(normalized) || repeatedPattern.test(normalized) || hasPlaceholder) {
+        setSaveError('Izabrana je opcija "Ima VIN", ali uneti VIN broj nije validan (mora sadržati tačno 17 validnih karaktera).');
+        setSaving(false);
+        setActiveTab('specs'); // Switch to specs tab so admin immediately sees the VIN field
+        return;
+      }
+    }
 
     try {
       // Build the ordered list of persisted image slots
@@ -1000,6 +1017,45 @@ export default function VehicleFormClient({ mode, vehicle, dealers = [] }: Props
             <Field label="VIN broj (opciono)">
               <Input className={inputCls} value={form.vin || ''} onChange={e => set('vin')(e.target.value)} placeholder="WBA..." />
             </Field>
+
+            {/* carVertical — VIN provera */}
+            <div className="rounded-2xl border border-[var(--accent-border)] bg-[var(--accent-soft)]/50 p-4 sm:p-5">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <span className="text-xs font-black uppercase tracking-[0.14em] text-[var(--accent-dark)]">
+                  carVertical — VIN provera
+                </span>
+                <span className="rounded-md bg-white px-2 py-0.5 text-[10px] font-bold text-[var(--accent-dark)] border border-[var(--accent-border)]">
+                  Affiliate URL
+                </span>
+              </div>
+              <p className="mb-3.5 text-xs text-[var(--color-text-muted)]">
+                Odaberite da li se za ovo vozilo generiše affiliate link sa predproverom VIN broja (pre-check URL sa <code className="font-mono text-[var(--accent-dark)]">uid=594</code> i <code className="font-mono text-[var(--accent-dark)]">sub3=VIN</code>) ili standardni affiliate link bez VIN-a.
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <label className="flex cursor-pointer items-center gap-2 text-xs font-bold text-[var(--color-text)]">
+                  <input
+                    type="radio"
+                    name="carVerticalVinMode"
+                    value="WITH_VIN"
+                    checked={form.carVerticalVinMode === 'WITH_VIN'}
+                    onChange={() => set('carVerticalVinMode')('WITH_VIN')}
+                    className="h-4 w-4 text-[var(--accent)] focus:ring-[var(--accent)]"
+                  />
+                  <span>Ima VIN (aktivira predproveru sa VIN brojem)</span>
+                </label>
+                <label className="flex cursor-pointer items-center gap-2 text-xs font-bold text-[var(--color-text)]">
+                  <input
+                    type="radio"
+                    name="carVerticalVinMode"
+                    value="NO_VIN"
+                    checked={form.carVerticalVinMode !== 'WITH_VIN'}
+                    onChange={() => set('carVerticalVinMode')('NO_VIN')}
+                    className="h-4 w-4 text-[var(--accent)] focus:ring-[var(--accent)]"
+                  />
+                  <span>Nema VIN (standardni carVertical link bez VIN-a)</span>
+                </label>
+              </div>
+            </div>
           </div>
         )}
 

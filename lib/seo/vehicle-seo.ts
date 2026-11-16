@@ -128,25 +128,25 @@ function buildSeoDescription(v: Vehicle, locale: Locale): string {
   if (locale === 'sq') {
     const p1 = `${v.brand} ${v.model}${gen} është ${body}. Ky ekzemplar nga viti ${v.year} ka ${km} km, motor ${fuel}${hp ? ` me ${hp}` : ''} dhe transmision ${trans.toLowerCase()}.`;
     const p2Parts: string[] = [];
-    if (origin) p2Parts.push(`importuar nga ${origin} me origjinë të verifikuar`);
+    if (origin) p2Parts.push(`importuar nga ${origin} me dokumentacion të disponueshëm`);
     if (hasService) p2Parts.push('histori e dokumentuar servisi');
     if (has4wd) p2Parts.push(`tërheqje ${driveLabel} për kushte dimri dhe terren`);
     const p2 = p2Parts.length > 0
       ? ` Automjeti vjen ${p2Parts.join(', ')}.`
       : '';
-    const p3 = ` Në MojAutoDiler çdo automjet kalon selekcion para prezantimit. Ofrojmë blerje transparente pa presion, me dokumentacion të plotë dhe mbështetje profesionale.`;
+    const p3 = ` Në MojAutoDiler çdo automjet vjen nga oferta e auto placeve partnere. Ofrojmë qasje transparente në të dhëna pa presion, me mundësi kontrolli të pavarur para blerjes.`;
     return `${p1}${p2}${p3}`;
   }
 
   const p1 = `${v.brand} ${v.model}${gen} je ${body}. Ovaj primerak iz ${v.year}. godišta ima ${km} km, ${fuel.toLowerCase()} motor${hp ? ` snage ${hp}` : ''} i ${trans.toLowerCase()} menjač.`;
   const p2Parts: string[] = [];
-  if (origin) p2Parts.push(`uvezen iz ${origin} sa proverenim poreklom`);
+  if (origin) p2Parts.push(`uvezen iz ${origin} sa dostupnom dokumentacijom`);
   if (hasService) p2Parts.push('dokumentovana servisna istorija');
   if (has4wd) p2Parts.push(`${driveLabel} pogon za sve vremenske uslove`);
   const p2 = p2Parts.length > 0
     ? ` Vozilo dolazi ${p2Parts.join(', ')}.`
     : '';
-  const p3 = ` Na MojAutoDiler platformi svako vozilo prolazi selekciju pre objave. Nudimo transparentnu kupovinu bez pritiska, sa kompletnom dokumentacijom i stručnom podrškom.`;
+  const p3 = ` Na MojAutoDiler platformi predstavljamo pažljivo odabranu ponudu partnerskih auto-placeva. Nudimo transparentan uvid u informacije bez pritiska, uz preporuku za nezavisnu proveru pre kupovine.`;
   return `${p1}${p2}${p3}`;
 }
 
@@ -160,7 +160,6 @@ interface BenefitCandidate {
 
 function buildBenefits(v: Vehicle, locale: Locale): string[] {
   const t = getTranslations(locale);
-  const fuel = t.fuel[v.fuelType] ?? v.fuelType;
   const trans = t.transmission[v.transmission] ?? v.transmission;
   const origin = v.origin?.trim();
 
@@ -187,8 +186,8 @@ function buildBenefits(v: Vehicle, locale: Locale): string[] {
     },
     {
       condition: !!origin,
-      sr: `Uvoz iz ${origin} — proverena dokumentacija i poreklo vozila`,
-      sq: `Import nga ${origin} — dokumentacion i verifikuar dhe origjinë e automjetit`,
+      sr: `Uvoz iz ${origin} — dostupna dokumentacija i podaci o poreklu`,
+      sq: `Import nga ${origin} — dokumentacion i disponueshëm dhe të dhëna origjine`,
     },
     {
       condition: v.mileage < 80_000,

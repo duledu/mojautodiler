@@ -39,6 +39,25 @@ export async function POST(request: NextRequest) {
 
     const slug = body.slug?.trim() || slugify(`${body.brand}-${body.model}-${body.year}`);
 
+    // Validate carVertical VIN mode: if "WITH_VIN" is selected, VIN must be provided and valid
+    if (body.carVerticalVinMode === 'WITH_VIN') {
+      const normalized = typeof body.vin === 'string' ? body.vin.trim().toUpperCase() : '';
+      const isoPattern = /^[A-HJ-NPR-Z0-9]{17}$/;
+      const repeatedPattern = /^([A-HJ-NPR-Z0-9])\1{16}$/;
+      const placeholders = ['XXXXXXXX', 'PLACEHOLDER', 'TESTVIN', 'SAMPLEVIN'];
+      const hasPlaceholder = placeholders.some((p) => normalized.includes(p));
+
+      if (!normalized || normalized.length !== 17 || !isoPattern.test(normalized) || repeatedPattern.test(normalized) || hasPlaceholder) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Izabrana je opcija "Ima VIN", ali uneti VIN broj nije validan (mora sadržati tačno 17 validnih karaktera).',
+          },
+          { status: 400 },
+        );
+      }
+    }
+
     // Images: accept either URL strings or VehicleImage objects
     const images: string[] = (body.images ?? []).map((img: string | { url: string }) =>
       typeof img === 'string' ? img : img.url
@@ -68,6 +87,7 @@ export async function POST(request: NextRequest) {
       color:          String(body.color).trim(),
       interiorColor:  body.interiorColor?.trim() || undefined,
       vin:            body.vin?.trim() || undefined,
+      carVerticalVinMode: body.carVerticalVinMode === 'WITH_VIN' ? 'WITH_VIN' : 'NO_VIN',
       registration:   body.registration?.trim() || undefined,
       origin:         body.origin?.trim() || undefined,
       description:    String(body.description).trim(),

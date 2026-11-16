@@ -5,6 +5,7 @@ export type BodyType = 'limuzina' | 'hatchback' | 'karavan' | 'suv' | 'kupe' | '
 export type VehicleStatus = 'active' | 'sold' | 'hidden' | 'draft';
 export type DealerStatus = 'active' | 'hidden';
 export type VehicleCondition = 'novo' | 'polovno' | 'uvoz';
+export type CarVerticalVinMode = 'WITH_VIN' | 'NO_VIN';
 export type Currency = 'EUR' | 'RSD' | 'USD';
 export type VatMode = 'INCLUDED' | 'EXCLUDED' | 'NONE';
 
@@ -70,6 +71,7 @@ export interface Vehicle {
   color: string;
   interiorColor?: string;
   vin?: string;
+  carVerticalVinMode?: CarVerticalVinMode;
   registration?: string;
   origin?: string;
   condition: VehicleCondition;

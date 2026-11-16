@@ -13,6 +13,8 @@ import { cn } from '@/lib/utils';
 import { getTranslations, type Locale } from '@/lib/i18n';
 import type { Vehicle } from '@/types/vehicle';
 
+import { normalizeAndValidateVin } from '@/lib/affiliate/carvertical';
+
 export type TrustBadgeKey =
   | 'verified'
   | 'swiss'
@@ -84,7 +86,10 @@ export function getVehicleTrustBadges(vehicle: Vehicle): TrustBadgeKey[] {
   if (vehicle.registration || vehicle.dealerNotes || vehicle.features.length > 0) {
     badges.push('service');
   }
-  if (vehicle.vin) badges.push('vin');
+  // Only display "VIN dostupan" when vehicle is configured with WITH_VIN and contains a valid 17-char ISO VIN
+  if (vehicle.carVerticalVinMode === 'WITH_VIN' && normalizeAndValidateVin(vehicle.vin)) {
+    badges.push('vin');
+  }
   if (vehicle.condition === 'uvoz' || vehicle.mileage < 160_000) badges.push('inspection');
 
   // Rich gallery signal

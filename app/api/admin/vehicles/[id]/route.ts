@@ -55,6 +55,26 @@ export async function PUT(
 
     console.info(`[VEHICLE UPDATE] images after filter:`, JSON.stringify(images));
 
+    // Validate carVertical VIN mode if setting to WITH_VIN
+    if (body.carVerticalVinMode === 'WITH_VIN') {
+      const rawVin = body.vin;
+      const normalized = typeof rawVin === 'string' ? rawVin.trim().toUpperCase() : '';
+      const isoPattern = /^[A-HJ-NPR-Z0-9]{17}$/;
+      const repeatedPattern = /^([A-HJ-NPR-Z0-9])\1{16}$/;
+      const placeholders = ['XXXXXXXX', 'PLACEHOLDER', 'TESTVIN', 'SAMPLEVIN'];
+      const hasPlaceholder = placeholders.some((p) => normalized.includes(p));
+
+      if (!normalized || normalized.length !== 17 || !isoPattern.test(normalized) || repeatedPattern.test(normalized) || hasPlaceholder) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Izabrana je opcija "Ima VIN", ali uneti VIN broj nije validan (mora sadržati tačno 17 validnih karaktera).',
+          },
+          { status: 400 },
+        );
+      }
+    }
+
     const data = {
       // ── Basic info ──────────────────────────────────────────────────────────
       ...(body.title        !== undefined && { title:          String(body.title).trim() }),
@@ -83,6 +103,7 @@ export async function PUT(
       ...(body.color        !== undefined && { color:          String(body.color).trim() }),
       ...(body.interiorColor !== undefined && { interiorColor: body.interiorColor?.trim() || null }),
       ...(body.vin          !== undefined && { vin:            body.vin?.trim() || null }),
+      ...(body.carVerticalVinMode !== undefined && { carVerticalVinMode: body.carVerticalVinMode === 'WITH_VIN' ? 'WITH_VIN' : 'NO_VIN' }),
       ...(body.origin       !== undefined && { origin:         body.origin?.trim() || null }),
       // ── Equipment / safety ───────────────────────────────────────────────────
       ...(body.equipment        !== undefined && { equipment:        body.equipment }),

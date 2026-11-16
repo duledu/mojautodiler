@@ -304,6 +304,12 @@ export type CreateVehicleInput = Omit<
 > & { images: string[]; videoUrl?: string; dealerId?: string; contactPhone?: string; contactViber?: string; contactName?: string };
 
 export async function createVehicle(input: CreateVehicleInput) {
+  const initialTags = input.tags ?? [];
+  const tags = [
+    ...initialTags.filter((t) => t !== 'cv:with_vin' && t !== 'cv:no_vin'),
+    input.carVerticalVinMode === 'WITH_VIN' ? 'cv:with_vin' : 'cv:no_vin',
+  ];
+
   const createData = {
     slug:           input.slug,
     title:          input.title,
@@ -341,7 +347,7 @@ export async function createVehicle(input: CreateVehicleInput) {
     featured:       input.featured ?? false,
     showcase:       input.showcase ?? false,
     onSale:         input.onSale ?? false,
-    tags:           input.tags ?? [],
+    tags,
     // Prisma 6: use nested relation syntax instead of scalar dealerId
     ...(input.dealerId && { dealer: { connect: { id: input.dealerId } } }),
     contactPhone:   input.contactPhone,
@@ -363,10 +369,20 @@ export async function createVehicle(input: CreateVehicleInput) {
 export async function updateVehicle(id: string, data: Partial<CreateVehicleInput> & { status?: VehicleStatus }) {
   // Prisma 6: scalar foreign-key fields (dealerId) are not accepted directly in
   // update payloads when a corresponding relation field exists — use nested syntax.
-  const { status, vatMode, featured, onSale, dealerId, ...rest } = data;
+  const { status, vatMode, featured, onSale, dealerId, carVerticalVinMode, tags: incomingTags, ...rest } = data;
+
+  let tagsToSet: string[] | undefined = incomingTags;
+  if (carVerticalVinMode !== undefined) {
+    const existing = await prisma.vehicle.findUnique({ where: { id }, select: { tags: true } });
+    const baseTags = (incomingTags ?? existing?.tags ?? []).filter(
+      (t) => t !== 'cv:with_vin' && t !== 'cv:no_vin',
+    );
+    tagsToSet = [...baseTags, carVerticalVinMode === 'WITH_VIN' ? 'cv:with_vin' : 'cv:no_vin'];
+  }
 
   const dbData = {
     ...rest,
+    ...(tagsToSet !== undefined && { tags: tagsToSet }),
     ...(featured  !== undefined && { featured }),
     ...(onSale    !== undefined && { onSale }),
     ...(status    === undefined ? {} : { status: toDbVehicleStatus(status) }),

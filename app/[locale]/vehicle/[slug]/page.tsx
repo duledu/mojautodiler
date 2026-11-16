@@ -85,17 +85,42 @@ export async function generateMetadata(
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default async function VehiclePage(
-  { params }: { readonly params: Promise<{ locale: string; slug: string }> },
+  {
+    params,
+    searchParams,
+  }: {
+    readonly params: Promise<{ locale: string; slug: string }>;
+    readonly searchParams?: Promise<{ qa_vin?: string; qa_vin_mode?: string }>;
+  },
 ) {
   const { locale, slug } = await params;
   if (!isValidLocale(locale)) notFound();
 
-  const [vehicle, dealer] = await Promise.all([
+  const [vehicle, dealer, resolvedSearchParams] = await Promise.all([
     getPublicVehicleBySlug(slug),
     getDealerSettings(),
+    searchParams ?? Promise.resolve({ qa_vin: undefined, qa_vin_mode: undefined }),
   ]);
 
   if (!vehicle) notFound();
+
+  const devQaVin =
+    process.env.NODE_ENV === 'development' &&
+    typeof resolvedSearchParams?.qa_vin === 'string'
+      ? resolvedSearchParams.qa_vin
+      : undefined;
+
+  const devQaVinMode =
+    process.env.NODE_ENV === 'development' &&
+    (resolvedSearchParams?.qa_vin_mode === 'WITH_VIN' || resolvedSearchParams?.qa_vin_mode === 'NO_VIN')
+      ? (resolvedSearchParams.qa_vin_mode as 'WITH_VIN' | 'NO_VIN')
+      : undefined;
+
+  const vehicleForClient = {
+    ...vehicle,
+    ...(devQaVin !== undefined ? { vin: devQaVin } : {}),
+    ...(devQaVinMode !== undefined ? { carVerticalVinMode: devQaVinMode } : {}),
+  };
 
   const similar = await getSimilarVehicles(vehicle.id, vehicle.brand, 4);
 
@@ -114,7 +139,7 @@ export default async function VehiclePage(
       <BreadcrumbJsonLd items={breadcrumbs} />
       <VehicleFaqJsonLd faq={seo.faq} />
       <VehicleDetailClient
-        vehicle={vehicle}
+        vehicle={vehicleForClient}
         similar={similar}
         locale={locale}
         t={t}
