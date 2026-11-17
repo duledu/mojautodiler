@@ -95,7 +95,7 @@ export default function Header({ locale, t, dealer }: HeaderProps) {
         {/* Right side */}
         <div className="hidden md:flex items-center gap-3">
           {/* Language switcher */}
-          <div className="flex items-center gap-0.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] p-0.5">
+          <div className="hidden items-center gap-0.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] p-0.5">
             {locales.map((l) => (
               <Link
                 key={l}
@@ -112,6 +112,14 @@ export default function Header({ locale, t, dealer }: HeaderProps) {
               </Link>
             ))}
           </div>
+
+          <Link
+            href="/sr/inventory"
+            className="btn-gold flex items-center gap-2 px-4 py-2 rounded-xl text-sm"
+            style={{ fontFamily: 'var(--font-display)' }}
+          >
+            Sva Vozila
+          </Link>
 
           {/* Phone CTA — temporarily hidden; dealer phone data kept in system.
           {dealer.phone && (
@@ -159,7 +167,7 @@ export default function Header({ locale, t, dealer }: HeaderProps) {
                 </Link>
               );
             })}
-            <div className="pt-3 border-t border-[var(--color-border)] flex items-center gap-2">
+            <div className="hidden pt-3 border-t border-[var(--color-border)] items-center gap-2">
               {locales.map((l) => (
                 <Link
                   key={l}
@@ -174,6 +182,14 @@ export default function Header({ locale, t, dealer }: HeaderProps) {
                 </Link>
               ))}
             </div>
+            <Link
+              href="/sr/inventory"
+              onClick={() => setIsOpen(false)}
+              className="btn-gold flex items-center justify-center gap-2 w-full mt-3 px-4 py-3 rounded-xl text-sm"
+              style={{ fontFamily: 'var(--font-display)' }}
+            >
+              Sva Vozila
+            </Link>
             {/* Phone CTA — temporarily hidden; dealer phone data kept in system.
             {dealer.phone && (
               <a

@@ -61,7 +61,7 @@ const sr = {
     cta: 'Saznajte Više',
   },
   inventory: {
-    title: 'Naša Vozila',
+    title: 'Vozila u ponudi',
     subtitle: 'Pronađite idealno vozilo iz naše pažljivo odabrane ponude',
     noResults: 'Nema vozila koja odgovaraju vašim kriterijumima',
     filters: {
