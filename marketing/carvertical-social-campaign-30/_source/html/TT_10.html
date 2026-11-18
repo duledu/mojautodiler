@@ -1,0 +1,66 @@
+<!doctype html><html lang="sr"><head><meta charset="utf-8"><style>
+@import url('../fonts/fonts.css');
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{overflow:hidden}
+body{font-family:'Inter',sans-serif;color:#0F0F14;position:relative;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+.a{position:absolute}
+.bg{position:absolute;inset:0;background-size:cover;background-position:center;background-repeat:no-repeat}
+.cvl{display:block;flex:none}
+.mad{display:inline-flex;align-items:center;white-space:nowrap;line-height:1}
+.mad .wm{display:flex;align-items:center;line-height:1}
+.mad .wm b{font-weight:800;letter-spacing:-.02em;line-height:1}
+.mad.light{color:#fff}.mad.dark{color:#0F0F14}
+.lock{display:inline-flex;align-items:center;gap:18px}
+.lock .sep{font-weight:300;font-size:20px;opacity:.45;line-height:1}
+.lock.light .sep{color:#fff}.lock.dark .sep{color:#0F0F14}
+.cta{display:inline-flex;align-items:center;justify-content:center;gap:18px;font-weight:800;border-radius:999px;padding:0 46px;height:94px;font-size:30px;letter-spacing:.02em;white-space:nowrap}
+.cta .arr{font-size:34px;font-weight:600}
+.cta.y{background:#FFEB28;color:#0F0F14}
+.cta.b{background:#0073F0;color:#fff}
+.cta.n{background:#0B1630;color:#fff}
+.cta.w{background:#fff;color:#0073F0}
+.cta.k{background:#0F0F14;color:#fff}
+.code{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;border:3px dashed currentColor;border-radius:20px;padding:12px 32px 14px;line-height:1.05}
+.code small{font-size:18px;font-weight:700;letter-spacing:.22em;opacity:.85;margin-bottom:6px}
+.code b{font-size:46px;font-weight:900;letter-spacing:.05em}
+.disc{font-size:20px;font-weight:500;letter-spacing:.01em}
+.pct{font-weight:900;letter-spacing:-.04em;line-height:.9}
+.eyebrow{font-size:24px;font-weight:700;letter-spacing:.22em;text-transform:uppercase}
+.center{left:0;right:0;display:flex;flex-direction:column;align-items:center;text-align:center}
+html,body{width:1080px;height:1920px}
+.bg{background-image:url(../backgrounds/tt30.png)}
+.shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,60,150,.75),rgba(0,40,110,.8))}
+.cp{left:110px;right:110px;top:460px;background:#fff;border-radius:40px;padding:52px 46px 46px;display:flex;flex-direction:column;align-items:center;text-align:center;box-shadow:0 40px 80px rgba(0,0,0,.35)}
+h1{font-size:80px;font-weight:900;letter-spacing:-.04em;line-height:1.02;color:#0B1630}
+h1 span{color:#0073F0}
+.perf{width:calc(100% + 92px);margin:36px -46px 32px;border-top:4px dashed #C9D6EA;position:relative}
+.perf:before,.perf:after{content:'';position:absolute;top:-28px;width:56px;height:56px;border-radius:50%;background:#0a3d8f}
+.perf:before{left:-28px}.perf:after{right:-28px}
+.perf .sc{position:absolute;left:50%;top:-22px;transform:translateX(-50%);background:#fff;padding:0 12px}
+.cd{border:4px dashed #0073F0;border-radius:24px;padding:20px 28px;background:#F1F7FF;width:100%}
+.cd small{display:block;font-size:20px;font-weight:700;letter-spacing:.24em;color:#6B6B7C}
+.cd b{display:block;font-size:72px;font-weight:900;letter-spacing:.04em;color:#0F0F14;line-height:1.1}
+.hint{font-size:26px;color:#3A3A4A;margin-top:22px;line-height:1.3}
+</style></head><body>
+<div class="bg"></div><div class="shade"></div>
+<div class="a" style="left:110px;top:290px;right:140px;display:flex;justify-content:space-between;align-items:center">
+  <img class="cvl" src="../brand/carVertical White.svg" style="height:38px;width:273.6px;" alt="carVertical">
+  <div class="mad light" style="gap:7px;opacity:0.95;">
+    <img src="../brand/mojautodiler-logo.png" style="height:24px;width:24px;border-radius:50%;flex:none;" alt="MojAutoDiler">
+    <div class="wm">
+      <b style="font-size:13px;">MojAutoDiler<em style="font-weight:600;color:#C59B4C;">.com</em></b>
+    </div>
+  </div>
+</div>
+<div class="a cp">
+  <h1>Tvoj kod za<br><span>20% popusta</span></h1>
+  <div class="perf"><div class="sc"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#9AAAC4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M8.1 8.1L20 20M8.1 15.9L20 4"/></svg></div></div>
+  <div class="cd">
+    <small>PROMO KOD</small>
+    <b>MOJAUTODILER</b>
+  </div>
+  <p class="hint">Unesi kod pri poručivanju<br>carVertical izveštaja.</p>
+  <div class="cta y" style="margin-top:30px;height:90px;font-size:28px">PROVERI ISTORIJU VOZILA<span class="arr">→</span></div>
+</div>
+<div class="disc" style="color:rgba(255,255,255,.78);position:absolute;left:0;right:0;top:1600px;text-align:center;font-size:24px">Dostupnost podataka zavisi od vozila i izvora.</div>
+</body></html>
