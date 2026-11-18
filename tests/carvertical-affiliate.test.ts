@@ -192,6 +192,7 @@ describe('carVertical Affiliate URL Configuration & VIN Validation', () => {
     assert.equal(CARVERTICAL_DISCOUNT_PERCENT, 20);
     assert.equal(CARVERTICAL_ASSETS.homepageBannerRs, '/carVertical asset/RS_728x180-4.png');
     assert.equal(CARVERTICAL_ASSETS.footerBannerRs, '/carVertical asset/RS_728x180.png');
+    assert.equal(CARVERTICAL_ASSETS.listingBannerRs, '/carVertical asset/RS_336x280-5.png');
     assert.ok(CARVERTICAL_ASSETS.logoPrimary.endsWith('.svg'));
   });
 });
@@ -310,18 +311,23 @@ describe('carVertical Component Markup, SEO & Automatic 20% Discount Compliance'
     );
 
     assert.ok(htmlWithVin.includes('data-vin-mode="vin"'));
+    assert.ok(htmlWithVin.includes('RS_336x280-5.png'));
     assert.ok(htmlWithVin.includes('ISTORIJA VOZILA'));
     assert.ok(htmlWithVin.includes('<h2'));
     assert.equal(htmlWithVin.includes('<h1'), false);
     assert.ok(htmlWithVin.includes('Proveri istoriju ovog vozila'));
     assert.ok(
       htmlWithVin.includes(
-        'Saznaj više o dostupnoj istoriji automobila uz carVertical.',
+        'Saznaj više o dostupnim podacima o kilometraži, oštećenjima i istoriji vozila uz carVertical.',
       ),
     );
-    assert.ok(htmlWithVin.includes('20% popusta sa kodom MOJAUTODILER'));
+    assert.ok(htmlWithVin.includes('20% POPUSTA'));
+    assert.ok(htmlWithVin.includes('MOJAUTODILER'));
     assert.ok(
       htmlWithVin.includes('Popust se automatski primenjuje putem našeg partnerskog linka.'),
+    );
+    assert.ok(
+      htmlWithVin.includes('Dostupnost podataka zavisi od vozila i izvora.'),
     );
     assert.ok(htmlWithVin.includes('Proveri istoriju vozila'));
     assert.ok(

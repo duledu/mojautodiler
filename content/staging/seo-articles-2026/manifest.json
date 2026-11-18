@@ -1,0 +1,192 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-11-18T09:30:00.000Z",
+  "targetMarket": "Srbija (Serbian used-car automotive market)",
+  "language": "sr-Latn",
+  "status": "DRAFT",
+  "notes": "All articles are prepared as private drafts. In strict accordance with deployment rules, no production database migrations or writes have been executed without explicit authorization.",
+  "affiliatePartner": {
+    "provider": "carVertical",
+    "trackingUrl": "https://www.carvertical.deal/4FCPMH4/JRZRQN/?source_id=AFF&sub1=mojautodiler&sub2=blog",
+    "promoCode": "MOJAUTODILER",
+    "discount": "20%",
+    "linkAttributes": {
+      "rel": "sponsored nofollow noopener noreferrer",
+      "target": "_blank"
+    },
+    "disclaimer": "Dostupnost podataka zavisi od vozila i izvora.",
+    "disclosure": "MojAutoDiler ostvaruje posredničku proviziju od realizovanih narudžbina putem partnerskih linkova."
+  },
+  "articles": [
+    {
+      "id": "art-2026-001",
+      "slug": "cene-polovnih-automobila-u-srbiji-2026",
+      "file": "article-01-cene-polovnih-automobila-srbija-2026.md",
+      "title": "Cene polovnih automobila u Srbiji 2026: Da li je sada pravo vreme za kupovinu?",
+      "excerpt": "Detaljna analiza tržišta polovnih automobila u Srbiji za 2026. godinu: kretanje cena, najtraženiji cenovni rangovi, razlike između oglašenih i realizovanih cena, i saveti za pametnu kupovinu.",
+      "seoTitle": "Cene Polovnih Automobila u Srbiji 2026: Vodič za Kupce",
+      "metaDescription": "Saznajte kako se kreću cene polovnih automobila u Srbiji u 2026. godini. Analiza tržišta, popularni modeli, saveti za pregovaranje i prognoza za 2027.",
+      "canonicalUrl": "https://www.mojautodiler.com/sr/blog/cene-polovnih-automobila-u-srbiji-2026",
+      "featuredImage": "/blog/cene-polovnih-automobila-srbija-2026.webp",
+      "featuredImageAlt": "Prodajni salon i plac polovnih automobila u Srbiji sa izloženim vozilima",
+      "categorySlug": "saveti-za-kupovinu",
+      "categoryName": "Saveti za kupovinu",
+      "primaryKeyword": "cene polovnih automobila 2026",
+      "secondaryKeywords": [
+        "tržište polovnih automobila srbija",
+        "polovni automobili cene",
+        "kupovina polovnog automobila srbija",
+        "kretanje cena automobila"
+      ],
+      "wordCount": 1540,
+      "readingTimeMinutes": 7,
+      "status": "DRAFT",
+      "publishedAt": null,
+      "affiliateCtaEnabled": false,
+      "affiliatePlacement": "none",
+      "internalLinks": [
+        { "url": "/sr/inventory", "anchor": "kompletnu ponudu proverenih polovnih automobila" },
+        { "url": "/sr/cars/volkswagen", "anchor": "ponudu Volkswagen modela" },
+        { "url": "/sr/podela-odgovornosti", "anchor": "pravila i pravnu odgovornost oglašavanja" }
+      ],
+      "schemaTypes": ["Article", "BreadcrumbList", "FAQPage"]
+    },
+    {
+      "id": "art-2026-002",
+      "slug": "vracena-kilometraza-kako-prepoznati-prevaru",
+      "file": "article-02-vracena-kilometraza-kako-prepoznati-prevaru.md",
+      "title": "Vraćena kilometraža: Kako prepoznati prevaru i šta uraditi?",
+      "excerpt": "Saznajte kako prepoznati vraćenu kilometražu na polovnom automobilu, koje elektronske module proveriti, šta preduzeti prema zakonima Srbije i kako se zaštititi pre kupovine.",
+      "seoTitle": "Vraćena Kilometraža na Polovnjacima: Kako Prepoznati Prevaru i Zaštititi Se",
+      "metaDescription": "Vodič za prepoznavanje vraćene kilometraže u Srbiji: fizički znaci habanja, dubinska dijagnostika modula, provera istorije preko VIN-a i pravna zaštita kupaca.",
+      "canonicalUrl": "https://www.mojautodiler.com/sr/blog/vracena-kilometraza-kako-prepoznati-prevaru",
+      "featuredImage": "/blog/vracena-kilometraza-prevara-provera.webp",
+      "featuredImageAlt": "Digitalna instrument tabla automobila sa prikazom kilometraže i dijagnostički uređaj",
+      "categorySlug": "bezbednost-i-provera",
+      "categoryName": "Bezbednost i provera",
+      "primaryKeyword": "vraćena kilometraža",
+      "secondaryKeywords": [
+        "vraćanje kilometraže srbija",
+        "kako proveriti kilometražu",
+        "prevara sa kilometražom",
+        "provera kilometraže po broju šasije",
+        "krivični zakonik prevara kilometraža"
+      ],
+      "wordCount": 1720,
+      "readingTimeMinutes": 8,
+      "status": "DRAFT",
+      "publishedAt": null,
+      "affiliateCtaEnabled": true,
+      "affiliatePlacement": "inline",
+      "internalLinks": [
+        { "url": "/sr/inventory", "anchor": "ponudu polovnih automobila sa verifikovanom istorijom" },
+        { "url": "/sr/kako-kupiti", "anchor": "vodič kako bezbedno kupiti automobil" },
+        { "url": "/sr/podela-odgovornosti", "anchor": "odredbama o odgovornosti i zaštiti podataka" }
+      ],
+      "schemaTypes": ["Article", "BreadcrumbList", "FAQPage"]
+    },
+    {
+      "id": "art-2026-003",
+      "slug": "istorija-ostecenja-polovnih-automobila",
+      "file": "article-03-istorija-ostecenja-polovnih-automobila.md",
+      "title": "Istorija oštećenja polovnih automobila: Šta kupci u Srbiji treba da znaju?",
+      "excerpt": "Naučite kako razlikovati površinska oštećenja od opasnih strukturalnih havarija, kako tumačiti merač debljine farbe i šta novčani iznosi u izveštajima zapravo govore o stanju vozila.",
+      "seoTitle": "Istorija Oštećenja Polovnih Automobila: Vodič za Kupce u Srbiji",
+      "metaDescription": "Sve o oštećenjima polovnih automobila: razlika između kozmetičkih i strukturalnih popravki, očitavanje debljine laka, provera šasije i tumačenje izveštaja.",
+      "canonicalUrl": "https://www.mojautodiler.com/sr/blog/istorija-ostecenja-polovnih-automobila",
+      "featuredImage": "/blog/istorija-ostecenja-vozila-farba-pregled.webp",
+      "featuredImageAlt": "Stručni pregled debljine fabričkog laka i limarije automobila digitalnim meračem",
+      "categorySlug": "bezbednost-i-provera",
+      "categoryName": "Bezbednost i provera",
+      "primaryKeyword": "istorija oštećenja vozila",
+      "secondaryKeywords": [
+        "pregled oštećenja polovnog automobila",
+        "havarisani automobili srbija",
+        "merač debljine farbe",
+        "provera havarije po broju šasije",
+        "popravka strukture automobila"
+      ],
+      "wordCount": 1680,
+      "readingTimeMinutes": 8,
+      "status": "DRAFT",
+      "publishedAt": null,
+      "affiliateCtaEnabled": true,
+      "affiliatePlacement": "inline",
+      "internalLinks": [
+        { "url": "/sr/inventory", "anchor": "pregledajte našu ponudu proverenih polovnih automobila" },
+        { "url": "/sr/cars/bmw", "anchor": "ponudu polovnih BMW automobila" },
+        { "url": "/sr/kako-kupiti", "anchor": "savete za bezbednu kupovinu automobila" }
+      ],
+      "schemaTypes": ["Article", "BreadcrumbList", "FAQPage"]
+    },
+    {
+      "id": "art-2026-004",
+      "slug": "polovni-automobili-iz-svajcarske",
+      "file": "article-04-polovni-automobili-iz-svajcarske.md",
+      "title": "Polovni automobili iz Švajcarske: Prednosti, rizici i provera pre kupovine",
+      "excerpt": "Sve o uvozu i kupovini polovnih automobila iz Švajcarske u Srbiji: prednosti održavanja, MFK tehnički pregled, skriveni rizici od korozije, carinske dažbine i obavezna dokumentacija.",
+      "seoTitle": "Polovni Automobili iz Švajcarske: Prednosti, Rizici i Carina u Srbiji",
+      "metaDescription": "Detaljan vodič za kupovinu polovnjaka iz Švajcarske: MFK pregledi, korozija od soli, EUR1 obrazac za carinu 0%, carVertical provera i preporučeni modeli.",
+      "canonicalUrl": "https://www.mojautodiler.com/sr/blog/polovni-automobili-iz-svajcarske",
+      "featuredImage": "/blog/polovni-automobili-svajcarska-uvoz-vodic.webp",
+      "featuredImageAlt": "Polovni karavan sa pogonom na sva četiri točka na planinskom prevoju u Švajcarskoj",
+      "categorySlug": "saveti-za-kupovinu",
+      "categoryName": "Saveti za kupovinu",
+      "primaryKeyword": "polovni automobili iz Švajcarske",
+      "secondaryKeywords": [
+        "uvoz automobila iz švajcarske",
+        "mfk pregled švajcarska",
+        "servisna knjiga švajcarska",
+        "carina na automobile iz švajcarske",
+        "eur1 obrazac švajcarska"
+      ],
+      "wordCount": 1740,
+      "readingTimeMinutes": 8,
+      "status": "DRAFT",
+      "publishedAt": null,
+      "relatedBrand": "BMW",
+      "affiliateCtaEnabled": true,
+      "affiliatePlacement": "inline",
+      "internalLinks": [
+        { "url": "/sr/inventory", "anchor": "pregledajte kompletnu ponudu uvezenih polovnjaka" },
+        { "url": "/sr/vehicle/bmw-520d-xdrive-touring-f11-2011", "anchor": "primer očuvanog modela sa pogonom na sve točkove" },
+        { "url": "/sr/kako-kupiti", "anchor": "vodič kroz administrativne korake kupovine" }
+      ],
+      "schemaTypes": ["Article", "BreadcrumbList", "FAQPage"]
+    },
+    {
+      "id": "art-2026-005",
+      "slug": "dizel-benzin-ili-hibrid-2027",
+      "file": "article-05-dizel-benzin-ili-hibrid-2027.md",
+      "title": "Dizel, benzin ili hibrid: Šta se najviše isplati kupiti u 2027?",
+      "excerpt": "Sveobuhvatno poređenje pogona za vozače u Srbiji: kalkulacija potrošnje prema godišnjoj kilometraži, troškovi održavanja DPF-a i baterija, i poreske olakšice za registraciju.",
+      "seoTitle": "Dizel, Benzin ili Hibrid: Šta Kupiti u 2027? Kalkulacija Troškova",
+      "metaDescription": "Poređenje dizela, benzinaca i hibrida za kupce u Srbiji: potrošnja, kvarovi, registracija, gradska vožnja i tačna računica isplativosti za 2027. godinu.",
+      "canonicalUrl": "https://www.mojautodiler.com/sr/blog/dizel-benzin-ili-hibrid-2027",
+      "featuredImage": "/blog/dizel-benzin-hibrid-poredjenje-troskova.webp",
+      "featuredImageAlt": "Poređenje tri moderna automobila: dizel, benzin i hibrid u savremenom studiju",
+      "categorySlug": "saveti-za-kupovinu",
+      "categoryName": "Saveti za kupovinu",
+      "primaryKeyword": "dizel benzin ili hibrid",
+      "secondaryKeywords": [
+        "isplativost dizela i benzinca",
+        "hibridni automobili srbija",
+        "potrošnja goriva poređenje",
+        "održavanje dizel motora",
+        "troškovi registracije hibrida srbija"
+      ],
+      "wordCount": 1780,
+      "readingTimeMinutes": 9,
+      "status": "DRAFT",
+      "publishedAt": null,
+      "affiliateCtaEnabled": true,
+      "affiliatePlacement": "inline",
+      "internalLinks": [
+        { "url": "/sr/inventory", "anchor": "kompletnu ponudu dizel, benzinskih i hibridnih modela" },
+        { "url": "/sr/cars/audi", "anchor": "ponudu Audi dizel i TFSI automobila" },
+        { "url": "/sr/cars/volkswagen", "anchor": "popularne Volkswagen modele" }
+      ],
+      "schemaTypes": ["Article", "BreadcrumbList", "FAQPage"]
+    }
+  ]
+}

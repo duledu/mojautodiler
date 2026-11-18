@@ -19,6 +19,7 @@ export const CARVERTICAL_ASSETS = {
   logoWhite: '/carvertical/carvertical-logo-white.svg',
   homepageBannerRs: '/carVertical asset/RS_728x180-4.png',
   footerBannerRs: '/carVertical asset/RS_728x180.png',
+  listingBannerRs: '/carVertical asset/RS_336x280-5.png',
   reportOverviewMockup: '/carvertical/carvertical-report-overview-mockup.webp',
   reportPhotosMockup: '/carvertical/carvertical-report-photos-mockup.webp',
   mileageCardRs: '/carvertical/carvertical-provera-kilometraze-card.webp',
