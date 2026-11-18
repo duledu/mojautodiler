@@ -105,8 +105,13 @@ describe('Legal Protection & Responsibility Disclaimer System', () => {
     );
     const cvIndex = detailClientSrc.indexOf('<CarVerticalVehicleCta');
     const disclaimerIndex = detailClientSrc.indexOf('<VehicleLegalDisclaimer');
+    const promoCardIndex = detailClientSrc.indexOf('100€ discount sidebar promo card');
     assert.ok(cvIndex > 0, 'CarVerticalVehicleCta must remain present');
-    assert.ok(disclaimerIndex > cvIndex, 'VehicleLegalDisclaimer placed below primary vehicle info & carVertical CTA');
+    assert.ok(disclaimerIndex > 0, 'VehicleLegalDisclaimer must remain present below primary vehicle info');
+    assert.ok(
+      promoCardIndex > 0 && cvIndex < promoCardIndex,
+      'CarVerticalVehicleCta positioned in right sidebar directly above 100€ discount box',
+    );
     assert.equal(
       (detailClientSrc.match(/<VehicleLegalDisclaimer/g) ?? []).length,
       1,

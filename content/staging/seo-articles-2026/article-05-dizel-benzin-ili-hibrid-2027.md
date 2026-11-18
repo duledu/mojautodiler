@@ -108,21 +108,22 @@ Svaki pogonski koncept ima svoje slabe tačke koje kupac polovnjaka mora ukalkul
 
 ---
 
-> **🔍 carVertical partnerska provera pogona i servisa**
->
-> Bilo da birate dizel, benzinac ili hibrid, skrivena istorija može potpuno promeniti vašu računicu održavanja. carVertical izveštaj vam omogućava uvid u kompletnu servisnu hronologiju pre kupovine.
->
-> **Šta možete saznati iz izveštaja:**
-> - Da li je na hibridnom ili dizel vozilu kilometraža vraćena pre uvoza
-> - Hronološke zapise o vanrednim servisnim intervencijama i zamenama komponenti
-> - Podatke o učešću u udesima koji su mogli oštetiti baterijski paket ili motor
->
-> 🎁 **Ostvarite 20% popusta uz kod MOJAUTODILER:**  
-> Unesite promotivni kod **MOJAUTODILER** prilikom poručivanja ili kliknite na partnerski link ispod:
->
-> 👉 [Proverite istoriju motora i servisa na carVertical-u (20% popusta)](https://www.carvertical.deal/4FCPMH4/JRZRQN/?source_id=AFF&sub1=mojautodiler&sub2=blog){:target="_blank" rel="sponsored nofollow noopener noreferrer"}
->
-> *MojAutoDiler ostvaruje posredničku naknadu putem ovog linka. Dostupnost podataka zavisi od vozila i izvora.*
+### 🔍 carVertical partnerska provera pogona i servisa
+
+Bilo da birate dizel, benzinac ili hibrid, skrivena istorija može potpuno promeniti vašu računicu održavanja. carVertical izveštaj vam omogućava uvid u servisne zapise pre kupovine.
+
+**Šta možete saznati iz izveštaja:**
+
+- Istorija kilometraže pre uvoza
+- Hronološke zapise o vanrednim servisnim intervencijama i zamenama komponenti
+- Podatke o učešću u udesima koji su mogli oštetiti baterijski paket ili motor
+
+🎁 **Ostvarite 20% popusta uz kod MOJAUTODILER:**  
+Unesite promotivni kod **MOJAUTODILER** prilikom poručivanja ili kliknite na partnerski link ispod:
+
+👉 [Proverite istoriju motora i servisa na carVertical-u (20% popusta)](https://www.carvertical.deal/4FCPMH4/JRZRQN/?source_id=AFF&sub1=mojautodiler&sub2=blog){:target="_blank" rel="sponsored nofollow noopener noreferrer"}
+
+*MojAutoDiler ostvaruje posredničku naknadu putem ovog linka. Dostupnost podataka zavisi od vozila i izvora.*
 
 ---
 

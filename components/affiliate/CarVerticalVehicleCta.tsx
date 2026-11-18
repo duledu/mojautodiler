@@ -67,10 +67,10 @@ export default function CarVerticalVehicleCta({
         aria-label={`${copy.heading} — ${copy.discount} (${copy.discountCode}). ${copy.supportingText}`}
         className="group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2"
       >
-        <div className="flex flex-col md:flex-row md:items-stretch">
-          {/* LEFT SIDE: Official carVertical banner RS_336x280-5 */}
-          <div className="relative flex items-center justify-center overflow-hidden border-b border-[var(--color-border)] bg-[#aadcff] md:w-[38%] md:shrink-0 md:border-b-0 md:border-r lg:w-[36%] xl:w-[35%]">
-            <div className="flex h-full w-full items-center justify-center p-3 sm:p-4 md:p-3 lg:p-4">
+        <div className="flex flex-col">
+          {/* Official carVertical banner RS_336x280-5 */}
+          <div className="relative flex items-center justify-center overflow-hidden border-b border-[var(--color-border)] bg-[#aadcff]">
+            <div className="flex h-full w-full items-center justify-center p-3 sm:p-4">
               <Image
                 src={CARVERTICAL_ASSETS.listingBannerRs}
                 alt="carVertical — Pravo stanje automobila bez skrivenih mana. Proverite odmah."
@@ -79,12 +79,12 @@ export default function CarVerticalVehicleCta({
                 priority
                 unoptimized
                 sizes="(min-width: 1280px) 360px, (min-width: 1024px) 300px, (min-width: 768px) 320px, 100vw"
-                className="block aspect-[336/280] h-auto max-h-[240px] w-full max-w-[320px] object-contain transition-transform duration-300 group-hover:scale-[1.02] md:max-h-none md:max-w-none"
+                className="block aspect-[336/280] h-auto max-h-[220px] w-full max-w-[320px] object-contain transition-transform duration-300 group-hover:scale-[1.02]"
               />
             </div>
           </div>
 
-          {/* RIGHT SIDE: Information, Discount code, CTA and Disclaimer */}
+          {/* Information, Discount code, CTA and Disclaimer */}
           <div className="flex flex-1 flex-col justify-between p-4 min-[390px]:p-5 sm:p-6">
             <div>
               {/* Eyebrow badge */}
@@ -131,7 +131,7 @@ export default function CarVerticalVehicleCta({
             {/* Primary CTA and Disclaimer */}
             <div className="mt-4 flex flex-col gap-2 pt-1 sm:mt-5">
               <span
-                className="btn-dark touch-target inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-xs font-bold text-white shadow-xs transition-all duration-200 group-hover:bg-[var(--accent-dark)] sm:w-auto sm:self-start sm:px-6 sm:text-sm"
+                className="btn-dark touch-target inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-xs font-bold text-white shadow-xs transition-all duration-200 group-hover:bg-[var(--accent-dark)] sm:text-sm"
                 style={{ fontFamily: 'var(--font-display)' }}
               >
                 <span>{copy.cta}</span>

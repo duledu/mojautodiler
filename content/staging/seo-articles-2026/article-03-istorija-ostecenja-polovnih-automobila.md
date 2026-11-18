@@ -128,22 +128,23 @@ Ovi podaci se arhiviraju pod brojem šasije (**VIN**) i dostupni su u međunarod
 
 ---
 
-> **🛡️ carVertical partnerska provera oštećenja i havarija**
->
-> Ne prepuštajte kupovinu nagađanjima. Proverom broja šasije pre izlaska na teren možete odmah saznati da li je automobil učestvovao u udesima i koliki su bili procenjeni troškovi popravke.
->
-> **Ključne informacije u carVertical izveštaju:**
-> - Dijagram vozila sa označenim tačkama oštećenja (prednji kraj, zadnji deo, bočne strane)
-> - Arhivske fotografije iz inostranih baza osiguranja i aukcijskih kuća
-> - Procenjena finansijska vrednost štete u evrima
-> - Da li je vozilo proglašeno ekonomskom ili tehničkom totalnom štetom (*salvage title*)
->
-> 🎁 **Ekskluzivna pogodnost za korisnike MojAutoDiler portala:**  
-> Iskoristite promotivni kod **MOJAUTODILER** za **20% popusta** na detaljan izveštaj o istoriji vozila.
->
-> 👉 [Saznajte istoriju oštećenja na carVertical portalu (20% popusta)](https://www.carvertical.deal/4FCPMH4/JRZRQN/?source_id=AFF&sub1=mojautodiler&sub2=blog){:target="_blank" rel="sponsored nofollow noopener noreferrer"}
->
-> *Transparentnost partnerstva: MojAutoDiler ostvaruje proviziju od realizovanih kupovina putem ovog linka bez ikakvih dodatnih troškova za vas. Dostupnost podataka zavisi od vozila i izvora.*
+### 🛡️ carVertical partnerska provera oštećenja i havarija
+
+Ne prepuštajte kupovinu nagađanjima. Proverom broja šasije pre izlaska na teren možete odmah saznati da li je automobil učestvovao u udesima i koliki su bili procenjeni troškovi popravke.
+
+**Ključne informacije u carVertical izveštaju:**
+
+- Dijagram vozila sa označenim tačkama oštećenja (prednji kraj, zadnji deo, bočne strane)
+- Arhivske fotografije iz inostranih baza osiguranja i aukcijskih kuća
+- Procenjena finansijska vrednost štete u evrima
+- Da li je vozilo proglašeno ekonomskom ili tehničkom totalnom štetom (*salvage title*)
+
+🎁 **Ekskluzivna pogodnost za korisnike MojAutoDiler portala:**  
+Iskoristite promotivni kod **MOJAUTODILER** za **20% popusta** na detaljan izveštaj o istoriji vozila.
+
+👉 [Saznajte istoriju oštećenja na carVertical portalu (20% popusta)](https://www.carvertical.deal/4FCPMH4/JRZRQN/?source_id=AFF&sub1=mojautodiler&sub2=blog){:target="_blank" rel="sponsored nofollow noopener noreferrer"}
+
+*Transparentnost partnerstva: MojAutoDiler ostvaruje proviziju od realizovanih kupovina putem ovog linka bez ikakvih dodatnih troškova za vas. Dostupnost podataka zavisi od vozila i izvora.*
 
 ---
 
@@ -162,7 +163,7 @@ Zato je važno analizirati specifikaciju popravke i fotografije, a ne isključiv
 
 ## 6. Metodološka napomena o istraživanjima i statistikama šteta
 
-U medijima se često navode statistike o tome koliki procenat polovnih automobila ima zabeleženu istoriju oštećenja (neretko se pominju cifre od 40% do čak 55% proverenih automobila). 
+Prema istraživanju kompanije carVertical, koje je preneo N1 u martu 2026. godine, kod 40,8% analiziranih automobila u Srbiji zabeležena su oštećenja ([izvor: N1](https://n1info.rs/magazin/auto/studija-cak-40-odsto-automobila-u-srbiji-pokazuje-odredjeni-nivo-ostecenja-u-svojoj-istoriji/)).
 
 Prilikom tumačenja ovih podataka, važno je razumeti metodologiju:
 - **Uzorak proverenih vozila:** Istraživanja platformi poput carVertical-a baziraju se na automobilima čiji su kupci ili vlasnici zatražili izveštaj. Korisnici najčešće proveravaju vozila skupljeg cenovnog ranga ili modele oko kojih postoji sumnja.

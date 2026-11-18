@@ -109,22 +109,23 @@ Kada kupujete automobil na placu u Srbiji koji je uvezen iz Švajcarske, prodava
 
 ---
 
-> **🔍 carVertical partnerska provera švajcarskih vozila**
->
-> Proverom broja šasije pre kupovine možete uporediti podatke iz švajcarske servisne knjižice sa podacima iz međunarodnih registara i osiguranja.
->
-> **Prednosti provere švajcarskih modela:**
-> - Provera hronologije kilometraže zabeležene pre odjave vozila u Švajcarskoj
-> - Otkrivanje eventualnih skrivenih udesa na švajcarskim putevima
-> - Provera statusa u međunarodnim bazama ukradenih automobila
-> - Verifikacija fabričke specifikacije opreme i motora
->
-> 🎁 **Iskoristite 20% popusta uz kod MOJAUTODILER:**  
-> Posetioci našeg portala ostvaruju poseban popust na svaki carVertical izveštaj.
->
-> 👉 [Proverite vozilo iz Švajcarske na carVertical-u (20% popusta)](https://www.carvertical.deal/4FCPMH4/JRZRQN/?source_id=AFF&sub1=mojautodiler&sub2=blog){:target="_blank" rel="sponsored nofollow noopener noreferrer"}
->
-> *Partnerska transparentnost: MojAutoDiler ostvaruje posredničku naknadu putem ovog linka. Dostupnost podataka zavisi od vozila i izvora.*
+### 🔍 carVertical partnerska provera švajcarskih vozila
+
+Proverom broja šasije pre kupovine možete uporediti podatke iz švajcarske servisne knjižice sa podacima iz međunarodnih registara i osiguranja.
+
+**Prednosti provere švajcarskih modela:**
+
+- Provera hronologije kilometraže zabeležene pre odjave vozila u Švajcarskoj
+- Otkrivanje eventualnih skrivenih udesa na švajcarskim putevima
+- Provera statusa u međunarodnim bazama ukradenih automobila
+- Fabrička specifikacija opreme i motora
+
+🎁 **Iskoristite 20% popusta uz kod MOJAUTODILER:**  
+Posetioci našeg portala ostvaruju poseban popust na svaki carVertical izveštaj.
+
+👉 [Proverite vozilo iz Švajcarske na carVertical-u (20% popusta)](https://www.carvertical.deal/4FCPMH4/JRZRQN/?source_id=AFF&sub1=mojautodiler&sub2=blog){:target="_blank" rel="sponsored nofollow noopener noreferrer"}
+
+*Partnerska transparentnost: MojAutoDiler ostvaruje posredničku naknadu putem ovog linka. Dostupnost podataka zavisi od vozila i izvora.*
 
 ---
 

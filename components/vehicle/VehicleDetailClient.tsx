@@ -659,15 +659,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
               </div>
             </div>
 
-            {/* carVertical vehicle history check CTA */}
-            <CarVerticalVehicleCta
-              vin={vehicle.vin}
-              carVerticalVinMode={vehicle.carVerticalVinMode}
-              status={vehicle.status}
-              locale={locale}
-            />
-
-            {/* Legal responsibility disclaimer — below primary vehicle info & carVertical CTA */}
+            {/* Legal responsibility disclaimer — below primary vehicle info */}
             <VehicleLegalDisclaimer />
 
             {/* Share + discount section */}
@@ -982,7 +974,15 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                 </div>
               </div>
 
-              {/* 100€ discount sidebar promo card */}
+              {/* carVertical vehicle history check CTA — positioned immediately below the verified dealer card */}
+              <CarVerticalVehicleCta
+                vin={vehicle.vin}
+                carVerticalVinMode={vehicle.carVerticalVinMode}
+                status={vehicle.status}
+                locale={locale}
+              />
+
+              {/* 100€ discount sidebar promo card — positioned immediately below the carVertical section */}
               <div className="relative overflow-hidden rounded-2xl border border-[var(--accent-border)] bg-white p-5 shadow-sm">
                 {/* Thin gold top accent — matches the price card language */}
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-[var(--accent)]" aria-hidden="true" />

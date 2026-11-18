@@ -97,22 +97,23 @@ Upoređivanjem ovih vremenskih tačaka lako se prepoznaje takozvani „testerast
 
 ---
 
-> **🔍 carVertical partnerska provera istorije vozila**
->
-> Pre nego što uplatite kaparu ili zakažete majstora, proverite digitalni dosije automobila. carVertical izveštaj objedinjuje podatke iz policijskih registara, osiguravajućih kuća, lizing kuća i baza tehničkih pregleda širom Evrope.
->
-> **Šta izveštaj može otkriti:**
-> - Hronološki grafikon zabeležene kilometraže i otkrivene nepravilnosti
-> - Prethodna oštećenja, procene troškova popravke i fotografije šteta
-> - Da li je vozilo prijavljeno u bazi ukradenih automobila
-> - Istoriju registracija i namensko korišćenje (taksi, rent-a-car, lizing)
->
-> 🎁 **Poseban popust za posetioce MojAutoDiler portala:**  
-> Unesite promotivni kod **MOJAUTODILER** i ostvarite **20% popusta** na svaki carVertical izveštaj. Popust se automatski obračunava klikom na link ispod.
->
-> 👉 [Proverite istoriju vozila na carVertical portalu (20% popusta)](https://www.carvertical.deal/4FCPMH4/JRZRQN/?source_id=AFF&sub1=mojautodiler&sub2=blog){:target="_blank" rel="sponsored nofollow noopener noreferrer"}
->
-> *Napomena o partnerstvu: MojAutoDiler ostvaruje naknadu ukoliko naručite izveštaj putem našeg partnerskog linka, što nam pomaže da održimo portal i kreiramo besplatne edukativne sadržaje. Dostupnost podataka zavisi od vozila i izvora.*
+### 🔍 carVertical partnerska provera istorije vozila
+
+Pre nego što uplatite kaparu ili zakažete majstora, proverite digitalni dosije automobila. carVertical izveštaj objedinjuje podatke iz policijskih registara, osiguravajućih kuća, lizing kuća i baza tehničkih pregleda širom Evrope.
+
+**Šta izveštaj može otkriti:**
+
+- Hronološki grafikon zabeležene kilometraže i otkrivene nepravilnosti
+- Prethodna oštećenja, procene troškova popravke i fotografije šteta
+- Da li je vozilo prijavljeno u bazi ukradenih automobila
+- Istoriju registracija i namensko korišćenje (taksi, rent-a-car, lizing)
+
+🎁 **Poseban popust za posetioce MojAutoDiler portala:**  
+Unesite promotivni kod **MOJAUTODILER** i ostvarite **20% popusta** na svaki carVertical izveštaj. Popust se automatski obračunava klikom na link ispod.
+
+👉 [Proverite istoriju vozila na carVertical portalu (20% popusta)](https://www.carvertical.deal/4FCPMH4/JRZRQN/?source_id=AFF&sub1=mojautodiler&sub2=blog){:target="_blank" rel="sponsored nofollow noopener noreferrer"}
+
+*Napomena o partnerstvu: MojAutoDiler ostvaruje naknadu ukoliko naručite izveštaj putem našeg partnerskog linka, što nam pomaže da održimo portal i kreiramo besplatne edukativne sadržaje. Dostupnost podataka zavisi od vozila i izvora.*
 
 ---
 
