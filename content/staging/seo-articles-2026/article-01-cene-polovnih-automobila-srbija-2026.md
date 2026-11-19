@@ -1,5 +1,6 @@
 ---
 id: "art-2026-001"
+trackingId: "BLOG-001"
 slug: "cene-polovnih-automobila-u-srbiji-2026"
 locale: "sr"
 title: "Cene polovnih automobila u Srbiji 2026: Da li je sada pravo vreme za kupovinu?"
@@ -121,10 +122,12 @@ Ako vas zanimaju nemački modeli, istražite [ponudu Volkswagen modela](/sr/cars
 
 Česta greška domaćih kupaca jeste trošenje celokupnog ušteđenog iznosa na samu kupovinu vozila, bez ostavljanja finansijske rezerve. Za bezbedno uvođenje polovnjaka u svakodnevnu upotrebu potrebno je planirati prateće troškove:
 
-1. **Prenos vlasništva i registracija:** U zavisnosti od kubikaže, snage i godišta vozila, troškovi registracije sa izdavanjem nove saobraćajne dozvole i tablica u Srbiji iznose između 25.000 i 55.000 dinara za automobile do 2.000 kubika. Za vozila preko 2.000 cm³ porez na upotrebu motornih vozila i dalje znatno uvećava godišnju registraciju.
+1. **Prenos vlasništva i registracija:** Orijentacioni troškovi prve registracije sa izdavanjem nove saobraćajne dozvole i tablica za putnička vozila do 2.000 kubika u Srbiji se okvirno kreću između 25.000 i 55.000 dinara. Tačan iznos zavisi od snage motora izražene u kilovatima (koja određuje tarifu obaveznog osiguranja od autoodgovornosti), premijskog stepena, lokalnih komunalnih taksi i starosti vozila. Za vozila sa zapreminom motora preko 2.000 cm³, porez na upotrebu motornih vozila ostaje osetna stavka, pri čemu zakon predviđa umanjenja u zavisnosti od navršenih godina starosti. Kod prenosa vlasništva između fizičkih lica plaća se i porez na prenos apsolutnih prava (2,5%), dok se kod kupovine od pravnog lica u sistemu PDV-a ovaj porez ne plaća.
 2. **Inicijalni preventivni servis:** Čak i kada prodavac tvrdi da je "servis tek urađen", zamena motornog ulja, svih filtera i provera rashladne i kočione tečnosti (mali servis) košta između 100 € i 180 €. Ukoliko vozilo ima zupčasti kaiš bez jasnog dokaza o zameni, veliki servis iznosi od 300 € do 600 €.
 3. **Dijagnostika i provera pre kupovine:** Profesionalni pregled u servisu (50 € – 80 €) i digitalni izveštaj istorije vozila putem broja šasije predstavljaju minimalan ulog koji sprečava kupovinu vozila sa skrivenim havarijama ili vraćenom kilometražom.
 4. **Pravna transparentnost:** Upoznajte se sa time kako funkcionišu [pravila i pravna odgovornost oglašavanja](/sr/podela-odgovornosti) na našoj platformi, gde su partneri registrovana pravna lica.
+
+> **Napomena:** Informacije o troškovima registracije, porezima i taksama u ovom članku imaju isključivo informativni karakter i zasnovane su na javno dostupnim podacima u trenutku pripreme teksta. Propisi, poreske obaveze i uslovi njihove primene mogu se menjati i zavisiti od konkretnih okolnosti. Pre donošenja odluke preporučujemo proveru važećih propisa kod nadležnih institucija ili konsultaciju sa kvalifikovanim stručnjakom.
 
 ---
 
@@ -150,7 +153,7 @@ Volkswagen Golf (naročito generacije 6 i 7), Škoda Octavia, Toyota Yaris i Cor
 U većini slučajeva pregovarački prostor iznosi između 300 i 800 evra za automobile srednjeg ranga, ili 5% do 8% od istaknute cene. Na automobile koji su tek stigli na plac prostor za pregovore je manji, dok kod vozila koja stoje duže od dva meseca postoji veća spremnost prodavca na popust.
 
 ### Da li se isplati kupiti automobil sa motorom preko 2.000 kubika?
-Iako su nabavne cene vozila sa motorima od 2.2 do 3.0 litara često vrlo povoljne u oglasima, visoki godišnji porez na upotrebu motornih vozila u Srbiji (tzv. "porez na luksuz") i viša potrošnja goriva mogu u roku od tri godine pojesti svu početnu uštedu pri kupovini.
+Iako su nabavne cene vozila sa motorima od 2.2 do 3.0 litara često vrlo privlačne u oglasima, godišnji porez na upotrebu motornih vozila u Srbiji (u javnosti poznat kao porez na luksuz) i viša potrošnja goriva mogu vremenom poništiti početnu uštedu. Važno je imati na umu da zakon propisuje olakšice za starija vozila (od 15% umanjenja za vozila preko 5 godina starosti do čak 80% za automobile starije od 20 godina), pa poreska obaveza značajno opada sa starošću automobila, mada troškovi redovnog održavanja i potrošnje ostaju veći.
 
 ---
 

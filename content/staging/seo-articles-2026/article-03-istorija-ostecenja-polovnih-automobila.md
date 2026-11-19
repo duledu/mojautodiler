@@ -1,5 +1,6 @@
 ---
 id: "art-2026-003"
+trackingId: "BLOG-003"
 slug: "istorija-ostecenja-polovnih-automobila"
 locale: "sr"
 title: "Istorija oštećenja polovnih automobila: Šta kupci u Srbiji treba da znaju?"
@@ -194,7 +195,7 @@ Naknadno farbanje nije razlog za odustajanje ukoliko je izvedeno kvalitetno i be
 Ekonomska totalna šteta (*economic total loss*) nastupa kada trošak popravke u ovlašćenom servisu prevazilazi procenjenu vrednost automobila (obično preko 70% ili 80% vrednosti). Na starijim vozilima to može prouzrokovati i relativno bezazlen kontakt (npr. oštećena vrata, branik i far). Međutim, kod novijih vozila to obično znači teško oštećenje mehanike i šasije.
 
 ### Mogu li osiguravajuće kuće u Srbiji odbiti kasko isplatu za ranije oštećen auto?
-Prilikom sklapanja kasko polise u Srbiji, osiguravajuća kuća vrši fotografisanje vozila i popis postojećih oštećenja. Ukoliko vozilo ima neprijavljena strukturalna oštećenja ili nestručno popravljene elemente, osiguravač može umanjiti ili odbiti isplatu odštete u slučaju novog udesa za elemente koji nisu bili u fabričkom stanju.
+Prilikom zaključenja kasko osiguranja u Srbiji, osiguravajuća društva po pravilu obavljaju pregled i fotografisanje zatečenog stanja vozila. Prema opštim uslovima većine osiguravača, elementi koji su u trenutku zaključenja ugovora već imali zabeležena oštećenja ili nestručne popravke mogu biti izuzeti iz pokrića ili dovesti do umanjenja isplate pri likvidaciji nove štete. Kako se uslovi i procedure razlikuju među osiguravajućim kućama, preporučljivo je pre ugovaranja detaljno proučiti pravila konkretnog osiguravača.
 
 ### Kako otkriti da li su vazdušni jastuci već bili aktivirani?
 Nakon teškog sudara, nesavesni prodavci umesto ugradnje novih skupih vazdušnih jastuka i zatezača pojaseva često stave otpornike koji „varaju” motorni računar da je sistem ispravan. Ovo se može otkriti fizičkom proverom poklopca jastuka na volanu i instrument tabli, proverom datuma proizvodnje na etiketama pojaseva i namenskom dijagnostikom bezbednosnih sistema.

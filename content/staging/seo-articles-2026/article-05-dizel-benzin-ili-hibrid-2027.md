@@ -1,5 +1,6 @@
 ---
 id: "art-2026-005"
+trackingId: "BLOG-005"
 slug: "dizel-benzin-ili-hibrid-2027"
 locale: "sr"
 title: "Dizel, benzin ili hibrid: Šta se najviše isplati kupiti u 2027?"
@@ -129,15 +130,27 @@ Unesite promotivni kod **MOJAUTODILER** prilikom poručivanja ili kliknite na pa
 
 ## 4. Poreske olakšice i troškovi registracije u Srbiji
 
-Zakonodavstvo u Republici Srbiji pruža značajne pogodnosti za vlasnike elektrifikovanih vozila, što direktno utiče na godišnje troškove:
+Zakonodavstvo u Republici Srbiji predviđa stimulativne pogodnosti za vlasnike elektrifikovanih vozila, što u određenim kategorijama radikalno menja računicu godišnjih troškova:
 
 ### 1. Oslobađanje od poreza na upotrebu motornih vozila za hibride
-Prema Zakonu o porezima na upotrebu, držanje i nošenje dobara, **hibridna vozila (i samopunjivi i plug-in) oslobođena su plaćanja poreza na upotrebu motornih vozila** prilikom registracije.
 
-Za vozila zapremine do 2.000 kubika ova ušteda iznosi između 6.000 i 14.000 dinara godišnje. Međutim, prava prednost dolazi kod modela veće kubikaže:
-- Za klasičan dizel ili benzinac zapremine od 2.001 do 2.500 cm³, porez na upotrebu iznosi preko 65.000 dinara.
-- Za zapreminu od 2.501 do 3.000 cm³, porez prelazi 130.000 dinara (čuveni „porez na luksuz”).
-- **Kod hibridnog vozila, ovaj porez iznosi 0 dinara bez obzira na radnu zapreminu motora!** To znači da hibrid sa benzinskim motorom od 2,5 litara (kao što su Toyota RAV4 ili Lexus ES) plaća registraciju kao automobil od 1.200 kubika (samo polisa osiguranja, tehnički pregled i administrativne takse).
+Prema članu 5. stav 1. tačka 6) Zakona o porezima na upotrebu, držanje i nošenje dobara ("Sl. glasnik RS", br. 26/01 ... 86/19, 118/21), **porez na upotrebu motornih vozila ne plaćaju vlasnici motornih vozila čiji je jedan od pogona električni (hibridna vozila)**.
+
+Ovo oslobođenje donosi značajne godišnje uštede:
+- **Segment do 2.000 kubika:** Za uobičajene hibride zapremine od 1.500 do 2.000 cm³ ušteda na ovom porezu iznosi između 6.000 i 14.000 dinara godišnje u odnosu na ekvivalentan klasični model.
+- **Segment preko 2.000 kubika:** Najveća finansijska prednost vidljiva je kod motora veće zapremine. Za konvencionalni benzinac ili dizel star do pet godina, osnovni porez na upotrebu za zapremine od 2.001 do 2.500 cm³ prelazi 65.000 dinara, dok za zapremine od 2.501 do 3.000 cm³ iznosi više od 130.000 dinara godišnje (kod starijih vozila porez se zakonski umanjuje sa godinama starosti). Kod hibrida, ova konkretna poreska stavka iznosi **0 dinara**, bez obzira na radnu zapreminu motora.
+
+### 2. Važna razlika: Šta je nula dinara, a šta se i dalje plaća?
+
+Kupci često pogrešno pretpostave da je celokupna registracija hibrida simbolična. Međutim, oslobođenje se odnosi **isključivo na porez na upotrebu motornih vozila**:
+- **Obavezno osiguranje od autoodgovornosti:** U Srbiji se premija osiguranja obračunava prema snazi motora izraženoj u kilovatima (kW), a ne prema kubikaži. Snažan hibrid od 2,5 litara (sa 130 do 160 kW) plaća polisu osiguranja u višem tarifnom razredu nego mali gradski auto od 50 kW.
+- **Ostali troškovi:** Tehnički pregled, komunalna taksa za držanje motornog vozila i republička administrativna taksa plaćaju se redovno.
+
+### 3. Dokumentacija i status blagih hibrida (Mild Hybrid / MHEV)
+
+Da bi poresko oslobođenje bilo primenjeno, vozilo mora u uverenju Agencije za bezbednost saobraćaja (ABS) i saobraćajnoj dozvoli imati zvanično upisan kombinovani pogon (benzin/elektro ili dizel/elektro). Kod uvoza blagih hibrida (*mild hybrid*), pre kupovine uvek proverite kako je vozilo evidentirano u inostranoj i uvoznoj dokumentaciji.
+
+> **Napomena:** Informacije o poreskim propisima i troškovima registracije u ovom članku imaju isključivo informativni karakter i zasnovane su na propisima važećim u trenutku pripreme teksta. Poreske obaveze, tumačenja nadležnih organa i uslovi primene olakšica mogu se menjati i zavisiti od tehničkih podataka upisanih u saobraćajnu dozvolu. Pre kupovine preporučujemo proveru konkretnog vozila i važećih propisa kod ovlašćenih institucija.
 
 ---
 
@@ -166,7 +179,7 @@ Pogledajte našu aktuelnu ponudu: [kompletnu ponudu dizel, benzinskih i hibridni
 ## Često postavljana pitanja (FAQ)
 
 ### Da li se u Srbiji plaća porez na luksuz za hibride preko 2.000 kubika?
-Ne. Prema važećem Zakonu o porezima na upotrebu, držanje i nošenje dobara, sva hibridna motorna vozila u potpunosti su oslobođena plaćanja poreza na upotrebu motornih vozila. To znači da hibridi zapremine 2.500 ili 3.000 cm³ ne plaćaju takozvani „porez na luksuz”, što donosi godišnju uštedu i preko 100.000 dinara u odnosu na standardne benzince ili dizele iste kubikaže.
+Prema članu 5. stav 1. tačka 6) Zakona o porezima na upotrebu, držanje i nošenje dobara, sva hibridna motorna vozila oslobođena su plaćanja poreza na upotrebu motornih vozila, bez obzira na radnu zapreminu motora. To znači da hibridi zapremine 2.500 ili 3.000 cm³ ne plaćaju takozvani porez na kubikažu, što donosi godišnju uštedu i preko 100.000 dinara za novija vozila u poređenju sa klasičnim dizelima ili benzincima. Ipak, imajte u vidu da se ostali troškovi registracije (obavezno osiguranje prema snazi motora u kW, tehnički pregled i lokalne takse) plaćaju po standardnom cenovniku.
 
 ### Koliko košta zamena hibridne baterije ako se pokvari?
 Fabričke hibridne baterije retko otkazuju odjednom. U većini slučajeva popušta samo jedan ili dva modula unutar paketa. Specijalizovani servisi u Srbiji vrše reparaciju i zamenu neispravnih članaka po ceni od 40 do 80 evra po ćeliji, uz garanciju. Kompletan nov fabrički paket baterija menja se izuzetno retko, uglavnom tek nakon 12 do 15 godina i stotina hiljada kilometara.

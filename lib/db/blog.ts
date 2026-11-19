@@ -11,6 +11,7 @@ import type {
 import { prisma } from '@/lib/prisma';
 import { toAppVehicle } from '@/lib/db/mappers';
 import { slugifySr } from '@/lib/utils';
+import { getBlogTrackingId } from '@/lib/blog-tracking';
 import {
   assertSafeText,
   BlogContentValidationError,
@@ -153,6 +154,7 @@ function toAdminSummary(
 ): BlogPostAdminSummary {
   return {
     id: row.id,
+    trackingId: getBlogTrackingId(row),
     slug: row.slug,
     locale: 'sr',
     title: row.title,

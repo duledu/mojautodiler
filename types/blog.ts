@@ -136,6 +136,7 @@ export interface BlogPostPublicDetail extends BlogPostPublicSummary {
 
 export interface BlogPostAdminSummary {
   id: string;
+  trackingId?: string | null;
   slug: string;
   locale: BlogLocale;
   title: string;

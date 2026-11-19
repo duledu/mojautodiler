@@ -20,6 +20,8 @@
   "articles": [
     {
       "id": "art-2026-001",
+      "trackingId": "BLOG-001",
+      "articleNumber": 1,
       "slug": "cene-polovnih-automobila-u-srbiji-2026",
       "file": "article-01-cene-polovnih-automobila-srbija-2026.md",
       "title": "Cene polovnih automobila u Srbiji 2026: Da li je sada pravo vreme za kupovinu?",
@@ -53,6 +55,8 @@
     },
     {
       "id": "art-2026-002",
+      "trackingId": "BLOG-002",
+      "articleNumber": 2,
       "slug": "vracena-kilometraza-kako-prepoznati-prevaru",
       "file": "article-02-vracena-kilometraza-kako-prepoznati-prevaru.md",
       "title": "Vraćena kilometraža: Kako prepoznati prevaru i šta uraditi?",
@@ -87,6 +91,8 @@
     },
     {
       "id": "art-2026-003",
+      "trackingId": "BLOG-003",
+      "articleNumber": 3,
       "slug": "istorija-ostecenja-polovnih-automobila",
       "file": "article-03-istorija-ostecenja-polovnih-automobila.md",
       "title": "Istorija oštećenja polovnih automobila: Šta kupci u Srbiji treba da znaju?",
@@ -121,6 +127,8 @@
     },
     {
       "id": "art-2026-004",
+      "trackingId": "BLOG-004",
+      "articleNumber": 4,
       "slug": "polovni-automobili-iz-svajcarske",
       "file": "article-04-polovni-automobili-iz-svajcarske.md",
       "title": "Polovni automobili iz Švajcarske: Prednosti, rizici i provera pre kupovine",
@@ -156,6 +164,8 @@
     },
     {
       "id": "art-2026-005",
+      "trackingId": "BLOG-005",
+      "articleNumber": 5,
       "slug": "dizel-benzin-ili-hibrid-2027",
       "file": "article-05-dizel-benzin-ili-hibrid-2027.md",
       "title": "Dizel, benzin ili hibrid: Šta se najviše isplati kupiti u 2027?",

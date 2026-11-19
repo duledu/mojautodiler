@@ -1,5 +1,6 @@
 ---
 id: "art-2026-002"
+trackingId: "BLOG-002"
 slug: "vracena-kilometraza-kako-prepoznati-prevaru"
 locale: "sr"
 title: "Vraćena kilometraža: Kako prepoznati prevaru i šta uraditi?"
@@ -119,28 +120,37 @@ Unesite promotivni kod **MOJAUTODILER** i ostvarite **20% popusta** na svaki car
 
 ## 5. Šta kaže zakon u Srbiji: Krivična i građanska odgovornost
 
-Jedna od najčešćih zabluda u Srbiji jeste da je vraćanje kilometraže samo „poslovna praksa” za koju niko ne odgovara. Zakonski okvir pruža jasne instrumente zaštite, mada je teret dokazivanja na oštećenom kupcu.
+Jedna od najčešćih zabluda u Srbiji jeste da je vraćanje kilometraže samo „poslovna praksa” za koju niko ne odgovara. Zakonski okvir pruža pravne instrumente zaštite, mada uspeh u postupku zavisi od raspoloživih dokaza i konkretnih okolnosti.
 
 ### Krivični zakonik Republike Srbije: Član 208 (Prevara)
 
-Vraćanje kilometraže sa namerom da se vozilo proda po višoj ceni od stvarne ispunjava sva obeležja **krivičnog dela Prevare** iz člana 208 Krivičnog zakonika RS:
+Vraćanje kilometraže sa namerom da se vozilo proda po višoj ceni od stvarne može ispuniti zakonska obeležja **krivičnog dela Prevare** iz člana 208. Krivičnog zakonika RS:
 
 > *„Ko u nameri da sebi ili drugom pribavi protivpravnu imovinsku korist dovede koga lažnim prikazivanjem ili prikrivanjem činjenica u zabludu ili ga održava u zabludi i time ga navede da ovaj na štetu svoje ili tuđe imovine nešto učini ili ne učini...”*
 
-U zavisnosti od visine protivpravno pribavljene koristi (razlike između plaćene cene i stvarne vrednosti vozila), zaprećene kazne variraju od novčane kazne do zatvora:
-- Za osnovni oblik: novčana kazna ili zatvor do tri godine.
-- Ako je pribavljena imovinska korist preko 450.000 dinara: zatvor od jedne do osam godina.
-- Ako je korist preko 1.500.000 dinara: zatvor od dve do deset godina.
+U zavisnosti od visine protivpravno pribavljene koristi ili nastale štete, sankcije iz člana 208. Krivičnog zakonika propisane su u sledećim rasponima:
+- Za osnovni oblik (stav 1): kazna zatvora od šest meseci do pet godina i novčana kazna.
+- Ako je pribavljena imovinska korist ili naneta šteta preko 450.000 dinara (stav 3): zatvor od jedne do osam godina i novčana kazna.
+- Ako je korist ili šteta preko 1.500.000 dinara (stav 4): zatvor od dve do deset godina i novčana kazna.
+- Ukoliko je delo učinjeno samo u nameri da se drugi ošteti (stav 2): novčana kazna ili zatvor do šest meseci.
+
+Da li u konkretnom slučaju postoji umišljaj i protivpravna korist neophodna za krivičnu odgovornost procenjuju nadležno javno tužilaštvo i sud kroz ocenu svih prikupljenih dokaza.
 
 ### Kupovina od pravnog lica (auto plac) vs. fizičkog lica
 
-Vaša prava se bitno razlikuju u zavisnosti od toga od koga ste kupili vozilo:
+Vaša prava se bitno razlikuju u zavisnosti od pravnog statusa prodavca:
 
-1. **Kupovina od pravnog lica (auto plac / diler):** Primjenjuje se **Zakon o zaštiti potrošača**. Vraćena kilometraža predstavlja tešku nesaobraznost robe ugovoru. Ako u roku od 6 meseci od kupovine otkrijete manipulaciju, zakonska pretpostavka je da je nedostatak postojao u trenutku kupovine. Imate pravo na:
-   - Raskid ugovora i povraćaj celokupnog uplaćenog iznosa.
-   - Srazmerno umanjenje cene (povraćaj razlike u novcu).
-   - Rok za reklamaciju polovne robe kod trgovca je zakonski najmanje godinu dana, osim ako ugovorom nije dogovoren duži rok.
-2. **Kupovina od fizičkog lica:** Zakon o zaštiti potrošača se **ne primenjuje** na transakcije između dva građanina. U ovom slučaju primenjuje se **Zakon o obligacionim odnosima (ZOO)** u delu koji reguliše materijalne nedostatke stvari. Kupac mora pismeno obavestiti prodavca o skrivenom nedostatku i može pokrenuti parnični postupak pred nadležnim sudom radi raskida ugovora ili nadoknade štete.
+1. **Kupovina od pravnog lica ili preduzetnika (auto plac / diler):** Primjenjuje se **Zakon o zaštiti potrošača** ("Sl. glasnik RS", br. 88/2021). Manipulacija kilometražom predstavlja tešku nesaobraznost robe ugovoru.
+   - **Zakonska odgovornost za saobraznost:** Prema članu 52. Zakona o zaštiti potrošača, prodavac odgovara za nesaobraznost robe ugovoru u roku od dve godine. Kod polovne robe, trgovac i potrošač mogu ugovoriti kraći rok, ali taj rok ne može biti kraći od jedne godine. Ukoliko kraći rok nije izričito i ugovorno preciziran, primenjuje se pun zakonski rok od dve godine.
+   - **Razlikovanje saobraznosti i garancije:** Zakonska saobraznost je obavezna zakonska zaštita koja ne zavisi od volje trgovca. Komercijalna garancija (član 53. ZZP) jeste isključivo dobrovoljno obećanje prodavca i ne može ograničiti prava potrošača propisana zakonom.
+   - **Pretpostavka nedostatka u prvih 6 meseci:** Ako nesaobraznost nastane u roku od šest meseci od prelaska rizika na kupca, zakon pretpostavlja da je nedostatak postojao u trenutku kupovine (član 52. stav 6. ZZP), pa je teret dokazivanja na trgovcu.
+   - **Prava kupca:** Potrošač ima pravo na otklanjanje nedostatka, srazmerno umanjenje cene ili raskid ugovora uz povraćaj punog novčanog iznosa (član 51. ZZP).
+2. **Kupovina od fizičkog lica (građanska kupoprodaja):** Zakon o zaštiti potrošača se **ne primenjuje** na transakcije između dva građanina van obavljanja privredne delatnosti. U ovom slučaju primenjuje se **Zakon o obligacionim odnosima (ZOO)** u delu o materijalnim nedostacima stvari (članovi 478 do 500):
+   - **Rok za obaveštavanje:** Kupac je dužan da o skrivenom nedostatku obavesti prodavca u roku od osam dana od dana kada je nedostatak otkrio (član 484. ZOO).
+   - **Objektivni rok odgovornosti:** Prodavac ne odgovara za nedostatke koji se pokažu pošto protekne šest meseci od predaje stvari, osim ako je ugovorom bio određen duži rok (član 500. ZOO).
+   - **Sudska zaštita:** Kupac može zahtevati sniženje cene, raskid ugovora ili nadoknadu štete, a u odsustvu vansudskog dogovora zaštita se ostvaruje pokretanjem parničnog postupka pred nadležnim sudom.
+
+> **Napomena:** Informacije u ovom članku imaju isključivo informativni karakter i zasnovane su na javno dostupnim podacima u trenutku pripreme teksta. Propisi, sudska praksa i uslovi njihove primene mogu se menjati i zavisiti od konkretnih okolnosti pojedinačnog slučaja. Pre donošenja pravnih ili finansijskih odluka preporučujemo proveru važećih propisa kod nadležnih institucija ili konsultaciju sa kvalifikovanim pravnim stručnjakom.
 
 ---
 
@@ -174,7 +184,7 @@ Istražite [ponudu polovnih automobila sa verifikovanom istorijom](/sr/inventory
 ## Često postavljana pitanja (FAQ)
 
 ### Da li je vraćanje kilometraže u Srbiji krivično delo?
-Da. Svesno menjanje stanja na odometru radi dovođenja kupca u zabludu i ostvarivanja veće prodajne cene tretira se kao krivično delo Prevare prema članu 208 Krivičnog zakonika Republike Srbije. Za ovo delo zaprećene su novčane kazne ili zatvorska kazna u trajanju do tri, osam ili deset godina, u zavisnosti od visine stečene imovinske koristi.
+Svesno manipulisanje stanjem odometra radi dovođenja kupca u zabludu i ostvarivanja veće cene može ispuniti elemente krivičnog dela Prevare prema članu 208. Krivičnog zakonika Republike Srbije. Za osnovni oblik zaprećena je kazna zatvora od šest meseci do pet godina uz novčanu kaznu, dok su za teže oblike (preko 450.000 odnosno 1.500.000 dinara koristi ili štete) predviđene kazne zatvora od jedne do osam, odnosno od dve do deset godina uz novčanu kaznu. Da li u konkretnom slučaju postoji krivična odgovornost procenjuju nadležno tužilaštvo i sud na osnovu svih okolnosti i dokaza.
 
 ### Može li se vraćena kilometraža uvek otkriti dijagnostikom?
 U većini slučajeva da. Iako nestručni prevaranti promene podatak samo na instrument tabli, savremeni automobili skladište kilometražu u više od deset različitih računara (motorni ECU, automatski menjač, ABS, vazdušni jastuci, modul komfora, DPF regeneracije, ključevi). Za potpuno usklađivanje svih modula potrebna je vrhunska oprema koju većina manipulanta ne poseduje.

@@ -10,6 +10,7 @@ import {
 import BlogContentRenderer from '@/components/blog/BlogContentRenderer';
 import VehicleCard from '@/components/vehicle/VehicleCard';
 import { getTranslations } from '@/lib/i18n';
+import { getBlogTrackingId } from '@/lib/blog-tracking';
 import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
@@ -46,6 +47,7 @@ export default async function AdminBlogPreviewPage({
   }).catch(() => []);
 
   const t = getTranslations('sr');
+  const trackingId = getBlogTrackingId(post);
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 p-4 lg:p-6">
@@ -53,7 +55,7 @@ export default async function AdminBlogPreviewPage({
         <div className="flex items-center gap-2">
           <ShieldAlert size={16} />
           <span>
-            INTERNI ADMIN PREGLED — Status članka: {post.status.toUpperCase()} (javne
+            INTERNI ADMIN PREGLED {trackingId ? `[${trackingId}]` : ''}: Status članka: {post.status.toUpperCase()} (javne
             blog stranice nisu aktivirane u Fazi 2)
           </span>
         </div>

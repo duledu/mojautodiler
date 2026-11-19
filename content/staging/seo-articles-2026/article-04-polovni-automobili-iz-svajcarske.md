@@ -1,5 +1,6 @@
 ---
 id: "art-2026-004"
+trackingId: "BLOG-004"
 slug: "polovni-automobili-iz-svajcarske"
 locale: "sr"
 title: "Polovni automobili iz Švajcarske: Prednosti, rizici i provera pre kupovine"
@@ -131,11 +132,14 @@ Posetioci našeg portala ostvaruju poseban popust na svaki carVertical izveštaj
 
 ## 5. Carina, porez i uvozni troškovi iz Švajcarske u Srbiju
 
-Kako Švajcarska nije članica Evropske unije, uvozna pravila imaju važne specifičnosti:
+Iako Švajcarska nije članica Evropske unije, trgovinski odnosi sa Republikom Srbijom uređeni su Sporazumom o slobodnoj trgovini sa državama EFTA i pravilima o preferencijalnom poreklu:
 
-- **Carinska stopa i EUR1 obrazac:** Za putničke automobile proizvedene u Evropskoj uniji (npr. u Nemačkoj, Francuskoj, Češkoj), a koji se uvoze iz Švajcarske, carinska stopa iznosi **0%**, pod uslovom da posedujete dokaz o preferencijalnom poreklu: **obrazac EUR1** ili zvaničnu izjavu ovlašćenog izvoznika na fakturi. Ukoliko dokaz o poreklu ne postoji, primenjuje se puna carinska stopa od **12,5%**.
-- **Porez na dodatu vrednost (PDV):** PDV u Srbiji iznosi **20%** i obračunava se na ukupnu carinsku vrednost vozila (fakturisana vrednost uvećana za troškove prevoza i eventualnu carinu), ili prema zvaničnom katalogu AMSS-a ukoliko je fakturisana cena nerealno niska.
-- **Ispitivanje Agencije za bezbednost saobraćaja (ABS):** Svako uvezeno vozilo mora proći proveru usklađenosti. Troškovi pregleda, izdavanja uverenja i administrativnih taksi iznose oko 100 do 120 evra.
+- **Carinska stopa i dokaz o poreklu (EUR1):** Za putnička vozila koja poseduju dokazano poreklo iz Evropske unije ili Švajcarske, carinska stopa iznosi **0%**, pod uslovom da uvoznik carinskim organima priloži važeći dokaz: overen **obrazac EUR1** izdat od strane švajcarskih carinskih organa ili autorizovanu izjavu izvoznika na fakturi. Ukoliko se preferencijalno poreklo ne može dokazati (na primer, za modele proizvedene van EU/EFTA prostora ili vozila bez uredne fabričke dokumentacije), primenjuje se opšta carinska stopa od **12,5%** na osnovicu.
+- **Porez na dodatu vrednost (PDV):** Zakonska stopa PDV-a u Srbiji iznosi **20%** i obračunava se na ukupnu carinsku vrednost vozila (fakturisana vrednost uvećana za troškove međunarodnog prevoza, osiguranja i iznos eventualne carine). Carinski organi imaju ovlašćenje da procenjuju realnost prijavljene fakture poređenjem sa kataloškim vrednostima AMSS-a.
+- **Ispitivanje i uverenje Agencije za bezbednost saobraćaja (ABS):** Pre prve registracije svako polovno uvezeno vozilo mora proći ispitivanje usklađenosti kod ovlašćenih ispitnih laboratorija. Zbirni troškovi pregleda, izdavanja ABS uverenja i administrativnih taksi iznose okvirno između 10.000 i 14.000 dinara (oko 85 do 120 evra).
+- **Emisioni standardi za uvoz:** Prema važećoj Uredbi o uvozu motornih vozila ("Sl. glasnik RS", br. 23/2010 i 5/2018), minimalni propisani ekološki standard za uvoz upotrebljavanih motornih vozila u trenutku pripreme teksta jeste Euro 3. Zbog najava mogućeg pooštravanja uvoznih ekoloških normi, preporučuje se provera aktuelnog statusa propisa pre organizacije transporta.
+
+> **Napomena:** Informacije o carinskim propisima, poreskim obavezama i proceduri uvoza u ovom članku imaju isključivo informativni karakter i zasnovane su na javno dostupnim podacima u trenutku pripreme teksta. Carinske tarife, poreske stope i administrativna praksa mogu se menjati i zavisiti od konkretnih okolnosti pojedinačnog uvoza. Pre pokretanja postupka preporučujemo proveru važećih pravila kod Uprave carina Republike Srbije ili konsultaciju sa licenciranim carinskim agentom (špediterom).
 
 ---
 
@@ -159,7 +163,7 @@ Ukoliko planirate kupovinu, [pregledajte kompletnu ponudu uvezenih polovnjaka](/
 ## Često postavljana pitanja (FAQ)
 
 ### Da li se plaća carina na uvoz automobila iz Švajcarske?
-Ukoliko je automobil proizveden u zemlji Evropske unije i poseduje dokaz o preferencijalnom poreklu (EUR1 obrazac ili izjavu na fakturi), carina iznosi 0%. Plaćaju se samo porez na dodatu vrednost (PDV od 20%) i takse za ispitivanje vozila (ABS uverenje). Ako dokaz o poreklu ne postoji, plaća se carina od 12,5%.
+Ukoliko automobil ispunjava uslove o preferencijalnom evropskom poreklu i poseduje overen EUR1 obrazac ili izjavu izvoznika na fakturi, carinska stopa iznosi 0%. U tom slučaju plaćaju se porez na dodatu vrednost (PDV od 20%) i administrativne takse za ispitivanje vozila (ABS uverenje). Ako se preferencijalno poreklo ne može dokazati ili je vozilo proizvedeno van zone obuhvaćene sporazumom, primenjuje se opšta carinska stopa od 12,5%.
 
 ### Šta znači ako je švajcarska saobraćajna dozvola poništena?
 Poništena saobraćajna dozvola (*annulliert* / *annulé*) znači da je vozilo legalno odjavljeno iz registra u kantonu u kom je bilo prijavljeno i pripremljeno za prodaju ili izvoz. To je obavezan uslov da bi vozilo moglo biti ocarinjeno i registrovano u Srbiji.

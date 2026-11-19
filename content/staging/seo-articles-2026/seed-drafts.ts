@@ -4,6 +4,7 @@ import { prisma } from '../../../lib/prisma';
 
 interface Frontmatter {
   id: string;
+  trackingId?: string;
   slug: string;
   locale?: string;
   title: string;

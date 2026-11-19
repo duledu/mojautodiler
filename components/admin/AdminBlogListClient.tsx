@@ -19,6 +19,7 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { slugifySr } from '@/lib/utils';
+import { getBlogTrackingId } from '@/lib/blog-tracking';
 import type {
   BlogCategory,
   BlogPostAdminSummary,
@@ -85,11 +86,13 @@ export default function AdminBlogListClient({
       return false;
     }
     const q = search.trim().toLowerCase();
+    const trackingId = getBlogTrackingId(post);
     if (
       q &&
       !post.title.toLowerCase().includes(q) &&
       !post.slug.toLowerCase().includes(q) &&
-      !post.excerpt.toLowerCase().includes(q)
+      !post.excerpt.toLowerCase().includes(q) &&
+      (!trackingId || !trackingId.toLowerCase().includes(q))
     ) {
       return false;
     }
@@ -421,12 +424,23 @@ export default function AdminBlogListClient({
                 {paginated.map((post) => {
                   const badge = STATUS_BADGE[post.status] ?? STATUS_BADGE.draft;
                   const isBusy = busyId === post.id;
+                  const trackingId = getBlogTrackingId(post);
 
                   return (
                     <tr key={post.id} className="hover:bg-black/[0.015]">
                       <td className="px-4 py-3.5">
-                        <div className="font-bold text-[var(--color-text)]">
-                          {post.title}
+                        <div className="flex items-center gap-2">
+                          {trackingId && (
+                            <span
+                              className="inline-flex shrink-0 items-center rounded-md border border-stone-200 bg-stone-100 px-1.5 py-0.5 font-mono text-[10px] font-bold text-stone-700"
+                              title={`Interni identifikator: ${trackingId}`}
+                            >
+                              {trackingId}
+                            </span>
+                          )}
+                          <span className="font-bold text-[var(--color-text)]">
+                            {post.title}
+                          </span>
                         </div>
                         <div className="mt-0.5 text-xs text-[var(--color-text-muted)]">
                           /sr/blog/{post.slug}
