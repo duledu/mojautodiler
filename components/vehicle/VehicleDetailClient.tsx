@@ -7,7 +7,7 @@ import { buildAttribution } from '@/lib/utm';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FacebookIcon, ViberIcon } from '@/components/ui/SocialIcons';
+import { FacebookIcon, InstagramIcon, ViberIcon } from '@/components/ui/SocialIcons';
 import {
   Phone, ChevronLeft, ChevronRight, X, Check, CheckCircle2, ChevronDown,
   ArrowLeft, Send, MapPin, Clock, ShieldCheck, CalendarCheck, Video, LockKeyhole, MessageCircle,
@@ -23,7 +23,6 @@ import CarVerticalVehicleCta from '@/components/affiliate/CarVerticalVehicleCta'
 import VehicleLegalDisclaimer from '@/components/vehicle/VehicleLegalDisclaimer';
 import VehicleShareSection from '@/components/vehicle/VehicleShareSection';
 import { EmbedPlayer } from '@/components/vehicle/EmbedPlayer';
-import MobileContactFab from '@/components/vehicle/MobileContactFab';
 import VehicleHighlights from '@/components/vehicle/VehicleHighlights';
 import PremiumVehiclePlaceholder from '@/components/vehicle/PremiumVehiclePlaceholder';
 import { getVehicleTrustBadges, TrustBadges } from '@/components/vehicle/TrustBadges';
@@ -90,7 +89,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
   const leadDebounce = useRef<Map<string, number>>(new Map());
   const [activeImage, setActiveImage] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'specs' | 'equipment' | 'safety' | 'description'>('specs');
+  const [isEquipmentExpanded, setIsEquipmentExpanded] = useState(false);
   const [form, setForm] = useState({ name: '', phone: '', email: '', message: '' });
   const [submitted, setSubmitted]   = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -160,13 +159,6 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
     ...(vehicle.registration ? [{ label: t.vehicle.registration, value: vehicle.registration }] : []),
     ...(vehicle.origin ? [{ label: t.vehicle.origin, value: vehicle.origin }] : []),
   ];
-
-  const tabs = [
-    { key: 'specs', label: t.vehicle.specs },
-    { key: 'equipment', label: t.vehicle.equipment },
-    { key: 'safety', label: t.vehicle.safety },
-    { key: 'description', label: t.vehicle.description },
-  ] as const;
 
   const recordLeadIntent = (intent: string, channel: string, message: string | undefined, firedAt: number, createCrmLead: boolean = true) => {
     // ── Frontend duplicate guard ────────────────────────────────────────────
@@ -290,10 +282,10 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-3 py-6 min-[390px]:px-4 min-[390px]:py-8 sm:px-6">
+      <div className="max-w-7xl mx-auto px-3 py-4 min-[390px]:px-4 min-[390px]:py-6 sm:px-6 sm:py-8">
         <Link
           href={`/${locale}/inventory`}
-          className="inline-flex items-center gap-2 text-(--color-text-muted) hover:text-(--color-text) text-sm transition-colors mb-6"
+          className="inline-flex items-center gap-2 text-(--color-text-muted) hover:text-(--color-text) text-sm transition-colors mb-3.5 min-[390px]:mb-4 sm:mb-6"
           style={{ fontFamily: 'var(--font-display)' }}
         >
           <ArrowLeft size={15} />
@@ -302,7 +294,7 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
 
         <div className="grid gap-6 min-[390px]:gap-8 lg:grid-cols-[1fr_340px]">
           {/* Left column — min-w-0 prevents grid item expanding to min-content size */}
-          <div className="min-w-0 space-y-5 min-[390px]:space-y-7">
+          <div className="min-w-0 space-y-4 min-[390px]:space-y-5 lg:space-y-7">
             {/* Title */}
             <div>
               <div className="flex items-start justify-between gap-3">
@@ -321,13 +313,13 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
               <p className="mt-1.5 text-(--color-text-muted)">
                 {vehicle.year}. godište · {t.condition[vehicle.condition]}
               </p>
-              <div className="mt-3 flex flex-wrap gap-1.5 min-[390px]:gap-2">
+              <div className="mt-3 hidden lg:flex flex-wrap gap-1.5 min-[390px]:gap-2">
                 <VehicleStatusBadge vehicle={vehicle} locale={locale} />
                 <TrustBadges locale={locale} badges={trustBadges.slice(0, 3)} compact />
               </div>
 
               {/* Mobile inline price — visible only on smaller screens */}
-              <div className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-(--color-border) bg-white p-3.5 shadow-sm min-[390px]:p-4 lg:hidden">
+              <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-(--color-border) bg-white p-3.5 shadow-sm min-[390px]:p-4 lg:hidden">
                 <div className="min-w-0">
                   <div
                     className="truncate text-lg font-black leading-tight text-(--color-gold-dark) min-[390px]:text-2xl"
@@ -470,7 +462,233 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
             {/* Vehicle highlights — fast-scan chips between gallery and confidence section */}
             <VehicleHighlights vehicle={vehicle} locale={locale} />
 
-            {/* Videos — uploaded clips + embedded video, surfaced early so visitors see them before scrolling to specs */}
+            {/* Complete Technical Specifications — immediately below gallery and highlights */}
+            <section className="rounded-3xl border border-(--color-border) bg-white p-5 shadow-sm min-[390px]:p-6 sm:p-7">
+              <div className="mb-5 flex items-center justify-between gap-3 border-b border-(--color-border)/70 pb-4">
+                <div>
+                  <h2
+                    className="text-lg font-black text-(--color-text) sm:text-xl"
+                    style={{ fontFamily: 'var(--font-display)' }}
+                  >
+                    {t.vehicle.specs}
+                  </h2>
+                  <p className="mt-0.5 text-xs text-(--color-text-muted)">
+                    {vehicle.title}
+                  </p>
+                </div>
+                <span className="rounded-full bg-(--color-surface-2) px-3 py-1 text-xs font-bold text-(--color-text-muted)">
+                  {specs.length} {locale === 'sq' ? 'të dhëna' : 'stavki'}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 min-[420px]:grid-cols-2 xl:grid-cols-3 gap-2 sm:gap-2.5">
+                {specs.map(({ label, value }) => (
+                  <div
+                    key={label}
+                    className="flex min-h-[3.125rem] items-center justify-between gap-3 rounded-xl border border-(--color-border)/60 bg-(--color-surface-2)/50 px-3.5 py-2 transition-colors hover:bg-(--color-surface-2)"
+                  >
+                    <span className="text-xs font-medium text-(--color-text-muted) shrink-0">{label}</span>
+                    <span className="text-right text-xs min-[390px]:text-[13px] font-bold text-(--color-text) break-words max-w-[65%] leading-snug">
+                      {value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Complete Vehicle Equipment & Features */}
+            {(() => {
+              const totalEquipmentCount =
+                vehicle.safetyFeatures.length + vehicle.equipment.length + vehicle.features.length;
+              if (totalEquipmentCount === 0) return null;
+
+              const hasExcessEquipment = totalEquipmentCount > 10;
+              const initialSafetyLimit = Math.min(vehicle.safetyFeatures.length, 4);
+              const initialEquipmentLimit = Math.max(4, 10 - initialSafetyLimit);
+              const initialFeaturesLimit = Math.max(
+                0,
+                10 - initialSafetyLimit - Math.min(vehicle.equipment.length, initialEquipmentLimit),
+              );
+
+              const displayedSafety = isEquipmentExpanded
+                ? vehicle.safetyFeatures
+                : vehicle.safetyFeatures.slice(0, initialSafetyLimit);
+              const displayedEquipment = isEquipmentExpanded
+                ? vehicle.equipment
+                : vehicle.equipment.slice(0, initialEquipmentLimit);
+              const displayedFeatures = isEquipmentExpanded
+                ? vehicle.features
+                : vehicle.features.slice(0, initialFeaturesLimit);
+
+              return (
+                <section className="rounded-3xl border border-(--color-border) bg-white p-5 shadow-sm min-[390px]:p-6 sm:p-7">
+                  <div className="mb-5 flex items-center justify-between gap-3 border-b border-(--color-border)/70 pb-4">
+                    <div>
+                      <h2
+                        className="text-lg font-black text-(--color-text) sm:text-xl"
+                        style={{ fontFamily: 'var(--font-display)' }}
+                      >
+                        {t.vehicle.equipment}
+                      </h2>
+                      <p className="mt-0.5 text-xs text-(--color-text-muted)">
+                        {vehicleDetailCopy.equipmentGroup} · {vehicleDetailCopy.safetyGroup} · {vehicleDetailCopy.conditionGroup}
+                      </p>
+                    </div>
+                    <span className="rounded-full bg-(--color-surface-2) px-3 py-1 text-xs font-bold text-(--color-text-muted)">
+                      {totalEquipmentCount} {locale === 'sq' ? 'pajisje' : 'stavki'}
+                    </span>
+                  </div>
+
+                  <div className="space-y-6">
+                    {displayedSafety.length > 0 && (
+                      <div>
+                        <div className="mb-2.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-800">
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
+                          <span>{vehicleDetailCopy.safetyGroup}</span>
+                          <span className="text-[11px] font-semibold text-(--color-text-muted) lowercase">
+                            ({vehicle.safetyFeatures.length})
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-1 min-[420px]:grid-cols-2 gap-2 sm:gap-2.5">
+                          {displayedSafety.map((item) => (
+                            <div
+                              key={item}
+                              className="flex min-h-[2.625rem] items-center gap-2.5 rounded-xl border border-emerald-100/80 bg-emerald-50/30 px-3.5 py-2 transition-colors hover:bg-emerald-50/60"
+                            >
+                              <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                                <Check size={10} strokeWidth={2.5} />
+                              </div>
+                              <span className="text-xs min-[390px]:text-[13px] font-medium leading-snug text-(--color-text)">
+                                {item}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {displayedEquipment.length > 0 && (
+                      <div>
+                        <div className="mb-2.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-(--color-gold-dark)">
+                          <span className="h-1.5 w-1.5 rounded-full bg-(--color-gold)" />
+                          <span>{vehicleDetailCopy.equipmentGroup}</span>
+                          <span className="text-[11px] font-semibold text-(--color-text-muted) lowercase">
+                            ({vehicle.equipment.length})
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-1 min-[420px]:grid-cols-2 gap-2 sm:gap-2.5">
+                          {displayedEquipment.map((item) => (
+                            <div
+                              key={item}
+                              className="flex min-h-[2.625rem] items-center gap-2.5 rounded-xl border border-(--color-border)/60 bg-(--color-surface-2)/40 px-3.5 py-2 transition-colors hover:bg-(--color-surface-2)/80"
+                            >
+                              <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-(--color-gold-border) bg-(--color-gold-bg) text-(--color-gold-dark)">
+                                <Check size={10} strokeWidth={2.5} />
+                              </div>
+                              <span className="text-xs min-[390px]:text-[13px] font-medium leading-snug text-(--color-text)">
+                                {item}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {displayedFeatures.length > 0 && (
+                      <div>
+                        <div className="mb-2.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-(--color-text)">
+                          <span className="h-1.5 w-1.5 rounded-full bg-(--accent)" />
+                          <span>{vehicleDetailCopy.conditionGroup}</span>
+                          <span className="text-[11px] font-semibold text-(--color-text-muted) lowercase">
+                            ({vehicle.features.length})
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-1 min-[420px]:grid-cols-2 gap-2 sm:gap-2.5">
+                          {displayedFeatures.map((item) => (
+                            <div
+                              key={item}
+                              className="flex min-h-[2.625rem] items-center gap-2.5 rounded-xl border border-(--color-border)/60 bg-(--color-surface-2)/40 px-3.5 py-2 transition-colors hover:bg-(--color-surface-2)/80"
+                            >
+                              <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-(--accent-border) bg-(--accent-soft) text-(--accent-dark)">
+                                <Check size={10} strokeWidth={2.5} />
+                              </div>
+                              <span className="text-xs min-[390px]:text-[13px] font-medium leading-snug text-(--color-text)">
+                                {item}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {hasExcessEquipment && (
+                    <button
+                      type="button"
+                      suppressHydrationWarning
+                      onClick={() => setIsEquipmentExpanded((prev) => !prev)}
+                      aria-expanded={isEquipmentExpanded}
+                      className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl border border-(--color-border) bg-(--color-surface-2)/50 py-3 text-xs sm:text-sm font-bold text-(--color-text) transition-all hover:border-(--color-gold) hover:bg-white hover:text-(--color-gold-dark) shadow-2xs"
+                    >
+                      <span>
+                        {isEquipmentExpanded
+                          ? (locale === 'sq' ? 'Shfaq më pak' : 'Prikaži manje')
+                          : (locale === 'sq'
+                              ? `Shfaq të gjitha pajisjet (${totalEquipmentCount})`
+                              : `Prikaži kompletnu opremu (${totalEquipmentCount})`)}
+                      </span>
+                      <ChevronDown
+                        size={16}
+                        className={cn(
+                          'transition-transform duration-300',
+                          isEquipmentExpanded && 'rotate-180',
+                        )}
+                      />
+                    </button>
+                  )}
+                </section>
+              );
+            })()}
+
+            {/* Complete Vehicle Description & Dealer Notes */}
+            {(vehicle.description || vehicle.dealerNotes) && (
+              <section className="rounded-3xl border border-(--color-border) bg-white p-5 shadow-sm min-[390px]:p-6 sm:p-7">
+                <div className="mb-5 border-b border-(--color-border)/70 pb-4">
+                  <h2
+                    className="text-lg font-black text-(--color-text) sm:text-xl"
+                    style={{ fontFamily: 'var(--font-display)' }}
+                  >
+                    {t.vehicle.description}
+                  </h2>
+                  <p className="mt-0.5 text-xs text-(--color-text-muted)">
+                    {locale === 'sq' ? 'Përshkrimi i detajuar nga shitësi' : 'Detaljan opis vozila od strane prodavca'}
+                  </p>
+                </div>
+
+                {vehicle.description && (
+                  <p className="text-sm leading-7 sm:text-base sm:leading-8 text-(--color-text-2) whitespace-pre-line">
+                    {vehicle.description.replace(/\n{3,}/g, '\n\n')}
+                  </p>
+                )}
+
+                {vehicle.dealerNotes && (
+                  <div className="mt-6 rounded-2xl border border-(--color-gold-border) bg-(--color-gold-bg) p-4 sm:p-5">
+                    <div className="mb-2 flex items-center gap-2">
+                      <ShieldCheck size={16} className="text-(--color-gold-dark)" />
+                      <h3
+                        className="text-sm font-bold text-(--color-gold-dark)"
+                        style={{ fontFamily: 'var(--font-display)' }}
+                      >
+                        {t.vehicle.dealerNotes}
+                      </h3>
+                    </div>
+                    <p className="text-xs sm:text-sm leading-6 text-(--color-text-2)">{vehicle.dealerNotes}</p>
+                  </div>
+                )}
+              </section>
+            )}
+
+            {/* Videos — uploaded clips + embedded video */}
             {((vehicle.videos && vehicle.videos.length > 0) || vehicle.videoUrl) && (
               <section className="rounded-3xl border border-(--color-border) bg-white p-4 shadow-sm min-[390px]:p-5 sm:p-6">
                 <div className="mb-4 flex items-center gap-2">
@@ -497,13 +715,10 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
               </section>
             )}
 
-            <section className="rounded-3xl border border-[var(--accent-border)] bg-[var(--accent-soft)] p-4 shadow-sm min-[390px]:p-5 sm:p-6">
+            {/* Why This Vehicle Stands Out / Dealer Confidence */}
+            <section className="rounded-3xl border border-[var(--accent-border)] bg-[var(--accent-soft)] p-5 shadow-sm min-[390px]:p-6 sm:p-7">
               <div className="flex flex-col gap-4 min-[390px]:gap-5 lg:flex-row lg:items-start lg:justify-between">
                 <div className="max-w-2xl">
-                  <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-xs font-bold text-[var(--accent-dark)] shadow-sm">
-                    <ShieldCheck size={14} />
-                    {vehicleDetailCopy.dealerConfidence}
-                  </div>
                   <h2 className="text-xl font-black text-[var(--color-text)] min-[390px]:text-2xl" style={{ fontFamily: 'var(--font-display)' }}>
                     {quickActionCopy.confidenceTitle}
                   </h2>
@@ -521,36 +736,9 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
               </div>
             </section>
 
-            <section className="rounded-3xl border border-(--color-border) bg-white p-4 shadow-sm min-[390px]:p-5 sm:p-6">
-              <div className="mb-4 flex items-center justify-between gap-3">
-                <div>
-                  <h2 className="font-black text-(--color-text)" style={{ fontFamily: 'var(--font-display)' }}>{vehicleDetailCopy.quickActionsTitle}</h2>
-                  <p className="mt-1 text-sm text-(--color-text-muted)">{vehicleDetailCopy.quickActionsSub}</p>
-                </div>
-                <MessageCircle size={20} className="shrink-0 text-[var(--accent)]" />
-              </div>
-              <div className="grid gap-2 min-[430px]:grid-cols-2 lg:grid-cols-5">
-                <QuickLeadButton icon={<CalendarCheck size={15} />} label={quickActionCopy.book} onClick={(event) => applyQuickLead(`${quickActionCopy.book}: ${vehicle.title}`, 'schedule_viewing', event.timeStamp)} />
-                <QuickLeadButton icon={<Video size={15} />} label={quickActionCopy.video} onClick={(event) => {
-                  recordLeadIntent('phone_call', 'phone', undefined, event.timeStamp, false);
-                  if (contact.phone) window.location.href = `tel:${contact.phone}`;
-                }} />
-                <QuickLeadButton icon={<ShieldCheck size={15} />} label={quickActionCopy.availability} onClick={(event) => {
-                  recordLeadIntent('phone_call', 'phone', undefined, event.timeStamp, false);
-                  if (contact.phone) window.location.href = `tel:${contact.phone}`;
-                }} />
-                <QuickLeadButton icon={<LockKeyhole size={15} />} label={quickActionCopy.reserve} onClick={(event) => applyQuickLead(`${quickActionCopy.reserve}: ${vehicle.title}`, 'reservation_request', event.timeStamp)} />
-                {contact.viber && (
-                  <a href={`viber://chat?number=%2B${contact.viber.replace(/\D/g, '')}`} onClick={(event) => recordLeadIntent('viber_click', 'viber', undefined, event.timeStamp)} className="touch-target inline-flex items-center justify-center gap-2 rounded-2xl border border-[#7360F2]/20 bg-[#7360F2]/5 px-3 py-3 text-xs font-black text-[#6B5FDB] transition hover:bg-[#7360F2]/10">
-                    <ViberIcon size={15} />
-                    {quickActionCopy.viber}
-                  </a>
-                )}
-              </div>
-            </section>
-
-            <section className="rounded-3xl border border-(--color-border) bg-white p-6 shadow-sm sm:p-8">
-              <div className="flex flex-col gap-4 min-[430px]:flex-row min-[430px]:items-start min-[430px]:justify-between">
+            {/* Consolidated Seller Information & Quick Actions */}
+            <section className="rounded-3xl border border-(--color-border) bg-white p-5 shadow-sm min-[390px]:p-6 sm:p-8">
+              <div className="flex flex-col gap-5 min-[430px]:flex-row min-[430px]:items-start min-[430px]:justify-between">
                 <div className="min-w-0">
                   <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] text-(--color-gold-dark)">
                     <Building2 size={12} />
@@ -578,95 +766,144 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
                     </div>
                   )}
                 </div>
-                <div className="grid gap-2 min-[430px]:min-w-40">
-                  {contact.phone && <a href={`tel:${contact.phone}`} onClick={(event) => recordLeadIntent('phone_call', 'phone', undefined, event.timeStamp)} className="btn-gold inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm"><Phone size={15} />{t.common.call}</a>}
-                  {contact.viber && <a href={`viber://chat?number=%2B${contact.viber.replace(/\D/g, '')}`} onClick={(event) => recordLeadIntent('viber_click', 'viber', undefined, event.timeStamp)} className="btn-outline inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm"><ViberIcon size={15} />Viber</a>}
+                <div className="grid gap-2 min-[430px]:min-w-44">
+                  {contact.phone && (
+                    <a
+                      href={`tel:${contact.phone}`}
+                      onClick={(event) => recordLeadIntent('phone_call', 'phone', undefined, event.timeStamp)}
+                      className="btn-gold inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-bold shadow-sm"
+                    >
+                      <Phone size={15} />
+                      {t.common.call}
+                    </a>
+                  )}
+                  {contact.viber && (
+                    <a
+                      href={`viber://chat?number=%2B${contact.viber.replace(/\D/g, '')}`}
+                      onClick={(event) => recordLeadIntent('viber_click', 'viber', undefined, event.timeStamp)}
+                      className="btn-outline inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold"
+                    >
+                      <ViberIcon size={15} />
+                      Viber
+                    </a>
+                  )}
+                  {contact.instagram && (
+                    <a
+                      href={contact.instagram.startsWith('http') ? contact.instagram : `https://instagram.com/${contact.instagram.replace(/^@/, '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-outline inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold"
+                    >
+                      <InstagramIcon size={15} />
+                      Instagram
+                    </a>
+                  )}
+                  {contact.facebook && (
+                    <a
+                      href={contact.facebook.startsWith('http') ? contact.facebook : `https://facebook.com/${contact.facebook}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-outline inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold"
+                    >
+                      <FacebookIcon size={15} />
+                      Facebook
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              {/* Quick Actions integrated directly below seller info */}
+              <div className="mt-6 border-t border-(--color-border)/70 pt-5">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <div>
+                    <h3
+                      className="text-sm font-black text-(--color-text)"
+                      style={{ fontFamily: 'var(--font-display)' }}
+                    >
+                      {vehicleDetailCopy.quickActionsTitle}
+                    </h3>
+                    <p className="text-xs text-(--color-text-muted)">{vehicleDetailCopy.quickActionsSub}</p>
+                  </div>
+                  <MessageCircle size={18} className="shrink-0 text-[var(--accent)]" />
+                </div>
+                <div className="grid gap-2 min-[430px]:grid-cols-2 lg:grid-cols-4">
+                  <QuickLeadButton
+                    icon={<CalendarCheck size={15} />}
+                    label={quickActionCopy.book}
+                    onClick={(event) => applyQuickLead(`${quickActionCopy.book}: ${vehicle.title}`, 'schedule_viewing', event.timeStamp)}
+                  />
+                  <QuickLeadButton
+                    icon={<Video size={15} />}
+                    label={quickActionCopy.video}
+                    onClick={(event) => {
+                      recordLeadIntent('phone_call', 'phone', undefined, event.timeStamp, false);
+                      if (contact.phone) window.location.href = `tel:${contact.phone}`;
+                    }}
+                  />
+                  <QuickLeadButton
+                    icon={<ShieldCheck size={15} />}
+                    label={quickActionCopy.availability}
+                    onClick={(event) => {
+                      recordLeadIntent('phone_call', 'phone', undefined, event.timeStamp, false);
+                      if (contact.phone) window.location.href = `tel:${contact.phone}`;
+                    }}
+                  />
+                  <QuickLeadButton
+                    icon={<LockKeyhole size={15} />}
+                    label={quickActionCopy.reserve}
+                    onClick={(event) => applyQuickLead(`${quickActionCopy.reserve}: ${vehicle.title}`, 'reservation_request', event.timeStamp)}
+                  />
                 </div>
               </div>
             </section>
 
-            {/* Tabs */}
-            <div className="rounded-2xl border border-(--color-border) bg-white overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.05)]">
-              <div className="flex border-b border-(--color-border) overflow-x-auto">
-                {tabs.map((tab) => (
-                  <button
-                    key={tab.key}
-                    type="button"
-                    suppressHydrationWarning
-                    onClick={() => setActiveTab(tab.key)}
+            {/* Vehicle Location & Map */}
+            {(contact.locationName || isAllowedGoogleMapsEmbedUrl(contact.googleMapsEmbedUrl) || contact.googleMapsUrl) && (
+              <section className="rounded-3xl border border-(--color-border) bg-white p-5 shadow-sm min-[390px]:p-6 sm:p-7">
+                <div className="mb-4 flex items-center gap-2">
+                  <MapIcon size={16} className="text-[var(--accent)]" />
+                  <h3 className="font-black text-(--color-text)" style={{ fontFamily: 'var(--font-display)' }}>
+                    {vehicleDetailCopy.locationSection}
+                  </h3>
+                </div>
+                {contact.locationName && (
+                  <div className="mb-4 flex items-center gap-1.5 text-sm font-medium text-(--color-text-muted)">
+                    <MapPin size={14} className="text-(--color-gold)" />
+                    {contact.locationName}
+                  </div>
+                )}
+                {isAllowedGoogleMapsEmbedUrl(contact.googleMapsEmbedUrl) && (
+                  <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl sm:aspect-[16/9]">
+                    <iframe
+                      src={contact.googleMapsEmbedUrl}
+                      title={vehicleDetailCopy.locationSection}
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      allowFullScreen
+                      className="absolute inset-0 h-full w-full border-0"
+                      suppressHydrationWarning
+                    />
+                  </div>
+                )}
+                {contact.googleMapsUrl && (
+                  <a
+                    href={contact.googleMapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className={cn(
-                      'px-5 py-3.5 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors',
-                      activeTab === tab.key
-                        ? 'border-(--color-gold) text-(--color-gold-dark)'
-                        : 'border-transparent text-(--color-text-muted) hover:text-(--color-text)'
+                      'btn-outline inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm',
+                      isAllowedGoogleMapsEmbedUrl(contact.googleMapsEmbedUrl) && 'mt-4',
                     )}
-                    style={{ fontFamily: 'var(--font-display)' }}
                   >
-                    <span className="text-xs min-[390px]:text-sm">{tab.label}</span>
-                  </button>
-                ))}
-              </div>
-
-              <div className="p-4 min-[390px]:p-5 sm:p-6">
-                {activeTab === 'specs' && (
-                  <div className="grid sm:grid-cols-2 gap-2.5">
-                    {specs.map(({ label, value }) => (
-                      <div
-                        key={label}
-                        className="flex min-h-[3.75rem] flex-col justify-center gap-1 rounded-xl bg-(--color-surface-2) px-3.5 py-3 min-[390px]:min-h-[4.25rem] min-[390px]:flex-row min-[390px]:items-center min-[390px]:justify-between min-[390px]:px-4"
-                      >
-                        <span className="text-xs text-(--color-text-muted)">{label}</span>
-                        <span className="text-sm font-semibold text-(--color-text) min-[390px]:text-right">{value}</span>
-                      </div>
-                    ))}
-                  </div>
+                    <ExternalLink size={15} />
+                    {vehicleDetailCopy.openInGoogleMaps}
+                  </a>
                 )}
-
-                {activeTab === 'equipment' && (
-                  <EquipmentGroups
-                    groups={[
-                      { label: vehicleDetailCopy.equipmentGroup, items: vehicle.equipment },
-                      { label: vehicleDetailCopy.conditionGroup, items: vehicle.features },
-                    ]}
-                  />
-                )}
-
-                {activeTab === 'safety' && (
-                  <EquipmentGroups
-                    groups={[{ label: vehicleDetailCopy.safetyGroup, items: vehicle.safetyFeatures }]}
-                    accent="green"
-                  />
-                )}
-
-                {activeTab === 'description' && (
-                  <div>
-                    <p className="text-(--color-text-2) leading-relaxed whitespace-pre-line">
-                      {vehicle.description}
-                    </p>
-                    {vehicle.dealerNotes && (
-                      <div className="mt-6 rounded-2xl border border-(--color-gold-border) bg-(--color-gold-bg) p-4">
-                        <h4
-                          className="text-sm font-bold text-(--color-gold-dark) mb-2"
-                          style={{ fontFamily: 'var(--font-display)' }}
-                        >
-                          {t.vehicle.dealerNotes}
-                        </h4>
-                        <p className="text-sm text-(--color-text-muted)">{vehicle.dealerNotes}</p>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Legal responsibility disclaimer — below primary vehicle info */}
-            <VehicleLegalDisclaimer />
-
-            {/* Share + discount section */}
-            <VehicleShareSection vehicle={vehicle} locale={locale} dealer={dealer} />
+              </section>
+            )}
 
             {/* Inquiry form */}
-            <div ref={formRef} className="scroll-mt-28 rounded-2xl border border-(--color-border) bg-white p-4 shadow-[0_2px_12px_rgba(0,0,0,0.05)] min-[390px]:p-6">
+            <div ref={formRef} className="scroll-mt-28 rounded-3xl border border-(--color-border) bg-white p-5 shadow-sm min-[390px]:p-6 sm:p-7">
               <h3
                 className="text-xl font-bold text-(--color-text) mb-1"
                 style={{ fontFamily: 'var(--font-display)' }}
@@ -796,56 +1033,18 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
               )}
             </div>
 
-            {(contact.locationName || isAllowedGoogleMapsEmbedUrl(contact.googleMapsEmbedUrl) || contact.googleMapsUrl) && (
-              <section className="rounded-3xl border border-(--color-border) bg-white p-4 shadow-sm min-[390px]:p-5 sm:p-6">
-                <div className="mb-4 flex items-center gap-2">
-                  <MapIcon size={16} className="text-[var(--accent)]" />
-                  <h3 className="font-black text-(--color-text)" style={{ fontFamily: 'var(--font-display)' }}>
-                    {vehicleDetailCopy.locationSection}
-                  </h3>
-                </div>
-                {contact.locationName && (
-                  <div className="mb-4 flex items-center gap-1.5 text-sm font-medium text-(--color-text-muted)">
-                    <MapPin size={14} className="text-(--color-gold)" />
-                    {contact.locationName}
-                  </div>
-                )}
-                {isAllowedGoogleMapsEmbedUrl(contact.googleMapsEmbedUrl) && (
-                  <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl sm:aspect-[16/9]">
-                    <iframe
-                      src={contact.googleMapsEmbedUrl}
-                      title={vehicleDetailCopy.locationSection}
-                      loading="lazy"
-                      referrerPolicy="no-referrer-when-downgrade"
-                      allowFullScreen
-                      className="absolute inset-0 h-full w-full border-0"
-                      suppressHydrationWarning
-                    />
-                  </div>
-                )}
-                {contact.googleMapsUrl && (
-                  <a
-                    href={contact.googleMapsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={cn(
-                      'btn-outline inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm',
-                      isAllowedGoogleMapsEmbedUrl(contact.googleMapsEmbedUrl) && 'mt-4',
-                    )}
-                  >
-                    <ExternalLink size={15} />
-                    {vehicleDetailCopy.openInGoogleMaps}
-                  </a>
-                )}
-              </section>
-            )}
+            {/* Legal responsibility disclaimer — below primary vehicle info */}
+            <VehicleLegalDisclaimer />
+
+            {/* Share + discount section */}
+            <VehicleShareSection vehicle={vehicle} locale={locale} dealer={dealer} />
           </div>
 
           {/* Right sticky column */}
           <div>
             <div className="sticky top-24 space-y-4">
-              {/* Price + contact */}
-              <div className="relative overflow-hidden rounded-[1.75rem] border border-[var(--accent-border)] bg-white p-5 shadow-[0_22px_70px_rgba(15,15,20,0.12),0_2px_10px_rgba(15,15,20,0.05)] min-[390px]:p-6">
+              {/* Price + contact — desktop only; on mobile the compact card above the gallery and the sticky bottom bar handle contact */}
+              <div className="hidden lg:block relative overflow-hidden rounded-[1.75rem] border border-[var(--accent-border)] bg-white p-5 shadow-[0_22px_70px_rgba(15,15,20,0.12),0_2px_10px_rgba(15,15,20,0.05)] min-[390px]:p-6">
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-[var(--accent)]" aria-hidden="true" />
                 <div className="pointer-events-none absolute -right-16 -top-20 h-40 w-40 rounded-full bg-[var(--accent-soft)] opacity-90" aria-hidden="true" />
 
@@ -1168,16 +1367,8 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
           </button>
         </div>
       </div>
-      <div className="h-20 lg:hidden" />
-      <MobileContactFab
-        locale={locale}
-        phone={contact.phone}
-        viber={contact.viber}
-        instagram={contact.instagram || undefined}
-        onPhoneClick={(firedAt) => recordLeadIntent('phone_call', 'phone', undefined, firedAt)}
-        onViberClick={(firedAt) => recordLeadIntent('viber_click', 'viber', undefined, firedAt)}
-        onWhatsAppClick={(firedAt) => recordLeadIntent('whatsapp_click', 'whatsapp', undefined, firedAt)}
-      />
+      {/* Mobile bottom-bar safe-area spacer */}
+      <div className="h-24 lg:hidden" />
 
       {/* Lightbox */}
       {lightboxOpen && (
@@ -1257,10 +1448,10 @@ function QuickLeadButton({ icon, label, onClick }: { readonly icon: React.ReactN
       type="button"
       suppressHydrationWarning
       onClick={onClick}
-      className="touch-target inline-flex items-center justify-center gap-2 rounded-2xl border border-(--color-border) bg-white px-3 py-3 text-xs font-black text-(--color-text-2) transition hover:border-(--accent-border) hover:bg-(--accent-soft) hover:text-(--accent-dark)"
+      className="touch-target inline-flex min-h-[2.75rem] items-center justify-center gap-2 rounded-xl border border-(--color-border) bg-white px-3 py-2 text-xs font-bold text-(--color-text-2) transition hover:border-(--accent-border) hover:bg-(--accent-soft) hover:text-(--accent-dark)"
     >
       <span className="text-(--accent)">{icon}</span>
-      {label}
+      <span className="truncate">{label}</span>
     </button>
   );
 }
@@ -1407,7 +1598,7 @@ function VehicleSeoSection({
               className="text-xl font-black text-(--color-text) sm:text-2xl"
               style={{ fontFamily: 'var(--font-display)' }}
             >
-              {isSq ? `Pyetjet e shpeshta — ${label}` : `Česta pitanja — ${label}`}
+              {isSq ? `Pyetjet e shpeshta: ${label}` : `Česta pitanja: ${label}`}
             </h2>
           </div>
           <div className="space-y-3">
