@@ -131,7 +131,7 @@ Ovi podaci se arhiviraju pod brojem šasije (**VIN**) i dostupni su u međunarod
 
 ### 🛡️ carVertical partnerska provera oštećenja i havarija
 
-Ne prepuštajte kupovinu nagađanjima. Proverom broja šasije pre izlaska na teren možete odmah saznati da li je automobil učestvovao u udesima i koliki su bili procenjeni troškovi popravke.
+Ne prepuštajte kupovinu nagađanjima. Proverom broja šasije pre izlaska na teren možete proveriti informacije o udesima i koliki su bili procenjeni troškovi popravke.
 
 **Ključne informacije u carVertical izveštaju:**
 
@@ -145,7 +145,7 @@ Iskoristite promotivni kod **MOJAUTODILER** za **20% popusta** na detaljan izve�
 
 👉 [Saznajte istoriju oštećenja na carVertical portalu (20% popusta)](https://www.carvertical.deal/4FCPMH4/JRZRQN/?source_id=AFF&sub1=mojautodiler&sub2=blog){:target="_blank" rel="sponsored nofollow noopener noreferrer"}
 
-*Transparentnost partnerstva: MojAutoDiler ostvaruje proviziju od realizovanih kupovina putem ovog linka bez ikakvih dodatnih troškova za vas. Dostupnost podataka zavisi od vozila i izvora.*
+*Dostupnost podataka zavisi od vozila i izvora.*
 
 ---
 

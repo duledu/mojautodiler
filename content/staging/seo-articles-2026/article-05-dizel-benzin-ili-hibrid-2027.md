@@ -111,7 +111,7 @@ Svaki pogonski koncept ima svoje slabe tačke koje kupac polovnjaka mora ukalkul
 
 ### 🔍 carVertical partnerska provera pogona i servisa
 
-Bilo da birate dizel, benzinac ili hibrid, skrivena istorija može potpuno promeniti vašu računicu održavanja. carVertical izveštaj vam omogućava uvid u servisne zapise pre kupovine.
+Bilo da birate dizel, benzinac ili hibrid, skrivena istorija može potpuno promeniti vašu računicu održavanja. carVertical izveštaj vam omogućava informacije o istoriji servisa pre kupovine.
 
 **Šta možete saznati iz izveštaja:**
 
@@ -124,7 +124,7 @@ Unesite promotivni kod **MOJAUTODILER** prilikom poručivanja ili kliknite na pa
 
 👉 [Proverite istoriju motora i servisa na carVertical-u (20% popusta)](https://www.carvertical.deal/4FCPMH4/JRZRQN/?source_id=AFF&sub1=mojautodiler&sub2=blog){:target="_blank" rel="sponsored nofollow noopener noreferrer"}
 
-*MojAutoDiler ostvaruje posredničku naknadu putem ovog linka. Dostupnost podataka zavisi od vozila i izvora.*
+*Dostupnost podataka zavisi od vozila i izvora.*
 
 ---
 

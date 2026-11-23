@@ -119,14 +119,14 @@ Proverom broja šasije pre kupovine možete uporediti podatke iz švajcarske ser
 - Provera hronologije kilometraže zabeležene pre odjave vozila u Švajcarskoj
 - Otkrivanje eventualnih skrivenih udesa na švajcarskim putevima
 - Provera statusa u međunarodnim bazama ukradenih automobila
-- Fabrička specifikacija opreme i motora
+- Informacije o opremi i motoru
 
 🎁 **Iskoristite 20% popusta uz kod MOJAUTODILER:**  
 Posetioci našeg portala ostvaruju poseban popust na svaki carVertical izveštaj.
 
 👉 [Proverite vozilo iz Švajcarske na carVertical-u (20% popusta)](https://www.carvertical.deal/4FCPMH4/JRZRQN/?source_id=AFF&sub1=mojautodiler&sub2=blog){:target="_blank" rel="sponsored nofollow noopener noreferrer"}
 
-*Partnerska transparentnost: MojAutoDiler ostvaruje posredničku naknadu putem ovog linka. Dostupnost podataka zavisi od vozila i izvora.*
+*Dostupnost podataka zavisi od vozila i izvora.*
 
 ---
 

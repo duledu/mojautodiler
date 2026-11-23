@@ -114,7 +114,7 @@ Unesite promotivni kod **MOJAUTODILER** i ostvarite **20% popusta** na svaki car
 
 👉 [Proverite istoriju vozila na carVertical portalu (20% popusta)](https://www.carvertical.deal/4FCPMH4/JRZRQN/?source_id=AFF&sub1=mojautodiler&sub2=blog){:target="_blank" rel="sponsored nofollow noopener noreferrer"}
 
-*Napomena o partnerstvu: MojAutoDiler ostvaruje naknadu ukoliko naručite izveštaj putem našeg partnerskog linka, što nam pomaže da održimo portal i kreiramo besplatne edukativne sadržaje. Dostupnost podataka zavisi od vozila i izvora.*
+*Dostupnost podataka zavisi od vozila i izvora.*
 
 ---
 
