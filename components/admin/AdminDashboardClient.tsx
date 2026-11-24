@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { AlertCircle, ArrowRight, BarChart3, Car, CheckCircle, Clock, EyeOff, MessageSquare, Phone, Plus, TrendingUp, User } from 'lucide-react';
 import { Lead } from '@/types/lead';
 import { Vehicle } from '@/types/vehicle';
+import AdminCarVerticalDealerShortcut from './AdminCarVerticalDealerShortcut';
 
 interface Props {
   readonly stats: {
@@ -83,6 +84,8 @@ export default function AdminDashboardClient({ stats, recentLeads, recentVehicle
           Dodaj vozilo
         </Link>
       </div>
+
+      <AdminCarVerticalDealerShortcut variant="card" />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-6">
         {kpis.map(({ label, value, icon: Icon, note }) => (

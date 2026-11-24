@@ -11,6 +11,8 @@ import {
   CARVERTICAL_PARTNER_SUB1,
   CARVERTICAL_URLS,
   canExposeVehicleVinInAffiliateLink,
+  getCarVerticalDealersPagePath,
+  getCarVerticalDealersUrl,
   getCarVerticalFooterUrl,
   getCarVerticalHomepageUrl,
   getCarVerticalListingNoVinUrl,
@@ -18,16 +20,18 @@ import {
   getCarVerticalVehicleListingLink,
   normalizeAndValidateVin,
 } from '../lib/affiliate/carvertical';
+import CarVerticalDealersLanding from '../components/affiliate/CarVerticalDealersLanding';
 import CarVerticalHomepageSection from '../components/affiliate/CarVerticalHomepageSection';
 import CarVerticalVehicleCta from '../components/affiliate/CarVerticalVehicleCta';
 import Footer from '../components/layout/Footer';
 import { getTranslations } from '../lib/i18n';
 
 describe('carVertical Affiliate URL Configuration & VIN Validation', () => {
-  test('generates exact Homepage, Footer, and No-VIN Listing tracking URLs without duplicate params', () => {
+  test('generates exact Homepage, Footer, Dealers, and No-VIN Listing tracking URLs without duplicate params', () => {
     const homepageUrl = getCarVerticalHomepageUrl();
     const footerUrl = getCarVerticalFooterUrl();
     const listingNoVinUrl = getCarVerticalListingNoVinUrl();
+    const dealersUrl = getCarVerticalDealersUrl();
 
     assert.equal(
       homepageUrl,
@@ -41,12 +45,19 @@ describe('carVertical Affiliate URL Configuration & VIN Validation', () => {
       listingNoVinUrl,
       'https://www.carvertical.deal/4FCPMH4/JRZRQN/?source_id=AFF&sub1=mojautodiler&sub2=listing',
     );
+    assert.equal(
+      dealersUrl,
+      'https://www.carvertical.deal/4FCPMH4/JRZRQN/?source_id=AFF&sub1=mojautodiler&sub2=dealers',
+    );
 
     assert.equal(CARVERTICAL_URLS.homepage, homepageUrl);
     assert.equal(CARVERTICAL_URLS.footer, footerUrl);
     assert.equal(CARVERTICAL_URLS.listingNoVin, listingNoVinUrl);
+    assert.equal(CARVERTICAL_URLS.dealers, dealersUrl);
+    assert.equal(getCarVerticalDealersPagePath('sr'), '/sr/carvertical-za-dilere');
+    assert.equal(getCarVerticalDealersPagePath('sq'), '/sq/carvertical-za-dilere');
 
-    for (const url of [homepageUrl, footerUrl, listingNoVinUrl]) {
+    for (const url of [homepageUrl, footerUrl, listingNoVinUrl, dealersUrl]) {
       const parsed = new URL(url);
       const keys = Array.from(parsed.searchParams.keys());
       assert.equal(keys.length, new Set(keys).size, 'No duplicate query parameters allowed');
@@ -198,6 +209,75 @@ describe('carVertical Affiliate URL Configuration & VIN Validation', () => {
 });
 
 describe('carVertical Component Markup, SEO & Automatic 20% Discount Compliance', () => {
+  test('Dealers standalone landing page renders exact required copy, sub2=dealers URL, and ONLY two actions', () => {
+    const html = renderToStaticMarkup(
+      React.createElement(CarVerticalDealersLanding, { locale: 'sr' }),
+    );
+
+    assert.ok(html.includes('<h1'));
+    assert.ok(html.includes('Pokažite istoriju vozila.'));
+    assert.ok(html.includes('Steknite poverenje kupca.'));
+    assert.ok(
+      html.includes(
+        'Danas svaki kupac koji ima VIN može da naruči carVertical izveštaj. Pošaljite mu ga pre nego što ga zatraži. Time pokazujete da otvoreno govorite o istoriji vozila i da ste spremni da odgovorite na pitanja o kilometraži, prethodnim oštećenjima i drugim dostupnim podacima.',
+      ),
+    );
+    assert.ok(html.includes('20% popusta'));
+    assert.ok(
+      html.includes('Popust se automatski primenjuje putem našeg partnerskog linka.'),
+    );
+    assert.ok(html.includes('Pripremite izveštaj za kupca'));
+    assert.ok(html.includes('Kupac sigurnije odlučuje kada zna šta kupuje'));
+    assert.ok(
+      html.includes(
+        'Ako je zabeleženo ranije oštećenje, pokažite šta je popravljeno. Ako kupca zanima kilometraža, zajedno pogledajte zabeležena očitavanja. Kada vi prvi otvorite te teme, ostavljate manje prostora za sumnju i dajete kupcu konkretan razlog da vam veruje.',
+      ),
+    );
+    assert.ok(
+      html.includes('Unesite VIN, preuzmite izveštaj i pošaljite ga kupcu pre razgledanja.'),
+    );
+    assert.ok(
+      html.toLowerCase().includes('dostupni podaci o istoriji vozila'),
+    );
+    assert.ok(html.includes('Nazad na početnu'));
+    assert.ok(
+      html.includes(
+        'https://www.carvertical.deal/4FCPMH4/JRZRQN/?source_id=AFF&amp;sub1=mojautodiler&amp;sub2=dealers',
+      ),
+    );
+    assert.ok(html.includes('rel="nofollow sponsored noopener noreferrer"'));
+    assert.ok(html.includes('target="_blank"'));
+    assert.ok(html.includes('data-testid="carvertical-dealers-hero-image-link"'));
+    assert.ok(html.includes('data-testid="carvertical-dealers-secondary-banner"'));
+    assert.ok(html.includes('RS_300x250-4.png'), 'Hero must render RS_300x250-4.png');
+    assert.ok(html.includes('RS_728x90.png'), 'Secondary banner must render RS_728x90.png');
+    assert.ok(html.includes('href="/sr"'));
+
+    // Trust block must appear BEFORE the 1-line technical instruction
+    assert.ok(
+      html.indexOf('Kupac sigurnije odlučuje kada zna šta kupuje') <
+        html.indexOf('Unesite VIN, preuzmite izveštaj i pošaljite ga kupcu pre razgledanja.'),
+      '1-line technical instruction must appear after main trust message',
+    );
+
+    // Every interactive link must lead ONLY to /sr ("Nazad na početnu") or the exact sub2=dealers destination
+    const hrefMatches = Array.from(html.matchAll(/<a\b[^>]*href="([^"]+)"/g)).map((m) => m[1]);
+    const buttonCount = (html.match(/<button\b/g) ?? []).length;
+    assert.ok(hrefMatches.includes('/sr'), 'Must include back-to-home /sr link');
+    assert.ok(
+      hrefMatches.every(
+        (h) =>
+          h === '/sr' ||
+          h === 'https://www.carvertical.deal/4FCPMH4/JRZRQN/?source_id=AFF&amp;sub1=mojautodiler&amp;sub2=dealers',
+      ),
+      'All links must point strictly to /sr or sub2=dealers',
+    );
+    assert.equal(buttonCount, 0, 'Dealers landing page must have zero <button> actions');
+
+    // Editorial compliance: zero em dashes (—)
+    assert.equal(html.includes('—'), false, 'Dealers landing page must contain zero em dashes');
+  });
+
   test('Homepage hero banner renders RS_728x180-4.png, single <a> wrapper, and 20% popusta sa kodom MOJAUTODILER below banner', () => {
     const html = renderToStaticMarkup(
       React.createElement(CarVerticalHomepageSection, { locale: 'sr' }),

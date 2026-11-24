@@ -11,8 +11,8 @@ export default function PwaInstallBanner() {
   // Never render when already installed / running as PWA
   if (isStandalone) return null;
 
-  // Never render on admin pages
-  if (pathname.includes('/admin')) return null;
+  // Never render on admin pages or standalone dealer campaign pages
+  if (pathname.includes('/admin') || pathname.includes('/carvertical-za-dilere')) return null;
 
   // Only render when Chrome has confirmed the site is installable
   if (!isInstallable) return null;

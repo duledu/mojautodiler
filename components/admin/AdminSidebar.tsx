@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { Building2, Car, ExternalLink, FileText, LayoutDashboard, MessageSquare, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import AdminCarVerticalDealerShortcut from './AdminCarVerticalDealerShortcut';
 
 export default function AdminSidebar() {
   const pathname = usePathname();
@@ -63,6 +64,7 @@ export default function AdminSidebar() {
       </nav>
 
       <div className="border-t border-white/10 pt-4">
+        <AdminCarVerticalDealerShortcut variant="sidebar" />
         <Link
           href={`/${locale}`}
           className="flex items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-semibold text-white/62 transition hover:bg-white/[0.065] hover:text-white"

@@ -20,13 +20,22 @@ export const CARVERTICAL_ASSETS = {
   homepageBannerRs: '/carVertical asset/RS_728x180-4.png',
   footerBannerRs: '/carVertical asset/RS_728x180.png',
   listingBannerRs: '/carVertical asset/RS_336x280-5.png',
+  dealersBannerRs: '/carVertical asset/RS/RS_300x250-4.png',
+  dealersLeaderboardRs: '/carVertical asset/RS/RS_728x90.png',
   reportOverviewMockup: '/carvertical/carvertical-report-overview-mockup.webp',
   reportPhotosMockup: '/carvertical/carvertical-report-photos-mockup.webp',
   mileageCardRs: '/carvertical/carvertical-provera-kilometraze-card.webp',
   wideBannerRs: '/carvertical/carvertical-istorija-vozila-banner.webp',
 } as const;
 
-export type CarVerticalPlacement = 'homepage' | 'footer' | 'listing';
+export type CarVerticalPlacement = 'homepage' | 'footer' | 'listing' | 'dealers';
+
+export const CARVERTICAL_DEALERS_SLUG = 'carvertical-za-dilere' as const;
+
+export function getCarVerticalDealersPagePath(locale: string = 'sr'): string {
+  const safeLocale = locale === 'sq' ? 'sq' : 'sr';
+  return `/${safeLocale}/${CARVERTICAL_DEALERS_SLUG}`;
+}
 
 /**
  * Standard ISO 3779 17-character VIN pattern:
@@ -131,6 +140,18 @@ export function getCarVerticalListingNoVinUrl(): string {
 }
 
 /**
+ * Official Sellers & Dealerships affiliate URL:
+ * https://www.carvertical.deal/4FCPMH4/JRZRQN/?source_id=AFF&sub1=mojautodiler&sub2=dealers
+ */
+export function getCarVerticalDealersUrl(): string {
+  return buildCarVerticalUrlWithParams([
+    ['source_id', CARVERTICAL_SOURCE_ID],
+    ['sub1', CARVERTICAL_PARTNER_SUB1],
+    ['sub2', 'dealers'],
+  ]);
+}
+
+/**
  * Resolves the Vehicle Listing affiliate URL based on VIN validity and vehicle visibility:
  * - Valid 17-char VIN (on a publicly visible vehicle):
  *   https://www.carvertical.deal/4FCPMH4/JRZRQN/?uid=594&source_id=AFF&sub1=mojautodiler&sub2=listing&sub3=<VIN>
@@ -213,4 +234,5 @@ export const CARVERTICAL_URLS = {
   homepage: getCarVerticalHomepageUrl(),
   footer: getCarVerticalFooterUrl(),
   listingNoVin: getCarVerticalListingNoVinUrl(),
+  dealers: getCarVerticalDealersUrl(),
 } as const;

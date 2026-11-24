@@ -37,6 +37,12 @@ export function shouldBypassLock(pathname: string): boolean {
     '/_next',
     // Lock page itself — must never be locked
     '/lock',
+    // Public standalone partner page for sellers & dealerships (direct link without login)
+    '/sr/carvertical-za-dilere',
+    '/sq/carvertical-za-dilere',
+    '/carvertical-za-dilere',
+    '/carvertical',
+    '/carVertical asset',
     // Public static files
     '/favicon.ico',
     '/robots.txt',

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { CheckCircle, MapPin, Phone, Plus, Save, ShieldCheck, XCircle } from 'lucide-react';
 import type { Dealer } from '@/types/vehicle';
+import AdminCarVerticalDealerShortcut from './AdminCarVerticalDealerShortcut';
 
 interface Props {
   readonly dealers: Dealer[];
@@ -97,6 +98,8 @@ export default function AdminDealersClient({ dealers: initialDealers }: Props) {
           Novi partner
         </button>
       </div>
+
+      <AdminCarVerticalDealerShortcut variant="card" />
 
       <div className="grid gap-5 xl:grid-cols-[1fr_420px]">
         <section className="grid gap-3">
