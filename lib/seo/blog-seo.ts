@@ -4,16 +4,17 @@ import {
   getPublishedBlogSlugsForSitemap,
   type BlogDatabaseClient,
 } from '@/lib/db/blog';
+import { normalizeSiteUrl, SITE_URL } from '@/lib/site-url';
 import type { BlogPostPublicDetail } from '@/types/blog';
 
 /**
- * Centralized canonical base URL for all new Blog routes.
- * Resolves to the confirmed primary domain `https://mojautodiler.com`
- * without altering existing legacy `.rs` vehicle/brand/model routes.
+ * Centralized canonical base URL for all Blog routes.
+ * Resolves to the official primary production domain (`https://www.mojautodiler.com`)
+ * via NEXT_PUBLIC_BLOG_SITE_URL or NEXT_PUBLIC_SITE_URL.
  */
-export const BLOG_CANONICAL_SITE_URL = (
-  process.env.NEXT_PUBLIC_BLOG_SITE_URL ?? 'https://mojautodiler.com'
-).replace(/\/$/, '');
+export const BLOG_CANONICAL_SITE_URL = process.env.NEXT_PUBLIC_BLOG_SITE_URL
+  ? normalizeSiteUrl(process.env.NEXT_PUBLIC_BLOG_SITE_URL)
+  : SITE_URL;
 
 export function resolveBlogCanonicalUrl(pathOrUrl: string): string {
   const trimmed = pathOrUrl.trim();

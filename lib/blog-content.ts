@@ -148,8 +148,6 @@ export function sanitizeBlogImageUrl(raw: string | null | undefined): string | n
 const INTERNAL_HOSTS = new Set([
   'mojautodiler.com',
   'www.mojautodiler.com',
-  'mojautodiler.rs',
-  'www.mojautodiler.rs',
 ]);
 
 export function isInternalBlogUrl(href: string): boolean {

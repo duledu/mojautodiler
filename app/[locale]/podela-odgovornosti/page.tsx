@@ -6,6 +6,7 @@ import {
   LEGAL_RESPONSIBILITY_PAGE,
 } from '@/lib/legal/responsibility-disclaimer';
 import ResponsibilityDisclaimerContent from '@/components/legal/ResponsibilityDisclaimerContent';
+import { SITE_URL } from '@/lib/site-url';
 
 export async function generateMetadata({
   params,
@@ -16,7 +17,7 @@ export async function generateMetadata({
   if (!isValidLocale(locale)) return {};
 
   return {
-    title: LEGAL_RESPONSIBILITY_PAGE.seoTitle,
+    title: { absolute: LEGAL_RESPONSIBILITY_PAGE.seoTitle },
     description: LEGAL_RESPONSIBILITY_PAGE.seoDescription,
     robots: {
       index: true,
@@ -33,13 +34,13 @@ export async function generateMetadata({
       locale: 'sr_RS',
       title: LEGAL_RESPONSIBILITY_PAGE.seoTitle,
       description: LEGAL_RESPONSIBILITY_PAGE.seoDescription,
-      url: LEGAL_RESPONSIBILITY_CANONICAL_PATH,
+      url: `${SITE_URL}${LEGAL_RESPONSIBILITY_CANONICAL_PATH}`,
       images: [
         {
           url: '/og-image.jpg',
           width: 1200,
           height: 630,
-          alt: 'Moj Auto Diler — Podela odgovornosti i odricanje od odgovornosti',
+          alt: 'Moj Auto Diler: Podela odgovornosti i odricanje od odgovornosti',
         },
       ],
     },

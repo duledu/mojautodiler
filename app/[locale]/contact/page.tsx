@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { getDealerSettings } from '@/lib/db/settings';
 import { getHeroVehicle } from '@/lib/db/vehicles';
 import ContactClient from '@/components/ContactClient';
+import { SITE_URL } from '@/lib/site-url';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,25 +13,32 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { locale } = await params;
   const isSq = locale === 'sq';
+  const title = isSq ? 'Na Kontaktoni | Moj Auto Diler' : 'Kontaktirajte Nas | Moj Auto Diler';
   return {
-    title: isSq ? 'Na Kontaktoni | Moj Auto Diler' : 'Kontaktirajte Nas | Moj Auto Diler',
+    title: { absolute: title },
     description: isSq
-      ? 'Na dërgoni mesazh ose na telefononi për çdo pyetje rreth automjeteve premium, blerjes dhe rezervimit. Moj Auto Diler — Serbi.'
-      : 'Pošaljite poruku ili nas pozovite za sva pitanja oko premium vozila, kupovine i rezervacije. Moj Auto Diler — Srbija.',
+      ? 'Na dërgoni mesazh ose na telefononi për çdo pyetje rreth automjeteve premium, blerjes dhe rezervimit. Moj Auto Diler, Serbi.'
+      : 'Pošaljite poruku ili nas pozovite za sva pitanja oko premium vozila, kupovine i rezervacije. Moj Auto Diler, Srbija.',
     alternates: {
       canonical: `/${locale}/contact`,
-      languages: { sr: '/sr/contact', sq: '/sq/contact' },
+      languages: {
+        sr: '/sr/contact',
+        sq: '/sq/contact',
+        'x-default': '/sr/contact',
+      },
     },
     openGraph: {
       type: 'website',
-      title: isSq ? 'Na Kontaktoni | Moj Auto Diler' : 'Kontaktirajte Nas | Moj Auto Diler',
+      url: `${SITE_URL}/${locale}/contact`,
+      title,
       description: isSq
         ? 'Na dërgoni mesazh për çdo pyetje rreth automjeteve premium.'
         : 'Pošaljite poruku za sva pitanja oko premium vozila.',
-      images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'Moj Auto Diler — premium automobili iz uvoza' }],
+      images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'Moj Auto Diler, premium automobili iz uvoza' }],
     },
     twitter: {
       card: 'summary_large_image',
+      title,
       images: ['/og-image.jpg'],
     },
   };

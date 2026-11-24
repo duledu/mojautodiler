@@ -7,11 +7,12 @@ import VehicleJsonLd from '@/components/seo/VehicleJsonLd';
 import BreadcrumbJsonLd from '@/components/seo/BreadcrumbJsonLd';
 import VehicleFaqJsonLd from '@/components/seo/VehicleFaqJsonLd';
 import { generateVehicleSeo } from '@/lib/seo/vehicle-seo';
+import { SITE_URL } from '@/lib/site-url';
 import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
 
-const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mojautodiler.rs').replace(/\/$/, '');
+const SITE = SITE_URL;
 
 // ── Metadata ──────────────────────────────────────────────────────────────────
 
@@ -36,7 +37,8 @@ export async function generateMetadata(
   const description = seo.metaDescription;
   const image       = vehicle.images[0]?.url;
   const imageAlt    = `${vehicle.year} ${vehicle.title}`;
-  const canonicalPath = `/${locale}/vehicle/${slug}`;
+  const encodedSlug   = encodeURIComponent(slug);
+  const canonicalPath = `/${locale}/vehicle/${encodedSlug}`;
 
   return {
     // `absolute` bypasses the root layout template "%s | Moj Auto Diler"
@@ -57,8 +59,9 @@ export async function generateMetadata(
     alternates: {
       canonical: canonicalPath,
       languages: {
-        sr: `/sr/vehicle/${slug}`,
-        sq: `/sq/vehicle/${slug}`,
+        sr: `/sr/vehicle/${encodedSlug}`,
+        sq: `/sq/vehicle/${encodedSlug}`,
+        'x-default': `/sr/vehicle/${encodedSlug}`,
       },
     },
 
@@ -135,7 +138,7 @@ export default async function VehiclePage(
 
   return (
     <>
-      <VehicleJsonLd vehicle={vehicle} dealerName={dealer.name} dealerUrl={SITE} />
+      <VehicleJsonLd vehicle={vehicle} dealerName={dealer.name} dealerUrl={SITE} locale={locale} />
       <BreadcrumbJsonLd items={breadcrumbs} />
       <VehicleFaqJsonLd faq={seo.faq} />
       <VehicleDetailClient

@@ -13,6 +13,26 @@ const LOCALES = ['sr', 'sq'] as const;
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // ── Canonical host permanent redirect (non-www → www) ─────────────────────
+  // Only triggers on exact apex host `mojautodiler.com` (never on localhost,
+  // preview hosts, or `www.mojautodiler.com`) to prevent redirect loops.
+  const requestHost = (
+    request.headers.get('x-forwarded-host') ??
+    request.headers.get('host') ??
+    ''
+  )
+    .split(':')[0]
+    .toLowerCase();
+
+  if (requestHost === 'mojautodiler.com') {
+    const targetPath = pathname === '/' ? '/sr' : pathname;
+    const targetUrl = new URL(
+      `${targetPath}${request.nextUrl.search}`,
+      'https://www.mojautodiler.com',
+    );
+    return NextResponse.redirect(targetUrl, 308);
+  }
+
   // ── Site lock (public preview gate) ──────────────────────────────────────────
   // Runs before admin protection. Bypass list covers admin routes, API, _next,
   // static assets, and the /lock page itself.

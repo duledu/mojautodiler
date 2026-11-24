@@ -24,6 +24,7 @@ import VehicleCard from '@/components/vehicle/VehicleCard';
 import { getDealerSettings } from '@/lib/db/settings';
 import { getHeroVehicle, getShowcaseVehicles } from '@/lib/db/vehicles';
 import { getTranslations, isValidLocale, Locale } from '@/lib/i18n';
+import { SITE_URL } from '@/lib/site-url';
 import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
@@ -33,10 +34,11 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { locale } = await params;
   const isSq = locale === 'sq';
+  const title = isSq
+    ? 'Automjete Premium nga Importi | Moj Auto Diler'
+    : 'Premium automobili iz uvoza | Moj Auto Diler';
   return {
-    title: isSq
-      ? 'Automjete Premium nga Importi | Moj Auto Diler'
-      : 'Premium automobili iz uvoza | Moj Auto Diler',
+    title: { absolute: title },
     description: isSq
       ? 'Automjete premium të zgjedhura me kujdes nga importi, me histori transparente dhe blerje të sigurt pa presion në Serbi.'
       : 'Pažljivo odabrana premium vozila iz uvoza sa transparentnom istorijom, dokumentovanim stanjem i sigurnom kupovinom bez pritiska u Srbiji.',
@@ -49,17 +51,16 @@ export async function generateMetadata(
     },
     alternates: {
       canonical: `/${locale}`,
-      languages: { sr: '/sr', sq: '/sq' },
+      languages: { sr: '/sr', sq: '/sq', 'x-default': '/sr' },
     },
     openGraph: {
       type: 'website',
-      title: isSq
-        ? 'Automjete Premium nga Importi | Moj Auto Diler'
-        : 'Premium automobili iz uvoza | Moj Auto Diler',
+      url: `${SITE_URL}/${locale}`,
+      title,
       description: isSq
         ? 'Automjete premium me histori transparente dhe blerje të sigurt.'
         : 'Premium automobili iz uvoza sa transparentnom istorijom i sigurnom kupovinom.',
-      images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'Moj Auto Diler — premium automobili iz uvoza' }],
+      images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'Moj Auto Diler, premium automobili iz uvoza' }],
     },
     twitter: {
       card: 'summary_large_image',
@@ -69,6 +70,7 @@ export async function generateMetadata(
       description: isSq
         ? 'Automjete premium me histori transparente. Blerje e sigurt në Serbi.'
         : 'Premium automobili sa transparentnom istorijom. Sigurna kupovina u Srbiji.',
+      images: ['/og-image.jpg'],
     },
   };
 }

@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { Check, Share2 } from 'lucide-react';
 import { getTranslations, type Locale } from '@/lib/i18n';
+import { SITE_URL } from '@/lib/site-url';
 
-const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mojautodiler.com').replace(/\/$/, '');
+const SITE = SITE_URL;
 
 interface Props {
   readonly vehicleSlug: string;

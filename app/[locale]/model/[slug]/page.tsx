@@ -7,12 +7,13 @@ import VehicleCard from '@/components/vehicle/VehicleCard';
 import BreadcrumbJsonLd from '@/components/seo/BreadcrumbJsonLd';
 import ModelSiloJsonLd from '@/components/seo/ModelSiloJsonLd';
 import Reveal from '@/components/ui/Reveal';
+import { SITE_URL } from '@/lib/site-url';
 import type { Metadata } from 'next';
 
 // ── ISR — revalidate hourly so new inventory appears within 60 minutes ────────
 export const revalidate = 3600;
 
-const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mojautodiler.rs').replace(/\/$/, '');
+const SITE = SITE_URL;
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -543,6 +544,7 @@ export async function generateMetadata(
       languages: {
         sr: `/sr/model/${slug}`,
         sq: `/sq/model/${slug}`,
+        'x-default': `/sr/model/${slug}`,
       },
     },
     openGraph: {
@@ -552,15 +554,15 @@ export async function generateMetadata(
       url:         `${SITE}${canonical}`,
       siteName:    'Moj Auto Diler',
       images: [
-        { url: `/og/model-${slug}.jpg`, width: 1200, height: 630, alt: content.metaTitle },
-        { url: '/og-image.jpg',         width: 1200, height: 630, alt: 'Moj Auto Diler' },
+        { url: `/og/brand-${def.brandSlug}.jpg`, width: 1200, height: 630, alt: content.metaTitle },
+        { url: '/og-image.jpg',                  width: 1200, height: 630, alt: 'Moj Auto Diler' },
       ],
     },
     twitter: {
       card:        'summary_large_image',
       title:       content.metaTitle,
       description: content.metaDesc,
-      images:      [`${SITE}/og/model-${slug}.jpg`],
+      images:      [`${SITE}/og/brand-${def.brandSlug}.jpg`],
     },
   };
 }

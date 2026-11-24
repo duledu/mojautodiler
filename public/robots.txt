@@ -16,4 +16,4 @@ Disallow: /lock
 Disallow: /sr/inventory?*
 Disallow: /sq/inventory?*
 
-Sitemap: https://mojautodiler.rs/sitemap.xml
+Sitemap: https://www.mojautodiler.com/sitemap.xml

@@ -4,6 +4,7 @@ import QRCode from 'qrcode';
 import { ADMIN_COOKIE, verifySessionToken } from '@/lib/admin-auth';
 import { getVehicleById } from '@/lib/db/vehicles';
 import { generateMarketingStyle } from '@/lib/ai/marketing';
+import { SITE_URL } from '@/lib/site-url';
 
 /**
  * POST /api/admin/vehicles/[id]/marketing-image
@@ -55,7 +56,7 @@ export async function POST(
   }
 
   // ── Build listing URL ───────────────────────────────────────────────────────
-  const siteOrigin = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mojautodiler.rs').replace(/\/$/, '');
+  const siteOrigin = SITE_URL;
   const listingUrl = `${siteOrigin}/sr/vehicle/${vehicle.slug}`;
 
   // ── Generate QR code (server-side — reliable, no client CORS issues) ────────

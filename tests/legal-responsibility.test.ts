@@ -189,10 +189,9 @@ describe('Legal Protection & Responsibility Disclaimer System', () => {
       params: Promise.resolve({ locale: 'sr' }),
     });
 
-    assert.equal(
-      metadata.title,
-      'Podela odgovornosti i odricanje od odgovornosti | Moj Auto Diler',
-    );
+    assert.deepEqual(metadata.title, {
+      absolute: 'Podela odgovornosti i odricanje od odgovornosti | Moj Auto Diler',
+    });
     assert.ok(
       typeof metadata.description === 'string' &&
         metadata.description.includes('MojAutoDiler.com'),

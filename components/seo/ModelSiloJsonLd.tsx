@@ -9,8 +9,9 @@
  */
 
 import type { Vehicle } from '@/types/vehicle';
+import { SITE_URL } from '@/lib/site-url';
 
-const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mojautodiler.rs').replace(/\/$/, '');
+const SITE = SITE_URL;
 
 interface FaqItem {
   readonly q: string;

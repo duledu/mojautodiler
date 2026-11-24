@@ -1,4 +1,6 @@
-const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mojautodiler.rs').replace(/\/$/, '');
+import { SITE_URL } from '@/lib/site-url';
+
+const SITE = SITE_URL;
 
 interface DealerInfo {
   readonly name:         string;

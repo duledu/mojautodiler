@@ -12,6 +12,7 @@ import {
   CREATIVE_DIMS,
 } from '@/components/admin/SocialCreativeCanvas';
 import { waitForExportReady } from '@/components/admin/VehiclePhotoLayer';
+import { SITE_URL } from '@/lib/site-url';
 
 const FORMAT_OPTIONS: {
   id: CreativeFormat;
@@ -56,7 +57,7 @@ export default function SocialCreativeGenerator({
   // Always use the configured public site URL, never window.location.origin.
   // window.location.origin encodes the admin domain (localhost, staging, etc.)
   // into the QR code, making it unscannable in production exports.
-  const siteOrigin = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mojautodiler.rs').replace(/\/$/, '');
+  const siteOrigin = SITE_URL;
   const listingUrl = `${new URL(siteOrigin).hostname}/sr/vehicle/${vehicle.slug}`;
   const fullListingUrl = `${siteOrigin}/sr/vehicle/${vehicle.slug}`;
   const primaryImageUrl = vehicle.images[0]?.url ?? '';

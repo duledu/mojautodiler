@@ -188,11 +188,11 @@ function createSitemapTestDb() {
 }
 
 describe('Phase 3 — Public Blog SEO, Canonical Domain & JSON-LD', () => {
-  test('uses centralized https://mojautodiler.com canonical domain for blog routes', () => {
-    assert.equal(BLOG_CANONICAL_SITE_URL, 'https://mojautodiler.com');
+  test('uses centralized https://www.mojautodiler.com canonical domain for blog routes', () => {
+    assert.equal(BLOG_CANONICAL_SITE_URL, 'https://www.mojautodiler.com');
     assert.equal(
       resolveBlogCanonicalUrl('/sr/blog/test-clanak'),
-      'https://mojautodiler.com/sr/blog/test-clanak',
+      'https://www.mojautodiler.com/sr/blog/test-clanak',
     );
   });
 
@@ -205,7 +205,7 @@ describe('Phase 3 — Public Blog SEO, Canonical Domain & JSON-LD', () => {
 
     assert.equal(
       meta.alternates?.canonical,
-      'https://mojautodiler.com/sr/blog',
+      'https://www.mojautodiler.com/sr/blog',
     );
     assert.equal(meta.alternates?.languages, undefined);
     assert.deepEqual(meta.robots, {
@@ -222,7 +222,7 @@ describe('Phase 3 — Public Blog SEO, Canonical Domain & JSON-LD', () => {
     const indexableMeta = buildBlogPostMetadata(indexablePost);
     assert.equal(
       indexableMeta.alternates?.canonical,
-      'https://mojautodiler.com/sr/blog/volkswagen-golf-7-vodic-za-kupovinu',
+      'https://www.mojautodiler.com/sr/blog/volkswagen-golf-7-vodic-za-kupovinu',
     );
     assert.deepEqual(indexableMeta.robots, {
       index: true,
@@ -254,7 +254,7 @@ describe('Phase 3 — Public Blog SEO, Canonical Domain & JSON-LD', () => {
     const breadcrumbObj = buildBlogBreadcrumbJsonLdObject(post);
     assert.equal(breadcrumbObj['@type'], 'BreadcrumbList');
     assert.equal(breadcrumbObj.itemListElement.length, 4);
-    assert.equal(breadcrumbObj.itemListElement[1].item, 'https://mojautodiler.com/sr/blog');
+    assert.equal(breadcrumbObj.itemListElement[1].item, 'https://www.mojautodiler.com/sr/blog');
 
     const serializedPosting = serializeBlogPostingJsonLd(post);
     const serializedBreadcrumb = serializeBlogBreadcrumbJsonLd(post);
@@ -336,8 +336,8 @@ describe('Phase 3 — Sitemap Integration & R2 Key Tracking', () => {
     const urls = entries.map((e) => e.url);
 
     assert.deepEqual(urls, [
-      'https://mojautodiler.com/sr/blog',
-      'https://mojautodiler.com/sr/blog/objavljeni-indeksirani-clanak',
+      'https://www.mojautodiler.com/sr/blog',
+      'https://www.mojautodiler.com/sr/blog/objavljeni-indeksirani-clanak',
     ]);
   });
 

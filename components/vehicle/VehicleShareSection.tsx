@@ -30,8 +30,9 @@ import { trackGA4Event } from '@/lib/ga4';
 import { cn } from '@/lib/utils';
 import { SocialCreativeCanvas, CREATIVE_DIMS, CreativeFormat } from '@/components/admin/SocialCreativeCanvas';
 import { waitForExportReady } from '@/components/admin/VehiclePhotoLayer';
+import { SITE_URL } from '@/lib/site-url';
 
-const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mojautodiler.com').replace(/\/$/, '');
+const SITE = SITE_URL;
 const FETCH_TIMEOUT_MS = 10_000;
 
 type ExportMime = 'image/jpeg' | 'image/png';

@@ -4,6 +4,7 @@ interface Props {
   readonly vehicle:    Vehicle;
   readonly dealerName: string;
   readonly dealerUrl:  string;
+  readonly locale?:    string;
 }
 
 /**
@@ -13,7 +14,7 @@ interface Props {
  * Adds countryOfOrigin and itemCondition — key differentiators for an import
  * specialist. No invented reviews or ratings are ever included.
  */
-export default function VehicleJsonLd({ vehicle, dealerName, dealerUrl }: Props) {
+export default function VehicleJsonLd({ vehicle, dealerName, dealerUrl, locale = 'sr' }: Props) {
   const availability = vehicle.status === 'active'
     ? 'https://schema.org/InStock'
     : 'https://schema.org/SoldOut';
@@ -83,7 +84,7 @@ export default function VehicleJsonLd({ vehicle, dealerName, dealerUrl }: Props)
       priceCurrency:  vehicle.currency,
       availability,
       itemCondition,
-      url:            `${dealerUrl}/sr/vehicle/${vehicle.slug}`,
+      url:            `${dealerUrl}/${locale}/vehicle/${vehicle.slug}`,
       seller: {
         '@type': 'AutoDealer',
         name:    dealerName,

@@ -1,36 +1,63 @@
 import type { MetadataRoute } from 'next';
 import { getVehicleSlugsForSitemap } from '@/lib/db/vehicles';
 import { buildBlogSitemapEntries } from '@/lib/seo/blog-seo';
+import { SITE_URL } from '@/lib/site-url';
 import { BRAND_SLUGS } from '@/app/[locale]/cars/[brand]/page';
 import { MODEL_SLUGS } from '@/app/[locale]/model/[slug]/page';
 
-const BASE_URL = 'https://mojautodiler.rs';
-const locales  = ['sr', 'sq'] as const;
+const locales = ['sr', 'sq'] as const;
+
+const VALID_SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/i;
+
+function isValidSitemapSlug(slug: string): boolean {
+  const trimmed = slug.trim();
+  return trimmed.length > 0 && trimmed === slug && VALID_SLUG_RE.test(trimmed);
+}
+
+function isValidAbsoluteHttpUrl(raw?: string | null): raw is string {
+  if (!raw) return false;
+  try {
+    const parsed = new URL(raw.trim());
+    return parsed.protocol === 'https:' || parsed.protocol === 'http:';
+  } catch {
+    return false;
+  }
+}
+
+function buildBilingualAlternates(path: string) {
+  return {
+    languages: {
+      sr: `${SITE_URL}/sr${path}`,
+      sq: `${SITE_URL}/sq${path}`,
+      'x-default': `${SITE_URL}/sr${path}`,
+    },
+  };
+}
 
 /**
  * Dynamic XML sitemap.
  *
- * Key improvements over the previous version:
- * - Uses actual vehicle.updatedAt as lastmod (freshness signal for crawlers)
- * - Includes primary vehicle image in sitemap (enables Google Image Search indexing)
- * - Static pages get weekly priority; vehicle detail pages monthly
- *   (they change less often than the inventory index)
+ * Uses the centralized SITE_URL (`https://www.mojautodiler.com`), emits valid
+ * string[] image URLs for Google Image Search, includes hreflang alternates for
+ * bilingual routes, excludes malformed slugs, and deduplicates final entries.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // ── Static routes ──────────────────────────────────────────────────────────
-  const staticRoutes = ['', '/inventory', '/contact'].flatMap((path) =>
-    locales.map((locale) => ({
-      url:             `${BASE_URL}/${locale}${path}`,
+  const staticRoutes: MetadataRoute.Sitemap = ['', '/inventory', '/contact'].flatMap((path) => {
+    const alternates = buildBilingualAlternates(path);
+    return locales.map((locale) => ({
+      url:             `${SITE_URL}/${locale}${path}`,
       lastModified:    new Date(),
       changeFrequency: 'weekly' as const,
       priority:        path === '' ? 1 : 0.8,
-    })),
-  );
+      alternates,
+    }));
+  });
 
-  // ── Legal pages (Serbian primary route) ────────────────────────────────────
+  // ── Legal pages (Serbian primary route only — no sq alternate) ─────────────
   const legalRoutes: MetadataRoute.Sitemap = [
     {
-      url:             `${BASE_URL}/sr/podela-odgovornosti`,
+      url:             `${SITE_URL}/sr/podela-odgovornosti`,
       lastModified:    new Date(),
       changeFrequency: 'monthly' as const,
       priority:        0.5,
@@ -40,43 +67,70 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // ── Vehicle detail pages ───────────────────────────────────────────────────
   const vehicles = await getVehicleSlugsForSitemap();
 
-  const vehicleRoutes = vehicles.flatMap((v) =>
-    locales.map((locale) => ({
-      url:             `${BASE_URL}/${locale}/vehicle/${v.slug}`,
-      lastModified:    v.updatedAt,          // actual date, not new Date()
-      changeFrequency: 'weekly' as const,    // inventory can change weekly
-      priority:        0.8,
-      // images field adds vehicle photo to sitemap for Google Image Search
-      ...(v.primaryImage && {
-        images: [{ url: v.primaryImage, title: v.slug }],
-      }),
-    })),
-  );
+  const vehicleRoutes: MetadataRoute.Sitemap = vehicles
+    .filter((v) => isValidSitemapSlug(v.slug))
+    .flatMap((v) => {
+      const path = `/vehicle/${v.slug}`;
+      const alternates = buildBilingualAlternates(path);
+      const validImage = isValidAbsoluteHttpUrl(v.primaryImage)
+        ? v.primaryImage.trim()
+        : undefined;
 
-  // ── Brand silo pages ──────────────────────────────────────────────────────
-  // New in Phase 2. Purely additive — no existing URLs removed or changed.
-  const brandRoutes = BRAND_SLUGS.flatMap((brand) =>
-    locales.map((locale) => ({
-      url:             `${BASE_URL}/${locale}/cars/${brand}`,
+      return locales.map((locale) => ({
+        url:             `${SITE_URL}/${locale}${path}`,
+        lastModified:    v.updatedAt,
+        changeFrequency: 'weekly' as const,
+        priority:        0.8,
+        alternates,
+        ...(validImage ? { images: [validImage] } : {}),
+      }));
+    });
+
+  // ── Brand silo pages ───────────────────────────────────────────────────────
+  const brandRoutes: MetadataRoute.Sitemap = BRAND_SLUGS.flatMap((brand) => {
+    const path = `/cars/${brand}`;
+    const alternates = buildBilingualAlternates(path);
+    return locales.map((locale) => ({
+      url:             `${SITE_URL}/${locale}${path}`,
       lastModified:    new Date(),
       changeFrequency: 'weekly' as const,
       priority:        0.7,
-    })),
-  );
+      alternates,
+    }));
+  });
 
   // ── Model silo pages ───────────────────────────────────────────────────────
-  // New in Phase 3. Purely additive — no existing URLs removed or changed.
-  const modelRoutes = MODEL_SLUGS.flatMap((slug) =>
-    locales.map((locale) => ({
-      url:             `${BASE_URL}/${locale}/model/${slug}`,
+  const modelRoutes: MetadataRoute.Sitemap = MODEL_SLUGS.flatMap((slug) => {
+    const path = `/model/${slug}`;
+    const alternates = buildBilingualAlternates(path);
+    return locales.map((locale) => ({
+      url:             `${SITE_URL}/${locale}${path}`,
       lastModified:    new Date(),
       changeFrequency: 'weekly' as const,
       priority:        0.7,
-    })),
-  );
+      alternates,
+    }));
+  });
 
   // ── Blog pages (Serbian Latin only — published & indexable) ────────────────
   const blogRoutes = await buildBlogSitemapEntries();
 
-  return [...staticRoutes, ...legalRoutes, ...brandRoutes, ...modelRoutes, ...vehicleRoutes, ...blogRoutes];
+  const combined = [
+    ...staticRoutes,
+    ...legalRoutes,
+    ...brandRoutes,
+    ...modelRoutes,
+    ...vehicleRoutes,
+    ...blogRoutes,
+  ];
+
+  // Deduplicate by exact canonical URL while preserving order
+  const seen = new Set<string>();
+  return combined.filter((entry) => {
+    if (!isValidAbsoluteHttpUrl(entry.url) || seen.has(entry.url)) {
+      return false;
+    }
+    seen.add(entry.url);
+    return true;
+  });
 }

@@ -5,13 +5,12 @@ import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
 import UtmCapture from '@/components/analytics/UtmCapture';
 import ServiceWorkerRegister from '@/components/pwa/ServiceWorkerRegister';
 import PwaInstallBanner from '@/components/pwa/PwaInstallBanner';
-
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mojautodiler.rs';
+import { SITE_URL } from '@/lib/site-url';
 
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE),
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: 'Moj Auto Diler — Premium automobili iz uvoza',
+    default: 'Moj Auto Diler | Premium automobili iz uvoza',
     template: '%s | Moj Auto Diler',
   },
   description: 'Pažljivo odabrana premium vozila iz uvoza sa transparentnom istorijom, dokumentovanim stanjem i sigurnom kupovinom u Srbiji.',
@@ -21,13 +20,13 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     siteName: 'Moj Auto Diler',
-    title: 'Moj Auto Diler — Premium automobili iz uvoza',
+    title: 'Moj Auto Diler | Premium automobili iz uvoza',
     description: 'Pažljivo odabrana premium vozila iz uvoza sa transparentnom istorijom i sigurnom kupovinom u Srbiji.',
-    images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'Moj Auto Diler — premium automobili iz uvoza' }],
+    images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'Moj Auto Diler, premium automobili iz uvoza' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Moj Auto Diler — Premium automobili iz uvoza',
+    title: 'Moj Auto Diler | Premium automobili iz uvoza',
     description: 'Pažljivo odabrana premium vozila iz uvoza sa transparentnom istorijom i sigurnom kupovinom u Srbiji.',
     images: ['/og-image.jpg'],
   },

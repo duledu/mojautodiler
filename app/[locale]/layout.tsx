@@ -16,7 +16,7 @@ export async function generateMetadata(
   const { locale } = await params;
   return {
     alternates: {
-      languages: { sr: '/sr', sq: '/sq' },
+      languages: { sr: '/sr', sq: '/sq', 'x-default': '/sr' },
     },
     ...(locale === 'sq' ? {
       openGraph: { locale: 'sq_AL' },

@@ -7,13 +7,14 @@ import VehicleCard from '@/components/vehicle/VehicleCard';
 import BreadcrumbJsonLd from '@/components/seo/BreadcrumbJsonLd';
 import BrandSiloJsonLd from '@/components/seo/BrandSiloJsonLd';
 import Reveal from '@/components/ui/Reveal';
+import { SITE_URL } from '@/lib/site-url';
 import type { Metadata } from 'next';
 
 // ── ISR — revalidate hourly so new vehicles appear within 60 minutes ──────────
 // (NOT force-dynamic — these are SEO landing pages that benefit from caching)
 export const revalidate = 3600;
 
-const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mojautodiler.rs').replace(/\/$/, '');
+const SITE = SITE_URL;
 
 // ── Supported brand slugs ─────────────────────────────────────────────────────
 
@@ -390,6 +391,7 @@ export async function generateMetadata(
       languages: {
         sr: `/sr/cars/${brand}`,
         sq: `/sq/cars/${brand}`,
+        'x-default': `/sr/cars/${brand}`,
       },
     },
     openGraph: {
