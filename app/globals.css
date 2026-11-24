@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap');
+
 @import 'tailwindcss';
 
 :root {
@@ -41,9 +43,9 @@
   --color-warning: #D97706;
   --color-error: #EF4444;
 
-  /* Typography — self-hosted via next/font/google in app/layout.tsx */
-  --font-display: var(--font-syne), 'Syne', sans-serif;
-  --font-body: var(--font-dm-sans), 'DM Sans', sans-serif;
+  /* Typography */
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
 
   /* Shadows — tuned for white surfaces */
   --shadow-card: 0 2px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);

@@ -55,14 +55,13 @@ describe('Phase 4 Option 3 — Image Optimization & Loop-Free Fallback', () => {
   });
 });
 
-describe('Phase 4 Option 3 — Fonts, Lazy Maps & Untouched Rendering/Admin Scope', () => {
-  test('uses next/font/google instead of render-blocking Google Fonts CSS @import', () => {
+describe('Phase 4 Option 3 — Typography Preservation, Lazy Maps & Untouched Rendering/Admin Scope', () => {
+  test('preserves exact original 5dfed25 typography and font loading (no next/font/google override)', () => {
     const css = readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8');
     const layout = readFileSync(new URL('../app/layout.tsx', import.meta.url), 'utf8');
-    assert.equal(css.includes('fonts.googleapis.com'), false);
-    assert.ok(layout.includes("from 'next/font/google'"));
-    assert.ok(layout.includes('Syne'));
-    assert.ok(layout.includes('DM_Sans'));
+    assert.equal(layout.includes('next/font/google'), false);
+    assert.ok(css.includes("--font-display: 'Syne', sans-serif;"));
+    assert.ok(css.includes("--font-body: 'DM Sans', sans-serif;"));
   });
 
   test('preserves original stable force-dynamic rendering in [locale]/layout.tsx (no ISR risk)', () => {
