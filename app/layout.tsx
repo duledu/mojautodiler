@@ -1,5 +1,20 @@
 import type { Metadata, Viewport } from 'next';
+import { DM_Sans, Syne } from 'next/font/google';
 import './globals.css';
+
+const syne = Syne({
+  subsets: ['latin', 'latin-ext'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-syne',
+  display: 'swap',
+});
+
+const dmSans = DM_Sans({
+  subsets: ['latin', 'latin-ext'],
+  weight: ['300', '400', '500', '600'],
+  variable: '--font-dm-sans',
+  display: 'swap',
+});
 import MetaPixel from '@/components/analytics/MetaPixel';
 import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
 import UtmCapture from '@/components/analytics/UtmCapture';
@@ -40,7 +55,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { readonly children: React.ReactNode }) {
   return (
-    <html lang="sr" suppressHydrationWarning>
+    <html lang="sr" className={`${syne.variable} ${dmSans.variable}`} suppressHydrationWarning>
       <body className="antialiased">
         {children}
         {/* Meta Pixel — loads after hydration, tracks SPA route changes */}

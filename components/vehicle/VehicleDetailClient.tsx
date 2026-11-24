@@ -5,7 +5,6 @@ import { trackLead, trackViewContent } from '@/lib/meta-pixel';
 import { trackGA4Event } from '@/lib/ga4';
 import { buildAttribution } from '@/lib/utm';
 import dynamic from 'next/dynamic';
-import Image from 'next/image';
 import Link from 'next/link';
 import { FacebookIcon, InstagramIcon, ViberIcon } from '@/components/ui/SocialIcons';
 import {
@@ -15,9 +14,11 @@ import {
 } from 'lucide-react';
 import { Vehicle } from '@/types/vehicle';
 import { Locale, TranslationKeys } from '@/lib/i18n';
-import { formatPrice, formatMileage, cn, formatVatMode, isR2Image } from '@/lib/utils';
+import { formatPrice, formatMileage, cn, formatVatMode } from '@/lib/utils';
 import type { DealerInfo } from '@/lib/db/mappers';
 import { resolveVehicleContact } from '@/lib/vehicle-contact';
+import OptimizedImage from '@/components/ui/OptimizedImage';
+import LazyGoogleMap from '@/components/vehicle/LazyGoogleMap';
 import VehicleCard from '@/components/vehicle/VehicleCard';
 import CarVerticalVehicleCta from '@/components/affiliate/CarVerticalVehicleCta';
 import VehicleLegalDisclaimer from '@/components/vehicle/VehicleLegalDisclaimer';
@@ -397,18 +398,19 @@ export default function VehicleDetailClient({
             <div className="w-full max-w-full overflow-hidden rounded-2xl">
               <div className="relative w-full aspect-[16/9] overflow-hidden bg-(--color-surface-2) shadow-[0_4px_20px_rgba(0,0,0,0.08)]">
                 {activeImageUrl ? (
-                  // Using explicit width/height (not fill) so Next.js generates
-                  // optimised srcsets without injecting extra wrapper elements.
-                  // CSS absolute+inset-0+h-full+w-full controls the rendered size.
-                  <Image
+                  // Responsive AVIF/WebP via Next.js Image Optimizer with single-shot
+                  // fallback to original R2 URL on error. Fullscreen lightbox uses original.
+                  <OptimizedImage
                     src={activeImageUrl}
                     alt={activeVehicleImage?.alt || vehicle.title}
                     width={1600}
                     height={900}
                     priority
-                    unoptimized={isR2Image(activeImageUrl)}
+                    fetchPriority="high"
+                    quality={82}
                     sizes="(min-width: 1024px) 58vw, 100vw"
                     className="absolute inset-0 h-full w-full object-cover object-center"
+                    fallback={<PremiumVehiclePlaceholder />}
                   />
                 ) : (
                   <PremiumVehiclePlaceholder />
@@ -475,12 +477,13 @@ export default function VehicleDetailClient({
                           : 'border-transparent opacity-55 hover:opacity-85'
                       )}
                     >
-                      <Image
+                      <OptimizedImage
                         src={img.url}
                         alt={img.alt}
                         width={192}
                         height={128}
-                        unoptimized={isR2Image(img.url)}
+                        quality={65}
+                        loading="lazy"
                         sizes="96px"
                         className="absolute inset-0 h-full w-full object-cover object-center"
                       />
@@ -905,17 +908,10 @@ export default function VehicleDetailClient({
                   </div>
                 )}
                 {isAllowedGoogleMapsEmbedUrl(contact.googleMapsEmbedUrl) && (
-                  <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl sm:aspect-[16/9]">
-                    <iframe
-                      src={contact.googleMapsEmbedUrl}
-                      title={vehicleDetailCopy.locationSection}
-                      loading="lazy"
-                      referrerPolicy="no-referrer-when-downgrade"
-                      allowFullScreen
-                      className="absolute inset-0 h-full w-full border-0"
-                      suppressHydrationWarning
-                    />
-                  </div>
+                  <LazyGoogleMap
+                    src={contact.googleMapsEmbedUrl}
+                    title={vehicleDetailCopy.locationSection}
+                  />
                 )}
                 {contact.googleMapsUrl && (
                   <a

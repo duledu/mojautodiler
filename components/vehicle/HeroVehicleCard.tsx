@@ -1,9 +1,9 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, Building2, Calendar, Camera, Fuel, Gauge, MapPin, Settings2, ShieldCheck } from 'lucide-react';
 import { Vehicle } from '@/types/vehicle';
 import { Locale, TranslationKeys } from '@/lib/i18n';
-import { formatMileage, formatPrice, formatVatMode, isR2Image } from '@/lib/utils';
+import { formatMileage, formatPrice, formatVatMode } from '@/lib/utils';
+import OptimizedImage from '@/components/ui/OptimizedImage';
 import PremiumVehiclePlaceholder from '@/components/vehicle/PremiumVehiclePlaceholder';
 import { getVehicleTrustBadges, TrustBadges } from '@/components/vehicle/TrustBadges';
 import VehicleStatusBadge from '@/components/vehicle/VehicleStatusBadge';
@@ -32,15 +32,17 @@ export default function HeroVehicleCard({
         {/* Image */}
         <div className="relative w-full aspect-[16/9] overflow-hidden bg-[var(--color-surface-2)] sm:aspect-[3/2]">
           {mainImage ? (
-            <Image
+            <OptimizedImage
               src={mainImage}
               alt={`${vehicle.title} ${vehicle.year} — premium uvozno vozilo`}
               width={1200}
               height={800}
               priority
-              unoptimized={isR2Image(mainImage)}
+              fetchPriority="high"
+              quality={80}
               sizes="(min-width: 1024px) 52vw, 100vw"
               className="hero-card-image absolute inset-0 h-full w-full object-cover object-center"
+              fallback={<PremiumVehiclePlaceholder className="hero-card-image" />}
             />
           ) : (
             <PremiumVehiclePlaceholder className="hero-card-image" />

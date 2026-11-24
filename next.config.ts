@@ -25,6 +25,13 @@ const nextConfig: NextConfig = {
     // Prefer AVIF then WebP — both are served with quality fallback to the
     // original format by the browser's Accept header negotiation.
     formats: ['image/avif', 'image/webp'],
+    // Controlled responsive widths keep Vercel/Next.js transformation counts low
+    // while covering mobile, tablet, desktop cards, gallery, and fullscreen views.
+    deviceSizes: [640, 828, 1080, 1280, 1920],
+    imageSizes: [96, 192, 384],
+    // 31-day CDN/optimizer cache TTL. Safe because every new R2 upload uses a
+    // unique timestamped object key (automatic URL versioning on photo replacement).
+    minimumCacheTTL: 2678400,
 
     remotePatterns: [
       // Unsplash (used by mock/demo vehicles)
