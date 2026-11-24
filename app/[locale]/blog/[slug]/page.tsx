@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { getPublishedBlogPostBySlug } from '@/lib/db/blog';
 import { buildBlogPostMetadata } from '@/lib/seo/blog-seo';
+import { resolveSiloLinksForBlogPost } from '@/lib/seo/silos';
 import BlogJsonLd from '@/components/seo/BlogJsonLd';
 import BlogContentRenderer from '@/components/blog/BlogContentRenderer';
 import VehicleCard from '@/components/vehicle/VehicleCard';
@@ -55,6 +56,7 @@ export default async function PublicBlogPostPage({ params }: PageProps) {
   if (!post) notFound();
 
   const t = getTranslations('sr');
+  const siloLinks = resolveSiloLinksForBlogPost(post);
 
   return (
     <div className="min-h-screen bg-[var(--color-bg)]">
@@ -196,6 +198,31 @@ export default async function PublicBlogPostPage({ params }: PageProps) {
                 </Link>
               </div>
             </div>
+            {(siloLinks.brands.length > 0 || siloLinks.models.length > 0) && (
+              <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-[var(--accent-border)]/60 pt-4">
+                <span className="text-[11px] font-bold text-[var(--color-text-muted)] mr-1">
+                  Povezane kategorije:
+                </span>
+                {siloLinks.models.map((m) => (
+                  <Link
+                    key={m.slug}
+                    href={`/sr/model/${m.slug}`}
+                    className="inline-flex items-center gap-1 rounded-full border border-[var(--accent-border)] bg-white px-3 py-1 text-xs font-bold text-[var(--accent-dark)] transition hover:bg-[var(--accent)] hover:text-white"
+                  >
+                    Polovni {m.fullName}
+                  </Link>
+                ))}
+                {siloLinks.brands.map((b) => (
+                  <Link
+                    key={b.slug}
+                    href={`/sr/cars/${b.slug}`}
+                    className="inline-flex items-center gap-1 rounded-full border border-[var(--color-border)] bg-white px-3 py-1 text-xs font-semibold text-[var(--color-text-2)] transition hover:border-[var(--accent-border)] hover:text-[var(--accent-dark)]"
+                  >
+                    Polovni {b.displayName}
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
         </article>
 

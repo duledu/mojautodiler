@@ -2,11 +2,16 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowRight, CheckCircle2, ChevronDown, ChevronRight, User, Fuel } from 'lucide-react';
 import { isValidLocale, getTranslations } from '@/lib/i18n';
-import { getVehiclesByModel } from '@/lib/db/vehicles';
+import { getActiveVehicles, getVehiclesByModel } from '@/lib/db/vehicles';
 import VehicleCard from '@/components/vehicle/VehicleCard';
 import BreadcrumbJsonLd from '@/components/seo/BreadcrumbJsonLd';
 import ModelSiloJsonLd from '@/components/seo/ModelSiloJsonLd';
 import Reveal from '@/components/ui/Reveal';
+import {
+  getBreadcrumbLabels,
+  getModelsForBrand,
+  type BrandSiloSlug,
+} from '@/lib/seo/silos';
 import { SITE_URL } from '@/lib/site-url';
 import type { Metadata } from 'next';
 
@@ -57,9 +62,9 @@ const MODELS: Record<ModelSlug, ModelDef> = {
     modelAliases: ['Golf 7', 'Golf VII'],
     brandSlug:    'volkswagen',
     sr: {
-      metaTitle:    'Volkswagen Golf 7 iz uvoza u Srbiji | Moj Auto Diler',
-      metaDesc:     'Kupite uvozni Volkswagen Golf 7 (Golf VII, 2013–2020) sa proverenim poreklom u Srbiji. Aktuelna ponuda, kompletna dokumentacija i transparentna kupovina.',
-      h1:           'Volkswagen Golf 7 iz uvoza',
+      metaTitle:    'Polovni Volkswagen Golf 7 iz uvoza | Moj Auto Diler',
+      metaDesc:     'Ponuda polovnih Volkswagen Golf 7 (Golf VII, 2013-2020) automobila iz uvoza u Srbiji. Pregledajte oglase partnerskih auto-placeva, karakteristike i savete za kupovinu.',
+      h1:           'Polovni Volkswagen Golf 7 iz uvoza',
       intro:        'Volkswagen Golf 7 je decenijama najprodavaniji automobil u Srbiji i jedan od najpopularnijih u Evropi. Na MojAutoDiler platformi pronađite pažljivo odabrane uvozne Golf 7 primjerke sa proverenim poreklom, kompletnom servisnom dokumentacijom i transparentnom kupovinom bez pritiska.',
       overview:     'Volkswagen Golf Mk7 (sedma generacija) proizveden je od 2013. do 2020. godine, zasnovan na MQB platformi VW Grupe. Dostupan je sa benzinskim motorima 1.0 TSI, 1.2 TSI, 1.4 TSI i 2.0 TSI (GTI), te dizel agregatima 1.6 TDI i 2.0 TDI — u manuelnoj i DSG automatskoj varijanti. Sedma generacija donela je unapređenu aerodinamiku, smanjenu masu karoserije i bolje ocene na Euro NCAP testu bezbednosti (5 zvezdica). Golf 7 uvezen iz Nemačke ili Švajcarske posebno je tražen zbog urednih servisnih knjižica i dokumentovane istorije vlasništva.',
       whyBuy: [
@@ -91,9 +96,9 @@ const MODELS: Record<ModelSlug, ModelDef> = {
       ],
     },
     sq: {
-      metaTitle:    'Volkswagen Golf 7 nga importi në Serbi | Moj Auto Diler',
-      metaDesc:     'Bleni Volkswagen Golf 7 (Golf VII, 2013–2020) nga importi me origjinë të verifikuar në Serbi. Ofertë aktuale, dokumentacion i plotë dhe blerje transparente.',
-      h1:           'Volkswagen Golf 7 nga importi',
+      metaTitle:    'Volkswagen Golf 7 i përdorur nga importi | Moj Auto Diler',
+      metaDesc:     'Ofertë për Volkswagen Golf 7 (Golf VII, 2013-2020) të përdorur nga importi në Serbi. Shfletoni shpalljet e auto-placeve partnere dhe këshillat para blerjes.',
+      h1:           'Volkswagen Golf 7 i përdorur nga importi',
       intro:        'Volkswagen Golf 7 është për dekada automjeti kompakt më i shitur në Serbi dhe njëri nga më të njohurit në Evropë. Gjeni Golf 7 nga importi me origjinë të verifikuar, dokumentacion të plotë dhe blerje transparente pa presion.',
       overview:     'Volkswagen Golf Mk7 (gjenerata e shtatë) u prodhua nga 2013 deri 2020, bazuar në platformën MQB të VW Group. Disponohet me motorë benzin 1.0 TSI, 1.2 TSI, 1.4 TSI dhe 2.0 TSI (GTI), si dhe diesel 1.6 TDI dhe 2.0 TDI — në variant manual dhe automatik DSG. Gjenerata e shtatë solli aerodinamikë të përmirësuar, peshë të reduktuar dhe vlerësim më të mirë Euro NCAP (5 yje). Golf 7 nga Gjermania ose Zvicra është veçanërisht i kërkuar për librat e rregullt të servisit.',
       whyBuy: [
@@ -133,9 +138,9 @@ const MODELS: Record<ModelSlug, ModelDef> = {
     modelAliases: ['Golf 6', 'Golf VI'],
     brandSlug:    'volkswagen',
     sr: {
-      metaTitle:    'Volkswagen Golf 6 iz uvoza u Srbiji | Moj Auto Diler',
-      metaDesc:     'Uvozni Volkswagen Golf 6 (Golf VI, 2009–2013) sa proverenim poreklom u Srbiji. Pouzdan i ekonomičan hatchback sa dokumentovanom istorijom servisa.',
-      h1:           'Volkswagen Golf 6 iz uvoza',
+      metaTitle:    'Polovni Volkswagen Golf 6 iz uvoza | Moj Auto Diler',
+      metaDesc:     'Ponuda polovnih Volkswagen Golf 6 (Golf VI, 2009-2013) automobila iz uvoza u Srbiji. Pouzdan i ekonomičan hatchback iz ponude partnerskih auto-placeva.',
+      h1:           'Polovni Volkswagen Golf 6 iz uvoza',
       intro:        'Volkswagen Golf 6 je jedna od najpouzdanijih i najtraženijih generacija kultnog modela u Srbiji. Na MojAutoDiler platformi pronađite uvozne Golf 6 primjerke sa proverenim poreklom i kompletnom servisnom dokumentacijom.',
       overview:     'Volkswagen Golf Mk6 (šesta generacija) proizveden je od 2009. do 2013. godine na PQ35 platformi. Dostupan je sa benzinskim motorima 1.2 TSI, 1.4 TSI i 2.0 TSI (GTI), te dizel agregatima 1.6 TDI i 2.0 TDI. Ova generacija označila je uvođenje BlueMotion tehnologije za ekonomičnost i proširene bezbednosne opreme. Golf 6 je nagrađen titulom "Automobil godine 2009." i važi za jednu od najpouzdanijih Golfovih generacija sa dobro poznatim motorima i jednostavnom elektronikom.',
       whyBuy: [
@@ -167,9 +172,9 @@ const MODELS: Record<ModelSlug, ModelDef> = {
       ],
     },
     sq: {
-      metaTitle:    'Volkswagen Golf 6 nga importi në Serbi | Moj Auto Diler',
-      metaDesc:     'Golf 6 (Golf VI, 2009–2013) nga importi me origjinë të verifikuar në Serbi. Hatchback i besueshëm dhe ekonomik me histori të dokumentuar servisi.',
-      h1:           'Volkswagen Golf 6 nga importi',
+      metaTitle:    'Volkswagen Golf 6 i përdorur nga importi | Moj Auto Diler',
+      metaDesc:     'Ofertë për Volkswagen Golf 6 (Golf VI, 2009-2013) të përdorur nga importi në Serbi. Hatchback i besueshëm dhe ekonomik nga auto-place partnerë.',
+      h1:           'Volkswagen Golf 6 i përdorur nga importi',
       intro:        'Volkswagen Golf 6 është njëra nga gjeneratat më të besueshme dhe më të kërkuara të modelit ikonik në Serbi. Gjeni Golf 6 nga importi me origjinë të verifikuar dhe dokumentacion të plotë të servisit.',
       overview:     'Volkswagen Golf Mk6 (gjenerata e gjashtë) u prodhua nga 2009 deri 2013 në platformën PQ35. Disponohet me motorë benzin 1.2 TSI, 1.4 TSI dhe 2.0 TSI (GTI), si dhe diesel 1.6 TDI dhe 2.0 TDI. Kjo gjeneratë shënoi futjen e teknologjisë BlueMotion dhe zgjerimin e sistemeve të sigurisë. Golf 6 fitoi titullin "Makina e Vitit 2009" dhe konsiderohet njëra nga gjeneratat më të besueshme me motorë të njohur mirë dhe elektronikë të thjeshtë.',
       whyBuy: [
@@ -209,9 +214,9 @@ const MODELS: Record<ModelSlug, ModelDef> = {
     modelAliases: ['Tiguan'],
     brandSlug:    'volkswagen',
     sr: {
-      metaTitle:    'Volkswagen Tiguan iz uvoza u Srbiji | Moj Auto Diler',
-      metaDesc:     'Uvozni Volkswagen Tiguan sa proverenim poreklom u Srbiji. Pouzdan kompaktni SUV sa 4Motion pogonom i kompletnom dokumentacijom. Transparentna kupovina.',
-      h1:           'Volkswagen Tiguan iz uvoza',
+      metaTitle:    'Polovni Volkswagen Tiguan iz uvoza | Moj Auto Diler',
+      metaDesc:     'Ponuda polovnih Volkswagen Tiguan SUV automobila iz uvoza u Srbiji. Pregledajte oglase partnerskih auto-placeva, karakteristike 4Motion pogona i vodič za kupce.',
+      h1:           'Polovni Volkswagen Tiguan iz uvoza',
       intro:        'Volkswagen Tiguan je najprodavaniji kompaktni SUV Volkswagena i jedan od najpopularnijih uvoznih modela u Srbiji. Na MojAutoDiler platformi pronađite pažljivo odabrane uvozne Tiguan primjerke sa proverenim poreklom i dokumentovanom istorijom servisa.',
       overview:     'Volkswagen Tiguan dostupan je u dve generacije: Tiguan 1 (2008–2017) i Tiguan 2 (2016–danas). Dolazi sa benzinskim (1.4 TSI, 2.0 TSI) i dizel (2.0 TDI) motorima, te opcionalnim 4Motion pogonom na sva četiri točka. Tiguan 2 je zasnovan na MQB platformi koja donosi bolje bezbednosne ocene, naprednu elektroniku i veći prostor. Dostupan je i u produžnoj AllSpace varijanti sa 7 sedišta. Uvozni Tiguan iz Nemačke i Švajcarske posebno se traži zbog 4Motion pogona i uredno dokumentovane istorije.',
       whyBuy: [
@@ -243,9 +248,9 @@ const MODELS: Record<ModelSlug, ModelDef> = {
       ],
     },
     sq: {
-      metaTitle:    'Volkswagen Tiguan nga importi në Serbi | Moj Auto Diler',
-      metaDesc:     'Volkswagen Tiguan nga importi me origjinë të verifikuar në Serbi. SUV kompakt i besueshëm me tërheqje 4Motion dhe dokumentacion të plotë. Blerje transparente.',
-      h1:           'Volkswagen Tiguan nga importi',
+      metaTitle:    'Volkswagen Tiguan i përdorur nga importi | Moj Auto Diler',
+      metaDesc:     'Ofertë për Volkswagen Tiguan SUV të përdorur nga importi në Serbi. Shfletoni shpalljet e auto-placeve partnere me tërheqje 4Motion dhe të dhëna transparente.',
+      h1:           'Volkswagen Tiguan i përdorur nga importi',
       intro:        'Volkswagen Tiguan është SUV kompakt më i shitur i Volkswagen dhe njëri nga modelet e importit më të njohur në Serbi. Gjeni Tiguan nga importi me origjinë të verifikuar dhe histori të dokumentuar servisi.',
       overview:     'Volkswagen Tiguan disponohet në dy gjenerata: Tiguan 1 (2008–2017) dhe Tiguan 2 (2016–sot). Disponohet me motorë benzin (1.4 TSI, 2.0 TSI) dhe diesel (2.0 TDI), me opsionin e tërheqjes 4Motion me katër rrota. Tiguan 2 është bazuar në platformën MQB me siguri më të mirë, elektronikë të avancuar dhe hapësirë më të madhe. Disponohet edhe në version të zgjatur AllSpace me 7 ulëse.',
       whyBuy: [
@@ -285,9 +290,9 @@ const MODELS: Record<ModelSlug, ModelDef> = {
     modelAliases: ['Octavia'],
     brandSlug:    'skoda',
     sr: {
-      metaTitle:    'Škoda Octavia iz uvoza u Srbiji | Moj Auto Diler',
-      metaDesc:     'Uvozna Škoda Octavia sa proverenim poreklom u Srbiji. Prostrana i ekonomična limuzina ili karavan na VW platformi sa kompletnom dokumentacijom.',
-      h1:           'Škoda Octavia iz uvoza',
+      metaTitle:    'Polovna Škoda Octavia iz uvoza | Moj Auto Diler',
+      metaDesc:     'Ponuda polovnih Škoda Octavia limuzina i karavana iz uvoza u Srbiji. Pregledajte oglase partnerskih auto-placeva, potrošnju i savete pre kupovine.',
+      h1:           'Polovna Škoda Octavia iz uvoza',
       intro:        'Škoda Octavia je sinonim za vrednost — prostran, pouzdan i ekonomičan automobil koji koristi VW Gruppe motore i platforme po nižoj ceni. Na MojAutoDiler platformi pronađite uvozne Octavia primjerke sa proverenim poreklom i dokumentovanom istorijom.',
       overview:     'Škoda Octavia dostupna je u tri generacije: Mk2 (2004–2013), Mk3 (2013–2020) i Mk4 (2020–danas). Deli MQB platformu i motore (1.0 TSI, 1.4 TSI, 2.0 TSI, 1.6 TDI, 2.0 TDI) sa Volkswagen Golfom i Audijem A3, ali po znatno nižoj ceni. Octavia nudi izuzetno prostran enterijer i jedan od najvećih prtljažnika u klasi (590L kod karavana). Dostupna je kao limuzina ili karavan, sa ili bez 4×4 pogona. Uvozna Octavia iz Češke i Nemačke posebno se traži zbog dokumentovane istorije i VW Gruppe kvaliteta.',
       whyBuy: [
@@ -319,9 +324,9 @@ const MODELS: Record<ModelSlug, ModelDef> = {
       ],
     },
     sq: {
-      metaTitle:    'Škoda Octavia nga importi në Serbi | Moj Auto Diler',
-      metaDesc:     'Škoda Octavia nga importi me origjinë të verifikuar në Serbi. Sedan/kombi i bollshëm dhe ekonomik në platformën VW me dokumentacion të plotë.',
-      h1:           'Škoda Octavia nga importi',
+      metaTitle:    'Škoda Octavia e përdorur nga importi | Moj Auto Diler',
+      metaDesc:     'Ofertë për Škoda Octavia të përdorur nga importi në Serbi. Sedan ose kombi i bollshëm dhe ekonomik nga auto-place partnerë me informacione transparente.',
+      h1:           'Škoda Octavia e përdorur nga importi',
       intro:        'Škoda Octavia është sinonim i vlerës — automjet i bollshëm, i besueshëm dhe ekonomik që përdor motorët dhe platformat e VW Group. Gjeni Octavia nga importi me origjinë të verifikuar dhe histori të dokumentuar.',
       overview:     'Škoda Octavia disponohet në tre gjenerata: Mk2 (2004–2013), Mk3 (2013–2020) dhe Mk4 (2020–sot). Ndan platformën MQB dhe motorët (1.0 TSI, 1.4 TSI, 2.0 TSI, 1.6 TDI, 2.0 TDI) me Volkswagen Golf dhe Audi A3, por me çmim dukshëm më të ulët. Octavia ofron interior dhe bagazh jashtëzakonisht të bollshëm — ndër më të mëdhenjtë në klasë (590L tek kombiu). Disponohet si sedan ose kombi, me dhe pa tërheqje 4×4.',
       whyBuy: [
@@ -361,9 +366,9 @@ const MODELS: Record<ModelSlug, ModelDef> = {
     modelAliases: ['A4'],
     brandSlug:    'audi',
     sr: {
-      metaTitle:    'Audi A4 iz uvoza u Srbiji | Moj Auto Diler',
-      metaDesc:     'Uvozni Audi A4 sa proverenim poreklom u Srbiji. Premium sedan sa quattro pogonom, naprednom tehnologijom i kompletnom dokumentacijom. Transparentna kupovina.',
-      h1:           'Audi A4 iz uvoza',
+      metaTitle:    'Polovni Audi A4 iz uvoza | Moj Auto Diler',
+      metaDesc:     'Ponuda polovnih Audi A4 automobila iz uvoza u Srbiji. Pregledajte Audi A4 B8 i B9 oglase partnerskih auto-placeva sa quattro pogonom i transparentnim podacima.',
+      h1:           'Polovni Audi A4 iz uvoza',
       intro:        'Audi A4 je ikona premium segmenta i jedan od najprodavanijih luksuznih sedana u Srbiji. Na MojAutoDiler platformi pronađite uvozne Audi A4 primjerke sa proverenim poreklom, kompletnom servisnom dokumentacijom i transparentnom kupovinom.',
       overview:     'Audi A4 dostupan je u više generacija: B6 (2000–2004), B7 (2004–2008), B8 (2008–2016) i B9 (2016–danas). Naša ponuda fokusira se na B8 i B9 generacije zbog optimalnog balansa cene, modernosti i pouzdanosti. A4 dolazi sa benzinskim (1.8 TFSI, 2.0 TFSI) i dizel (2.0 TDI) motorima, s opcionalnim quattro pogonom na sva četiri točka. Audi A4 iz Nemačke i Austrije posebno je tražen zbog dokumentovane Audi Service istorije i niže kilometraže.',
       whyBuy: [
@@ -395,9 +400,9 @@ const MODELS: Record<ModelSlug, ModelDef> = {
       ],
     },
     sq: {
-      metaTitle:    'Audi A4 nga importi në Serbi | Moj Auto Diler',
-      metaDesc:     'Audi A4 nga importi me origjinë të verifikuar në Serbi. Sedan premium me tërheqje quattro, teknologji të avancuar dhe dokumentacion të plotë. Blerje transparente.',
-      h1:           'Audi A4 nga importi',
+      metaTitle:    'Audi A4 i përdorur nga importi | Moj Auto Diler',
+      metaDesc:     'Ofertë për Audi A4 të përdorur nga importi në Serbi. Shfletoni gjeneratat B8 dhe B9 nga auto-place partnerë me tërheqje quattro dhe të dhëna transparente.',
+      h1:           'Audi A4 i përdorur nga importi',
       intro:        'Audi A4 është ikona e segmentit premium dhe njëri nga sedanët luksoz më të shitur në Serbi. Gjeni Audi A4 nga importi me origjinë të verifikuar, dokumentacion të plotë servisi dhe blerje transparente pa presion.',
       overview:     'Audi A4 disponohet në disa gjenerata: B6 (2000–2004), B7 (2004–2008), B8 (2008–2016) dhe B9 (2016–sot). Oferta jonë fokusohet tek gjeneratat B8 dhe B9 për balancën optimale çmim-modernitet-besueshmëri. A4 vjen me motorë benzin (1.8 TFSI, 2.0 TFSI) dhe diesel (2.0 TDI), me opsionin quattro me katër rrota. Audi A4 nga Gjermania dhe Austria është veçanërisht i kërkuar për historinë Audi Service dhe kilometrazhin e ulët.',
       whyBuy: [
@@ -437,9 +442,9 @@ const MODELS: Record<ModelSlug, ModelDef> = {
     modelAliases: ['X3'],
     brandSlug:    'bmw',
     sr: {
-      metaTitle:    'BMW X3 iz uvoza u Srbiji | Moj Auto Diler',
-      metaDesc:     'Uvozni BMW X3 sa proverenim poreklom u Srbiji. Premium SUV sa xDrive pogonom, sportskim karakterom i kompletnom BMW dokumentacijom. Transparentna kupovina.',
-      h1:           'BMW X3 iz uvoza',
+      metaTitle:    'Polovni BMW X3 iz uvoza | Moj Auto Diler',
+      metaDesc:     'Ponuda polovnih BMW X3 SUV automobila iz uvoza u Srbiji. Pregledajte xDrive oglase partnerskih auto-placeva, karakteristike i savete pre kupovine.',
+      h1:           'Polovni BMW X3 iz uvoza',
       intro:        'BMW X3 je premium kompaktni SUV koji spaja sportsku dinamiku BMW-a sa praktičnošću SUV karoserije. Na MojAutoDiler platformi pronađite uvozne BMW X3 primjerke sa proverenim poreklom, originalnom BMW dokumentacijom i transparentnom kupovinom.',
       overview:     'BMW X3 dostupan je u tri generacije: E83 (2003–2010), F25 (2010–2017) i G01 (2017–danas). Naša ponuda fokusira se na F25 i G01 generacije — popularne zbog optimalnog balansa cene, performansi i modernosti. Dolazi sa benzinskim (2.0i, 3.0i, M40i) i dizel (2.0d, 3.0d) motorima, gotovo uvek sa xDrive pogonom na sva četiri točka. BMW X3 iz Nemačke i Švajcarske posebno je tražen zbog BMW Service History i konzistentno niže kilometraže.',
       whyBuy: [
@@ -471,9 +476,9 @@ const MODELS: Record<ModelSlug, ModelDef> = {
       ],
     },
     sq: {
-      metaTitle:    'BMW X3 nga importi në Serbi | Moj Auto Diler',
-      metaDesc:     'BMW X3 nga importi me origjinë të verifikuar në Serbi. SUV premium me tërheqje xDrive, karakter sportiv dhe dokumentacion BMW origjinal. Blerje transparente.',
-      h1:           'BMW X3 nga importi',
+      metaTitle:    'BMW X3 i përdorur nga importi | Moj Auto Diler',
+      metaDesc:     'Ofertë për BMW X3 SUV të përdorur nga importi në Serbi. Shfletoni shpalljet me tërheqje xDrive nga auto-place partnerë me informacione transparente.',
+      h1:           'BMW X3 i përdorur nga importi',
       intro:        'BMW X3 është SUV kompakt premium që kombinon dinamikën sportive të BMW me praktikitetin e karrocerisë SUV. Gjeni BMW X3 nga importi me origjinë të verifikuar, dokumentacion origjinal BMW dhe blerje transparente pa presion.',
       overview:     'BMW X3 disponohet në tre gjenerata: E83 (2003–2010), F25 (2010–2017) dhe G01 (2017–sot). Oferta jonë fokusohet tek gjeneratat F25 dhe G01 — të njohura për balancën optimale çmim-performancë-modernitet. Disponohet me motorë benzin (2.0i, 3.0i, M40i) dhe diesel (2.0d, 3.0d), pothuajse gjithmonë me tërheqje xDrive me katër rrota. BMW X3 nga Gjermania dhe Zvicra është veçanërisht i kërkuar për BMW Service History dhe kilometrazhin e ulët.',
       whyBuy: [
@@ -581,14 +586,33 @@ export default async function ModelPage(
   const content  = locale === 'sq' ? def.sq : def.sr;
   const t        = getTranslations(locale);
   const vehicles = await getVehiclesByModel(def.dbBrand, def.modelAliases);
+  const alternativeVehicles = vehicles.length === 0
+    ? (() => {
+        return getActiveVehicles().then((all) => {
+          const sameBrand = all.filter(
+            (v) => v.brand.toLowerCase() === def.dbBrand.toLowerCase(),
+          );
+          const others = all.filter(
+            (v) => v.brand.toLowerCase() !== def.dbBrand.toLowerCase(),
+          );
+          return [...sameBrand, ...others].slice(0, 4);
+        });
+      })()
+    : Promise.resolve([]);
+  const resolvedAlternatives = await alternativeVehicles;
   const pageUrl  = `${SITE}/${locale}/model/${slug}`;
   const isSq     = locale === 'sq';
 
+  const bcLabels      = getBreadcrumbLabels(locale);
+  const siblingModels = getModelsForBrand(def.brandSlug as BrandSiloSlug).filter(
+    (m) => m.slug !== slug,
+  );
+
   const breadcrumbs = [
-    { name: isSq ? 'Kryefaqja' : 'Početna',   url: `${SITE}/${locale}` },
-    { name: isSq ? 'Automjetet' : 'Vozila',    url: `${SITE}/${locale}/inventory` },
-    { name: def.brandDisplay,                   url: `${SITE}/${locale}/cars/${def.brandSlug}` },
-    { name: def.displayName,                    url: pageUrl },
+    { name: bcLabels.home,      url: `${SITE}/${locale}` },
+    { name: bcLabels.inventory, url: `${SITE}/${locale}/inventory` },
+    { name: def.brandDisplay,   url: `${SITE}/${locale}/cars/${def.brandSlug}` },
+    { name: def.displayName,    url: pageUrl },
   ];
 
   return (
@@ -609,21 +633,24 @@ export default async function ModelPage(
 
         {/* ── Breadcrumb ─────────────────────────────────────────────────── */}
         <div className="bg-white border-b border-(--color-border)">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 py-3 flex items-center gap-2 text-xs text-(--color-text-muted)">
+          <nav
+            aria-label="Breadcrumb"
+            className="mx-auto max-w-7xl px-4 sm:px-6 py-3 flex flex-wrap items-center gap-2 text-xs text-(--color-text-muted)"
+          >
             <Link href={`/${locale}`} className="hover:text-(--color-text) transition-colors">
-              {isSq ? 'Kryefaqja' : 'Početna'}
+              {bcLabels.home}
             </Link>
-            <span>/</span>
+            <span aria-hidden="true">/</span>
             <Link href={`/${locale}/inventory`} className="hover:text-(--color-text) transition-colors">
-              {isSq ? 'Automjetet' : 'Vozila'}
+              {bcLabels.inventory}
             </Link>
-            <span>/</span>
+            <span aria-hidden="true">/</span>
             <Link href={`/${locale}/cars/${def.brandSlug}`} className="hover:text-(--color-text) transition-colors">
               {def.brandDisplay}
             </Link>
-            <span>/</span>
-            <span className="text-(--color-text)">{def.displayName}</span>
-          </div>
+            <span aria-hidden="true">/</span>
+            <span className="text-(--color-text) font-semibold">{def.displayName}</span>
+          </nav>
         </div>
 
         <div className="mx-auto max-w-7xl px-4 sm:px-6 py-10 sm:py-16 space-y-12 sm:space-y-20">
@@ -702,18 +729,54 @@ export default async function ModelPage(
                 ))}
               </div>
             ) : (
-              <div className="rounded-3xl border border-(--color-border) bg-white p-10 text-center">
-                <p className="text-(--color-text-muted) text-sm">
-                  {isSq
-                    ? `Aktualisht nuk ka ${def.brandDisplay} ${def.displayName} në ofertë. Kontaktoni na për informacion.`
-                    : `Trenutno nema ${def.brandDisplay} ${def.displayName} vozila u ponudi. Kontaktirajte nas za više informacija.`}
-                </p>
-                <Link
-                  href={`/${locale}/contact`}
-                  className="btn-gold mt-4 inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm"
-                >
-                  {isSq ? 'Kontakto' : 'Kontaktiraj nas'}
-                </Link>
+              <div className="space-y-8">
+                <div className="rounded-3xl border border-(--color-border) bg-white p-8 sm:p-10 text-center">
+                  <p className="text-sm sm:text-base font-semibold text-(--color-text)">
+                    {isSq
+                      ? `Aktualisht nuk ka shpallje aktive për ${def.brandDisplay} ${def.displayName} në ofertën e auto-placeve partnere.`
+                      : `Trenutno nema aktivnih oglasa za ${def.brandDisplay} ${def.displayName} u ponudi partnerskih auto-placeva.`}
+                  </p>
+                  <p className="mt-2 text-xs sm:text-sm text-(--color-text-muted)">
+                    {isSq
+                      ? 'Oferta përditësohet rregullisht. Shfletoni automjetet alternative të disponueshme më poshtë ose shikoni markën e plotë.'
+                      : 'Ponuda se redovno ažurira. U nastavku možete pogledati slična dostupna vozila ili celu ponudu ove marke.'}
+                  </p>
+                  <div className="mt-5 flex flex-wrap justify-center gap-3">
+                    <Link
+                      href={`/${locale}/cars/${def.brandSlug}`}
+                      className="btn-gold inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm"
+                    >
+                      {isSq ? `Të gjitha ${def.brandDisplay}` : `Svi ${def.brandDisplay} oglasi`}
+                      <ArrowRight size={14} />
+                    </Link>
+                    <Link
+                      href={`/${locale}/inventory`}
+                      className="btn-outline inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm"
+                    >
+                      {isSq ? 'E gjithë oferta' : 'Cela ponuda'}
+                    </Link>
+                  </div>
+                </div>
+
+                {resolvedAlternatives.length > 0 && (
+                  <div>
+                    <h3
+                      className="mb-5 text-lg font-black text-(--color-text) sm:text-xl"
+                      style={{ fontFamily: 'var(--font-display)' }}
+                    >
+                      {isSq
+                        ? 'Automjete alternative të disponueshme tani'
+                        : 'Alternativna dostupna vozila u ponudi'}
+                    </h3>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 xl:grid-cols-4">
+                      {resolvedAlternatives.map((vehicle, i) => (
+                        <Reveal key={vehicle.id} delay={i * 70}>
+                          <VehicleCard vehicle={vehicle} locale={locale} t={t} />
+                        </Reveal>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </section>
@@ -747,8 +810,8 @@ export default async function ModelPage(
                 style={{ fontFamily: 'var(--font-display)' }}
               >
                 {isSq
-                  ? `Pse të blini ${def.brandDisplay} ${def.displayName} në MojAutoDiler`
-                  : `Zašto kupiti ${def.brandDisplay} ${def.displayName} na MojAutoDiler`}
+                  ? `Pse të zgjidhni ${def.brandDisplay} ${def.displayName}`
+                  : `Zašto izabrati ${def.brandDisplay} ${def.displayName}`}
               </h2>
             </Reveal>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -804,8 +867,8 @@ export default async function ModelPage(
                 style={{ fontFamily: 'var(--font-display)' }}
               >
                 {isSq
-                  ? `Pyetjet e shpeshta — ${def.brandDisplay} ${def.displayName}`
-                  : `Česta pitanja — ${def.brandDisplay} ${def.displayName}`}
+                  ? `Pyetjet e shpeshta: ${def.brandDisplay} ${def.displayName}`
+                  : `Česta pitanja: ${def.brandDisplay} ${def.displayName}`}
               </h2>
             </Reveal>
             <div className="space-y-3">
@@ -845,13 +908,25 @@ export default async function ModelPage(
                   ? `Interesoheni edhe për modelet e tjerë ${def.brandDisplay}? Shikoni ofertën e plotë.`
                   : `Interesuje vas i ostatak ponude ${def.brandDisplay}? Pogledajte sva dostupna vozila.`}
               </p>
-              <Link
-                href={`/${locale}/cars/${def.brandSlug}`}
-                className="btn-outline mt-4 inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm"
-              >
-                {isSq ? `Sva ${def.brandDisplay} vozila` : `Sva ${def.brandDisplay} vozila`}
-                <ArrowRight size={15} />
-              </Link>
+              <div className="mt-4 flex flex-wrap items-center gap-2.5">
+                <Link
+                  href={`/${locale}/cars/${def.brandSlug}`}
+                  className="btn-outline inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm"
+                >
+                  {isSq ? `Të gjitha automjetet ${def.brandDisplay}` : `Sva ${def.brandDisplay} vozila`}
+                  <ArrowRight size={15} />
+                </Link>
+                {siblingModels.map((sib) => (
+                  <Link
+                    key={sib.slug}
+                    href={`/${locale}/model/${sib.slug}`}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-(--color-border) bg-(--color-surface) px-4 py-2.5 text-sm font-semibold text-(--color-text-2) transition hover:border-(--accent-border) hover:bg-(--accent-soft) hover:text-(--accent-dark)"
+                  >
+                    {sib.fullName}
+                    <ArrowRight size={13} aria-hidden="true" />
+                  </Link>
+                ))}
+              </div>
             </section>
           </Reveal>
 

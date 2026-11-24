@@ -1,12 +1,14 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import Link from 'next/link';
 import { BadgeCheck, SlidersHorizontal, X, ChevronDown, Search, ShieldCheck } from 'lucide-react';
 import { Vehicle, VehicleFilters, SortOption, FuelType, TransmissionType, BodyType } from '@/types/vehicle';
 import { filterVehicles, sortVehicles, getUniqueBrands } from '@/lib/utils';
 import VehicleCard from '@/components/vehicle/VehicleCard';
 import { Locale, TranslationKeys } from '@/lib/i18n';
 import { TrustBadges } from '@/components/vehicle/TrustBadges';
+import { BRAND_SILOS, MODEL_SILOS, getBreadcrumbLabels } from '@/lib/seo/silos';
 
 interface InventoryClientProps {
   readonly locale: Locale;
@@ -208,8 +210,24 @@ export default function InventoryClient({ locale, t, vehicles }: InventoryClient
     </div>
   );
 
+  const bcLabels = getBreadcrumbLabels(locale);
+
   return (
     <div className="min-h-screen bg-(--color-bg) pt-20">
+      {/* Breadcrumb */}
+      <div className="bg-white border-b border-(--color-border)">
+        <nav
+          aria-label="Breadcrumb"
+          className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center gap-2 text-xs text-(--color-text-muted)"
+        >
+          <Link href={`/${locale}`} className="hover:text-(--color-text) transition-colors">
+            {bcLabels.home}
+          </Link>
+          <span aria-hidden="true">/</span>
+          <span className="text-(--color-text) font-semibold">{bcLabels.inventory}</span>
+        </nav>
+      </div>
+
       {/* Page header */}
       <div className="bg-white border-b border-(--color-border)">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
@@ -222,6 +240,41 @@ export default function InventoryClient({ locale, t, vehicles }: InventoryClient
           </h1>
           <p className="mt-2 text-(--color-text-muted)">{t.inventory.subtitle}</p>
           <TrustBadges locale={locale} badges={['verified', 'inspection', 'transparent', 'dealer']} compact className="mt-5" />
+
+          {/* Crawlable brand & model silo navigation (Phase 3 internal linking) */}
+          <nav
+            aria-label={locale === 'sq' ? 'Shfletoni sipas markës dhe modelit' : 'Pregled po markama i modelima'}
+            className="mt-5 pt-5 border-t border-(--color-border) space-y-2.5"
+          >
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-bold text-(--color-text-muted) mr-1">
+                {locale === 'sq' ? 'Marka:' : 'Marke:'}
+              </span>
+              {BRAND_SILOS.map((brand) => (
+                <Link
+                  key={brand.slug}
+                  href={`/${locale}/cars/${brand.slug}`}
+                  className="inline-flex items-center rounded-full border border-(--color-border) bg-(--color-surface) px-3.5 py-1.5 text-xs font-bold text-(--color-text-2) transition hover:border-(--accent-border) hover:bg-(--accent-soft) hover:text-(--accent-dark)"
+                >
+                  {brand.displayName}
+                </Link>
+              ))}
+            </div>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-[11px] font-semibold text-(--color-text-muted) mr-1">
+                {locale === 'sq' ? 'Modele:' : 'Popularni modeli:'}
+              </span>
+              {MODEL_SILOS.map((model) => (
+                <Link
+                  key={model.slug}
+                  href={`/${locale}/model/${model.slug}`}
+                  className="inline-flex items-center rounded-full border border-(--color-border) bg-white px-3 py-1 text-[11px] font-semibold text-(--color-text-muted) transition hover:border-(--accent-border) hover:bg-(--accent-soft) hover:text-(--accent-dark)"
+                >
+                  {model.fullName}
+                </Link>
+              ))}
+            </div>
+          </nav>
         </div>
       </div>
 

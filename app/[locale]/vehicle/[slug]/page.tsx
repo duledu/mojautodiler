@@ -7,6 +7,11 @@ import VehicleJsonLd from '@/components/seo/VehicleJsonLd';
 import BreadcrumbJsonLd from '@/components/seo/BreadcrumbJsonLd';
 import VehicleFaqJsonLd from '@/components/seo/VehicleFaqJsonLd';
 import { generateVehicleSeo } from '@/lib/seo/vehicle-seo';
+import {
+  buildVehicleBreadcrumbs,
+  resolveBrandSiloForVehicle,
+  resolveModelSiloForVehicle,
+} from '@/lib/seo/silos';
 import { SITE_URL } from '@/lib/site-url';
 import type { Metadata } from 'next';
 
@@ -130,17 +135,14 @@ export default async function VehiclePage(
   const t   = getTranslations(locale);
   const seo = generateVehicleSeo(vehicle, locale);
 
-  const encodedSlug = encodeURIComponent(slug);
-  const breadcrumbs = [
-    { name: t.vehicleDetail.home, url: `${SITE}/${locale}` },
-    { name: t.nav.inventory,      url: `${SITE}/${locale}/inventory` },
-    { name: vehicle.title,        url: `${SITE}/${locale}/vehicle/${encodedSlug}` },
-  ];
+  const breadcrumbs = buildVehicleBreadcrumbs(vehicle, locale, SITE);
+  const brandSilo   = resolveBrandSiloForVehicle(vehicle);
+  const modelSilo   = resolveModelSiloForVehicle(vehicle);
 
   return (
     <>
       <VehicleJsonLd vehicle={vehicle} dealerName={dealer.name} dealerUrl={SITE} locale={locale} />
-      <BreadcrumbJsonLd items={breadcrumbs} />
+      <BreadcrumbJsonLd items={breadcrumbs.map(({ name, url }) => ({ name, url }))} />
       <VehicleFaqJsonLd faq={seo.faq} />
       <VehicleDetailClient
         vehicle={vehicleForClient}
@@ -148,6 +150,9 @@ export default async function VehiclePage(
         locale={locale}
         t={t}
         dealer={dealer}
+        breadcrumbs={breadcrumbs}
+        brandSilo={brandSilo}
+        modelSilo={modelSilo}
         seoContent={{
           description: seo.seoDescription,
           benefits:    seo.benefits,

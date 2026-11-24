@@ -27,6 +27,7 @@ import VehicleHighlights from '@/components/vehicle/VehicleHighlights';
 import PremiumVehiclePlaceholder from '@/components/vehicle/PremiumVehiclePlaceholder';
 import { getVehicleTrustBadges, TrustBadges } from '@/components/vehicle/TrustBadges';
 import VehicleStatusBadge from '@/components/vehicle/VehicleStatusBadge';
+import type { BrandSiloRef, BreadcrumbEntry, ModelSiloRef } from '@/lib/seo/silos';
 
 // ssr: false guarantees no SSR output → zero hydration mismatch risk
 const VehicleTitleShareButton = dynamic(
@@ -48,6 +49,9 @@ interface Props {
   readonly t: TranslationKeys;
   readonly dealer: DealerInfo;
   readonly seoContent?: SeoContent;
+  readonly breadcrumbs?: readonly BreadcrumbEntry[];
+  readonly brandSilo?: BrandSiloRef | null;
+  readonly modelSilo?: ModelSiloRef | null;
 }
 
 // Only Google's own Maps embed iframe may ever be rendered — never arbitrary
@@ -79,7 +83,17 @@ function formatDealerPhone(phone: string): string {
   return trimmed;
 }
 
-export default function VehicleDetailClient({ vehicle, similar, locale, t, dealer, seoContent }: Props) {
+export default function VehicleDetailClient({
+  vehicle,
+  similar,
+  locale,
+  t,
+  dealer,
+  seoContent,
+  breadcrumbs,
+  brandSilo,
+  modelSilo,
+}: Props) {
   const formRef      = useRef<HTMLDivElement | null>(null);
   const messageRef   = useRef<HTMLTextAreaElement | null>(null);
   const touchStartX  = useRef<number | null>(null);
@@ -269,17 +283,35 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
     <div className="min-h-screen bg-(--color-bg) pt-20">
       {/* Breadcrumb */}
       <div className="bg-white border-b border-(--color-border)">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-2 text-xs text-(--color-text-muted)">
-          <Link href={`/${locale}`} className="hover:text-(--color-text) transition-colors">
-            {vehicleDetailCopy.home}
-          </Link>
-          <span>/</span>
-          <Link href={`/${locale}/inventory`} className="hover:text-(--color-text) transition-colors">
-            {t.nav.inventory}
-          </Link>
-          <span>/</span>
-          <span className="text-(--color-text) truncate">{vehicle.title}</span>
-        </div>
+        <nav
+          aria-label="Breadcrumb"
+          className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center gap-2 text-xs text-(--color-text-muted)"
+        >
+          {(breadcrumbs && breadcrumbs.length > 0
+            ? breadcrumbs
+            : [
+                { name: vehicleDetailCopy.home, href: `/${locale}`, url: `/${locale}` },
+                { name: t.nav.inventory, href: `/${locale}/inventory`, url: `/${locale}/inventory` },
+                { name: vehicle.title, href: '', url: '' },
+              ]
+          ).map((crumb, idx, list) => {
+            const isLast = idx === list.length - 1;
+            return (
+              <span key={`${crumb.name}-${idx}`} className="inline-flex items-center gap-2 min-w-0">
+                {idx > 0 && <span aria-hidden="true">/</span>}
+                {isLast ? (
+                  <span className="text-(--color-text) font-semibold truncate max-w-[220px] sm:max-w-[420px]">
+                    {crumb.name}
+                  </span>
+                ) : (
+                  <Link href={crumb.href} className="hover:text-(--color-text) transition-colors shrink-0">
+                    {crumb.name}
+                  </Link>
+                )}
+              </span>
+            );
+          })}
+        </nav>
       </div>
 
       <div className="max-w-7xl mx-auto px-3 py-4 min-[390px]:px-4 min-[390px]:py-6 sm:px-6 sm:py-8">
@@ -1252,6 +1284,55 @@ export default function VehicleDetailClient({ vehicle, similar, locale, t, deale
             generation={vehicle.generation}
             locale={locale}
           />
+        )}
+
+        {/* Contextual brand & model category links (Phase 3 internal linking) */}
+        {(brandSilo || modelSilo) && (
+          <div className="mt-10 rounded-2xl border border-(--color-border) bg-white p-5 sm:p-6">
+            <h2
+              className="text-base font-black text-(--color-text) sm:text-lg"
+              style={{ fontFamily: 'var(--font-display)' }}
+            >
+              {locale === 'sq'
+                ? `Shiko më shumë automjete ${vehicle.brand}`
+                : `Pogledajte još polovnih ${vehicle.brand} automobila`}
+            </h2>
+            <p className="mt-1 text-xs leading-6 text-(--color-text-muted) sm:text-sm">
+              {locale === 'sq'
+                ? 'Eksploroni ofertën e plotë të së njëjtës markë ose model nga auto-place partnerë.'
+                : 'Istražite ostale oglase iste marke ili modela iz ponude partnerskih auto-placeva.'}
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2.5">
+              {modelSilo && (
+                <Link
+                  href={`/${locale}/model/${modelSilo.slug}`}
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-(--accent-border) bg-(--accent-soft) px-4 py-2 text-xs font-bold text-(--accent-dark) transition hover:bg-(--accent) hover:text-white sm:text-sm"
+                >
+                  {locale === 'sq'
+                    ? `Të gjitha ${modelSilo.fullName}`
+                    : `Svi oglasi za ${modelSilo.fullName}`}
+                  <ChevronRight size={14} aria-hidden="true" />
+                </Link>
+              )}
+              {brandSilo && (
+                <Link
+                  href={`/${locale}/cars/${brandSilo.slug}`}
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-(--color-border) bg-(--color-surface) px-4 py-2 text-xs font-bold text-(--color-text-2) transition hover:border-(--accent-border) hover:bg-(--accent-soft) hover:text-(--accent-dark) sm:text-sm"
+                >
+                  {locale === 'sq'
+                    ? `Të gjitha automjetet ${brandSilo.displayName}`
+                    : `Svi polovni ${brandSilo.displayName} automobili`}
+                  <ChevronRight size={14} aria-hidden="true" />
+                </Link>
+              )}
+              <Link
+                href={`/${locale}/inventory`}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-(--color-border) bg-white px-4 py-2 text-xs font-semibold text-(--color-text-muted) transition hover:border-(--accent-border) hover:text-(--color-text) sm:text-sm"
+              >
+                {locale === 'sq' ? 'E gjithë oferta' : 'Cela ponuda polovnih automobila'}
+              </Link>
+            </div>
+          </div>
         )}
 
         {/* Similar vehicles */}

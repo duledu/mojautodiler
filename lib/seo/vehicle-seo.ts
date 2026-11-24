@@ -60,11 +60,11 @@ function buildTitle(v: Vehicle, locale: Locale): string {
   const gen = v.generation ? ` ${v.generation}` : '';
   const signal = buildKeySignal(v, locale);
   const core = `${v.brand} ${v.model}${gen} ${v.year}`;
-  const full = `${core} | ${signal} | MojAutoDiler`;
-  if (full.length <= 65) return full;
-  const short = `${v.brand} ${v.model} ${v.year} | ${signal} | MojAutoDiler`;
-  if (short.length <= 65) return short;
-  return `${v.brand} ${v.model} ${v.year} | MojAutoDiler`;
+  const full = `${core} | ${signal} | Moj Auto Diler`;
+  if (full.length <= 68) return full;
+  const short = `${v.brand} ${v.model} ${v.year} | ${signal} | Moj Auto Diler`;
+  if (short.length <= 68) return short;
+  return `${v.brand} ${v.model} ${v.year} | Moj Auto Diler`;
 }
 
 // ── Meta description ─────────────────────────────────────────────────────────
@@ -78,14 +78,14 @@ function buildMetaDesc(v: Vehicle, locale: Locale): string {
   const hp = v.horsepower ? `, ${v.horsepower} KS` : '';
 
   if (locale === 'sq') {
-    const base = `${v.brand} ${v.model} ${v.year}, ${km} km, ${fuel}, ${trans}${hp}.`;
+    const base = `${v.brand} ${v.model} ${v.year} i përdorur, ${km} km, ${fuel}, ${trans}${hp}.`;
     const org = origin ? ` Import nga ${origin}.` : '';
-    return `${base}${org} Shikoni ofertën në MojAutoDiler.`.slice(0, 160);
+    return `${base}${org} Shikoni ofertën në Moj Auto Diler.`.slice(0, 160);
   }
 
-  const base = `${v.brand} ${v.model} ${v.year}. godište, ${km} km, ${fuel}, ${trans}${hp}.`;
+  const base = `Polovni ${v.brand} ${v.model} ${v.year}. godište, ${km} km, ${fuel}, ${trans}${hp}.`;
   const org = origin ? ` Uvoz ${origin}.` : '';
-  return `${base}${org} Pogledajte ponudu na MojAutoDiler.`.slice(0, 160);
+  return `${base}${org} Ponuda polovnih automobila na Moj Auto Diler.`.slice(0, 160);
 }
 
 // ── SEO description (150–300 words) ──────────────────────────────────────────

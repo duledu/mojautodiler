@@ -24,6 +24,7 @@ import VehicleCard from '@/components/vehicle/VehicleCard';
 import { getDealerSettings } from '@/lib/db/settings';
 import { getHeroVehicle, getShowcaseVehicles } from '@/lib/db/vehicles';
 import { getTranslations, isValidLocale, Locale } from '@/lib/i18n';
+import { BRAND_SILOS, MODEL_SILOS } from '@/lib/seo/silos';
 import { SITE_URL } from '@/lib/site-url';
 import type { Metadata } from 'next';
 
@@ -35,13 +36,13 @@ export async function generateMetadata(
   const { locale } = await params;
   const isSq = locale === 'sq';
   const title = isSq
-    ? 'Automjete Premium nga Importi | Moj Auto Diler'
-    : 'Premium automobili iz uvoza | Moj Auto Diler';
+    ? 'Automjete të përdorura nga importi në Serbi | Moj Auto Diler'
+    : 'Polovni automobili iz uvoza u Srbiji | Moj Auto Diler';
   return {
     title: { absolute: title },
     description: isSq
-      ? 'Automjete premium të zgjedhura me kujdes nga importi, me histori transparente dhe blerje të sigurt pa presion në Serbi.'
-      : 'Pažljivo odabrana premium vozila iz uvoza sa transparentnom istorijom, dokumentovanim stanjem i sigurnom kupovinom bez pritiska u Srbiji.',
+      ? 'Ofertë e automjeteve të përdorura nga importi nga auto-place partnerë në Serbi. Shfletoni BMW, Audi, Volkswagen dhe modele të tjera me informacione transparente.'
+      : 'Ponuda polovnih automobila iz uvoza sa partnerskih auto-placeva u Srbiji. Pregledajte BMW, Audi, Volkswagen i druge modele uz transparentne informacije pre kupovine.',
     // max-image-preview:large is required for Google Discover image eligibility
     robots: {
       index: true,
@@ -102,8 +103,8 @@ const homeCopy = {
       ['Preporuka za proveru', 'Proverite istoriju i tehničko stanje vozila pre donošenja konačne odluke.', Wrench],
       ['Podrška do preporuke', 'Olakšavamo pronalaženje odgovarajućeg vozila i povezivanje sa prodavcem.', KeyRound],
     ],
-    featuredTitle: 'Aktuelna premium selekcija',
-    featuredSub: 'Istražite izdvojene automobile iz ponude naših partnerskih auto-placeva i pronađite model koji odgovara vašim potrebama i budžetu.',
+    featuredTitle: 'Ponuda polovnih automobila iz uvoza',
+    featuredSub: 'Istražite izdvojene polovne automobile iz ponude naših partnerskih auto-placeva i pronađite model koji odgovara vašim potrebama i budžetu.',
     viewAll: 'Pogledaj celu ponudu',
     darkTitle: 'Mirna odluka pre kupovine.',
     darkAccent: 'pre kupovine',
@@ -161,7 +162,7 @@ const homeCopy = {
       ['Rekomandim për kontroll', 'Kontrolloni historinë dhe gjendjen teknike të automjetit para marrjes së vendimit.', Wrench],
       ['Mbështetje deri te rekomandimi', 'Lehtësojmë gjetjen e automjetit të duhur dhe lidhjen me shitësin.', KeyRound],
     ],
-    featuredTitle: 'Seleksioni aktual premium',
+    featuredTitle: 'Oferta e automjeteve të përdorura nga importi',
     featuredSub: 'Eksploroni automjetet e veçuara nga oferta e auto-placeve tona partnere dhe gjeni modelin e duhur për ju.',
     viewAll: 'Shiko gjithë ofertën',
     darkTitle: 'Vendim i qetë para blerjes.',
@@ -302,9 +303,9 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
               </h1>
             </Reveal>
 
-            {/* Lead — 28px gap from headline, larger readable type */}
-            <Reveal delay={260} className="hidden sm:block">
-              <p className="mt-5 max-w-2xl text-[1.125rem] leading-[1.6] text-[var(--color-text-muted)] sm:mt-7 sm:text-[1.25rem] lg:text-[1.35rem] [text-wrap:pretty]">
+            {/* Lead — visible on mobile and desktop without altering hero visual identity */}
+            <Reveal delay={260}>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-text-muted)] sm:mt-7 sm:text-[1.25rem] sm:leading-[1.6] lg:text-[1.35rem] [text-wrap:pretty]">
                 {copy.lead}
               </p>
             </Reveal>
@@ -405,25 +406,38 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
               </Link>
             </div>
 
-            {/* ── Brand silo quick-links (Phase 2 internal linking) ── */}
+            {/* ── Brand & popular model silo quick-links (Phase 3 internal linking) ── */}
             <Reveal>
-              <div className="scrollbar-none -mx-4 mb-6 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0">
-                {([
-                  { slug: 'bmw',           label: 'BMW' },
-                  { slug: 'audi',          label: 'Audi' },
-                  { slug: 'volkswagen',    label: 'Volkswagen' },
-                  { slug: 'mercedes-benz', label: 'Mercedes-Benz' },
-                  { slug: 'skoda',         label: 'Škoda' },
-                ] as const).map(({ slug, label }) => (
-                  <Link
-                    key={slug}
-                    href={`/${currentLocale}/cars/${slug}`}
-                    className="inline-flex shrink-0 touch-manipulation items-center rounded-full border border-(--color-border) bg-white px-4 py-2 text-xs font-bold text-(--color-text-2) shadow-sm transition hover:border-(--accent-border) hover:bg-(--accent-soft) hover:text-(--accent-dark)"
-                  >
-                    {label}
-                  </Link>
-                ))}
-              </div>
+              <nav
+                aria-label={currentLocale === 'sq' ? 'Marka dhe modele të njohura' : 'Popularne marke i modeli'}
+                className="mb-6 space-y-2.5"
+              >
+                <div className="scrollbar-none -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0">
+                  {BRAND_SILOS.map(({ slug, displayName }) => (
+                    <Link
+                      key={slug}
+                      href={`/${currentLocale}/cars/${slug}`}
+                      className="inline-flex shrink-0 touch-manipulation items-center rounded-full border border-(--color-border) bg-white px-4 py-2 text-xs font-bold text-(--color-text-2) shadow-sm transition hover:border-(--accent-border) hover:bg-(--accent-soft) hover:text-(--accent-dark)"
+                    >
+                      {displayName}
+                    </Link>
+                  ))}
+                </div>
+                <div className="scrollbar-none -mx-4 flex items-center gap-1.5 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0">
+                  <span className="shrink-0 text-[11px] font-semibold text-(--color-text-muted) mr-1">
+                    {currentLocale === 'sq' ? 'Modele të njohura:' : 'Popularni modeli:'}
+                  </span>
+                  {MODEL_SILOS.map((m) => (
+                    <Link
+                      key={m.slug}
+                      href={`/${currentLocale}/model/${m.slug}`}
+                      className="inline-flex shrink-0 touch-manipulation items-center rounded-full border border-(--color-border) bg-(--color-surface) px-3 py-1 text-[11px] font-semibold text-(--color-text-muted) transition hover:border-(--accent-border) hover:bg-(--accent-soft) hover:text-(--accent-dark)"
+                    >
+                      {m.fullName}
+                    </Link>
+                  ))}
+                </div>
+              </nav>
             </Reveal>
             {featuredVehicles.length > 0 ? (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 xl:grid-cols-4">

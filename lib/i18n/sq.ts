@@ -61,8 +61,8 @@ const sq = {
     cta: 'Mëso Më Shumë',
   },
   inventory: {
-    title: 'Automjetet Tona',
-    subtitle: 'Gjeni automjetin ideal nga oferta jonë e zgjedhur me kujdes',
+    title: 'Oferta e automjeteve të përdorura',
+    subtitle: 'Shfletoni automjete të përdorura nga importi nga oferta e auto-placeve partnere',
     noResults: 'Nuk ka automjete që përputhen me kriteret tuaja',
     filters: {
       brand: 'Marka',

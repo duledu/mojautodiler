@@ -5,6 +5,7 @@ import InventoryJsonLd from '@/components/seo/InventoryJsonLd';
 import InventoryClient from '@/components/vehicle/InventoryClient';
 import { getActiveVehicles } from '@/lib/db/vehicles';
 import { getTranslations, isValidLocale } from '@/lib/i18n';
+import { getBreadcrumbLabels } from '@/lib/seo/silos';
 import { SITE_URL } from '@/lib/site-url';
 
 export const dynamic = 'force-dynamic';
@@ -17,11 +18,11 @@ export async function generateMetadata(
   const activeCount = vehicles.length;
 
   const title = locale === 'sq'
-    ? `Inventari i Automjeteve (${activeCount} automjete) | Moj Auto Diler`
-    : `Inventar Vozila (${activeCount} vozila) | Moj Auto Diler`;
+    ? 'Oferta e automjeteve të përdorura nga importi | Moj Auto Diler'
+    : 'Ponuda polovnih automobila iz uvoza | Moj Auto Diler';
   const description = locale === 'sq'
-    ? `Shfletoni koleksionin tone te ${activeCount} automjeteve premium me histori transparente.`
-    : `Premium vozila dostupna u Srbiji. Pregledajte ${activeCount} pažljivo odabranih automobila sa transparentnom istorijom.`;
+    ? `Shfletoni ofertën aktuale prej ${activeCount} automjetesh të përdorura nga importi në Serbi. Filtroni sipas markës, modelit, çmimit dhe kilometrazhit në Moj Auto Diler.`
+    : `Pregledajte aktuelnu ponudu od ${activeCount} polovnih automobila iz uvoza u Srbiji. Filtrirajte po marki, modelu, ceni i kilometraži na platformi Moj Auto Diler.`;
 
   return {
     title: { absolute: title },
@@ -52,15 +53,16 @@ export default async function InventoryPage({ params }: { readonly params: Promi
   const vehicles = await getActiveVehicles();
 
   const pageTitle = locale === 'sq'
-    ? `Inventari i Automjeteve (${vehicles.length} automjete) | Moj Auto Diler`
-    : `Inventar Vozila (${vehicles.length} vozila) | Moj Auto Diler`;
+    ? 'Oferta e automjeteve të përdorura nga importi | Moj Auto Diler'
+    : 'Ponuda polovnih automobila iz uvoza | Moj Auto Diler';
   const description = locale === 'sq'
-    ? `Shfletoni koleksionin tone te ${vehicles.length} automjeteve premium me histori transparente.`
-    : `Premium vozila dostupna u Srbiji. Pregledajte ${vehicles.length} pažljivo odabranih automobila sa transparentnom istorijom.`;
+    ? `Shfletoni ofertën aktuale prej ${vehicles.length} automjetesh të përdorura nga importi në Serbi. Filtroni sipas markës, modelit, çmimit dhe kilometrazhit në Moj Auto Diler.`
+    : `Pregledajte aktuelnu ponudu od ${vehicles.length} polovnih automobila iz uvoza u Srbiji. Filtrirajte po marki, modelu, ceni i kilometraži na platformi Moj Auto Diler.`;
 
+  const bcLabels = getBreadcrumbLabels(locale);
   const breadcrumbs = [
-    { name: t.vehicleDetail.home, url: `${SITE_URL}/${locale}` },
-    { name: t.nav.inventory, url: `${SITE_URL}/${locale}/inventory` },
+    { name: bcLabels.home, url: `${SITE_URL}/${locale}` },
+    { name: bcLabels.inventory, url: `${SITE_URL}/${locale}/inventory` },
   ];
 
   return (
