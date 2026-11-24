@@ -9,6 +9,7 @@
  */
 
 import type { Vehicle } from '@/types/vehicle';
+import { serializeJsonLd } from '@/lib/blog-content';
 import { SITE_URL } from '@/lib/site-url';
 
 const SITE = SITE_URL;
@@ -41,7 +42,8 @@ export default function ModelSiloJsonLd({
     url:        pageUrl,
     inLanguage: locale,
     publisher: {
-      '@type': 'AutoDealer',
+      '@type': 'Organization',
+      '@id':   `${SITE}/#organization`,
       name:    'Moj Auto Diler',
       url:     SITE,
     },
@@ -60,8 +62,8 @@ export default function ModelSiloJsonLd({
       itemListElement: vehicles.slice(0, 20).map((v, i) => ({
         '@type':    'ListItem',
         position:   i + 1,
-        url:        `${SITE}/${locale}/vehicle/${v.slug}`,
-        name:       `${v.title} — ${v.price.toLocaleString('sr-RS')} ${v.currency}`,
+        url:        `${SITE}/${locale}/vehicle/${encodeURIComponent(v.slug)}`,
+        name:       `${v.title} (${v.price.toLocaleString('sr-RS')} ${v.currency})`,
       })),
     },
   };
@@ -80,12 +82,12 @@ export default function ModelSiloJsonLd({
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionPage) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(collectionPage) }}
       />
       {faqPage && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPage) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(faqPage) }}
         />
       )}
     </>

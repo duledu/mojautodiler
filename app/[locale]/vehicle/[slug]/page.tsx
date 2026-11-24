@@ -130,10 +130,11 @@ export default async function VehiclePage(
   const t   = getTranslations(locale);
   const seo = generateVehicleSeo(vehicle, locale);
 
+  const encodedSlug = encodeURIComponent(slug);
   const breadcrumbs = [
     { name: t.vehicleDetail.home, url: `${SITE}/${locale}` },
     { name: t.nav.inventory,      url: `${SITE}/${locale}/inventory` },
-    { name: vehicle.title,        url: `${SITE}/${locale}/vehicle/${slug}` },
+    { name: vehicle.title,        url: `${SITE}/${locale}/vehicle/${encodedSlug}` },
   ];
 
   return (

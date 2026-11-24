@@ -1,103 +1,33 @@
+import { serializeJsonLd } from '@/lib/blog-content';
 import { SITE_URL } from '@/lib/site-url';
-
-const SITE = SITE_URL;
-
-interface DealerInfo {
-  readonly name:         string;
-  readonly phone:        string;
-  readonly email:        string;
-  readonly address:      string;
-  readonly workingHours: string;
-  readonly facebook?:    string;
-  readonly instagram?:   string;
-  readonly mapUrl?:      string;
-}
+import {
+  buildOrganizationJsonLd,
+  buildWebSiteJsonLd,
+  type PlatformContactInfo,
+} from '@/lib/seo/structured-data';
 
 /**
  * Renders two JSON-LD blocks on the homepage:
  *
- * 1. AutoDealer (LocalBusiness) — tells Google the entity, address, and
- *    area served. Critical for local pack visibility and EEAT.
+ * 1. Organization — identifies MojAutoDiler as an informational/listing platform
+ *    connecting buyers with partner dealerships (not an AutoDealer/LocalBusiness).
  *
- * 2. WebSite — enables Google Sitelinks Search Box and helps establish
- *    the site as a known entity in the Knowledge Graph.
+ * 2. WebSite — establishes the site entity in the Knowledge Graph without the
+ *    deprecated Sitelinks Search Box potentialAction.
  */
-export default function DealerJsonLd({ dealer }: { readonly dealer: DealerInfo }) {
-  const dealerJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': ['AutoDealer', 'LocalBusiness'],
-    name:        dealer.name || 'Moj Auto Diler',
-    description: 'Pažljivo odabrana premium vozila iz uvoza sa transparentnom istorijom, dokumentovanim stanjem i sigurnom kupovinom u Srbiji.',
-    url:         SITE,
-    telephone:   dealer.phone,
-    email:       dealer.email,
-
-    // Proper PostalAddress — "addressLocality: Srbija" was incorrect;
-    // locality is the city, region is the county/district.
-    address: {
-      '@type':           'PostalAddress',
-      streetAddress:     dealer.address,
-      addressLocality:   'Preševo',
-      addressRegion:     'Pčinjski okrug',
-      addressCountry:    'RS',
-    },
-
-    // Opening hours in schema.org standard format
-    openingHoursSpecification: dealer.workingHours
-      ? [{
-          '@type':     'OpeningHoursSpecification',
-          description: dealer.workingHours,
-        }]
-      : undefined,
-
-    // Area served — national importer
-    areaServed: [
-      { '@type': 'Country', name: 'Serbia' },
-    ],
-
-    // Brand social accounts
-    sameAs: [dealer.facebook, dealer.instagram].filter(Boolean),
-
-    priceRange:         '€€€',
-    currenciesAccepted: 'EUR, RSD',
-    paymentAccepted:    'Cash, Credit Card, Bank Transfer',
-
-    hasOfferCatalog: {
-      '@type': 'OfferCatalog',
-      name:    'Premium uvozna vozila',
-      itemListElement: [{
-        '@type': 'OfferCatalog',
-        name:    'Polovni automobili iz uvoza',
-      }],
-    },
-  };
-
-  // WebSite schema — needed for Google Sitelinks Search Box eligibility
-  const websiteJsonLd = {
-    '@context': 'https://schema.org',
-    '@type':    'WebSite',
-    name:       dealer.name || 'Moj Auto Diler',
-    url:        SITE,
-    description: 'Premium automobili iz uvoza u Srbiji.',
-    potentialAction: {
-      '@type':        'SearchAction',
-      target:         {
-        '@type':  'EntryPoint',
-        urlTemplate: `${SITE}/sr/inventory?q={search_term_string}`,
-      },
-      'query-input': 'required name=search_term_string',
-    },
-  };
+export default function DealerJsonLd({ dealer }: { readonly dealer: PlatformContactInfo }) {
+  const organizationJsonLd = buildOrganizationJsonLd(dealer, SITE_URL);
+  const websiteJsonLd = buildWebSiteJsonLd(dealer, SITE_URL);
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(dealerJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(organizationJsonLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(websiteJsonLd) }}
       />
     </>
   );

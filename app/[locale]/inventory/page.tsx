@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import BreadcrumbJsonLd from '@/components/seo/BreadcrumbJsonLd';
+import InventoryJsonLd from '@/components/seo/InventoryJsonLd';
 import InventoryClient from '@/components/vehicle/InventoryClient';
 import { getActiveVehicles } from '@/lib/db/vehicles';
 import { getTranslations, isValidLocale } from '@/lib/i18n';
@@ -48,5 +50,29 @@ export default async function InventoryPage({ params }: { readonly params: Promi
   if (!isValidLocale(locale)) notFound();
   const t = getTranslations(locale);
   const vehicles = await getActiveVehicles();
-  return <InventoryClient locale={locale} t={t} vehicles={vehicles} />;
+
+  const pageTitle = locale === 'sq'
+    ? `Inventari i Automjeteve (${vehicles.length} automjete) | Moj Auto Diler`
+    : `Inventar Vozila (${vehicles.length} vozila) | Moj Auto Diler`;
+  const description = locale === 'sq'
+    ? `Shfletoni koleksionin tone te ${vehicles.length} automjeteve premium me histori transparente.`
+    : `Premium vozila dostupna u Srbiji. Pregledajte ${vehicles.length} pažljivo odabranih automobila sa transparentnom istorijom.`;
+
+  const breadcrumbs = [
+    { name: t.vehicleDetail.home, url: `${SITE_URL}/${locale}` },
+    { name: t.nav.inventory, url: `${SITE_URL}/${locale}/inventory` },
+  ];
+
+  return (
+    <>
+      <InventoryJsonLd
+        vehicles={vehicles}
+        locale={locale}
+        pageTitle={pageTitle}
+        description={description}
+      />
+      <BreadcrumbJsonLd items={breadcrumbs} />
+      <InventoryClient locale={locale} t={t} vehicles={vehicles} />
+    </>
+  );
 }
