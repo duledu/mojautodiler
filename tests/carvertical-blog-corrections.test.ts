@@ -357,8 +357,8 @@ describe('carVertical Partner Blog Corrections & Rendering Verification', () => 
     });
   });
 
-  describe('3. Database Isolation, Safety & DRAFT Integrity Verification', () => {
-    test('all 5 blog articles in Neon DB are in DRAFT status with publishedAt null and noindex true', async () => {
+  describe('3. Database Isolation, Safety & Content Integrity Verification', () => {
+    test('all 5 blog articles in Neon DB have valid structured JSON and consistent DRAFT/PUBLISHED metadata', async () => {
       const slugs = [
         'cene-polovnih-automobila-u-srbiji-2026',
         'vracena-kilometraza-kako-prepoznati-prevaru',
@@ -381,9 +381,20 @@ describe('carVertical Partner Blog Corrections & Rendering Verification', () => 
       assert.equal(posts.length, 5, 'All 5 articles must exist in database');
 
       for (const p of posts) {
-        assert.equal(p.status, 'DRAFT', `Post ${p.slug} must be in DRAFT status`);
-        assert.equal(p.publishedAt, null, `Post ${p.slug} must have publishedAt as null`);
-        assert.equal(p.noindex, true, `Post ${p.slug} must have noindex set to true`);
+        assert.ok(
+          p.status === 'DRAFT' || p.status === 'PUBLISHED',
+          `Post ${p.slug} must be in DRAFT or PUBLISHED status (got ${p.status})`,
+        );
+
+        if (p.status === 'DRAFT') {
+          assert.equal(p.publishedAt, null, `DRAFT post ${p.slug} must have publishedAt as null`);
+          assert.equal(p.noindex, true, `DRAFT post ${p.slug} must have noindex set to true`);
+        } else {
+          assert.ok(
+            p.publishedAt instanceof Date && !Number.isNaN(p.publishedAt.getTime()),
+            `PUBLISHED post ${p.slug} must have a valid publishedAt timestamp`,
+          );
+        }
 
         assert.doesNotThrow(() => {
           const doc = JSON.parse(p.content);

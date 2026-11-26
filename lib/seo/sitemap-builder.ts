@@ -182,14 +182,14 @@ export async function buildFullSitemapEntries(deps?: {
 
 /**
  * Serializes sitemap entries into strict W3C XML 1.0 conforming to sitemaps.org 0.9,
- * Google Image Sitemap 1.1, and XHTML hreflang extensions, with an optional XSL
- * stylesheet processing instruction for clean human-readable browser display.
+ * Google Image Sitemap 1.1, and XHTML hreflang extensions, with a native CSS
+ * xml-stylesheet processing instruction compatible with Chrome 158+ and all modern browsers.
  */
 export function serializeSitemapXml(
   entries: MetadataRoute.Sitemap,
-  options?: { readonly xslHref?: string | null },
+  options?: { readonly cssHref?: string | null },
 ): string {
-  const xslHref = options?.xslHref === undefined ? '/sitemap.xsl' : options.xslHref;
+  const cssHref = options?.cssHref === undefined ? '/sitemap.css' : options.cssHref;
   const deduped = deduplicateSitemapEntries(entries);
 
   const hasAlternates = deduped.some(
@@ -204,8 +204,8 @@ export function serializeSitemapXml(
   ].join(' ');
 
   const lines: string[] = ['<?xml version="1.0" encoding="UTF-8"?>'];
-  if (xslHref) {
-    lines.push(`<?xml-stylesheet type="text/xsl" href="${escapeXml(xslHref)}"?>`);
+  if (cssHref) {
+    lines.push(`<?xml-stylesheet type="text/css" href="${escapeXml(cssHref)}"?>`);
   }
   lines.push(`<urlset ${nsAttrs}>`);
 
@@ -261,7 +261,7 @@ export async function handleSitemapGet(
       ...deps,
       throwOnError: true,
     });
-    const xml = serializeSitemapXml(entries, { xslHref: '/sitemap.xsl' });
+    const xml = serializeSitemapXml(entries, { cssHref: '/sitemap.css' });
 
     return new NextResponse(xml, {
       status: 200,

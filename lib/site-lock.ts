@@ -47,7 +47,7 @@ export function shouldBypassLock(pathname: string): boolean {
     '/favicon.ico',
     '/robots.txt',
     '/sitemap.xml',
-    '/sitemap.xsl',
+    '/sitemap.css',
     '/apple-icon.png',
     '/icon.png',
     '/brand-logo.png',

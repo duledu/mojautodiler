@@ -24,18 +24,18 @@ describe('Dynamic XML Sitemap System, Lifecycle, Fail-Closed 503, Site-Lock & CD
     const swr = Number(SITEMAP_CACHE_CONTROL.match(/stale-while-revalidate=(\d+)/)?.[1]);
     assert.ok(sMaxAge + swr <= 300, `Max CDN staleness must be <= 300s, got ${sMaxAge + swr}s`);
 
-    // Site-lock bypasses /sitemap.xml and /sitemap.xsl without opening protected pages
+    // Site-lock bypasses /sitemap.xml and /sitemap.css without opening protected pages
     assert.equal(shouldBypassLock('/sitemap.xml'), true);
-    assert.equal(shouldBypassLock('/sitemap.xsl'), true);
+    assert.equal(shouldBypassLock('/sitemap.css'), true);
     assert.equal(shouldBypassLock('/sr/inventory'), false);
     assert.equal(shouldBypassLock('/sr/blog'), false);
 
-    const xslPath = path.join(process.cwd(), 'public', 'sitemap.xsl');
-    assert.ok(fs.existsSync(xslPath), 'public/sitemap.xsl must exist');
-    const xsl = fs.readFileSync(xslPath, 'utf8');
-    assert.ok(xsl.startsWith('<?xml version="1.0" encoding="UTF-8"?>'));
-    assert.ok(xsl.includes('xmlns:xsl="http://www.w3.org/1999/XSL/Transform"'));
-    assert.equal(xsl.includes('—'), false, 'XSL copy must contain zero em dashes');
+    const cssPath = path.join(process.cwd(), 'public', 'sitemap.css');
+    assert.ok(fs.existsSync(cssPath), 'public/sitemap.css must exist');
+    const css = fs.readFileSync(cssPath, 'utf8');
+    assert.ok(css.includes('@namespace url("http://www.sitemaps.org/schemas/sitemap/0.9");'));
+    assert.ok(css.includes('@namespace image url("http://www.google.com/schemas/sitemap-image/1.1");'));
+    assert.equal(css.includes('—'), false, 'CSS copy must contain zero em dashes');
   });
 
   test('proves automatic blog lifecycle (draft -> publish -> edit -> withdraw) without redeploy', async () => {
@@ -244,7 +244,7 @@ describe('Dynamic XML Sitemap System, Lifecycle, Fail-Closed 503, Site-Lock & CD
     });
 
     const xml = serializeSitemapXml(entries);
-    assert.ok(xml.startsWith('<?xml version="1.0" encoding="UTF-8"?>\n<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>'));
+    assert.ok(xml.startsWith('<?xml version="1.0" encoding="UTF-8"?>\n<?xml-stylesheet type="text/css" href="/sitemap.css"?>'));
     assert.equal(xml.includes('`bmw-520d'), false);
     assert.equal(xml.includes('<changefreq>'), false);
     assert.equal(xml.includes('<priority>'), false);
