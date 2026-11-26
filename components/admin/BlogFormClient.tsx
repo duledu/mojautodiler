@@ -103,6 +103,7 @@ export default function BlogFormClient({
   const [ogImage, setOgImage] = useState(post?.ogImage ?? '');
   const [canonicalUrl, setCanonicalUrl] = useState(post?.canonicalUrl ?? '');
   const [noindex, setNoindex] = useState<boolean>(post?.noindex ?? false);
+  const [noindexManuallyToggled, setNoindexManuallyToggled] = useState(false);
 
   // Related vehicles
   const [relatedVehicleIds, setRelatedVehicleIds] = useState<string[]>(
@@ -295,6 +296,18 @@ export default function BlogFormClient({
     setSaving(true);
 
     try {
+      const isTransitioningToPublished =
+        targetStatus === 'published' && status !== 'published';
+      const isTransitioningOutOfPublished =
+        targetStatus !== 'published' && status === 'published';
+      const effectiveNoindex = noindexManuallyToggled
+        ? noindex
+        : isTransitioningToPublished
+          ? false
+          : isTransitioningOutOfPublished
+            ? true
+            : noindex;
+
       const payload = {
         title: title.trim(),
         slug: effectiveSlug,
@@ -307,7 +320,7 @@ export default function BlogFormClient({
         metaDescription: metaDescription.trim() || null,
         ogImage: ogImage.trim() || null,
         canonicalUrl: canonicalUrl.trim() || null,
-        noindex,
+        noindex: effectiveNoindex,
         authorName: authorName.trim() || 'Moj Auto Diler',
         categoryId: categoryId || null,
         status: targetStatus,
@@ -341,6 +354,8 @@ export default function BlogFormClient({
 
       setStatus(data.post.status);
       setSlug(data.post.slug);
+      setNoindex(data.post.noindex);
+      setNoindexManuallyToggled(false);
       setIsDirty(false);
       setConfirmArchive(false);
 
@@ -876,6 +891,7 @@ export default function BlogFormClient({
               checked={noindex}
               onChange={(e) => {
                 setNoindex(e.target.checked);
+                setNoindexManuallyToggled(true);
                 markDirty();
               }}
               className="h-4 w-4 rounded accent-[#11100E]"

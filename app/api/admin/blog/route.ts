@@ -137,7 +137,11 @@ export async function handleAdminBlogPost(
     };
 
     const post = await createBlogPost(input, db);
-    try { revalidatePath('/sitemap.xml'); } catch { /* unit test context */ }
+    try {
+      revalidatePath('/sitemap.xml');
+      revalidatePath('/sr/blog');
+      revalidatePath(`/sr/blog/${post.slug}`);
+    } catch { /* unit test context */ }
     return NextResponse.json({ success: true, post }, { status: 201 });
   } catch (err) {
     if (err instanceof BlogSlugConflictError || prismaCode(err) === 'P2002') {

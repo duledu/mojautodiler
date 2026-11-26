@@ -13,6 +13,15 @@ import {
 } from '../lib/seo/sitemap-builder';
 import { dynamic as sitemapDynamic } from '../app/sitemap.xml/route';
 import { shouldBypassLock } from '../lib/site-lock';
+import {
+  getPublishedBlogPostBySlug,
+  updateBlogPost,
+  type BlogDatabaseClient,
+} from '../lib/db/blog';
+import {
+  buildBlogPostMetadata,
+  buildBlogSitemapEntries,
+} from '../lib/seo/blog-seo';
 
 describe('Dynamic XML Sitemap System, Lifecycle, Fail-Closed 503, Site-Lock & CDN Cache', () => {
   test('route exports force-dynamic, strict <=5min CDN cache headers, valid XSL, and site-lock compatibility', () => {
@@ -270,5 +279,134 @@ describe('Dynamic XML Sitemap System, Lifecycle, Fail-Closed 503, Site-Lock & CD
       assert.ok(src.includes('rel="noopener noreferrer"'), `${name} must include noopener noreferrer`);
       assert.ok(src.includes('Network'), `${name} must use Network icon from lucide-react`);
     }
+  });
+
+  test('DRAFT (noindex: true) -> PUBLISHED clears noindex, enables Google indexing and adds post to sitemap', async () => {
+    const createdAt = new Date('2026-11-18T09:00:00.000Z');
+    const row = {
+      id: 'post-draft-1',
+      slug: 'dizel-benzin-ili-hibrid-2027',
+      locale: 'sr',
+      title: 'Dizel, benzin ili hibrid 2027',
+      excerpt: 'Kratak opis članka za testiranje objavljivanja.',
+      content: JSON.stringify({
+        version: 1,
+        blocks: [{ type: 'paragraph', children: [{ type: 'text', text: 'Sadržaj članka.' }] }],
+      }),
+      featuredImage: 'https://www.mojautodiler.com/blog/test.jpg',
+      featuredImageAlt: 'Test slika',
+      featuredImageR2Key: null,
+      seoTitle: null,
+      metaDescription: null,
+      ogImage: null,
+      canonicalUrl: null,
+      noindex: true,
+      authorName: 'Moj Auto Diler',
+      categoryId: null,
+      category: null,
+      status: 'DRAFT' as 'DRAFT' | 'PUBLISHED' | 'ARCHIVED',
+      publishedAt: null as Date | null,
+      relatedBrand: null,
+      relatedModel: null,
+      affiliateCtaEnabled: false,
+      affiliatePlacement: 'none',
+      affiliateLabel: null,
+      relatedVehicles: [],
+      relatedFrom: [],
+      createdAt,
+      updatedAt: createdAt,
+    };
+
+    const mockDb = {
+      blogPost: {
+        findUnique: async ({ where }: { where: { id?: string; slug?: string } }) => {
+          if (where.id && where.id === row.id) return { ...row };
+          if (where.slug && where.slug === row.slug) return { ...row };
+          return null;
+        },
+        update: async ({ data }: { where: { id: string }; data: Record<string, unknown> }) => {
+          Object.assign(row, data, { updatedAt: new Date('2026-11-26T10:00:00.000Z') });
+          return { ...row };
+        },
+        findFirst: async ({ where }: { where: Record<string, unknown> }) => {
+          if (where.slug && where.slug !== row.slug) return null;
+          if (where.status && where.status !== row.status) return null;
+          return { ...row };
+        },
+        findMany: async ({ where }: { where?: { status?: string; noindex?: boolean } }) => {
+          if (where?.status && row.status !== where.status) return [];
+          if (where?.noindex !== undefined && row.noindex !== where.noindex) return [];
+          return [{ ...row }];
+        },
+      },
+      blogCategory: {},
+      blogPostVehicle: { findMany: async () => [] },
+      blogPostRelation: {},
+      vehicle: { findMany: async () => [] },
+      $transaction: async () => [],
+    } as unknown as BlogDatabaseClient;
+
+    // 1. DRAFT post must not be publicly accessible or in sitemap
+    assert.equal(await getPublishedBlogPostBySlug(row.slug, mockDb), null);
+    const draftSitemap = await buildBlogSitemapEntries(mockDb);
+    assert.equal(draftSitemap.some((e) => e.url.endsWith(`/sr/blog/${row.slug}`)), false);
+
+    // 2. Publish via status-only update (like Admin "Objavi" button)
+    const publishedAdmin = await updateBlogPost(row.id, { status: 'published' }, mockDb);
+    assert.equal(publishedAdmin.status, 'published');
+    assert.equal(publishedAdmin.noindex, false, 'Publishing a DRAFT must automatically clear noindex to false');
+    assert.ok(publishedAdmin.publishedAt, 'Publishing must set publishedAt');
+
+    // 3. Public metadata must emit index: true, follow: true (never noindex)
+    const publicPost = await getPublishedBlogPostBySlug(row.slug, mockDb);
+    assert.ok(publicPost, 'Published article must be publicly readable');
+    assert.equal(publicPost.noindex, false);
+    const meta = buildBlogPostMetadata(publicPost);
+    assert.deepEqual(meta.robots, {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    });
+
+    // 4. Published article must appear in sitemap.xml
+    const publishedSitemap = await buildBlogSitemapEntries(mockDb);
+    assert.equal(
+      publishedSitemap.some((e) => e.url === `https://www.mojautodiler.com/sr/blog/${row.slug}`),
+      true,
+      'Published article must be included in sitemap.xml',
+    );
+
+    // 5. Returning PUBLISHED -> DRAFT restores noindex: true and removes from public/sitemap
+    const reverted = await updateBlogPost(row.id, { status: 'draft' }, mockDb);
+    assert.equal(reverted.status, 'draft');
+    assert.equal(reverted.noindex, true, 'Reverting to DRAFT must restore noindex: true');
+    assert.equal(await getPublishedBlogPostBySlug(row.slug, mockDb), null);
+    const revertedSitemap = await buildBlogSitemapEntries(mockDb);
+    assert.equal(revertedSitemap.some((e) => e.url.endsWith(`/sr/blog/${row.slug}`)), false);
+
+    // 6. Explicit noindex: true override is still honored when explicitly requested
+    const explicitNoindex = await updateBlogPost(
+      row.id,
+      { status: 'published', noindex: true },
+      mockDb,
+    );
+    assert.equal(explicitNoindex.noindex, true);
+
+    // 7. BlogFormClient clears stale draft noindex on publish and API routes revalidate blog paths
+    const formSrc = fs.readFileSync(
+      path.join(process.cwd(), 'components', 'admin', 'BlogFormClient.tsx'),
+      'utf8',
+    );
+    assert.ok(formSrc.includes('noindexManuallyToggled'));
+    assert.ok(formSrc.includes('isTransitioningToPublished'));
+
+    const detailApiSrc = fs.readFileSync(
+      path.join(process.cwd(), 'app', 'api', 'admin', 'blog', '[id]', 'route.ts'),
+      'utf8',
+    );
+    assert.ok(detailApiSrc.includes("revalidatePath('/sr/blog')"));
+    assert.ok(detailApiSrc.includes('revalidatePath(`/sr/blog/${post.slug}`)'));
   });
 });

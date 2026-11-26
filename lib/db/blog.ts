@@ -601,6 +601,20 @@ export async function updateBlogPost(
   const nextStatus =
     input.status !== undefined ? toDbBlogStatus(input.status) : existing.status;
 
+  const isTransitioningToPublished =
+    nextStatus === 'PUBLISHED' && existing.status !== 'PUBLISHED';
+  const isTransitioningOutOfPublished =
+    nextStatus !== 'PUBLISHED' && existing.status === 'PUBLISHED';
+
+  const nextNoindex =
+    input.noindex !== undefined
+      ? Boolean(input.noindex)
+      : isTransitioningToPublished
+        ? false
+        : isTransitioningOutOfPublished
+          ? true
+          : existing.noindex;
+
   let nextPublishedAt = existing.publishedAt;
   if (input.publishedAt !== undefined) {
     nextPublishedAt = normalizeDate(input.publishedAt) ?? null;
@@ -666,7 +680,7 @@ export async function updateBlogPost(
       ...(input.canonicalUrl !== undefined
         ? { canonicalUrl: normalizeOptionalCanonicalUrl(input.canonicalUrl) ?? null }
         : {}),
-      ...(input.noindex !== undefined ? { noindex: Boolean(input.noindex) } : {}),
+      noindex: nextNoindex,
       ...(input.authorName !== undefined
         ? {
             authorName:
