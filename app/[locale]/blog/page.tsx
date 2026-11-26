@@ -103,7 +103,7 @@ export default async function PublicBlogListingPage({
 
   const breadcrumbs = [
     { name: 'Početna', url: `${BLOG_CANONICAL_SITE_URL}/sr` },
-    { name: 'Blog', url: `${BLOG_CANONICAL_SITE_URL}/sr/blog` },
+    { name: 'Auto magazin', url: `${BLOG_CANONICAL_SITE_URL}/sr/blog` },
   ];
 
   return (
@@ -124,7 +124,7 @@ export default async function PublicBlogListingPage({
               Početna
             </Link>
             <span>/</span>
-            <span className="font-bold text-[var(--color-text)]">Blog</span>
+            <span className="font-bold text-[var(--color-text)]">Auto magazin</span>
             {activeCategory && (
               <>
                 <span>/</span>
@@ -138,7 +138,7 @@ export default async function PublicBlogListingPage({
           <div className="max-w-3xl">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--accent-dark)]">
               <BookOpen size={13} />
-              Moj Auto Diler Magazin & Vodiči
+              Moj Auto Diler • Auto magazin
             </span>
             <h1
               className="mt-4 text-3xl font-extrabold tracking-tight text-[var(--color-text)] sm:text-4xl lg:text-5xl"
@@ -240,6 +240,10 @@ export default async function PublicBlogListingPage({
                       <img
                         src={featuredPost.featuredImage}
                         alt={featuredPost.featuredImageAlt || featuredPost.title}
+                        width={1600}
+                        height={900}
+                        fetchPriority="high"
+                        decoding="async"
                         className="h-full w-full object-cover transition duration-500 hover:scale-[1.02]"
                       />
                     ) : (

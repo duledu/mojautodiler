@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { isAdminRequestAuthenticated } from '@/lib/admin-auth';
 import {
   BlogSlugConflictError,
@@ -136,6 +137,7 @@ export async function handleAdminBlogPost(
     };
 
     const post = await createBlogPost(input, db);
+    try { revalidatePath('/sitemap.xml'); } catch { /* unit test context */ }
     return NextResponse.json({ success: true, post }, { status: 201 });
   } catch (err) {
     if (err instanceof BlogSlugConflictError || prismaCode(err) === 'P2002') {

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getAllVehicles, createVehicle, syncVehicleMedia, syncVehicleVideos, type VideoSyncInput } from '@/lib/db/vehicles';
 import { slugify } from '@/lib/utils';
 
@@ -114,6 +115,7 @@ export async function POST(request: NextRequest) {
     void syncVehicleMedia(vehicle.id, images, imageKeys);
     void syncVehicleVideos(vehicle.id, parseVideosPayload(body.videos));
 
+    try { revalidatePath('/sitemap.xml'); } catch { /* unit test context */ }
     return NextResponse.json({ success: true, vehicle }, { status: 201 });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Interna greška';

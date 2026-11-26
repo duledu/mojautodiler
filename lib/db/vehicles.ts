@@ -256,14 +256,41 @@ export async function getActiveVehicleSlugs(): Promise<{ slug: string }[]> {
  * Using actual updatedAt as lastmod signals content freshness to crawlers,
  * which is an important ranking factor for inventory pages.
  */
-export async function getVehicleSlugsForSitemap(): Promise<
-  { slug: string; updatedAt: Date; primaryImage?: string }[]
+/**
+ * Returns slug + updatedAt + primary image for active (`AVAILABLE`) vehicles
+ * belonging to active (or unassigned) dealers for the XML sitemap.
+ *
+ * When `throwOnError` is true (used by `/sitemap.xml`), database outages
+ * propagate so the route fails closed with HTTP 503 instead of emitting
+ * an empty/partial sitemap with HTTP 200.
+ */
+export async function getVehicleSlugsForSitemap(options?: {
+  readonly throwOnError?: boolean;
+}): Promise<
+  {
+    slug: string;
+    updatedAt: Date;
+    primaryImage?: string;
+  }[]
 > {
-  if (!hasDatabase()) { warnNoDB('getVehicleSlugsForSitemap'); return []; }
+  if (!hasDatabase()) {
+    if (options?.throwOnError) {
+      throw new Error('DATABASE_URL is not configured for sitemap generation.');
+    }
+    warnNoDB('getVehicleSlugsForSitemap');
+    return [];
+  }
   try {
     const rows = await prisma.vehicle.findMany({
-      where:   { status: 'AVAILABLE' },
-      select:  { slug: true, updatedAt: true, images: true },
+      where: {
+        status: 'AVAILABLE',
+        OR: [{ dealerId: null }, { dealer: { status: 'ACTIVE' } }],
+      },
+      select: {
+        slug: true,
+        updatedAt: true,
+        images: true,
+      },
       orderBy: { updatedAt: 'desc' },
     });
     return rows.map((r) => ({
@@ -272,6 +299,9 @@ export async function getVehicleSlugsForSitemap(): Promise<
       primaryImage: (r.images as string[])[0] ?? undefined,
     }));
   } catch (err) {
+    if (options?.throwOnError) {
+      throw err;
+    }
     console.warn('[DB] getVehicleSlugsForSitemap failed:', err instanceof Error ? err.message : String(err));
     return [];
   }

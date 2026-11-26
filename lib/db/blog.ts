@@ -1077,8 +1077,14 @@ export async function upsertBlogCategory(
 export async function getPublishedBlogSlugsForSitemap(
   db: BlogDatabaseClient = prisma,
   now: Date = new Date(),
-): Promise<Array<{ slug: string; updatedAt: Date; publishedAt: Date }>> {
-  if (db === prisma && !process.env.DATABASE_URL) return [];
+  options?: { readonly throwOnError?: boolean },
+): Promise<Array<{ slug: string; updatedAt: Date; publishedAt: Date; featuredImage: string | null }>> {
+  if (db === prisma && !process.env.DATABASE_URL) {
+    if (options?.throwOnError) {
+      throw new Error('DATABASE_URL is not configured for blog sitemap generation.');
+    }
+    return [];
+  }
   try {
     const rows = await db.blogPost.findMany({
       where: {
@@ -1091,21 +1097,23 @@ export async function getPublishedBlogSlugsForSitemap(
         slug: true,
         updatedAt: true,
         publishedAt: true,
+        featuredImage: true,
       },
       orderBy: { publishedAt: 'desc' },
     });
 
     return rows
-      .filter((r): r is { slug: string; updatedAt: Date; publishedAt: Date } =>
+      .filter((r): r is { slug: string; updatedAt: Date; publishedAt: Date; featuredImage: string | null } =>
         Boolean(r.publishedAt && r.publishedAt <= now),
       )
       .map((r) => ({
         slug: r.slug,
         updatedAt: r.updatedAt,
         publishedAt: r.publishedAt,
+        featuredImage: sanitizeBlogImageUrl(r.featuredImage),
       }));
   } catch (err) {
-    if (isMissingDatabaseOrTableError(err)) return [];
+    if (!options?.throwOnError && isMissingDatabaseOrTableError(err)) return [];
     throw err;
   }
 }

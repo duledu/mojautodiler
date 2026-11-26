@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { isAdminRequestAuthenticated } from '@/lib/admin-auth';
 import {
   archiveBlogPost,
@@ -187,6 +188,7 @@ export async function handleAdminBlogDetailPut(
     };
 
     const post = await updateBlogPost(id.trim(), input, db);
+    try { revalidatePath('/sitemap.xml'); } catch { /* unit test context */ }
     return NextResponse.json({ success: true, post });
   } catch (err) {
     if (err instanceof BlogNotFoundError || prismaCode(err) === 'P2025') {
@@ -240,6 +242,7 @@ export async function handleAdminBlogDetailDelete(
 
   try {
     const post = await archiveBlogPost(id.trim(), db);
+    try { revalidatePath('/sitemap.xml'); } catch { /* unit test context */ }
     return NextResponse.json({ success: true, post });
   } catch (err) {
     if (err instanceof BlogNotFoundError || prismaCode(err) === 'P2025') {

@@ -1,5 +1,6 @@
 import {
   serializeBlogBreadcrumbJsonLd,
+  serializeBlogFaqJsonLd,
   serializeBlogPostingJsonLd,
 } from '@/lib/seo/blog-seo';
 import type { BlogPostPublicDetail } from '@/types/blog';
@@ -9,12 +10,13 @@ interface Props {
 }
 
 /**
- * Renders BlogPosting and BreadcrumbList JSON-LD structured data using
- * the safe `serializeJsonLd()` serializer (escaping `<`, `>`, `&`, and line separators).
+ * Renders BlogPosting, BreadcrumbList, and (when present) FAQPage JSON-LD
+ * structured data using the safe `serializeJsonLd()` serializer.
  */
 export default function BlogJsonLd({ post }: Props) {
   const blogPostingJson = serializeBlogPostingJsonLd(post);
   const breadcrumbJson = serializeBlogBreadcrumbJsonLd(post);
+  const faqJson = serializeBlogFaqJsonLd(post);
 
   return (
     <>
@@ -26,6 +28,12 @@ export default function BlogJsonLd({ post }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: breadcrumbJson }}
       />
+      {faqJson && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: faqJson }}
+        />
+      )}
     </>
   );
 }

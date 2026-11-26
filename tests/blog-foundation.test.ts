@@ -272,7 +272,7 @@ describe('Content Security & Rendering Contract (lib/blog-content)', () => {
     assert.deepEqual(affiliate, {
       href: carVerticalUrl,
       target: '_blank',
-      rel: 'sponsored noopener noreferrer',
+      rel: 'sponsored nofollow noopener noreferrer',
     });
   });
 

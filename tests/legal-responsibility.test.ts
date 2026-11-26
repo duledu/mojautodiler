@@ -202,7 +202,7 @@ describe('Legal Protection & Responsibility Disclaimer System', () => {
     );
 
     const sitemapSrc = readFileSync(
-      new URL('../app/sitemap.ts', import.meta.url),
+      new URL('../lib/seo/sitemap-builder.ts', import.meta.url),
       'utf8',
     );
     assert.ok(

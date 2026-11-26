@@ -203,7 +203,7 @@ describe('carVertical Partner Blog Corrections & Rendering Verification', () => 
         'Affiliate URL and query parameters must be intact',
       );
       assert.ok(html.includes('target="_blank"'), 'Link must open in new tab');
-      assert.ok(html.includes('rel="sponsored noopener noreferrer"'), 'Link must have sponsored rel');
+      assert.ok(html.includes('rel="sponsored nofollow noopener noreferrer"'), 'Link must have sponsored nofollow rel');
 
       // Verify promo discount code container
       assert.ok(html.includes('MOJAUTODILER'), 'Must render promo code');

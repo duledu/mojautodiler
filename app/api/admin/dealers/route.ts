@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { createDealer, getAllDealers } from '@/lib/db/dealers';
 import { slugify } from '@/lib/utils';
 
@@ -45,6 +46,12 @@ export async function POST(request: NextRequest) {
       isVerified: body.isVerified !== false,
       status: body.status === 'hidden' ? 'hidden' : 'active',
     });
+
+    try {
+      revalidatePath('/sitemap.xml');
+      revalidatePath('/sr/inventory');
+      revalidatePath('/sq/inventory');
+    } catch { /* unit test context */ }
 
     return NextResponse.json({ success: true, dealer }, { status: 201 });
   } catch (err) {

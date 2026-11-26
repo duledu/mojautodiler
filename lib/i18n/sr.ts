@@ -27,7 +27,7 @@ const sr = {
   nav: {
     home: 'Početna',
     inventory: 'Vozila',
-    blog: 'Blog',
+    blog: 'Auto magazin',
     about: 'O nama',
     contact: 'Kontakt',
     admin: 'Admin',

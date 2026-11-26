@@ -146,9 +146,10 @@ export async function PUT(
     // Flush SSG cache for vehicle detail pages (both locales)
     revalidatePath(`/sr/vehicle/${updated.slug}`);
     revalidatePath(`/sq/vehicle/${updated.slug}`);
-    // Also flush inventory so counts/statuses stay current
+    // Also flush inventory and sitemap so counts/statuses/lastmod stay current
     revalidatePath('/sr/inventory');
     revalidatePath('/sq/inventory');
+    revalidatePath('/sitemap.xml');
 
     return NextResponse.json({ success: true, vehicle: updated });
   } catch (err) {
@@ -192,6 +193,7 @@ export async function DELETE(
     }
 
     await deleteVehicle(id);
+    try { revalidatePath('/sitemap.xml'); } catch { /* unit test context */ }
     return NextResponse.json({ success: true });
   } catch (err) {
     const msg  = err instanceof Error ? err.message : String(err);

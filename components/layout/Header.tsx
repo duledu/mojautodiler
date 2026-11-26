@@ -35,8 +35,12 @@ export default function Header({ locale, t, dealer }: HeaderProps) {
   const navLinks = [
     { href: `/${locale}`, label: t.nav.home },
     { href: `/${locale}/inventory`, label: t.nav.inventory },
+    { href: '/sr/blog', label: t.nav.blog },
     { href: `/${locale}/contact`, label: t.nav.contact },
   ];
+
+  const isLinkActive = (href: string) =>
+    pathname === href || (href !== `/${locale}` && pathname.startsWith(`${href}/`));
 
   return (
     <header
@@ -71,13 +75,17 @@ export default function Header({ locale, t, dealer }: HeaderProps) {
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-1">
+        <nav
+          aria-label={locale === 'sq' ? 'Navigimi kryesor' : 'Glavna navigacija'}
+          className="hidden md:flex items-center gap-1"
+        >
           {navLinks.map((link) => {
-            const isActive = pathname === link.href || (link.href !== `/${locale}` && pathname.startsWith(link.href));
+            const isActive = isLinkActive(link.href);
             return (
               <Link
                 key={link.href}
                 href={link.href}
+                aria-current={isActive ? 'page' : undefined}
                 className={cn(
                   'nav-link-premium px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-200',
                   isActive
@@ -149,12 +157,13 @@ export default function Header({ locale, t, dealer }: HeaderProps) {
         <div className="mobile-menu-premium md:hidden border-t border-[var(--color-border)] bg-white">
           <div className="px-4 py-4 space-y-1">
             {navLinks.map((link) => {
-              const isActive = pathname === link.href || (link.href !== `/${locale}` && pathname.startsWith(link.href));
+              const isActive = isLinkActive(link.href);
               return (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setIsOpen(false)}
+                  aria-current={isActive ? 'page' : undefined}
                   className={cn(
                     'block rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 ease-[var(--ease-luxury)]',
                     isActive

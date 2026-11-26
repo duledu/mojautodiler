@@ -28,7 +28,7 @@ export const CARVERTICAL_ASSETS = {
   wideBannerRs: '/carvertical/carvertical-istorija-vozila-banner.webp',
 } as const;
 
-export type CarVerticalPlacement = 'homepage' | 'footer' | 'listing' | 'dealers';
+export type CarVerticalPlacement = 'homepage' | 'footer' | 'listing' | 'dealers' | 'blog';
 
 export const CARVERTICAL_DEALERS_SLUG = 'carvertical-za-dilere' as const;
 
@@ -230,9 +230,22 @@ export function getCarVerticalVehicleListingLink(
   });
 }
 
+/**
+ * Official Blog affiliate URL:
+ * https://www.carvertical.deal/4FCPMH4/JRZRQN/?source_id=AFF&sub1=mojautodiler&sub2=blog
+ */
+export function getCarVerticalBlogUrl(): string {
+  return buildCarVerticalUrlWithParams([
+    ['source_id', CARVERTICAL_SOURCE_ID],
+    ['sub1', CARVERTICAL_PARTNER_SUB1],
+    ['sub2', 'blog'],
+  ]);
+}
+
 export const CARVERTICAL_URLS = {
   homepage: getCarVerticalHomepageUrl(),
   footer: getCarVerticalFooterUrl(),
   listingNoVin: getCarVerticalListingNoVinUrl(),
   dealers: getCarVerticalDealersUrl(),
+  blog: getCarVerticalBlogUrl(),
 } as const;

@@ -27,7 +27,7 @@ const sq = {
   nav: {
     home: 'Kryefaqja',
     inventory: 'Automjetet',
-    blog: 'Blog',
+    blog: 'Auto magazin',
     about: 'Rreth nesh',
     contact: 'Kontakt',
     admin: 'Admin',

@@ -188,6 +188,7 @@ export function resolveSafeLinkAttributes(
   const relTokens = new Set<string>();
   if (isSponsored) {
     relTokens.add('sponsored');
+    relTokens.add('nofollow');
     relTokens.add('noopener');
     relTokens.add('noreferrer');
   } else if (!isInternal || openInNewTab) {

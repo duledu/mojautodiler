@@ -6,11 +6,15 @@ import {
   ArrowRight,
   Calendar,
   Car,
+  Clock,
   Tag,
   User,
 } from 'lucide-react';
 import { getPublishedBlogPostBySlug } from '@/lib/db/blog';
-import { buildBlogPostMetadata } from '@/lib/seo/blog-seo';
+import {
+  buildBlogPostMetadata,
+  estimateBlogReadingTimeMinutes,
+} from '@/lib/seo/blog-seo';
 import { resolveSiloLinksForBlogPost } from '@/lib/seo/silos';
 import BlogJsonLd from '@/components/seo/BlogJsonLd';
 import BlogContentRenderer from '@/components/blog/BlogContentRenderer';
@@ -57,6 +61,7 @@ export default async function PublicBlogPostPage({ params }: PageProps) {
 
   const t = getTranslations('sr');
   const siloLinks = resolveSiloLinksForBlogPost(post);
+  const readingTimeMinutes = estimateBlogReadingTimeMinutes(post.content);
 
   return (
     <div className="min-h-screen bg-[var(--color-bg)]">
@@ -80,7 +85,7 @@ export default async function PublicBlogPostPage({ params }: PageProps) {
               href="/sr/blog"
               className="transition hover:text-[var(--accent-dark)]"
             >
-              Blog
+              Auto magazin
             </Link>
             {post.category && (
               <>
@@ -136,6 +141,11 @@ export default async function PublicBlogPostPage({ params }: PageProps) {
                 <User size={13} className="text-[var(--accent)]" />
                 <span>{post.authorName}</span>
               </span>
+
+              <span className="inline-flex items-center gap-1.5 font-medium">
+                <Clock size={13} className="text-[var(--accent)]" />
+                <span>{readingTimeMinutes} min čitanja</span>
+              </span>
             </div>
 
             <h1
@@ -157,6 +167,10 @@ export default async function PublicBlogPostPage({ params }: PageProps) {
               <img
                 src={post.featuredImage}
                 alt={post.featuredImageAlt || post.title}
+                width={1600}
+                height={900}
+                fetchPriority="high"
+                decoding="async"
                 className="max-h-[520px] w-full object-cover"
               />
             </figure>

@@ -88,7 +88,8 @@ describe('Phase 1 Technical SEO — Robots.txt & Sitemap Source Guards', () => {
   test('active production code has no mojautodiler.rs references in SEO core files', () => {
     const seoFiles = [
       '../app/layout.tsx',
-      '../app/sitemap.ts',
+      '../app/sitemap.xml/route.ts',
+      '../lib/seo/sitemap-builder.ts',
       '../lib/site-url.ts',
       '../lib/seo/blog-seo.ts',
       '../components/seo/DealerJsonLd.tsx',

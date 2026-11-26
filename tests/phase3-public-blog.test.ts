@@ -4,12 +4,14 @@ import assert from 'node:assert/strict';
 import {
   BLOG_CANONICAL_SITE_URL,
   buildBlogBreadcrumbJsonLdObject,
+  buildBlogFaqJsonLdObject,
   buildBlogListingMetadata,
   buildBlogPostMetadata,
   buildBlogPostingJsonLdObject,
   buildBlogSitemapEntries,
   resolveBlogCanonicalUrl,
   serializeBlogBreadcrumbJsonLd,
+  serializeBlogFaqJsonLd,
   serializeBlogPostingJsonLd,
 } from '../lib/seo/blog-seo';
 import {
@@ -254,6 +256,7 @@ describe('Phase 3 — Public Blog SEO, Canonical Domain & JSON-LD', () => {
     const breadcrumbObj = buildBlogBreadcrumbJsonLdObject(post);
     assert.equal(breadcrumbObj['@type'], 'BreadcrumbList');
     assert.equal(breadcrumbObj.itemListElement.length, 4);
+    assert.equal(breadcrumbObj.itemListElement[1].name, 'Auto magazin');
     assert.equal(breadcrumbObj.itemListElement[1].item, 'https://www.mojautodiler.com/sr/blog');
 
     const serializedPosting = serializeBlogPostingJsonLd(post);
@@ -261,6 +264,34 @@ describe('Phase 3 — Public Blog SEO, Canonical Domain & JSON-LD', () => {
     assert.equal(serializedPosting.includes('</script>'), false);
     assert.equal(serializedPosting.includes('\\u003c/script\\u003e'), true);
     assert.ok(JSON.parse(serializedBreadcrumb));
+
+    // FAQPage JSON-LD extraction
+    const faqPost = makePublicPostDetail({
+      content: {
+        version: 1,
+        blocks: [
+          {
+            type: 'heading',
+            level: 2,
+            children: [{ type: 'text', text: 'Često postavljana pitanja (FAQ)' }],
+          },
+          {
+            type: 'heading',
+            level: 3,
+            children: [{ type: 'text', text: 'Da li je vraćanje kilometraže krivično delo?' }],
+          },
+          {
+            type: 'paragraph',
+            children: [{ type: 'text', text: 'Može ispuniti elemente krivičnog dela Prevare iz člana 208. KZ RS.' }],
+          },
+        ],
+      },
+    });
+    const faqObj = buildBlogFaqJsonLdObject(faqPost);
+    assert.equal(faqObj?.['@type'], 'FAQPage');
+    assert.equal(faqObj?.mainEntity.length, 1);
+    assert.ok(serializeBlogFaqJsonLd(faqPost));
+    assert.equal(serializeBlogFaqJsonLd(post), null);
   });
 });
 

@@ -360,6 +360,7 @@ describe('carVertical Component Markup, SEO & Automatic 20% Discount Compliance'
       ),
     );
     assert.ok(html.includes('href="/sr/blog"'), 'Must preserve /sr/blog footer navigation link');
+    assert.ok(html.includes('Auto magazin'), 'Footer must display "Auto magazin" label for /sr/blog');
   });
 
   test('Homepage source renders carVertical hero → Aktuelna premium selekcija → Kupovina sa više sigurnosti without CSS order flipping', async () => {
