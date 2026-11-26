@@ -249,4 +249,26 @@ describe('Dynamic XML Sitemap System, Lifecycle, Fail-Closed 503, Site-Lock & CD
     assert.equal(xml.includes('<changefreq>'), false);
     assert.equal(xml.includes('<priority>'), false);
   });
+
+  test('AdminSidebar (desktop) and AdminTopBar (mobile/tablet) expose XML Sitemap link opening in a new tab', () => {
+    const sidebarSrc = fs.readFileSync(
+      path.join(process.cwd(), 'components', 'admin', 'AdminSidebar.tsx'),
+      'utf8',
+    );
+    const topBarSrc = fs.readFileSync(
+      path.join(process.cwd(), 'components', 'admin', 'AdminTopBar.tsx'),
+      'utf8',
+    );
+
+    for (const [name, src] of [
+      ['AdminSidebar.tsx', sidebarSrc],
+      ['AdminTopBar.tsx', topBarSrc],
+    ] as const) {
+      assert.ok(src.includes('https://www.mojautodiler.com/sitemap.xml'), `${name} must link to production sitemap.xml`);
+      assert.ok(src.includes('XML Sitemap'), `${name} must display "XML Sitemap" label`);
+      assert.ok(src.includes('target="_blank"'), `${name} must open XML Sitemap in a new tab`);
+      assert.ok(src.includes('rel="noopener noreferrer"'), `${name} must include noopener noreferrer`);
+      assert.ok(src.includes('Network'), `${name} must use Network icon from lucide-react`);
+    }
+  });
 });

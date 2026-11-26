@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
-import { Bell, ChevronRight, ExternalLink, LogOut } from 'lucide-react';
+import { Bell, ChevronRight, ExternalLink, LogOut, Network } from 'lucide-react';
 import { mockLeads } from '@/data/leads';
 
 const breadcrumbMap: Record<string, string> = {
@@ -92,6 +92,17 @@ export default function AdminTopBar() {
               <span className="sm:hidden">{newLeads}</span>
             </Link>
           )}
+          <a
+            href="https://www.mojautodiler.com/sitemap.xml"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="XML Sitemap"
+            aria-label="XML Sitemap"
+            className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-white px-3 py-2 text-xs font-bold text-[var(--color-text-muted)] transition hover:border-[var(--accent-border)] hover:text-[var(--accent-dark)] lg:hidden"
+          >
+            <Network size={13} />
+            <span className="hidden sm:inline">XML Sitemap</span>
+          </a>
           <Link
             href={`/${locale}`}
             target="_blank"

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
-import { Building2, Car, ExternalLink, FileText, LayoutDashboard, MessageSquare, Settings } from 'lucide-react';
+import { Building2, Car, ExternalLink, FileText, LayoutDashboard, MessageSquare, Network, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AdminCarVerticalDealerShortcut from './AdminCarVerticalDealerShortcut';
 
@@ -63,8 +63,18 @@ export default function AdminSidebar() {
         })}
       </nav>
 
-      <div className="border-t border-white/10 pt-4">
+      <div className="border-t border-white/10 pt-4 space-y-1">
         <AdminCarVerticalDealerShortcut variant="sidebar" />
+        <a
+          href="https://www.mojautodiler.com/sitemap.xml"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group flex items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-semibold text-white/62 transition hover:bg-white/[0.065] hover:text-white"
+          style={{ fontFamily: 'var(--font-display)' }}
+        >
+          <Network size={17} className="shrink-0 text-white/42 transition group-hover:text-[var(--accent)]" />
+          XML Sitemap
+        </a>
         <Link
           href={`/${locale}`}
           className="flex items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-semibold text-white/62 transition hover:bg-white/[0.065] hover:text-white"
