@@ -14,10 +14,12 @@ import { getPublishedBlogPostBySlug } from '@/lib/db/blog';
 import {
   buildBlogPostMetadata,
   estimateBlogReadingTimeMinutes,
+  resolveBlogCanonicalUrl,
 } from '@/lib/seo/blog-seo';
 import { resolveSiloLinksForBlogPost } from '@/lib/seo/silos';
 import BlogJsonLd from '@/components/seo/BlogJsonLd';
 import BlogContentRenderer from '@/components/blog/BlogContentRenderer';
+import BlogShareButton from '@/components/blog/BlogShareButton';
 import VehicleCard from '@/components/vehicle/VehicleCard';
 import { getTranslations } from '@/lib/i18n';
 
@@ -62,9 +64,12 @@ export default async function PublicBlogPostPage({ params }: PageProps) {
   const t = getTranslations('sr');
   const siloLinks = resolveSiloLinksForBlogPost(post);
   const readingTimeMinutes = estimateBlogReadingTimeMinutes(post.content);
+  const canonicalUrl = post.canonicalUrl?.trim()
+    ? resolveBlogCanonicalUrl(post.canonicalUrl)
+    : resolveBlogCanonicalUrl(`/sr/blog/${post.slug}`);
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg)]">
+    <div className="min-h-screen bg-[var(--color-bg)] pt-20">
       <BlogJsonLd post={post} />
 
       {/* Top Breadcrumb & Back Bar */}
@@ -119,8 +124,8 @@ export default async function PublicBlogPostPage({ params }: PageProps) {
         <article className="rounded-3xl border border-[var(--color-border)] bg-white p-6 shadow-xs sm:p-10 lg:p-12">
           {/* Article Header */}
           <header className="mx-auto max-w-3xl space-y-4 border-b border-[var(--color-border)] pb-8">
-            <div className="flex flex-wrap items-center gap-3 text-xs text-[var(--color-text-muted)]">
-              {post.category && (
+            {post.category && (
+              <div>
                 <Link
                   href={`/sr/blog?category=${encodeURIComponent(post.category.slug)}`}
                   className="inline-flex items-center gap-1 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-3 py-1 text-[11px] font-bold text-[var(--accent-dark)] transition hover:bg-[var(--accent)] hover:text-white"
@@ -128,25 +133,8 @@ export default async function PublicBlogPostPage({ params }: PageProps) {
                   <Tag size={12} />
                   {post.category.name}
                 </Link>
-              )}
-
-              <span className="inline-flex items-center gap-1.5 font-medium">
-                <Calendar size={13} className="text-[var(--accent)]" />
-                <time dateTime={post.publishedAt}>
-                  {formatSerbianDate(post.publishedAt)}
-                </time>
-              </span>
-
-              <span className="inline-flex items-center gap-1.5 font-medium">
-                <User size={13} className="text-[var(--accent)]" />
-                <span>{post.authorName}</span>
-              </span>
-
-              <span className="inline-flex items-center gap-1.5 font-medium">
-                <Clock size={13} className="text-[var(--accent)]" />
-                <span>{readingTimeMinutes} min čitanja</span>
-              </span>
-            </div>
+              </div>
+            )}
 
             <h1
               className="text-3xl font-extrabold leading-tight tracking-tight text-[var(--color-text)] sm:text-4xl lg:text-[2.5rem]"
@@ -154,6 +142,29 @@ export default async function PublicBlogPostPage({ params }: PageProps) {
             >
               {post.title}
             </h1>
+
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-[var(--color-text-muted)]">
+                <span className="inline-flex items-center gap-1.5 font-medium">
+                  <Calendar size={13} className="text-[var(--accent)]" />
+                  <time dateTime={post.publishedAt}>
+                    {formatSerbianDate(post.publishedAt)}
+                  </time>
+                </span>
+
+                <span className="inline-flex items-center gap-1.5 font-medium">
+                  <User size={13} className="text-[var(--accent)]" />
+                  <span>{post.authorName}</span>
+                </span>
+
+                <span className="inline-flex items-center gap-1.5 font-medium">
+                  <Clock size={13} className="text-[var(--accent)]" />
+                  <span>{readingTimeMinutes} min čitanja</span>
+                </span>
+              </div>
+
+              <BlogShareButton url={canonicalUrl} title={post.title} />
+            </div>
 
             <p className="text-base leading-relaxed font-medium text-[var(--color-text-muted)] sm:text-lg">
               {post.excerpt}

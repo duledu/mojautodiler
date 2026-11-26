@@ -107,7 +107,7 @@ export default async function PublicBlogListingPage({
   ];
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg)]">
+    <div className="min-h-screen bg-[var(--color-bg)] pt-20">
       <BreadcrumbJsonLd items={breadcrumbs} />
 
       {/* Hero / Header Section */}
