@@ -18,11 +18,11 @@ export async function generateMetadata(
   const activeCount = vehicles.length;
 
   const title = locale === 'sq'
-    ? 'Oferta e automjeteve të përdorura nga importi | Moj Auto Diler'
-    : 'Ponuda polovnih automobila iz uvoza | Moj Auto Diler';
+    ? 'Njoftime për automjete të përdorura | MojAutoDiler'
+    : 'Oglasi polovnih automobila | Ponuda vozila u Srbiji - MojAutoDiler';
   const description = locale === 'sq'
-    ? `Shfletoni ofertën aktuale prej ${activeCount} automjetesh të përdorura nga importi në Serbi. Filtroni sipas markës, modelit, çmimit dhe kilometrazhit në Moj Auto Diler.`
-    : `Pregledajte aktuelnu ponudu od ${activeCount} polovnih automobila iz uvoza u Srbiji. Filtrirajte po marki, modelu, ceni i kilometraži na platformi Moj Auto Diler.`;
+    ? `Shfletoni të gjitha njoftimet prej ${activeCount} automjetesh të përdorura nga auto-place partnerë në Serbi. Filtroni sipas markës, modelit, çmimit dhe gjendjes në MojAutoDiler.`
+    : `Kompletna ponuda i oglasi od ${activeCount} polovnih automobila u Srbiji sa proverenih auto-placeva. Filtrirajte vozila po marki, modelu, ceni i stanju.`;
 
   return {
     title: { absolute: title },
@@ -53,11 +53,11 @@ export default async function InventoryPage({ params }: { readonly params: Promi
   const vehicles = await getActiveVehicles();
 
   const pageTitle = locale === 'sq'
-    ? 'Oferta e automjeteve të përdorura nga importi | Moj Auto Diler'
-    : 'Ponuda polovnih automobila iz uvoza | Moj Auto Diler';
+    ? 'Njoftime për automjete të përdorura | MojAutoDiler'
+    : 'Oglasi polovnih automobila | Ponuda vozila u Srbiji - MojAutoDiler';
   const description = locale === 'sq'
-    ? `Shfletoni ofertën aktuale prej ${vehicles.length} automjetesh të përdorura nga importi në Serbi. Filtroni sipas markës, modelit, çmimit dhe kilometrazhit në Moj Auto Diler.`
-    : `Pregledajte aktuelnu ponudu od ${vehicles.length} polovnih automobila iz uvoza u Srbiji. Filtrirajte po marki, modelu, ceni i kilometraži na platformi Moj Auto Diler.`;
+    ? `Shfletoni të gjitha njoftimet prej ${vehicles.length} automjetesh të përdorura nga auto-place partnerë në Serbi. Filtroni sipas markës, modelit, çmimit dhe gjendjes në MojAutoDiler.`
+    : `Kompletna ponuda i oglasi od ${vehicles.length} polovnih automobila u Srbiji sa proverenih auto-placeva. Filtrirajte vozila po marki, modelu, ceni i stanju.`;
 
   const bcLabels = getBreadcrumbLabels(locale);
   const breadcrumbs = [

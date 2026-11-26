@@ -1,8 +1,8 @@
 import { SITE_URL, normalizeSiteUrl } from '@/lib/site-url';
 import type { Vehicle } from '@/types/vehicle';
 
-export type BrandSiloSlug = 'bmw' | 'audi' | 'volkswagen' | 'mercedes-benz' | 'skoda';
-export type ModelSiloSlug = 'golf-7' | 'golf-6' | 'tiguan' | 'octavia' | 'audi-a4' | 'bmw-x3';
+export type BrandSiloSlug = 'bmw' | 'audi' | 'volkswagen' | 'mercedes-benz' | 'skoda' | 'porsche' | 'tesla' | 'land-rover';
+export type ModelSiloSlug = 'golf-8' | 'golf-7' | 'golf-6' | 'tiguan' | 'octavia' | 'audi-a6' | 'audi-a4' | 'bmw-x5' | 'bmw-x3';
 
 export interface BrandSiloRef {
   readonly slug: BrandSiloSlug;
@@ -31,9 +31,20 @@ export const BRAND_SILOS: readonly BrandSiloRef[] = [
   { slug: 'volkswagen', displayName: 'Volkswagen', dbName: 'Volkswagen' },
   { slug: 'mercedes-benz', displayName: 'Mercedes-Benz', dbName: 'Mercedes-Benz' },
   { slug: 'skoda', displayName: 'Škoda', dbName: 'Škoda' },
+  { slug: 'porsche', displayName: 'Porsche', dbName: 'Porsche' },
+  { slug: 'tesla', displayName: 'Tesla', dbName: 'Tesla' },
+  { slug: 'land-rover', displayName: 'Land Rover', dbName: 'Land Rover' },
 ] as const;
 
 export const MODEL_SILOS: readonly ModelSiloRef[] = [
+  {
+    slug: 'bmw-x5',
+    brandSlug: 'bmw',
+    displayName: 'X5',
+    brandDisplay: 'BMW',
+    fullName: 'BMW X5',
+    aliases: ['X5', 'X5 xDrive30d', 'G05'],
+  },
   {
     slug: 'bmw-x3',
     brandSlug: 'bmw',
@@ -43,12 +54,28 @@ export const MODEL_SILOS: readonly ModelSiloRef[] = [
     aliases: ['X3'],
   },
   {
+    slug: 'audi-a6',
+    brandSlug: 'audi',
+    displayName: 'A6',
+    brandDisplay: 'Audi',
+    fullName: 'Audi A6',
+    aliases: ['A6', 'A6 45 TFSI', 'C8'],
+  },
+  {
     slug: 'audi-a4',
     brandSlug: 'audi',
     displayName: 'A4',
     brandDisplay: 'Audi',
     fullName: 'Audi A4',
     aliases: ['A4'],
+  },
+  {
+    slug: 'golf-8',
+    brandSlug: 'volkswagen',
+    displayName: 'Golf 8',
+    brandDisplay: 'Volkswagen',
+    fullName: 'Volkswagen Golf 8',
+    aliases: ['Golf 8', 'Golf VIII', 'Golf GTI', 'Mk8'],
   },
   {
     slug: 'golf-7',
@@ -80,7 +107,7 @@ export const MODEL_SILOS: readonly ModelSiloRef[] = [
     displayName: 'Octavia',
     brandDisplay: 'Škoda',
     fullName: 'Škoda Octavia',
-    aliases: ['Octavia'],
+    aliases: ['Octavia', 'Octavia RS', 'Mk4'],
   },
 ] as const;
 

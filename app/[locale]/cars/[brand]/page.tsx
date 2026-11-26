@@ -24,7 +24,7 @@ const SITE = SITE_URL;
 
 // ── Supported brand slugs ─────────────────────────────────────────────────────
 
-type BrandSlug = 'bmw' | 'audi' | 'volkswagen' | 'mercedes-benz' | 'skoda';
+type BrandSlug = 'bmw' | 'audi' | 'volkswagen' | 'mercedes-benz' | 'skoda' | 'porsche' | 'tesla' | 'land-rover';
 
 interface BrandLocaleContent {
   readonly metaTitle:   string;
@@ -354,6 +354,143 @@ const BRANDS: Record<BrandSlug, BrandDef> = {
         {
           q: 'Çfarë të kontrolloni kur blini një Škoda të përdorur?',
           a: 'Kontrolloni historinë e plotë të servisit, gjendjen e transmisionit DSG (nëse është automatik), funksionimin e sistemit të klimatizimit dhe historinë e aksidenteve përmes numrit VIN.',
+        },
+      ],
+    },
+  },
+
+  porsche: {
+    displayName: 'Porsche',
+    dbName:      'Porsche',
+    sr: {
+      metaTitle:  'Polovni Porsche automobili iz uvoza | Moj Auto Diler',
+      metaDesc:   'Ponuda polovnih Porsche automobila u Srbiji. Pregledajte Cayenne, Macan, Panamera i 911 modele sa proverenom istorijom i kompletnom dokumentacijom.',
+      h1:         'Polovni Porsche automobili iz uvoza',
+      intro:      'Pronađite pažljivo proverene uvozne Porsche modele iz ponude partnerskih auto-placeva. Svako vozilo poseduje kompletnu dokumentaciju i transparentnu istoriju održavanja.',
+      overview:   'Porsche je svetski sinonim za beskompromisne sportske performanse, inženjersku preciznost i luksuz. Modeli poput Cayenne Coupé, Macan i Panamera uspešno spajaju svakodnevnu praktičnost sa trkačkim DNK brenda iz Štutgarta. Polovni Porsche modeli iz uvoza najčešće su održavani isključivo u ovlašćenim centrima.',
+      whyBuy:     [
+        'Vrhunski inženjering i izuzetna trajnost mehanike',
+        'Minimalan gubitak vrednosti u odnosu na ostale luksuzne brendove',
+        'Impresivne vozne karakteristike i Sport Chrono paket',
+        'Luksuzan enterijer sa najvišim standardima završne obrade',
+      ],
+      faq: [
+        {
+          q: 'Da li je Porsche pogodan za svakodnevnu vožnju?',
+          a: 'Modeli Cayenne, Macan i Panamera su dizajnirani upravo za svakodnevnu vožnju sa visokim nivoom komfora, prostranim gepekom i naprednim pogonom na sve točkove.',
+        },
+        {
+          q: 'Koliko košta redovno održavanje polovnog Porschea?',
+          a: 'Održavanje je na nivou premium segmenta, ali uz redovne male servise i preventivni pregled, Porsche važi za jednog od najpouzdanijih proizvođača sportskih i luksuznih vozila.',
+        },
+      ],
+    },
+    sq: {
+      metaTitle:  'Automjete të përdorura Porsche nga importi | Moj Auto Diler',
+      metaDesc:   'Ofertë e automjeteve të përdorura Porsche në Serbi. Shfletoni Cayenne, Macan dhe Panamera me histori të verifikuar në MojAutoDiler.',
+      h1:         'Automjete të përdorura Porsche nga importi',
+      intro:      'Gjeni modele Porsche nga importi me dokumentacion të rregullt dhe histori të verifikuar në MojAutoDiler.',
+      overview:   'Porsche përfaqëson performancë sportive dhe inxhinieri superiore gjermane. Modelet si Cayenne dhe Macan ofrojnë komfor të lartë dhe dinamikë të shkëlqyer.',
+      whyBuy:     [
+        'Inxhinieri superiore dhe qëndrueshmëri e lartë',
+        'Mbajtje e lartë e vlerës në treg',
+        'Performancë e jashtëzakonshme sportive',
+        'Materiale luksoze në brendësi',
+      ],
+      faq: [
+        {
+          q: 'A janë modelet Porsche të përshtatshme për çdo ditë?',
+          a: 'Po, modelet Cayenne dhe Macan janë shumë praktike për çdo ditë me hapësirë të bollshme dhe siguri maksimale.',
+        },
+      ],
+    },
+  },
+
+  tesla: {
+    displayName: 'Tesla',
+    dbName:      'Tesla',
+    sr: {
+      metaTitle:  'Polovni Tesla električni automobili | Moj Auto Diler',
+      metaDesc:   'Ponuda polovnih Tesla električnih automobila u Srbiji. Pregledajte Tesla Model 3 i Model Y sa proverenom baterijom, dometom i Autopilot sistemom.',
+      h1:         'Polovni Tesla električni automobili',
+      intro:      'Uđite u svet elektromobilnosti uz proverene polovne Tesla modele. Transparentne informacije o stanju baterije, dometu, Autopilotu i opremi na MojAutoDiler platformi.',
+      overview:   'Tesla je globalni lider u razvoju električnih vozila i autonomnih tehnologija. Model 3 i Model Y nude vrhunsko ubrzanje, impresivan domet sa jednim punjenjem i konstantna bežična softverska ažuriranja (OTA).',
+      whyBuy:     [
+        'Niski troškovi vožnje i nula emisije izduvnih gasova',
+        'Minimalni troškovi redovnog održavanja (nema ulja, svećica, kvačila)',
+        'Impresivna ubrzanja i napredni Autopilot sistemi',
+        'Vrhunska energetska efikasnost i baterijski menadžment',
+      ],
+      faq: [
+        {
+          q: 'Koliko traje baterija na polovnoj Tesli?',
+          a: 'Baterije u Tesla vozilima gube u proseku samo oko 10% do 12% kapaciteta nakon pređenih 200.000 km, što ih čini izuzetno dugovečnim.',
+        },
+        {
+          q: 'Kako se puni Tesla u Srbiji?',
+          a: 'Vozilo se može puniti na kućnoj šuko utičnici (2,3 kW), kućnom Wallbox punjaču (11 kW) ili na javnim brzim DC punjačima širom Srbije.',
+        },
+      ],
+    },
+    sq: {
+      metaTitle:  'Automjete elektrike të përdorura Tesla | Moj Auto Diler',
+      metaDesc:   'Ofertë e automjeteve elektrike Tesla në Serbi. Shfletoni Tesla Model 3 me bateri të verifikuar dhe Autopilot në MojAutoDiler.',
+      h1:         'Automjete elektrike të përdorura Tesla',
+      intro:      'Hyni në botën e automjeteve elektrike me modele të provuara Tesla në platformën MojAutoDiler.',
+      overview:   'Tesla është lider global në automjetet elektrike. Model 3 ofron autonomi të shkëlqyer, përshpejtim të menjëhershëm dhe teknologji të lartë.',
+      whyBuy:     [
+        'Kosto shumë të ulëta lëvizjeje pa emetim gazrash',
+        'Mirëmbajtje minimale mekanike',
+        'Përditësime softuerike pa tel (OTA)',
+        'Performancë e lartë dhe siguri maksimale',
+      ],
+      faq: [
+        {
+          q: 'Sa zgjat bateria e një Tesla të përdorur?',
+          a: 'Bateritë e Tesla mbajnë mbi 85-90% të kapacitetit edhe pas qindra mijëra kilometrash.',
+        },
+      ],
+    },
+  },
+
+  'land-rover': {
+    displayName: 'Land Rover',
+    dbName:      'Land Rover',
+    sr: {
+      metaTitle:  'Polovni Land Rover i Range Rover automobili | Moj Auto Diler',
+      metaDesc:   'Ponuda polovnih Land Rover i Range Rover SUV vozila u Srbiji. Pregledajte Range Rover Sport, Evoque i Velar sa pogonom 4x4 i proverenom istorijom.',
+      h1:         'Polovni Land Rover i Range Rover automobili',
+      intro:      'Istražite ponudu luksuznih britanskih terenskih vozila. Range Rover i Land Rover modeli spajaju aristokratski komfor i neprikosnovene 4x4 terenske sposobnosti.',
+      overview:   'Land Rover je legendarni britanski proizvođač premijum SUV i terenskih vozila. Range Rover Sport i Velar predstavljaju vrhunac komfora, sa Terrain Response 2 sistemom i adaptivnim vazdušnim vešanjem.',
+      whyBuy:     [
+        'Neprikosnoven Terrain Response 4x4 pogon za sve terene',
+        'Izuzetan nivo udobnosti uz adaptivno vazdušno vešanje',
+        'Prestižan britanski dizajn i prostran enterijer',
+        'Vrhunska bezbednost i visoka vučna snaga',
+      ],
+      faq: [
+        {
+          q: 'Kakve su terenske sposobnosti Range Rover Sporta?',
+          a: 'Uz Terrain Response sistem i mogućnost podešavanja klirensa putem vazdušnog vešanja, Range Rover Sport bez problema savladava sneg, blato i teške terene.',
+        },
+      ],
+    },
+    sq: {
+      metaTitle:  'Automjete të përdorura Land Rover | Moj Auto Diler',
+      metaDesc:   'Ofertë e automjeteve luksoze Land Rover dhe Range Rover në Serbi me tërheqje 4x4 dhe histori transparente.',
+      h1:         'Automjete të përdorura Land Rover',
+      intro:      'Eksploroni ofertën e automjeteve britanike Range Rover dhe Land Rover në MojAutoDiler.',
+      overview:   'Land Rover kombinon luksin britanik me aftësi legjendare në çdo lloj terreni falë sistemit Terrain Response.',
+      whyBuy:     [
+        'Tërheqje 4x4 superiore për çdo stinë',
+        'Komfor i nivelit më të lartë me suspension ajror',
+        'Dizajn unik dhe enterier elegant',
+        'Siguri e shkëlqyer në rrugë dhe jashtë saj',
+      ],
+      faq: [
+        {
+          q: 'A është i përshtatshëm Range Rover për dimër?',
+          a: 'Po, sistemi i avancuar 4x4 dhe lartësia e ndryshueshme nga toka e bëjnë ideal për kushte dimërore.',
         },
       ],
     },

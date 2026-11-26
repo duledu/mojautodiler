@@ -131,9 +131,10 @@ export function buildWebSiteJsonLd(
     '@type': 'WebSite',
     '@id': `${baseUrl}/#website`,
     name,
+    alternateName: ['MojAutoDiler'],
     url: baseUrl,
     description:
-      'Informativna platforma za pregled ponude polovnih automobila iz uvoza u Srbiji.',
+      'Informativna i oglasna platforma za pregled ponude polovnih automobila u Srbiji.',
     inLanguage: ['sr', 'sq'],
     publisher: {
       '@id': `${baseUrl}/#organization`,

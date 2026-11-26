@@ -43,6 +43,26 @@ const nextConfig: NextConfig = {
     ],
   },
 
+  async redirects() {
+    return [
+      {
+        source: '/:locale/kako-kupiti',
+        destination: '/:locale/podela-odgovornosti',
+        permanent: true,
+      },
+      {
+        source: '/sq/blog',
+        destination: '/sr/blog',
+        permanent: true,
+      },
+      {
+        source: '/sq/blog/:path*',
+        destination: '/sr/blog/:path*',
+        permanent: true,
+      },
+    ];
+  },
+
   async headers() {
     return [
       {

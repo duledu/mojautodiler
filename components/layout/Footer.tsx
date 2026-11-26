@@ -10,6 +10,7 @@ import {
   getCarVerticalFooterUrl,
 } from '@/lib/affiliate/carvertical';
 import { FOOTER_PLATFORM_DESCRIPTION } from '@/lib/legal/responsibility-disclaimer';
+import { BRAND_SILOS, MODEL_SILOS } from '@/lib/seo/silos';
 
 interface FooterProps {
   readonly locale: Locale;
@@ -136,6 +137,108 @@ export default function Footer({ locale, t, dealer }: FooterProps) {
             </div>
           </div>
         </div>
+
+        {/* ── SEO Silos Navigation: Marke i Modeli polovnih automobila ── */}
+        <nav
+          aria-label="Kategorije polovnih automobila"
+          data-testid="footer-silos-navigation"
+          className="mt-12 border-t border-[var(--color-border)] pt-8"
+        >
+          <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-3">
+            <div>
+              <h4
+                className="mb-4 text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-text)]"
+                style={{ fontFamily: 'var(--font-display)' }}
+              >
+                {locale === 'sq' ? 'Automjete sipas markës' : 'Polovni automobili po markama'}
+              </h4>
+              <ul className="flex flex-wrap gap-x-4 gap-y-2 text-xs sm:flex-col sm:gap-y-2.5">
+                {BRAND_SILOS.map((brand) => (
+                  <li key={brand.slug}>
+                    <Link
+                      href={`/${locale}/cars/${brand.slug}`}
+                      className="text-[var(--color-text-muted)] transition-colors hover:text-[var(--accent-dark)]"
+                    >
+                      {locale === 'sq' ? `Automjete ${brand.displayName}` : `Polovni ${brand.displayName}`}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h4
+                className="mb-4 text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-text)]"
+                style={{ fontFamily: 'var(--font-display)' }}
+              >
+                {locale === 'sq' ? 'Modele të njohura' : 'Popularni modeli automobila'}
+              </h4>
+              <ul className="flex flex-wrap gap-x-4 gap-y-2 text-xs sm:flex-col sm:gap-y-2.5">
+                {MODEL_SILOS.map((model) => (
+                  <li key={model.slug}>
+                    <Link
+                      href={`/${locale}/model/${model.slug}`}
+                      className="text-[var(--color-text-muted)] transition-colors hover:text-[var(--accent-dark)]"
+                    >
+                      {locale === 'sq' ? `Automjete ${model.fullName}` : `Polovni ${model.fullName}`}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h4
+                className="mb-4 text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-text)]"
+                style={{ fontFamily: 'var(--font-display)' }}
+              >
+                {locale === 'sq' ? 'Kërkime kryesore' : 'Brza pretraga i vodiči'}
+              </h4>
+              <ul className="space-y-2.5 text-xs">
+                <li>
+                  <Link
+                    href={`/${locale}/inventory`}
+                    className="font-medium text-[var(--accent-dark)] transition-colors hover:underline"
+                  >
+                    {locale === 'sq' ? 'Të gjitha automjetet në shitje' : 'Oglasi polovnih automobila Srbija'}
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/sr/blog"
+                    className="text-[var(--color-text-muted)] transition-colors hover:text-[var(--accent-dark)]"
+                  >
+                    {locale === 'sq' ? 'Këshilla dhe blog' : 'Saveti za kupovinu polovnjaka'}
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/sr/blog/cene-polovnih-automobila-u-srbiji-2026"
+                    className="text-[var(--color-text-muted)] transition-colors hover:text-[var(--accent-dark)]"
+                  >
+                    {locale === 'sq' ? 'Çmimet e automjeteve 2026' : 'Cene polovnih automobila 2026'}
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/sr/blog/vracena-kilometraza-kako-prepoznati-prevaru"
+                    className="text-[var(--color-text-muted)] transition-colors hover:text-[var(--accent-dark)]"
+                  >
+                    {locale === 'sq' ? 'Mbrojtja nga mashtrimet' : 'Vraćena kilometraža: Kako prepoznati prevaru'}
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/sr/blog/istorija-ostecenja-polovnih-automobila"
+                    className="text-[var(--color-text-muted)] transition-colors hover:text-[var(--accent-dark)]"
+                  >
+                    {locale === 'sq' ? 'Historia e dëmeve' : 'Istorija oštećenja: Skrivene havarije'}
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
 
         {/* ── O platformi MojAutoDiler — Legal Platform Description ── */}
         <section

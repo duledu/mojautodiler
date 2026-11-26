@@ -61,8 +61,8 @@ const sr = {
     cta: 'Saznajte Više',
   },
   inventory: {
-    title: 'Ponuda polovnih automobila',
-    subtitle: 'Pregledajte polovne automobile iz uvoza u ponudi partnerskih auto-placeva',
+    title: 'Oglasi polovnih automobila',
+    subtitle: 'Pregledajte aktuelnu ponudu polovnih automobila sa partnerskih auto-placeva u Srbiji',
     noResults: 'Nema vozila koja odgovaraju vašim kriterijumima',
     filters: {
       brand: 'Marka',

@@ -24,7 +24,6 @@ import VehicleCard from '@/components/vehicle/VehicleCard';
 import { getDealerSettings } from '@/lib/db/settings';
 import { getHeroVehicle, getShowcaseVehicles } from '@/lib/db/vehicles';
 import { getTranslations, isValidLocale, Locale } from '@/lib/i18n';
-import { BRAND_SILOS, MODEL_SILOS } from '@/lib/seo/silos';
 import { SITE_URL } from '@/lib/site-url';
 import type { Metadata } from 'next';
 
@@ -36,13 +35,14 @@ export async function generateMetadata(
   const { locale } = await params;
   const isSq = locale === 'sq';
   const title = isSq
-    ? 'Automjete të përdorura nga importi në Serbi | Moj Auto Diler'
-    : 'Polovni automobili iz uvoza u Srbiji | Moj Auto Diler';
+    ? 'Automjete të përdorura në Serbi - Njoftime dhe shitje | MojAutoDiler'
+    : 'Polovni automobili - Oglasi i prodaja vozila u Srbiji | MojAutoDiler';
+  const description = isSq
+    ? 'Gjeni automjete të përdorura në MojAutoDiler. Shfletoni njoftime aktuale, ofertën e auto-placeve dhe informacione transparente për blerje më të sigurt.'
+    : 'Pronađite polovne automobile na MojAutoDileru. Pregledajte aktuelne oglase, ponudu auto-placeva i informacije o vozilima za sigurniju kupovinu.';
   return {
     title: { absolute: title },
-    description: isSq
-      ? 'Ofertë e automjeteve të përdorura nga importi nga auto-place partnerë në Serbi. Shfletoni BMW, Audi, Volkswagen dhe modele të tjera me informacione transparente.'
-      : 'Ponuda polovnih automobila iz uvoza sa partnerskih auto-placeva u Srbiji. Pregledajte BMW, Audi, Volkswagen i druge modele uz transparentne informacije pre kupovine.',
+    description,
     // max-image-preview:large is required for Google Discover image eligibility
     robots: {
       index: true,
@@ -58,19 +58,13 @@ export async function generateMetadata(
       type: 'website',
       url: `${SITE_URL}/${locale}`,
       title,
-      description: isSq
-        ? 'Automjete premium me histori transparente dhe blerje të sigurt.'
-        : 'Premium automobili iz uvoza sa transparentnom istorijom i sigurnom kupovinom.',
+      description,
       images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'Moj Auto Diler, premium automobili iz uvoza' }],
     },
     twitter: {
       card: 'summary_large_image',
-      title: isSq
-        ? 'Automjete Premium | Moj Auto Diler'
-        : 'Premium automobili | Moj Auto Diler',
-      description: isSq
-        ? 'Automjete premium me histori transparente. Blerje e sigurt në Serbi.'
-        : 'Premium automobili sa transparentnom istorijom. Sigurna kupovina u Srbiji.',
+      title,
+      description,
       images: ['/og-image.jpg'],
     },
   };
@@ -274,9 +268,12 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
               {copy.eyebrow}
             </Reveal>
 
-            {/* H1 — "Manje rizika." then "VIŠE poverenja." on one baseline */}
+            {/* Headline — tight 2-line layout, responsive text */}
             <Reveal delay={170} className="max-w-[760px]">
-              <h1 style={{ fontFamily: 'var(--font-display)' }}>
+              <div
+                className="font-black tracking-tight text-[var(--color-text)]"
+                style={{ fontFamily: 'var(--font-display)' }}
+              >
                 <span
                   className="block font-[800] text-[var(--color-text)] text-[1.25rem] min-[360px]:text-[1.35rem] min-[390px]:text-[1.5rem] sm:text-[clamp(2rem,3.6vw,2.8rem)] lg:text-[clamp(2.6rem,3.6vw,3.4rem)] xl:text-[clamp(3rem,3.6vw,4.5rem)]"
                   style={{ letterSpacing: '-0.03em', lineHeight: '1.05' }}
@@ -300,12 +297,12 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
                     {copy.titleLine2}
                   </span>
                 </span>
-              </h1>
+              </div>
             </Reveal>
 
-            {/* Lead — visible on mobile and desktop without altering hero visual identity */}
-            <Reveal delay={260}>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-text-muted)] sm:mt-7 sm:text-[1.25rem] sm:leading-[1.6] lg:text-[1.35rem] [text-wrap:pretty]">
+            {/* Lead — 28px gap from headline, larger readable type */}
+            <Reveal delay={260} className="hidden sm:block">
+              <p className="mt-5 max-w-2xl text-[1.125rem] leading-[1.6] text-[var(--color-text-muted)] sm:mt-7 sm:text-[1.25rem] lg:text-[1.35rem] [text-wrap:pretty]">
                 {copy.lead}
               </p>
             </Reveal>
@@ -398,7 +395,7 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
           <div className="mx-auto max-w-7xl px-4 sm:px-6">
             <div className="mb-5 flex flex-col gap-3 min-[390px]:mb-6 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
               <Reveal>
-                <SectionHeader title={copy.featuredTitle} subtitle={copy.featuredSub} />
+                <SectionHeader title={copy.featuredTitle} subtitle={copy.featuredSub} asH1 />
               </Reveal>
               <Link href={`/${currentLocale}/inventory`} className="inline-flex items-center gap-2 text-sm font-bold text-[var(--accent-dark)] transition hover:text-[var(--accent)]">
                 {copy.viewAll}
@@ -406,39 +403,6 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
               </Link>
             </div>
 
-            {/* ── Brand & popular model silo quick-links (Phase 3 internal linking) ── */}
-            <Reveal>
-              <nav
-                aria-label={currentLocale === 'sq' ? 'Marka dhe modele të njohura' : 'Popularne marke i modeli'}
-                className="mb-6 space-y-2.5"
-              >
-                <div className="scrollbar-none -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0">
-                  {BRAND_SILOS.map(({ slug, displayName }) => (
-                    <Link
-                      key={slug}
-                      href={`/${currentLocale}/cars/${slug}`}
-                      className="inline-flex shrink-0 touch-manipulation items-center rounded-full border border-(--color-border) bg-white px-4 py-2 text-xs font-bold text-(--color-text-2) shadow-sm transition hover:border-(--accent-border) hover:bg-(--accent-soft) hover:text-(--accent-dark)"
-                    >
-                      {displayName}
-                    </Link>
-                  ))}
-                </div>
-                <div className="scrollbar-none -mx-4 flex items-center gap-1.5 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0">
-                  <span className="shrink-0 text-[11px] font-semibold text-(--color-text-muted) mr-1">
-                    {currentLocale === 'sq' ? 'Modele të njohura:' : 'Popularni modeli:'}
-                  </span>
-                  {MODEL_SILOS.map((m) => (
-                    <Link
-                      key={m.slug}
-                      href={`/${currentLocale}/model/${m.slug}`}
-                      className="inline-flex shrink-0 touch-manipulation items-center rounded-full border border-(--color-border) bg-(--color-surface) px-3 py-1 text-[11px] font-semibold text-(--color-text-muted) transition hover:border-(--accent-border) hover:bg-(--accent-soft) hover:text-(--accent-dark)"
-                    >
-                      {m.fullName}
-                    </Link>
-                  ))}
-                </div>
-              </nav>
-            </Reveal>
             {featuredVehicles.length > 0 ? (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 xl:grid-cols-4">
                 {featuredVehicles.map((vehicle, index) => (
@@ -627,11 +591,22 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
   );
 }
 
-function SectionHeader({ title, subtitle, centered = false }: { readonly title: string; readonly subtitle: string; readonly centered?: boolean }) {
+function SectionHeader({
+  title,
+  subtitle,
+  centered = false,
+  asH1 = false,
+}: {
+  readonly title: string;
+  readonly subtitle: string;
+  readonly centered?: boolean;
+  readonly asH1?: boolean;
+}) {
+  const HeadingTag = asH1 ? 'h1' : 'h2';
   return (
     <div className={centered ? 'mx-auto max-w-2xl text-center' : 'max-w-2xl'}>
       <div className={centered ? 'divider-gold mx-auto mb-4' : 'divider-gold mb-4'} />
-      <h2 className="text-3xl font-black leading-tight text-[var(--color-text)] sm:text-4xl">{title}</h2>
+      <HeadingTag className="text-3xl font-black leading-tight text-[var(--color-text)] sm:text-4xl">{title}</HeadingTag>
       <p className="mt-3 text-sm leading-7 text-[var(--color-text-muted)] sm:text-base">{subtitle}</p>
     </div>
   );

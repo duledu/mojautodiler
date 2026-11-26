@@ -23,11 +23,14 @@ const SITE = SITE_URL;
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 type ModelSlug =
+  | 'golf-8'
   | 'golf-7'
   | 'golf-6'
   | 'tiguan'
   | 'octavia'
+  | 'audi-a6'
   | 'audi-a4'
+  | 'bmw-x5'
   | 'bmw-x3';
 
 interface ModelLocaleContent {
@@ -506,6 +509,168 @@ const MODELS: Record<ModelSlug, ModelDef> = {
         {
           q: 'A ka MojAutoDiler BMW X3 nga Gjermania?',
           a: 'Po, rregullisht kemi X3 nga Gjermania dhe Zvicra me dokumentacion të plotë BMW Service. Të gjitha detajet rreth sistemit xDrive, pajisjeve dhe origjinës janë të dukshme në çdo shpallje.',
+        },
+      ],
+    },
+  },
+
+  'bmw-x5': {
+    displayName:  'X5',
+    brandDisplay: 'BMW',
+    dbBrand:      'BMW',
+    modelAliases: ['X5', 'X5 xDrive30d', 'G05', 'F15'],
+    brandSlug:    'bmw',
+    sr: {
+      metaTitle:    'Polovni BMW X5 iz uvoza | Moj Auto Diler',
+      metaDesc:     'Ponuda polovnih BMW X5 (G05, F15) automobila iz uvoza u Srbiji. Pregledajte xDrive modele partnerskih auto-placeva, specifikacije i cene.',
+      h1:           'Polovni BMW X5 iz uvoza',
+      intro:        'BMW X5 je sinonim za luksuzni SUV segment u Srbiji. Pronađite pažljivo odabrane uvozne BMW X5 modele sa xDrive pogonom i kompletnom servisnom istorijom na MojAutoDiler platformi.',
+      overview:     'BMW X5 (posebno generacije F15 i G05) spaja vrhunski komfor, visoku poziciju sedenja, snažne dvolitarske i trolitarske dizel motore (xDrive30d, M50d) i prepoznatljivu voznu dinamiku. Uvezeni iz Nemačke i Švajcarske, ovi primerci se odlikuju visokim paketima opreme (M Sport, laserska svetla, vazdušno vešanje).',
+      whyBuy: [
+        'Vrhunski xDrive pogon na sve točkove za maksimalnu bezbednost',
+        'Moćni i pouzdani 3.0d redni šestocilindraši sa velikim obrtnim momentom',
+        'Izuzetan komfor i prostran enterijer za porodicu i duga putovanja',
+        'Odlično držanje vrednosti i velika potražnja na tržištu Srbije',
+      ],
+      buyerProfile: 'BMW X5 je idealan za poslovne ljude, porodice koje često putuju i vozače koji traže premijum status, visoku bezbednost i vrhunski komfor na svim podlogama.',
+      fuelInfo:     'Prosečna potrošnja xDrive30d: 7,5–9,0 L/100 km na otvorenom, 9,5–12,0 L/100 km u gradu. Rezervoar od 80 litara pruža domet preko 900 km.',
+      faq: [
+        {
+          q: 'Koji je najpouzdaniji motor u BMW X5?',
+          a: 'Trolitarski dizel motor (B57 u G05, odnosno N57 u F15 sa jednim ili dva turba) važi za izuzetno izdržljiv uz redovnu zamenu ulja na 10.000–15.000 km.',
+        },
+        {
+          q: 'Koliko košta registracija za BMW X5 3.0d u Srbiji?',
+          a: 'Za vozila zapremine do 3.000 cm³ registracija sa porezom na upotrebu kreće se između 110.000 i 140.000 dinara, osim ukoliko je u pitanju blagi hibrid ili plug-in hibrid koji ostvaruje poreske olakšice.',
+        },
+      ],
+    },
+    sq: {
+      metaTitle:    'Automjete të përdorura BMW X5 nga importi | Moj Auto Diler',
+      metaDesc:     'Ofertë e automjeteve luksoze BMW X5 në Serbi me xDrive dhe histori të dokumentuar në MojAutoDiler.',
+      h1:           'Automjete të përdorura BMW X5 nga importi',
+      intro:        'Gjeni modele luksoze BMW X5 nga importi me xDrive dhe gjendje të shkëlqyer në MojAutoDiler.',
+      overview:     'BMW X5 është një nga SUV-të më të kërkuar luksozë, duke ofruar komfor maksimal dhe fuqi të lartë motorike.',
+      whyBuy: [
+        'Tërheqje xDrive për çdo stinë dhe terren',
+        'Motorë të fuqishëm dhe të besueshëm 3.0d',
+        'Hapësirë e bollshme dhe interior luksoz',
+        'Vlerë e lartë ri-shitjeje në treg',
+      ],
+      buyerProfile: 'I përshtatshëm për udhëtime të gjata, familje dhe profesionistë që kërkojnë komfor superior.',
+      fuelInfo:     'Konsumi mesatar për xDrive30d është 7.5–9.5 L/100 km.',
+      faq: [
+        {
+          q: 'A është BMW X5 i përshtatshëm për rrugë të gjata?',
+          a: 'Po, falë suspensionit ajror dhe izolimit akustik, BMW X5 është një nga automjetet më të rehatshme për udhëtime.',
+        },
+      ],
+    },
+  },
+
+  'audi-a6': {
+    displayName:  'A6',
+    brandDisplay: 'Audi',
+    dbBrand:      'Audi',
+    modelAliases: ['A6', 'A6 45 TFSI', 'C8', 'C7'],
+    brandSlug:    'audi',
+    sr: {
+      metaTitle:    'Polovni Audi A6 iz uvoza | Moj Auto Diler',
+      metaDesc:     'Ponuda polovnih Audi A6 (C8, C7) automobila iz uvoza u Srbiji. Pregledajte TDI i TFSI quattro limuzine i karavane partnerskih auto-placeva.',
+      h1:           'Polovni Audi A6 iz uvoza',
+      intro:        'Audi A6 je jedna od najtraženijih premijum poslovnih limuzina u Srbiji. Istražite pažljivo odabrane modele sa quattro pogonom, virtuelnim kokpitom i proverenim stanjem.',
+      overview:     'Audi A6 (generacije C7 i C8) nudi vrhunsku zvučnu izolaciju, elegantan dizajn, matriks LED osvetljenje i legendaran quattro pogon. Dostupan je kao klasična limuzina i prostrani Avant karavan, sa pouzdanim 2.0 TDI/TFSI i 3.0 TDI agregatima.',
+      whyBuy: [
+        'Izuzetna udobnost na auto-putu i besprekorna zvučna izolacija',
+        'Quattro pogon pruža neprikosnovenu stabilnost u svim vremenskim prilikama',
+        'Digitalni kokpit i napredni MMI sistemi asistencije vozaču',
+        'Visok kvalitet materijala u kabini koji traje decenijama',
+      ],
+      buyerProfile: 'Audi A6 biraju vozači koji prelaze velike godišnje kilometraže, menadžeri i porodični kupci kojima je potreban maksimalan komfor, bezbednost i prestiž.',
+      fuelInfo:     'Prosečna potrošnja 2.0 TDI: 5,5–7,0 L/100 km. 45 TFSI: 6,8–8,5 L/100 km. Na otvorenom putu potrošnja pada ispod 6 L/100 km.',
+      faq: [
+        {
+          q: 'Da li birati Audi A6 limuzinu ili Avant (karavan)?',
+          a: 'Limuzina nudi izrazito elegantan poslovni izgled, dok Avant donosi ogroman prtljažnik i praktičnost, posebno popularan u uvozu iz Švajcarske i Nemačke.',
+        },
+        {
+          q: 'Kakav je menjač S-Tronic u Audiju A6?',
+          a: 'Sedmostepeni S-Tronic sa dvostrukim kvačilom je izuzetno brz i efikasan. Ključ dugovečnosti je redovna zamena ulja i filtera na svakih 60.000 km.',
+        },
+      ],
+    },
+    sq: {
+      metaTitle:    'Automjete të përdorura Audi A6 nga importi | Moj Auto Diler',
+      metaDesc:     'Ofertë e automjeteve Audi A6 në Serbi me quattro dhe histori të verifikuar në MojAutoDiler.',
+      h1:           'Automjete të përdorura Audi A6 nga importi',
+      intro:        'Gjeni Audi A6 limuzinë ose Avant nga importi me teknologji të lartë dhe histori transparente në MojAutoDiler.',
+      overview:     'Audi A6 ofron izolim akustik të shkëlqyer, dizajn prestigjioz dhe tërheqje legjendare quattro.',
+      whyBuy: [
+        'Komfor i shkëlqyer për distanca të gjata',
+        'Tërheqje quattro për siguri maksimale',
+        'MMI Navigation Plus dhe kokpit digjital',
+        'Materiale të cilësisë më të lartë',
+      ],
+      buyerProfile: 'Ideale për udhëtime biznesi dhe familje që duan siguri dhe rehati maksimale.',
+      fuelInfo:     'Konsumi mesatar: 5.5–7.5 L/100 km varësisht nga motori.',
+      faq: [
+        {
+          q: 'A është Audi A6 i rehatshëm për udhëtime?',
+          a: 'Po, Audi A6 konsiderohet si një nga limuzinat më komode në tregun europian.',
+        },
+      ],
+    },
+  },
+
+  'golf-8': {
+    displayName:  'Golf 8',
+    brandDisplay: 'Volkswagen',
+    dbBrand:      'Volkswagen',
+    modelAliases: ['Golf 8', 'Golf VIII', 'Golf GTI', 'Mk8'],
+    brandSlug:    'volkswagen',
+    sr: {
+      metaTitle:    'Polovni Volkswagen Golf 8 iz uvoza | Moj Auto Diler',
+      metaDesc:     'Ponuda polovnih Volkswagen Golf 8 (Golf VIII, GTI, Life, Style) automobila u Srbiji. Pregledajte uvozne modele sa digitalnim kokpitom i proverenom istorijom.',
+      h1:           'Polovni Volkswagen Golf 8 iz uvoza',
+      intro:        'Volkswagen Golf 8 predstavlja najnoviju eru najpopularnijeg hečbeka. Potpuno digitalizovana kabina, IQ.LIGHT svetla i moderni TSI, TDI i GTI motori u ponudi partnerskih auto-placeva.',
+      overview:     'Golf osme generacije (Mk8, 2020+) donosi moderni Innovision kokpit bez klasičnih tastera, napredne eTSI blage hibride, legendarne GTI i R sportske varijante i ekonomične 2.0 TDI dizele sa dvostrukim SCR ubrizgavanjem. Vozila iz uvoza donose bogate pakete opreme i garanciju na pređeni put.',
+      whyBuy: [
+        'Najsavremenija tehnologija sa digitalnim ekranima i Car2X komunikacijom',
+        'Ekonomični eTSI i 2.0 TDI motori sa minimalnom emisijom i potrošnjom',
+        'Sportski karakter GTI modela sa 245 KS i adaptivnim DCC vešanjem',
+        'Najviša likvidnost i potražnja pri kasnijoj preprodaji u Srbiji',
+      ],
+      buyerProfile: 'Golf 8 je idealan za tehnološki osvešćene vozače, mlađe porodice i ljubitelje kultnog kompakta koji traže moderan izgled i niske troškove eksploatacije.',
+      fuelInfo:     'Prosečna potrošnja 2.0 TDI: 4,5–5,8 L/100 km. 1.5 eTSI: 5,2–6,5 L/100 km. GTI 2.0 TSI: 7,0–8,8 L/100 km.',
+      faq: [
+        {
+          q: 'Koje su prednosti Golfa 8 u odnosu na Golf 7?',
+          a: 'Golf 8 donosi potpuno digitalni kokpit, naprednije sisteme asistencije (Travel Assist), bolju aerodinamiku i ekonomičnije hibridne eTSI motore.',
+        },
+        {
+          q: 'Da li se isplati kupiti Golf 8 GTI kao polovnjak?',
+          a: 'Golf 8 GTI spaja 245 KS i vrhunsko upravljanje sa svakodnevnom praktičnošću hečbeka, a izuzetno dobro drži vrednost na tržištu.',
+        },
+      ],
+    },
+    sq: {
+      metaTitle:    'Automjete të përdorura Volkswagen Golf 8 | Moj Auto Diler',
+      metaDesc:     'Ofertë e automjeteve Volkswagen Golf 8 në Serbi me kokpit digjital dhe histori të verifikuar në MojAutoDiler.',
+      h1:           'Automjete të përdorura Volkswagen Golf 8',
+      intro:        'Eksploroni Volkswagen Golf 8 nga importi me teknologji moderne në platformën MojAutoDiler.',
+      overview:     'Golf 8 sjell kokpit të plotë digjital, drita IQ.LIGHT dhe motorë efikasë TSI, TDI dhe GTI.',
+      whyBuy: [
+        'Teknologji më e fundit dhe lidhje digjitale',
+        'Konsum shumë i ulët me motorët modernë',
+        'Dinamikë e shkëlqyer sportive në modelin GTI',
+        'Kërkesë e lartë dhe shitje e lehtë në treg',
+      ],
+      buyerProfile: 'Perfekt për çdo ditë, qytet dhe udhëtime me komfor modern.',
+      fuelInfo:     'Konsumi mesatar: 4.8–6.5 L/100 km.',
+      faq: [
+        {
+          q: 'A është Golf 8 i përshtatshëm për qytet?',
+          a: 'Po, dimensionet kompakte dhe kamerat e sensorët e bëjnë parkimin dhe manovrimin shumë të lehtë.',
         },
       ],
     },

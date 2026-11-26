@@ -59,11 +59,14 @@ function buildKeySignal(v: Vehicle, locale: Locale): string {
 function buildTitle(v: Vehicle, locale: Locale): string {
   const gen = v.generation ? ` ${v.generation}` : '';
   const signal = buildKeySignal(v, locale);
-  const core = `${v.brand} ${v.model}${gen} ${v.year}`;
+  const prefix = locale === 'sr' ? 'Polovni ' : '';
+  const core = `${prefix}${v.brand} ${v.model}${gen} ${v.year}`;
   const full = `${core} | ${signal} | Moj Auto Diler`;
   if (full.length <= 68) return full;
-  const short = `${v.brand} ${v.model} ${v.year} | ${signal} | Moj Auto Diler`;
+  const short = `${prefix}${v.brand} ${v.model} ${v.year} | ${signal} | Moj Auto Diler`;
   if (short.length <= 68) return short;
+  const minimal = `${prefix}${v.brand} ${v.model} ${v.year} | Moj Auto Diler`;
+  if (minimal.length <= 68) return minimal;
   return `${v.brand} ${v.model} ${v.year} | Moj Auto Diler`;
 }
 
