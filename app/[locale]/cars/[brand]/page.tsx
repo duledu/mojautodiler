@@ -499,6 +499,12 @@ const BRANDS: Record<BrandSlug, BrandDef> = {
 
 export const BRAND_SLUGS = Object.keys(BRANDS) as BrandSlug[];
 
+const APPROVED_EMPTY_BRANDS: ReadonlySet<BrandSlug> = new Set<BrandSlug>([
+  'porsche',
+  'tesla',
+  'land-rover',
+]);
+
 // ── Static params — pre-generates all brand+locale combinations at build ──────
 
 export function generateStaticParams() {
@@ -568,9 +574,11 @@ export default async function BrandPage(
   const content  = locale === 'sq' ? def.sq : def.sr;
   const t        = getTranslations(locale);
   const vehicles = await getVehiclesByBrand(def.dbName);
-  const alternativeVehicles = vehicles.length === 0
-    ? (await getActiveVehicles()).slice(0, 4)
-    : [];
+  const isApprovedEmpty = APPROVED_EMPTY_BRANDS.has(brand as BrandSlug);
+  const alternativeVehicles =
+    vehicles.length === 0 && !isApprovedEmpty
+      ? (await getActiveVehicles()).slice(0, 4)
+      : [];
   const pageUrl  = `${SITE}/${locale}/cars/${brand}`;
   const isSq     = locale === 'sq';
 
@@ -691,6 +699,34 @@ export default async function BrandPage(
                     <VehicleCard vehicle={vehicle} locale={locale} t={t} />
                   </Reveal>
                 ))}
+              </div>
+            ) : isApprovedEmpty ? (
+              <div className="rounded-3xl border border-(--color-border) bg-white p-8 sm:p-10 text-center">
+                <p className="text-sm sm:text-base font-semibold text-(--color-text)">
+                  {isSq
+                    ? `Aktualisht nuk ka shpallje aktive për ${def.displayName} në ofertën e auto-placeve partnere.`
+                    : `Trenutno nema vozila za ${def.displayName} u ponudi partnerskih auto-placeva.`}
+                </p>
+                <p className="mt-2 text-xs sm:text-sm text-(--color-text-muted)">
+                  {isSq
+                    ? 'Oferta përditësohet rregullisht. Shfletoni të gjitha automjetet e disponueshme ose na kontaktoni për kërkesa specifike.'
+                    : 'Ponuda se redovno ažurira. Pogledajte kompletnu ponudu dostupnih vozila ili nas kontaktirajte za željeni model.'}
+                </p>
+                <div className="mt-5 flex flex-wrap justify-center gap-3">
+                  <Link
+                    href={`/${locale}/inventory`}
+                    className="btn-gold inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold"
+                  >
+                    {isSq ? 'Shiko të gjitha automjetet' : 'Pogledaj sva vozila'}
+                    <ArrowRight size={14} />
+                  </Link>
+                  <Link
+                    href={`/${locale}/contact`}
+                    className="btn-outline inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold"
+                  >
+                    {isSq ? 'Kontakto' : 'Kontaktiraj nas'}
+                  </Link>
+                </div>
               </div>
             ) : (
               <div className="space-y-8">

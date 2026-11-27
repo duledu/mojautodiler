@@ -679,6 +679,11 @@ const MODELS: Record<ModelSlug, ModelDef> = {
 
 export const MODEL_SLUGS = Object.keys(MODELS) as ModelSlug[];
 
+const APPROVED_EMPTY_MODELS: ReadonlySet<ModelSlug> = new Set<ModelSlug>([
+  'audi-a6',
+  'golf-8',
+]);
+
 // ── Static params ─────────────────────────────────────────────────────────────
 
 export function generateStaticParams() {
@@ -743,19 +748,21 @@ export default async function ModelPage(
   const content  = locale === 'sq' ? def.sq : def.sr;
   const t        = getTranslations(locale);
   const vehicles = await getVehiclesByModel(def.dbBrand, def.modelAliases);
-  const alternativeVehicles = vehicles.length === 0
-    ? (() => {
-        return getActiveVehicles().then((all) => {
-          const sameBrand = all.filter(
-            (v) => v.brand.toLowerCase() === def.dbBrand.toLowerCase(),
-          );
-          const others = all.filter(
-            (v) => v.brand.toLowerCase() !== def.dbBrand.toLowerCase(),
-          );
-          return [...sameBrand, ...others].slice(0, 4);
-        });
-      })()
-    : Promise.resolve([]);
+  const isApprovedEmpty = APPROVED_EMPTY_MODELS.has(slug as ModelSlug);
+  const alternativeVehicles =
+    vehicles.length === 0 && !isApprovedEmpty
+      ? (() => {
+          return getActiveVehicles().then((all) => {
+            const sameBrand = all.filter(
+              (v) => v.brand.toLowerCase() === def.dbBrand.toLowerCase(),
+            );
+            const others = all.filter(
+              (v) => v.brand.toLowerCase() !== def.dbBrand.toLowerCase(),
+            );
+            return [...sameBrand, ...others].slice(0, 4);
+          });
+        })()
+      : Promise.resolve([]);
   const resolvedAlternatives = await alternativeVehicles;
   const pageUrl  = `${SITE}/${locale}/model/${slug}`;
   const isSq     = locale === 'sq';
@@ -884,6 +891,34 @@ export default async function ModelPage(
                     <VehicleCard vehicle={vehicle} locale={locale} t={t} />
                   </Reveal>
                 ))}
+              </div>
+            ) : isApprovedEmpty ? (
+              <div className="rounded-3xl border border-(--color-border) bg-white p-8 sm:p-10 text-center">
+                <p className="text-sm sm:text-base font-semibold text-(--color-text)">
+                  {isSq
+                    ? `Aktualisht nuk ka shpallje aktive për ${def.brandDisplay} ${def.displayName} në ofertën e auto-placeve partnere.`
+                    : `Trenutno nema vozila za ${def.brandDisplay} ${def.displayName} u ponudi partnerskih auto-placeva.`}
+                </p>
+                <p className="mt-2 text-xs sm:text-sm text-(--color-text-muted)">
+                  {isSq
+                    ? 'Oferta përditësohet rregullisht. Shfletoni të gjitha automjetet e disponueshme ose shikoni markën e plotë.'
+                    : `Ponuda se redovno ažurira. Pogledajte kompletnu ponudu dostupnih vozila ili ponudu marke ${def.brandDisplay}.`}
+                </p>
+                <div className="mt-5 flex flex-wrap justify-center gap-3">
+                  <Link
+                    href={`/${locale}/inventory`}
+                    className="btn-gold inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold"
+                  >
+                    {isSq ? 'Shiko të gjitha automjetet' : 'Pogledaj sva vozila'}
+                    <ArrowRight size={14} />
+                  </Link>
+                  <Link
+                    href={`/${locale}/cars/${def.brandSlug}`}
+                    className="btn-outline inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold"
+                  >
+                    {isSq ? `Të gjitha ${def.brandDisplay}` : `Svi ${def.brandDisplay} oglasi`}
+                  </Link>
+                </div>
               </div>
             ) : (
               <div className="space-y-8">
