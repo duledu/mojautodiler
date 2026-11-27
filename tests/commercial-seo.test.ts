@@ -10,9 +10,9 @@ import { buildWebSiteJsonLd } from '../lib/seo/structured-data';
 import type { Vehicle } from '../types/vehicle';
 
 describe('Commercial SEO & Google Ranking Verification', () => {
-  it('Brand Silos are complete for all 8 active brands', () => {
-    assert.equal(BRAND_SILOS.length, 8);
-    const expectedBrands = ['bmw', 'audi', 'volkswagen', 'mercedes-benz', 'skoda', 'porsche', 'tesla', 'land-rover'];
+  it('Brand Silos are complete for all 9 registered brands including Opel', () => {
+    assert.equal(BRAND_SILOS.length, 9);
+    const expectedBrands = ['bmw', 'audi', 'volkswagen', 'mercedes-benz', 'skoda', 'porsche', 'tesla', 'land-rover', 'opel'];
     for (const slug of expectedBrands) {
       assert.ok(BRAND_SILOS.some((b) => b.slug === slug), `Missing brand silo in BRAND_SILOS: ${slug}`);
       assert.ok(BRAND_SLUGS.includes(slug as any), `Missing brand slug in BRAND_SLUGS: ${slug}`);

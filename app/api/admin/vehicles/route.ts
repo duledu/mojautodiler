@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { getAllVehicles, createVehicle, syncVehicleMedia, syncVehicleVideos, type VideoSyncInput } from '@/lib/db/vehicles';
+import {
+  getAllVehicles,
+  createVehicle,
+  syncVehicleMedia,
+  syncVehicleVideos,
+  revalidateVehicleCategoryCaches,
+  type VideoSyncInput,
+} from '@/lib/db/vehicles';
 import { slugify } from '@/lib/utils';
 
 /** Normalises the admin form's `videos` payload into VideoSyncInput[]; drops malformed entries. */
@@ -115,6 +122,7 @@ export async function POST(request: NextRequest) {
     void syncVehicleMedia(vehicle.id, images, imageKeys);
     void syncVehicleVideos(vehicle.id, parseVideosPayload(body.videos));
 
+    revalidateVehicleCategoryCaches(vehicle.slug);
     try { revalidatePath('/sitemap.xml'); } catch { /* unit test context */ }
     return NextResponse.json({ success: true, vehicle }, { status: 201 });
   } catch (err) {

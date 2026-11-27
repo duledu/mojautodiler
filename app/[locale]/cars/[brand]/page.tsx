@@ -2,7 +2,11 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowRight, CheckCircle2, ChevronDown, ChevronRight } from 'lucide-react';
 import { isValidLocale, getTranslations } from '@/lib/i18n';
-import { getActiveVehicles, getVehiclesByBrand } from '@/lib/db/vehicles';
+import {
+  getActiveCategorySilos,
+  getActiveVehicles,
+  getVehiclesByBrand,
+} from '@/lib/db/vehicles';
 import VehicleCard from '@/components/vehicle/VehicleCard';
 import BreadcrumbJsonLd from '@/components/seo/BreadcrumbJsonLd';
 import BrandSiloJsonLd from '@/components/seo/BrandSiloJsonLd';
@@ -24,7 +28,16 @@ const SITE = SITE_URL;
 
 // ── Supported brand slugs ─────────────────────────────────────────────────────
 
-type BrandSlug = 'bmw' | 'audi' | 'volkswagen' | 'mercedes-benz' | 'skoda' | 'porsche' | 'tesla' | 'land-rover';
+type BrandSlug =
+  | 'bmw'
+  | 'audi'
+  | 'volkswagen'
+  | 'mercedes-benz'
+  | 'skoda'
+  | 'porsche'
+  | 'tesla'
+  | 'land-rover'
+  | 'opel';
 
 interface BrandLocaleContent {
   readonly metaTitle:   string;
@@ -495,6 +508,61 @@ const BRANDS: Record<BrandSlug, BrandDef> = {
       ],
     },
   },
+
+  opel: {
+    displayName: 'Opel',
+    dbName:      'Opel',
+    sr: {
+      metaTitle:  'Polovni Opel automobili iz uvoza | Moj Auto Diler',
+      metaDesc:   'Ponuda polovnih Opel automobila iz uvoza u Srbiji. Pregledajte Insignia, Astra, Corsa i Mokka modele sa proverenim poreklom i jasnim podacima pre kupovine.',
+      h1:         'Polovni Opel',
+      intro:      'Pronađite pažljivo odabrane polovne Opel automobile iz uvoza sa partnerskih auto-placeva u Srbiji. Svaki oglas donosi jasne tehničke specifikacije, podatke o poreklu i direktan kontakt sa prodavcem.',
+      overview:   'Opel je nemački proizvođač sa dugom tradicijom izrade praktičnih i racionalnih automobila za evropske puteve. Modeli poput poslovne limuzine i karavana Insignia, kompakta Astra, gradske Corse i krosovera Mokka ili Grandland spadaju među najtraženije polovnjake u Srbiji. Primerci uvezeni iz Nemačke i Švajcarske cenjeni su zbog uredne servisne evidencije, ergonomskih AGR sedišta i veoma dostupnih rezervnih delova na domaćem tržištu.',
+      whyBuy:     [
+        'Povoljni troškovi redovnog održavanja i laka dostupnost delova u celoj Srbiji',
+        'Ekonomični CDTI dizel i Turbo benzinski motori prilagođeni gradskoj i otvorenoj vožnji',
+        'Ergonomska kabina, udobna AGR sedišta i prostrani karavanski modeli Sports Tourer',
+        'Stabilna potražnja i lakša dalja prodaja na domaćem tržištu polovnih vozila',
+      ],
+      faq: [
+        {
+          q: 'Koji polovni Opel modeli su najtraženiji u Srbiji?',
+          a: 'Najveće interesovanje vlada za Opel Astru (generacije J i K) u kompaktnom segmentu, Insigniju u limuzinskoj i Sports Tourer karavanskoj verziji za duža putovanja, kao i za gradsku Corsu i krosover Mokka.',
+        },
+        {
+          q: 'Šta proveriti pre kupovine polovne Opel Insignije sa 2.0 CDTI motorom?',
+          a: 'Kod dvolitarskog CDTI dizel motora preporučuje se provera zaptivke uljne pumpe u karteru, stanja zamajca i kvačila, rada DPF filtera i urednosti servisne istorije, kao i provera istorije po VIN broju.',
+        },
+        {
+          q: 'Koliko je pristupačno održavanje polovnog Opela u Srbiji?',
+          a: 'Opel spada među najpristupačnije evropske brendove za redovno održavanje. Široka mreža nezavisnih i specijalizovanih servisa, uz veliku ponudu originalnih i zamenskih delova, drži troškove malog i velikog servisa u razumnim okvirima.',
+        },
+        {
+          q: 'Da li u ponudi postoje Opel automobili iz uvoza?',
+          a: 'Da, u ponudi partnerskih auto-placeva pojavljuju se uvozni Opel primerci sa evropskih tržišta. Dostupni podaci o godištu, kilometraži, motoru i opremi jasno su istaknuti na stranici svakog aktivnog oglasa.',
+        },
+      ],
+    },
+    sq: {
+      metaTitle:  'Automjete të përdorura Opel nga importi | Moj Auto Diler',
+      metaDesc:   'Ofertë e automjeteve të përdorura Opel nga importi në Serbi. Shfletoni Insignia, Astra, Corsa dhe Mokka nga auto-place partnerë.',
+      h1:         'Automjete të përdorura Opel',
+      intro:      'Gjeni automjete Opel nga importi nga oferta e auto-placeve partnere në platformën MojAutoDiler.',
+      overview:   'Opel ofron automjete praktike dhe ekonomike me traditë gjermane, përfshirë modelet Insignia, Astra, Corsa dhe Mokka.',
+      whyBuy:     [
+        'Kosto të arsyeshme mirëmbajtjeje dhe pjesë lehtësisht të disponueshme',
+        'Motorë ekonomikë CDTI diesel dhe Turbo benzin',
+        'Kabinë ergonomike dhe hapësirë praktike familjare',
+        'Kërkesë e qëndrueshme në tregun e automjeteve të përdorura',
+      ],
+      faq: [
+        {
+          q: 'Cilat modele Opel janë më të kërkuarat?',
+          a: 'Modelet Astra, Insignia, Corsa dhe Mokka janë ndër më të kërkuarat për përdorim urban dhe familjar.',
+        },
+      ],
+    },
+  },
 };
 
 export const BRAND_SLUGS = Object.keys(BRANDS) as BrandSlug[];
@@ -503,6 +571,7 @@ const APPROVED_EMPTY_BRANDS: ReadonlySet<BrandSlug> = new Set<BrandSlug>([
   'porsche',
   'tesla',
   'land-rover',
+  'opel',
 ]);
 
 // ── Static params — pre-generates all brand+locale combinations at build ──────
@@ -573,7 +642,10 @@ export default async function BrandPage(
 
   const content  = locale === 'sq' ? def.sq : def.sr;
   const t        = getTranslations(locale);
-  const vehicles = await getVehiclesByBrand(def.dbName);
+  const [vehicles, activeCategories] = await Promise.all([
+    getVehiclesByBrand(def.dbName),
+    getActiveCategorySilos(),
+  ]);
   const isApprovedEmpty = APPROVED_EMPTY_BRANDS.has(brand as BrandSlug);
   const alternativeVehicles =
     vehicles.length === 0 && !isApprovedEmpty
@@ -583,7 +655,7 @@ export default async function BrandPage(
   const isSq     = locale === 'sq';
 
   const bcLabels    = getBreadcrumbLabels(locale);
-  const brandModels = getModelsForBrand(brand as BrandSiloSlug);
+  const brandModels = getModelsForBrand(brand as BrandSiloSlug, activeCategories.modelSlugs);
   const otherBrands = BRAND_SILOS.filter((b) => b.slug !== brand);
 
   const breadcrumbs = [

@@ -1,5 +1,12 @@
+import { revalidatePath, revalidateTag, unstable_cache } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { toAppVehicle, toDbVatMode, toDbVehicleStatus } from '@/lib/db/mappers';
+import {
+  computeActiveCategorySilos,
+  getAllRegisteredCategorySilos,
+  type ActiveCategorySilos,
+  type CategoryVehicleCandidate,
+} from '@/lib/seo/silos';
 import type { Vehicle, VehicleStatus } from '@/types/vehicle';
 
 const hasDatabase = () => Boolean(process.env.DATABASE_URL);
@@ -215,7 +222,7 @@ export async function getVehiclesByBrand(brand: string): Promise<Vehicle[]> {
  */
 export async function getVehiclesByModel(
   brand: string,
-  modelAliases: string[],
+  modelAliases: readonly string[],
 ): Promise<Vehicle[]> {
   if (!hasDatabase()) { warnNoDB('getVehiclesByModel'); return []; }
   try {
@@ -235,6 +242,95 @@ export async function getVehiclesByModel(
   } catch (err) {
     console.warn('[DB] getVehiclesByModel failed:', err instanceof Error ? err.message : String(err));
     return [];
+  }
+}
+
+export const ACTIVE_CATEGORY_SILOS_TAG = 'active-category-silos' as const;
+export const ACTIVE_CATEGORY_SILOS_REVALIDATE_SECONDS = 300;
+
+async function fetchActiveVehicleBrandModelsFromDb(): Promise<CategoryVehicleCandidate[]> {
+  if (!hasDatabase()) {
+    throw new Error('DATABASE_URL is not configured for active category resolution.');
+  }
+  return prisma.vehicle.findMany({
+    where: { status: 'AVAILABLE' },
+    select: {
+      brand: true,
+      model: true,
+      status: true,
+    },
+  });
+}
+
+const getCachedActiveVehicleBrandModels = unstable_cache(
+  fetchActiveVehicleBrandModelsFromDb,
+  ['active-category-silos'],
+  {
+    revalidate: ACTIVE_CATEGORY_SILOS_REVALIDATE_SECONDS,
+    tags: [ACTIVE_CATEGORY_SILOS_TAG],
+  },
+);
+
+export interface ActiveCategorySilosResult extends ActiveCategorySilos {
+  readonly degraded: boolean;
+}
+
+async function readActiveVehicleBrandModels(): Promise<readonly CategoryVehicleCandidate[]> {
+  try {
+    return await getCachedActiveVehicleBrandModels();
+  } catch (err) {
+    // Outside Next.js server runtime (e.g. `node --test` component tests),
+    // `incrementalCache` is not mounted; execute the underlying Prisma query directly.
+    if (err instanceof Error && err.message.includes('incrementalCache missing')) {
+      return fetchActiveVehicleBrandModelsFromDb();
+    }
+    throw err;
+  }
+}
+
+/**
+ * Resolves active brand and model SEO categories using a single lightweight cached query.
+ * - Cached via `unstable_cache` (5-minute fallback TTL + immediate on-demand invalidation
+ *   via `ACTIVE_CATEGORY_SILOS_TAG`), avoiding per-link queries and keeping page rendering modes intact.
+ * - Never caches or treats database query errors as confirmed empty inventory (`degraded: true`
+ *   preserves all registered category links on error).
+ */
+export async function getActiveCategorySilos(deps?: {
+  readonly fetchActiveVehicles?: () => Promise<readonly CategoryVehicleCandidate[]>;
+}): Promise<ActiveCategorySilosResult> {
+  try {
+    const rows = deps?.fetchActiveVehicles
+      ? await deps.fetchActiveVehicles()
+      : await readActiveVehicleBrandModels();
+    return {
+      ...computeActiveCategorySilos(rows),
+      degraded: false,
+    };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message.replace(/npg_\S+/g, '***') : String(err);
+    console.warn('[DB] getActiveCategorySilos failed (falling back to registered silos):', msg);
+    return {
+      ...getAllRegisteredCategorySilos(),
+      degraded: true,
+    };
+  }
+}
+
+/**
+ * Revalidates cached category link availability and ISR brand/model category pages
+ * immediately when a vehicle is published, sold, hidden/deactivated, edited, or deleted.
+ */
+export function revalidateVehicleCategoryCaches(vehicleSlug?: string): void {
+  try {
+    revalidateTag(ACTIVE_CATEGORY_SILOS_TAG, { expire: 0 });
+    revalidatePath('/[locale]/cars/[brand]', 'page');
+    revalidatePath('/[locale]/model/[slug]', 'page');
+    revalidatePath('/sr/inventory');
+    if (vehicleSlug) {
+      revalidatePath(`/sr/vehicle/${vehicleSlug}`);
+    }
+  } catch {
+    // Safe no-op outside Next.js request/action runtime (e.g. unit tests)
   }
 }
 

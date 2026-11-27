@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { updateVehicle, deleteVehicle, syncVehicleMedia, syncVehicleVideos, type VideoSyncInput } from '@/lib/db/vehicles';
+import {
+  updateVehicle,
+  deleteVehicle,
+  syncVehicleMedia,
+  syncVehicleVideos,
+  revalidateVehicleCategoryCaches,
+  type VideoSyncInput,
+} from '@/lib/db/vehicles';
 import type { VehicleStatus } from '@/types/vehicle';
 
 /** Prisma error code lives on the error as `.code`. */
@@ -143,9 +150,9 @@ export async function PUT(
       void syncVehicleVideos(id, parseVideosPayload(body.videos));
     }
 
-    // Flush SSG cache for vehicle detail pages
+    // Flush SSG/ISR cache for vehicle detail, category silos, inventory, and sitemap
+    revalidateVehicleCategoryCaches(updated.slug);
     revalidatePath(`/sr/vehicle/${updated.slug}`);
-    // Also flush inventory and sitemap so counts/statuses/lastmod stay current
     revalidatePath('/sr/inventory');
     revalidatePath('/sitemap.xml');
 
@@ -191,6 +198,7 @@ export async function DELETE(
     }
 
     await deleteVehicle(id);
+    revalidateVehicleCategoryCaches();
     try { revalidatePath('/sitemap.xml'); } catch { /* unit test context */ }
     return NextResponse.json({ success: true });
   } catch (err) {

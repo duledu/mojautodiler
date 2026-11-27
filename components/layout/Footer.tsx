@@ -10,15 +10,28 @@ import {
   getCarVerticalFooterUrl,
 } from '@/lib/affiliate/carvertical';
 import { FOOTER_PLATFORM_DESCRIPTION } from '@/lib/legal/responsibility-disclaimer';
-import { BRAND_SILOS, MODEL_SILOS } from '@/lib/seo/silos';
+import {
+  BRAND_SILOS,
+  MODEL_SILOS,
+  type BrandSiloRef,
+  type ModelSiloRef,
+} from '@/lib/seo/silos';
 
 interface FooterProps {
   readonly locale: Locale;
   readonly t: TranslationKeys;
   readonly dealer: DealerInfo;
+  readonly activeBrands?: readonly BrandSiloRef[];
+  readonly activeModels?: readonly ModelSiloRef[];
 }
 
-export default function Footer({ locale, t, dealer }: FooterProps) {
+export default function Footer({
+  locale,
+  t,
+  dealer,
+  activeBrands = BRAND_SILOS,
+  activeModels = MODEL_SILOS,
+}: FooterProps) {
   const links = [
     { href: `/${locale}`, label: t.nav.home },
     { href: `/${locale}/inventory`, label: t.nav.inventory },
@@ -145,47 +158,51 @@ export default function Footer({ locale, t, dealer }: FooterProps) {
           className="mt-12 border-t border-[var(--color-border)] pt-8"
         >
           <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-3">
-            <div>
-              <h4
-                className="mb-4 text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-text)]"
-                style={{ fontFamily: 'var(--font-display)' }}
-              >
-                {locale === 'sq' ? 'Automjete sipas markës' : 'Polovni automobili po markama'}
-              </h4>
-              <ul className="flex flex-wrap gap-x-4 gap-y-2 text-xs sm:flex-col sm:gap-y-2.5">
-                {BRAND_SILOS.map((brand) => (
-                  <li key={brand.slug}>
-                    <Link
-                      href={`/${locale}/cars/${brand.slug}`}
-                      className="text-[var(--color-text-muted)] transition-colors hover:text-[var(--accent-dark)]"
-                    >
-                      {locale === 'sq' ? `Automjete ${brand.displayName}` : `Polovni ${brand.displayName}`}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {activeBrands.length > 0 && (
+              <div>
+                <h4
+                  className="mb-4 text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-text)]"
+                  style={{ fontFamily: 'var(--font-display)' }}
+                >
+                  {locale === 'sq' ? 'Automjete sipas markës' : 'Polovni automobili po markama'}
+                </h4>
+                <ul className="flex flex-wrap gap-x-4 gap-y-2 text-xs sm:flex-col sm:gap-y-2.5">
+                  {activeBrands.map((brand) => (
+                    <li key={brand.slug}>
+                      <Link
+                        href={`/${locale}/cars/${brand.slug}`}
+                        className="text-[var(--color-text-muted)] transition-colors hover:text-[var(--accent-dark)]"
+                      >
+                        {locale === 'sq' ? `Automjete ${brand.displayName}` : `Polovni ${brand.displayName}`}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
-            <div>
-              <h4
-                className="mb-4 text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-text)]"
-                style={{ fontFamily: 'var(--font-display)' }}
-              >
-                {locale === 'sq' ? 'Modele të njohura' : 'Popularni modeli automobila'}
-              </h4>
-              <ul className="flex flex-wrap gap-x-4 gap-y-2 text-xs sm:flex-col sm:gap-y-2.5">
-                {MODEL_SILOS.map((model) => (
-                  <li key={model.slug}>
-                    <Link
-                      href={`/${locale}/model/${model.slug}`}
-                      className="text-[var(--color-text-muted)] transition-colors hover:text-[var(--accent-dark)]"
-                    >
-                      {locale === 'sq' ? `Automjete ${model.fullName}` : `Polovni ${model.fullName}`}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {activeModels.length > 0 && (
+              <div>
+                <h4
+                  className="mb-4 text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-text)]"
+                  style={{ fontFamily: 'var(--font-display)' }}
+                >
+                  {locale === 'sq' ? 'Modele të njohura' : 'Popularni modeli automobila'}
+                </h4>
+                <ul className="flex flex-wrap gap-x-4 gap-y-2 text-xs sm:flex-col sm:gap-y-2.5">
+                  {activeModels.map((model) => (
+                    <li key={model.slug}>
+                      <Link
+                        href={`/${locale}/model/${model.slug}`}
+                        className="text-[var(--color-text-muted)] transition-colors hover:text-[var(--accent-dark)]"
+                      >
+                        {locale === 'sq' ? `Automjete ${model.fullName}` : `Polovni ${model.fullName}`}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             <div>
               <h4

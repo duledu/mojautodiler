@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { isValidLocale, getTranslations } from '@/lib/i18n';
 import { getDealerSettings } from '@/lib/db/settings';
+import { getActiveCategorySilos } from '@/lib/db/vehicles';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import LocaleChrome from '@/components/layout/LocaleChrome';
@@ -26,13 +27,24 @@ export default async function LocaleLayout({
   if (locale !== 'sr' || !isValidLocale(locale)) notFound();
 
   const t = getTranslations(locale);
-  const dealer = await getDealerSettings();
+  const [dealer, activeCategories] = await Promise.all([
+    getDealerSettings(),
+    getActiveCategorySilos(),
+  ]);
 
   return (
     <LocaleChrome
       locale={locale}
       header={<Header locale={locale} t={t} dealer={dealer} />}
-      footer={<Footer locale={locale} t={t} dealer={dealer} />}
+      footer={
+        <Footer
+          locale={locale}
+          t={t}
+          dealer={dealer}
+          activeBrands={activeCategories.brands}
+          activeModels={activeCategories.models}
+        />
+      }
     >
       {children}
     </LocaleChrome>

@@ -8,6 +8,7 @@ import BreadcrumbJsonLd from '@/components/seo/BreadcrumbJsonLd';
 import ModelSiloJsonLd from '@/components/seo/ModelSiloJsonLd';
 import Reveal from '@/components/ui/Reveal';
 import {
+  MODEL_CATEGORY_ALIASES,
   getBreadcrumbLabels,
   getModelsForBrand,
   type BrandSiloSlug,
@@ -50,7 +51,7 @@ interface ModelDef {
   readonly displayName:  string;
   readonly brandDisplay: string;
   readonly dbBrand:      string;
-  readonly modelAliases: string[];
+  readonly modelAliases: readonly string[];
   readonly brandSlug:    string;
   readonly sr:           ModelLocaleContent;
   readonly sq:           ModelLocaleContent;
@@ -63,7 +64,7 @@ const MODELS: Record<ModelSlug, ModelDef> = {
     displayName:  'Golf 7',
     brandDisplay: 'Volkswagen',
     dbBrand:      'Volkswagen',
-    modelAliases: ['Golf 7', 'Golf VII'],
+    modelAliases: MODEL_CATEGORY_ALIASES['golf-7'],
     brandSlug:    'volkswagen',
     sr: {
       metaTitle:    'Polovni Volkswagen Golf 7 iz uvoza | Moj Auto Diler',
@@ -139,7 +140,7 @@ const MODELS: Record<ModelSlug, ModelDef> = {
     displayName:  'Golf 6',
     brandDisplay: 'Volkswagen',
     dbBrand:      'Volkswagen',
-    modelAliases: ['Golf 6', 'Golf VI'],
+    modelAliases: MODEL_CATEGORY_ALIASES['golf-6'],
     brandSlug:    'volkswagen',
     sr: {
       metaTitle:    'Polovni Volkswagen Golf 6 iz uvoza | Moj Auto Diler',
@@ -215,7 +216,7 @@ const MODELS: Record<ModelSlug, ModelDef> = {
     displayName:  'Tiguan',
     brandDisplay: 'Volkswagen',
     dbBrand:      'Volkswagen',
-    modelAliases: ['Tiguan'],
+    modelAliases: MODEL_CATEGORY_ALIASES.tiguan,
     brandSlug:    'volkswagen',
     sr: {
       metaTitle:    'Polovni Volkswagen Tiguan iz uvoza | Moj Auto Diler',
@@ -291,7 +292,7 @@ const MODELS: Record<ModelSlug, ModelDef> = {
     displayName:  'Octavia',
     brandDisplay: 'Škoda',
     dbBrand:      'Škoda',
-    modelAliases: ['Octavia'],
+    modelAliases: MODEL_CATEGORY_ALIASES.octavia,
     brandSlug:    'skoda',
     sr: {
       metaTitle:    'Polovna Škoda Octavia iz uvoza | Moj Auto Diler',
@@ -367,7 +368,7 @@ const MODELS: Record<ModelSlug, ModelDef> = {
     displayName:  'A4',
     brandDisplay: 'Audi',
     dbBrand:      'Audi',
-    modelAliases: ['A4'],
+    modelAliases: MODEL_CATEGORY_ALIASES['audi-a4'],
     brandSlug:    'audi',
     sr: {
       metaTitle:    'Polovni Audi A4 iz uvoza | Moj Auto Diler',
@@ -443,7 +444,7 @@ const MODELS: Record<ModelSlug, ModelDef> = {
     displayName:  'X3',
     brandDisplay: 'BMW',
     dbBrand:      'BMW',
-    modelAliases: ['X3'],
+    modelAliases: MODEL_CATEGORY_ALIASES['bmw-x3'],
     brandSlug:    'bmw',
     sr: {
       metaTitle:    'Polovni BMW X3 iz uvoza | Moj Auto Diler',
@@ -519,7 +520,7 @@ const MODELS: Record<ModelSlug, ModelDef> = {
     displayName:  'X5',
     brandDisplay: 'BMW',
     dbBrand:      'BMW',
-    modelAliases: ['X5', 'X5 xDrive30d', 'G05', 'F15'],
+    modelAliases: MODEL_CATEGORY_ALIASES['bmw-x5'],
     brandSlug:    'bmw',
     sr: {
       metaTitle:    'Polovni BMW X5 iz uvoza | Moj Auto Diler',
@@ -573,29 +574,7 @@ const MODELS: Record<ModelSlug, ModelDef> = {
     displayName:  'Serija 5',
     brandDisplay: 'BMW',
     dbBrand:      'BMW',
-    modelAliases: [
-      'Serija 5',
-      '520d',
-      '520d xDrive',
-      '530d',
-      '530d xDrive',
-      '530',
-      '520',
-      '525',
-      '525d',
-      '535',
-      '535d',
-      '540',
-      '540d',
-      '540i',
-      '550',
-      '550i',
-      'M5',
-      'G30',
-      'G31',
-      'F10',
-      'F11',
-    ],
+    modelAliases: MODEL_CATEGORY_ALIASES['bmw-serija-5'],
     brandSlug:    'bmw',
     sr: {
       metaTitle:    'Polovni BMW Serija 5 iz uvoza | Moj Auto Diler',
@@ -657,7 +636,7 @@ const MODELS: Record<ModelSlug, ModelDef> = {
     displayName:  'A6',
     brandDisplay: 'Audi',
     dbBrand:      'Audi',
-    modelAliases: ['A6', 'A6 45 TFSI', 'C8', 'C7'],
+    modelAliases: MODEL_CATEGORY_ALIASES['audi-a6'],
     brandSlug:    'audi',
     sr: {
       metaTitle:    'Polovni Audi A6 iz uvoza | Moj Auto Diler',
@@ -711,7 +690,7 @@ const MODELS: Record<ModelSlug, ModelDef> = {
     displayName:  'Golf 8',
     brandDisplay: 'Volkswagen',
     dbBrand:      'Volkswagen',
-    modelAliases: ['Golf 8', 'Golf VIII', 'Golf GTI', 'Mk8'],
+    modelAliases: MODEL_CATEGORY_ALIASES['golf-8'],
     brandSlug:    'volkswagen',
     sr: {
       metaTitle:    'Polovni Volkswagen Golf 8 iz uvoza | Moj Auto Diler',

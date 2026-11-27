@@ -64,7 +64,7 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
-        source: '/sq/cars/:brand(bmw|audi|volkswagen|mercedes-benz|skoda|porsche|tesla|land-rover)',
+        source: '/sq/cars/:brand(bmw|audi|volkswagen|mercedes-benz|skoda|porsche|tesla|land-rover|opel)',
         destination: '/sr/cars/:brand',
         permanent: true,
       },
