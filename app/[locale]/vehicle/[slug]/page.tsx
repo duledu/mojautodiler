@@ -31,7 +31,16 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { slug, locale } = await params;
   const [vehicle, dealer] = await Promise.all([getPublicVehicleBySlug(slug), getDealerSettings()]);
-  if (!vehicle) return {};
+  if (!vehicle) {
+    return {
+      title: 'Oglas nije pronađen',
+      robots: {
+        index: false,
+        follow: false,
+        googleBot: { index: false, follow: false },
+      },
+    };
+  }
 
   const isSold      = vehicle.status === 'sold';
   const seo         = generateVehicleSeo(vehicle, (locale === 'sq' ? 'sq' : 'sr'));

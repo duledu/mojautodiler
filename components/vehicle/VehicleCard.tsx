@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, Building2, Calendar, Camera, Fuel, Gauge, MapPin, Settings2, ShieldCheck } from 'lucide-react';
+import { Building2, Calendar, Camera, Fuel, Gauge, MapPin, Settings2, ShieldCheck } from 'lucide-react';
 import { Vehicle } from '@/types/vehicle';
 import { Locale, TranslationKeys } from '@/lib/i18n';
 import { cn, formatMileage, formatPrice, formatVatMode } from '@/lib/utils';
@@ -8,6 +8,7 @@ import PremiumVehiclePlaceholder from '@/components/vehicle/PremiumVehiclePlaceh
 import { getVehicleTrustBadges, TrustBadges } from '@/components/vehicle/TrustBadges';
 import VehicleStatusBadge from '@/components/vehicle/VehicleStatusBadge';
 import { VehiclePromoBadge } from '@/components/vehicle/VehiclePromoBadge';
+import VehicleCardLinkCta from '@/components/vehicle/VehicleCardLinkCta';
 
 interface VehicleCardProps {
   readonly vehicle: Vehicle;
@@ -119,13 +120,10 @@ export default function VehicleCard({ vehicle, locale, t }: VehicleCardProps) {
               <MapPin size={11} className="shrink-0" />
               <span className="truncate">{vehicle.dealer?.location || cardCopy.defaultLocation}</span>
             </div>
-            <span
-              className="inline-flex items-center gap-1 text-xs font-bold text-[var(--accent-dark)]"
-              style={{ fontFamily: 'var(--font-display)' }}
-            >
-              {cardCopy.view}
-              <ArrowRight size={12} className="transition-transform group-hover:translate-x-0.5" />
-            </span>
+            <VehicleCardLinkCta
+              label={cardCopy.view}
+              pendingLabel={locale === 'sq' ? 'Duke hapur…' : 'Otvaram…'}
+            />
           </div>
         </div>
       </article>
