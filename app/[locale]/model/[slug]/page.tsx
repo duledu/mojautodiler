@@ -682,10 +682,7 @@ export const MODEL_SLUGS = Object.keys(MODELS) as ModelSlug[];
 // ── Static params ─────────────────────────────────────────────────────────────
 
 export function generateStaticParams() {
-  return MODEL_SLUGS.flatMap((slug) => [
-    { locale: 'sr', slug },
-    { locale: 'sq', slug },
-  ]);
+  return MODEL_SLUGS.map((slug) => ({ locale: 'sr', slug }));
 }
 
 // ── Metadata ──────────────────────────────────────────────────────────────────
@@ -711,11 +708,6 @@ export async function generateMetadata(
     },
     alternates: {
       canonical,
-      languages: {
-        sr: `/sr/model/${slug}`,
-        sq: `/sq/model/${slug}`,
-        'x-default': `/sr/model/${slug}`,
-      },
     },
     openGraph: {
       type:        'website',

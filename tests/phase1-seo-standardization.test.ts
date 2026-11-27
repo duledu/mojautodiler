@@ -79,10 +79,9 @@ describe('Phase 1 Technical SEO — Robots.txt & Sitemap Source Guards', () => {
     assert.ok(robots.includes('Sitemap: https://www.mojautodiler.com/sitemap.xml'));
     assert.equal(robots.includes('mojautodiler.rs'), false);
     assert.ok(robots.includes('Disallow: /sr/admin/'));
-    assert.ok(robots.includes('Disallow: /sq/admin/'));
     assert.ok(robots.includes('Disallow: /api/'));
     assert.ok(robots.includes('Disallow: /sr/inventory?*'));
-    assert.ok(robots.includes('Disallow: /sq/inventory?*'));
+    assert.equal(robots.includes('Disallow: /sq/inventory?*'), false);
   });
 
   test('active production code has no mojautodiler.rs references in SEO core files', () => {

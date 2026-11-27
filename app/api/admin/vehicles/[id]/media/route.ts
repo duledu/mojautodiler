@@ -10,7 +10,6 @@ async function revalidateVehicle(vehicleId: string) {
   const v = await prisma.vehicle.findUnique({ where: { id: vehicleId }, select: { slug: true } });
   if (v?.slug) {
     revalidatePath(`/sr/vehicle/${v.slug}`);
-    revalidatePath(`/sq/vehicle/${v.slug}`);
   }
 }
 

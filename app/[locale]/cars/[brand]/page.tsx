@@ -502,10 +502,7 @@ export const BRAND_SLUGS = Object.keys(BRANDS) as BrandSlug[];
 // ── Static params — pre-generates all brand+locale combinations at build ──────
 
 export function generateStaticParams() {
-  return BRAND_SLUGS.flatMap((brand) => [
-    { locale: 'sr', brand },
-    { locale: 'sq', brand },
-  ]);
+  return BRAND_SLUGS.map((brand) => ({ locale: 'sr', brand }));
 }
 
 // ── Metadata ──────────────────────────────────────────────────────────────────
@@ -531,11 +528,6 @@ export async function generateMetadata(
     },
     alternates: {
       canonical,
-      languages: {
-        sr: `/sr/cars/${brand}`,
-        sq: `/sq/cars/${brand}`,
-        'x-default': `/sr/cars/${brand}`,
-      },
     },
     openGraph: {
       type:        'website',

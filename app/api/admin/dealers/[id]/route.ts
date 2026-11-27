@@ -39,7 +39,6 @@ export async function PUT(
     try {
       revalidatePath('/sitemap.xml');
       revalidatePath('/sr/inventory');
-      revalidatePath('/sq/inventory');
     } catch { /* unit test context */ }
 
     return NextResponse.json({ success: true, dealer });

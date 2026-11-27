@@ -52,7 +52,6 @@ export async function generateMetadata(
     },
     alternates: {
       canonical: `/${locale}`,
-      languages: { sr: '/sr', sq: '/sq', 'x-default': '/sr' },
     },
     openGraph: {
       type: 'website',

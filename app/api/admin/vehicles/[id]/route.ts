@@ -143,12 +143,10 @@ export async function PUT(
       void syncVehicleVideos(id, parseVideosPayload(body.videos));
     }
 
-    // Flush SSG cache for vehicle detail pages (both locales)
+    // Flush SSG cache for vehicle detail pages
     revalidatePath(`/sr/vehicle/${updated.slug}`);
-    revalidatePath(`/sq/vehicle/${updated.slug}`);
     // Also flush inventory and sitemap so counts/statuses/lastmod stay current
     revalidatePath('/sr/inventory');
-    revalidatePath('/sq/inventory');
     revalidatePath('/sitemap.xml');
 
     return NextResponse.json({ success: true, vehicle: updated });

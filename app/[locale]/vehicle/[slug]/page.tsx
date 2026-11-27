@@ -23,10 +23,7 @@ const SITE = SITE_URL;
 
 export async function generateStaticParams() {
   const slugs = await getActiveVehicleSlugs();
-  return slugs.flatMap((v) => [
-    { locale: 'sr', slug: v.slug },
-    { locale: 'sq', slug: v.slug },
-  ]);
+  return slugs.map((v) => ({ locale: 'sr', slug: v.slug }));
 }
 
 export async function generateMetadata(
@@ -63,11 +60,6 @@ export async function generateMetadata(
 
     alternates: {
       canonical: canonicalPath,
-      languages: {
-        sr: `/sr/vehicle/${encodedSlug}`,
-        sq: `/sq/vehicle/${encodedSlug}`,
-        'x-default': `/sr/vehicle/${encodedSlug}`,
-      },
     },
 
     openGraph: {

@@ -86,7 +86,7 @@ describe('Phase 2 Technical SEO — Organization & WebSite JSON-LD', () => {
     assert.equal(site['@id'], 'https://www.mojautodiler.com/#website');
     assert.equal(site.url, 'https://www.mojautodiler.com');
     assert.equal('potentialAction' in site, false);
-    assert.deepEqual(site.inLanguage, ['sr', 'sq']);
+    assert.deepEqual(site.inLanguage, ['sr']);
     assert.deepEqual(site.publisher, { '@id': 'https://www.mojautodiler.com/#organization' });
   });
 });

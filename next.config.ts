@@ -45,9 +45,32 @@ const nextConfig: NextConfig = {
 
   async redirects() {
     return [
+      // ── Permanent retirement of Albanian (/sq) version -> Serbian (/sr) equivalents ──
+      // Order matters: specific /sq/kako-kupiti must match before /:locale/kako-kupiti
+      // to guarantee single-hop 308 redirects with zero redirect chains.
       {
-        source: '/:locale/kako-kupiti',
-        destination: '/:locale/podela-odgovornosti',
+        source: '/sq',
+        destination: '/sr',
+        permanent: true,
+      },
+      {
+        source: '/sq/inventory',
+        destination: '/sr/inventory',
+        permanent: true,
+      },
+      {
+        source: '/sq/contact',
+        destination: '/sr/contact',
+        permanent: true,
+      },
+      {
+        source: '/sq/cars/:brand(bmw|audi|volkswagen|mercedes-benz|skoda|porsche|tesla|land-rover)',
+        destination: '/sr/cars/:brand',
+        permanent: true,
+      },
+      {
+        source: '/sq/model/:slug(bmw-x5|bmw-x3|audi-a6|audi-a4|golf-8|golf-7|golf-6|tiguan|octavia)',
+        destination: '/sr/model/:slug',
         permanent: true,
       },
       {
@@ -56,8 +79,39 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
-        source: '/sq/blog/:path*',
-        destination: '/sr/blog/:path*',
+        source: '/sq/podela-odgovornosti',
+        destination: '/sr/podela-odgovornosti',
+        permanent: true,
+      },
+      {
+        source: '/sq/kako-kupiti',
+        destination: '/sr/podela-odgovornosti',
+        permanent: true,
+      },
+      {
+        source: '/sq/carvertical-dileri',
+        destination: '/sr/carvertical-dileri',
+        permanent: true,
+      },
+      {
+        source: '/sq/carvertical-za-dilere',
+        destination: '/sr/carvertical-za-dilere',
+        permanent: true,
+      },
+      {
+        source: '/sq/admin',
+        destination: '/sr/admin',
+        permanent: true,
+      },
+      {
+        source: '/sq/admin/:path*',
+        destination: '/sr/admin/:path*',
+        permanent: true,
+      },
+      // ── Existing intentional Serbian redirect ──
+      {
+        source: '/sr/kako-kupiti',
+        destination: '/sr/podela-odgovornosti',
         permanent: true,
       },
     ];

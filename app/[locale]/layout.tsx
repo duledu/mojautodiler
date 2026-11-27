@@ -8,21 +8,10 @@ import LocaleChrome from '@/components/layout/LocaleChrome';
 
 export const dynamic = 'force-dynamic';
 
-// Propagates correct hreflang alternates for every page within this locale segment.
-// Individual pages override title/description; this provides the language alternates baseline.
-export async function generateMetadata(
-  { params }: { readonly params: Promise<{ locale: string }> }
-): Promise<Metadata> {
-  const { locale } = await params;
+// Single-language Serbian platform (Albanian /sq version retired via permanent 308 redirects).
+export async function generateMetadata(): Promise<Metadata> {
   return {
-    alternates: {
-      languages: { sr: '/sr', sq: '/sq', 'x-default': '/sr' },
-    },
-    ...(locale === 'sq' ? {
-      openGraph: { locale: 'sq_AL' },
-    } : {
-      openGraph: { locale: 'sr_RS' },
-    }),
+    openGraph: { locale: 'sr_RS' },
   };
 }
 
@@ -34,7 +23,7 @@ export default async function LocaleLayout({
   readonly params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  if (!isValidLocale(locale)) notFound();
+  if (locale !== 'sr' || !isValidLocale(locale)) notFound();
 
   const t = getTranslations(locale);
   const dealer = await getDealerSettings();

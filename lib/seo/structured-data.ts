@@ -94,7 +94,7 @@ export function buildOrganizationJsonLd(
               ...(dealer.phone?.trim() ? { telephone: dealer.phone.trim() } : {}),
               ...(dealer.email?.trim() ? { email: dealer.email.trim() } : {}),
               areaServed: 'RS',
-              availableLanguage: ['sr', 'sq'],
+              availableLanguage: ['sr'],
             },
           ],
         }
@@ -135,7 +135,7 @@ export function buildWebSiteJsonLd(
     url: baseUrl,
     description:
       'Informativna i oglasna platforma za pregled ponude polovnih automobila u Srbiji.',
-    inLanguage: ['sr', 'sq'],
+    inLanguage: ['sr'],
     publisher: {
       '@id': `${baseUrl}/#organization`,
     },

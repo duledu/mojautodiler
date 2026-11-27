@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
-import { Locale, localeNames, locales, TranslationKeys } from '@/lib/i18n';
+import { Locale, TranslationKeys } from '@/lib/i18n';
 import type { DealerInfo } from '@/lib/db/mappers';
 import { cn } from '@/lib/utils';
 
@@ -25,12 +25,6 @@ export default function Header({ locale, t, dealer }: HeaderProps) {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  const getLocalePath = (newLocale: Locale) => {
-    const segments = pathname.split('/');
-    segments[1] = newLocale;
-    return segments.join('/');
-  };
 
   const navLinks = [
     { href: `/${locale}`, label: t.nav.home },
@@ -102,25 +96,6 @@ export default function Header({ locale, t, dealer }: HeaderProps) {
 
         {/* Right side */}
         <div className="hidden md:flex items-center gap-3">
-          {/* Language switcher */}
-          <div className="hidden items-center gap-0.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] p-0.5">
-            {locales.map((l) => (
-              <Link
-                key={l}
-                href={getLocalePath(l)}
-                className={cn(
-                  'text-xs px-2.5 py-1.5 rounded-md transition-all duration-300 ease-[var(--ease-luxury)] font-semibold',
-                  l === locale
-                    ? 'bg-[var(--accent)] text-white shadow-sm'
-                    : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'
-                )}
-                style={{ fontFamily: 'var(--font-display)' }}
-              >
-                {l.toUpperCase()}
-              </Link>
-            ))}
-          </div>
-
           <Link
             href="/sr/inventory"
             className="btn-gold flex items-center gap-2 px-4 py-2 rounded-xl text-sm"
@@ -176,21 +151,6 @@ export default function Header({ locale, t, dealer }: HeaderProps) {
                 </Link>
               );
             })}
-            <div className="hidden pt-3 border-t border-[var(--color-border)] items-center gap-2">
-              {locales.map((l) => (
-                <Link
-                  key={l}
-                  href={getLocalePath(l)}
-                  className={cn(
-                    'text-xs px-3 py-1.5 rounded-lg font-semibold',
-                    l === locale ? 'bg-[var(--accent)] text-white' : 'bg-[var(--color-surface-2)] text-[var(--color-text-muted)]'
-                  )}
-                  style={{ fontFamily: 'var(--font-display)' }}
-                >
-                  {localeNames[l]}
-                </Link>
-              ))}
-            </div>
             <Link
               href="/sr/inventory"
               onClick={() => setIsOpen(false)}

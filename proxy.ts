@@ -8,7 +8,7 @@ import {
   LOCK_COOKIE,
 } from '@/lib/site-lock';
 
-const LOCALES = ['sr', 'sq'] as const;
+const LOCALES = ['sr'] as const;
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;

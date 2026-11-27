@@ -25,9 +25,6 @@ export async function generateMetadata({
     },
     alternates: {
       canonical: LEGAL_RESPONSIBILITY_CANONICAL_PATH,
-      languages: {
-        sr: LEGAL_RESPONSIBILITY_CANONICAL_PATH,
-      },
     },
     openGraph: {
       type: 'website',

@@ -33,10 +33,6 @@ export async function generateMetadata(
     robots: { index: true, follow: true },
     alternates: {
       canonical: `/${locale}/carvertical-dileri`,
-      languages: {
-        sr: '/sr/carvertical-dileri',
-        sq: '/sq/carvertical-dileri',
-      },
     },
   };
 }

@@ -21,11 +21,6 @@ export async function generateMetadata(
       : 'Pošaljite poruku ili nas pozovite za sva pitanja oko premium vozila, kupovine i rezervacije. Moj Auto Diler, Srbija.',
     alternates: {
       canonical: `/${locale}/contact`,
-      languages: {
-        sr: '/sr/contact',
-        sq: '/sq/contact',
-        'x-default': '/sr/contact',
-      },
     },
     openGraph: {
       type: 'website',

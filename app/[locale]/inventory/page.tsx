@@ -29,11 +29,6 @@ export async function generateMetadata(
     description,
     alternates: {
       canonical: `/${locale}/inventory`,
-      languages: {
-        sr: '/sr/inventory',
-        sq: '/sq/inventory',
-        'x-default': '/sr/inventory',
-      },
     },
     openGraph: {
       type: 'website',

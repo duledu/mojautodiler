@@ -5,7 +5,7 @@ import { buildBlogSitemapEntries } from '@/lib/seo/blog-seo';
 import { BRAND_SILOS, MODEL_SILOS } from '@/lib/seo/silos';
 import { SITE_URL } from '@/lib/site-url';
 
-const LOCALES = ['sr', 'sq'] as const;
+const LOCALES = ['sr'] as const;
 const VALID_SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/i;
 
 export interface SitemapVehicleRecord {
@@ -62,15 +62,13 @@ function formatW3cDate(value?: string | Date): string | null {
  * time cannot be guaranteed across hard vehicle deletions or post withdrawals.
  */
 export function buildStaticSitemapEntries(): MetadataRoute.Sitemap {
-  const bilingualPaths = ['', '/inventory', '/contact'] as const;
+  const paths = ['', '/inventory', '/contact'] as const;
 
-  const bilingualEntries: MetadataRoute.Sitemap = bilingualPaths.flatMap((path) => {
-    const alternates = buildBilingualAlternates(path);
-    return LOCALES.map((locale) => ({
+  const mainEntries: MetadataRoute.Sitemap = paths.flatMap((path) =>
+    LOCALES.map((locale) => ({
       url: `${SITE_URL}/${locale}${path}`,
-      alternates,
-    }));
-  });
+    })),
+  );
 
   const legalEntries: MetadataRoute.Sitemap = [
     {
@@ -78,7 +76,7 @@ export function buildStaticSitemapEntries(): MetadataRoute.Sitemap {
     },
   ];
 
-  return [...bilingualEntries, ...legalEntries];
+  return [...mainEntries, ...legalEntries];
 }
 
 /**
@@ -89,19 +87,15 @@ export function buildStaticSitemapEntries(): MetadataRoute.Sitemap {
 export function buildCategorySitemapEntries(): MetadataRoute.Sitemap {
   const brandEntries: MetadataRoute.Sitemap = BRAND_SILOS.flatMap((brand) => {
     const path = `/cars/${brand.slug}`;
-    const alternates = buildBilingualAlternates(path);
     return LOCALES.map((locale) => ({
       url: `${SITE_URL}/${locale}${path}`,
-      alternates,
     }));
   });
 
   const modelEntries: MetadataRoute.Sitemap = MODEL_SILOS.flatMap((model) => {
     const path = `/model/${model.slug}`;
-    const alternates = buildBilingualAlternates(path);
     return LOCALES.map((locale) => ({
       url: `${SITE_URL}/${locale}${path}`,
-      alternates,
     }));
   });
 
@@ -119,7 +113,6 @@ export function buildVehicleSitemapEntries(
     .filter((v) => isValidSitemapSlug(v.slug))
     .flatMap((v) => {
       const path = `/vehicle/${v.slug}`;
-      const alternates = buildBilingualAlternates(path);
       const validImage = isValidAbsoluteHttpUrl(v.primaryImage)
         ? v.primaryImage.trim()
         : undefined;
@@ -127,7 +120,6 @@ export function buildVehicleSitemapEntries(
       return LOCALES.map((locale) => ({
         url: `${SITE_URL}/${locale}${path}`,
         lastModified: v.updatedAt,
-        alternates,
         ...(validImage ? { images: [validImage] } : {}),
       }));
     });
