@@ -2,7 +2,7 @@ import { SITE_URL, normalizeSiteUrl } from '@/lib/site-url';
 import type { Vehicle } from '@/types/vehicle';
 
 export type BrandSiloSlug = 'bmw' | 'audi' | 'volkswagen' | 'mercedes-benz' | 'skoda' | 'porsche' | 'tesla' | 'land-rover';
-export type ModelSiloSlug = 'golf-8' | 'golf-7' | 'golf-6' | 'tiguan' | 'octavia' | 'audi-a6' | 'audi-a4' | 'bmw-x5' | 'bmw-x3';
+export type ModelSiloSlug = 'golf-8' | 'golf-7' | 'golf-6' | 'tiguan' | 'octavia' | 'audi-a6' | 'audi-a4' | 'bmw-x5' | 'bmw-x3' | 'bmw-serija-5';
 
 export interface BrandSiloRef {
   readonly slug: BrandSiloSlug;
@@ -52,6 +52,36 @@ export const MODEL_SILOS: readonly ModelSiloRef[] = [
     brandDisplay: 'BMW',
     fullName: 'BMW X3',
     aliases: ['X3'],
+  },
+  {
+    slug: 'bmw-serija-5',
+    brandSlug: 'bmw',
+    displayName: 'Serija 5',
+    brandDisplay: 'BMW',
+    fullName: 'BMW Serija 5',
+    aliases: [
+      'Serija 5',
+      '520d',
+      '520d xDrive',
+      '530d',
+      '530d xDrive',
+      '530',
+      '520',
+      '525',
+      '525d',
+      '535',
+      '535d',
+      '540',
+      '540d',
+      '540i',
+      '550',
+      '550i',
+      'M5',
+      'G30',
+      'G31',
+      'F10',
+      'F11',
+    ],
   },
   {
     slug: 'audi-a6',

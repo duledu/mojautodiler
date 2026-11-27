@@ -69,7 +69,7 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
-        source: '/sq/model/:slug(bmw-x5|bmw-x3|audi-a6|audi-a4|golf-8|golf-7|golf-6|tiguan|octavia)',
+        source: '/sq/model/:slug(bmw-x5|bmw-x3|bmw-serija-5|audi-a6|audi-a4|golf-8|golf-7|golf-6|tiguan|octavia)',
         destination: '/sr/model/:slug',
         permanent: true,
       },

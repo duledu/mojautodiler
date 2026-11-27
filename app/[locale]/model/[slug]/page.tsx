@@ -31,7 +31,8 @@ type ModelSlug =
   | 'audi-a6'
   | 'audi-a4'
   | 'bmw-x5'
-  | 'bmw-x3';
+  | 'bmw-x3'
+  | 'bmw-serija-5';
 
 interface ModelLocaleContent {
   readonly metaTitle:    string;
@@ -563,6 +564,90 @@ const MODELS: Record<ModelSlug, ModelDef> = {
         {
           q: 'A është BMW X5 i përshtatshëm për rrugë të gjata?',
           a: 'Po, falë suspensionit ajror dhe izolimit akustik, BMW X5 është një nga automjetet më të rehatshme për udhëtime.',
+        },
+      ],
+    },
+  },
+
+  'bmw-serija-5': {
+    displayName:  'Serija 5',
+    brandDisplay: 'BMW',
+    dbBrand:      'BMW',
+    modelAliases: [
+      'Serija 5',
+      '520d',
+      '520d xDrive',
+      '530d',
+      '530d xDrive',
+      '530',
+      '520',
+      '525',
+      '525d',
+      '535',
+      '535d',
+      '540',
+      '540d',
+      '540i',
+      '550',
+      '550i',
+      'M5',
+      'G30',
+      'G31',
+      'F10',
+      'F11',
+    ],
+    brandSlug:    'bmw',
+    sr: {
+      metaTitle:    'Polovni BMW Serija 5 iz uvoza | Moj Auto Diler',
+      metaDesc:     'Ponuda polovnih BMW Serija 5 (G30, G31, F10, F11) automobila iz uvoza u Srbiji. Pregledajte 520d i 530d xDrive limuzine i karavane partnerskih placeva.',
+      h1:           'Polovni BMW Serija 5',
+      intro:        'BMW Serija 5 predstavlja etalon poslovne premijum limuzine i karavana. Istražite pažljivo odabrane primerke sa dvolitarskim i trolitarskim dizel motorima, xDrive pogonom i proverenom servisnom istorijom.',
+      overview:     'BMW Serija 5 (generacije F10, F11 i G30, G31) spaja izuzetnu voznu dinamiku, premijum komfor i vrhunsku zvučnu izolaciju. Uvezeni primerci iz Nemačke i Švajcarske posebno su cenjeni zbog pedantnog održavanja, bogatih paketa opreme (M Sport, Luxury Line) i dugotrajnih motora sa velikim dometom.',
+      whyBuy: [
+        'Prepoznatljiva vozna dinamika i idealan raspored mase 50:50',
+        'Izuzetno izdržljivi 2.0d (B47) i 3.0d (B57) motori sa malom potrošnjom na auto-putu',
+        'Vrhunski komfor za duga putovanja uz prtljažnik od 530 do 1.700 litara kod karavana',
+        'Visoka stabilnost cene i velika likvidnost na domaćem tržištu polovnjaka',
+      ],
+      buyerProfile: 'BMW Serija 5 je stvorena za vozače koji prelaze velike kilometraže, menadžere i porodične kupce koji ne žele kompromis između sportskog upravljanja i maksimalnog komfora.',
+      fuelInfo:     'Prosečna potrošnja 520d iznosi 5,2–6,8 L/100 km, dok snažni 530d troši 6,2–7,8 L/100 km na 100 pređenih kilometara u mešovitom ciklusu.',
+      faq: [
+        {
+          q: 'Koja je razlika između BMW Serije 5 F10 i G30?',
+          a: 'Generacija G30 (od 2017. godine) koristi CLAR platformu sa većim udelom aluminijuma, što je smanjilo masu za oko 100 kg. Donosi moderniji iDrive sistem sa ekranom osetljivim na dodir, unapređenu zvučnu izolaciju i novu generaciju B47 i B57 motora.',
+        },
+        {
+          q: 'Da li je bolji izbor 520d ili 530d?',
+          a: 'BMW 520d nudi savršen balans ekonomičnosti i performansi uz 190 KS i znatno povoljniju registraciju u Srbiji. Sa druge strane, 530d sa šestocilindarskim motorom pruža izuzetnu elastičnost, mirniji rad i superiorna međuubrzanja.',
+        },
+        {
+          q: 'Kolika je pouzdanost osmostepenog ZF automatskog menjača?',
+          a: 'Osmostepeni ZF automatski menjač važi za jedan od najpouzdanijih menjača u auto-industriji. Uz redovan servis i zamenu ulja i filtera na svakih 60.000 do 80.000 km, bez problema prelazi stotine hiljada kilometara.',
+        },
+        {
+          q: 'Da li MojAutoDiler nudi uvozne primerke BMW Serije 5 sa garancijom na kilometražu?',
+          a: 'Svi primerci u ponudi partnerskih auto-placeva poseduju dokumentovanu servisnu istoriju i transparentne podatke o pređenoj kilometraži, uz mogućnost nezavisne provere pre kupovine.',
+        },
+      ],
+    },
+    sq: {
+      metaTitle:    'Automjete të përdorura BMW Seria 5 nga importi | Moj Auto Diler',
+      metaDesc:     'Ofertë e automjeteve luksoze BMW Seria 5 (G30, F10) në Serbi me 520d dhe 530d xDrive në MojAutoDiler.',
+      h1:           'Automjete të përdorura BMW Seria 5 nga importi',
+      intro:        'Zbuloni modele cilësore BMW Seria 5 nga importi me motorë diesel efikasë dhe pajisje premium në MojAutoDiler.',
+      overview:     'BMW Seria 5 kombinon dinamikën e shkëlqyer sportive me komforin maksimal për udhëtime të gjata.',
+      whyBuy: [
+        'Dinamikë e nivelit më të lartë dhe komfor superior',
+        'Motorë diesel të qëndrueshëm 2.0d dhe 3.0d',
+        'Hapësirë e bollshme dhe izolim akustik perfekt',
+        'Kërkesë e qëndrueshme në tregun e veturave',
+      ],
+      buyerProfile: 'Zgjedhje ideale për udhëtime biznesi dhe familje që vlerësojnë cilësinë gjermane.',
+      fuelInfo:     'Konsumi mesatar: 5.2–7.5 L/100 km varësisht nga motori dhe transmisioni.',
+      faq: [
+        {
+          q: 'A është BMW Seria 5 i përshtatshëm për rrugë të gjata?',
+          a: 'Po, Seria 5 konsiderohet si një nga mjetet më të rehatshme për distanca të gjata në segmentin premium.',
         },
       ],
     },

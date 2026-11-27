@@ -20,7 +20,7 @@ describe('Commercial SEO & Google Ranking Verification', () => {
   });
 
   it('Model Silos are complete for all target models including inventory vehicles', () => {
-    const expectedModels = ['bmw-x5', 'audi-a6', 'golf-8', 'golf-7', 'octavia', 'tiguan', 'bmw-x3', 'audi-a4'];
+    const expectedModels = ['bmw-x5', 'bmw-x3', 'bmw-serija-5', 'audi-a6', 'golf-8', 'golf-7', 'octavia', 'tiguan', 'audi-a4'];
     for (const slug of expectedModels) {
       assert.ok(MODEL_SILOS.some((m) => m.slug === slug), `Missing model silo in MODEL_SILOS: ${slug}`);
       assert.ok(MODEL_SLUGS.includes(slug as any), `Missing model slug in MODEL_SLUGS: ${slug}`);
