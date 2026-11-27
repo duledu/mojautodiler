@@ -39,7 +39,7 @@ export async function generateMetadata(
     : 'Polovni automobili - Oglasi i prodaja vozila u Srbiji | MojAutoDiler';
   const description = isSq
     ? 'Gjeni automjete të përdorura në MojAutoDiler. Shfletoni njoftime aktuale, ofertën e auto-placeve dhe informacione transparente për blerje më të sigurt.'
-    : 'Pronađite polovne automobile na MojAutoDileru. Pregledajte aktuelne oglase, ponudu auto-placeva i informacije o vozilima za sigurniju kupovinu.';
+    : 'Pogledajte aktuelne oglase za polovne automobile u Srbiji. Istražite vozila iz uvoza sa partnerskih auto-placeva, uz fotografije i podatke o svakom vozilu.';
   return {
     title: { absolute: title },
     description,
@@ -75,8 +75,8 @@ const homeCopy = {
     titleLine1: 'Manje rizika.',
     titleBadge: 'VIŠE',
     titleLine2: 'poverenja.',
-    lead: 'Pažljivo odabrani polovni automobili, transparentne informacije i korisni saveti za sigurniji izbor. Pronađite vozilo koje vam odgovara.',
-    primary: 'Pregledaj vozila',
+    lead: 'Pažljivo odabrani polovni automobili iz uvoza sa partnerskih auto-placeva, transparentne informacije i korisni saveti za sigurniji izbor.',
+    primary: 'Pogledaj sve automobile',
     secondary: 'Zakazi razgledanje',
     heroNote: 'Pažljivo odabrana ponuda polovnih automobila na jednom mestu, uz informacije koje vam pomažu da donesete bolju odluku.',
     featuredLabel: 'Izdvojena ponuda',
@@ -96,9 +96,9 @@ const homeCopy = {
       ['Preporuka za proveru', 'Proverite istoriju i tehničko stanje vozila pre donošenja konačne odluke.', Wrench],
       ['Podrška do preporuke', 'Olakšavamo pronalaženje odgovarajućeg vozila i povezivanje sa prodavcem.', KeyRound],
     ],
-    featuredTitle: 'Ponuda polovnih automobila iz uvoza',
-    featuredSub: 'Istražite izdvojene polovne automobile iz ponude naših partnerskih auto-placeva i pronađite model koji odgovara vašim potrebama i budžetu.',
-    viewAll: 'Pogledaj celu ponudu',
+    featuredTitle: 'Polovni automobili',
+    featuredSub: 'Pažljivo odabrana ponuda polovnih automobila iz uvoza sa partnerskih auto-placeva u Srbiji, uz jasne podatke za sigurniji izbor.',
+    viewAll: 'Pogledaj sve automobile',
     darkTitle: 'Mirna odluka pre kupovine.',
     darkAccent: 'pre kupovine',
     darkEyebrow: 'Proces poverenja',
@@ -401,6 +401,31 @@ export default async function HomePage({ params }: { readonly params: Promise<{ 
                 <ArrowRight size={16} />
               </Link>
             </div>
+
+            {/* Quick links to active existing categories and Swiss import guide */}
+            <nav
+              aria-label="Popularne kategorije polovnih automobila"
+              className="mb-6 flex flex-wrap items-center gap-2"
+            >
+              {[
+                { href: '/sr/cars/bmw', label: 'Polovni BMW' },
+                { href: '/sr/cars/audi', label: 'Polovni Audi' },
+                { href: '/sr/cars/volkswagen', label: 'Polovni Volkswagen' },
+                { href: '/sr/model/bmw-x5', label: 'BMW X5' },
+                { href: '/sr/model/bmw-x3', label: 'BMW X3' },
+                { href: '/sr/model/audi-a4', label: 'Audi A4' },
+                { href: '/sr/model/golf-6', label: 'VW Golf 6' },
+                { href: '/sr/blog/polovni-automobili-iz-svajcarske', label: 'Uvoz iz Švajcarske' },
+              ].map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="inline-flex items-center rounded-full border border-[var(--color-border)] bg-white px-3.5 py-1.5 text-xs font-bold text-[var(--color-text-muted)] transition hover:border-[var(--accent-border)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent-dark)]"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
 
             {featuredVehicles.length > 0 ? (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 xl:grid-cols-4">
